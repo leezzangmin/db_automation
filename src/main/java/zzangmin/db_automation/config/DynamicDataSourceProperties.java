@@ -8,12 +8,12 @@ import java.util.Map;
 @Component
 public class DynamicDataSourceProperties {
 
-    private Map<String, DatabaseConfig> databases = new HashMap();
+    private Map<String, DatabaseConnectionInfo> databases = new HashMap();
 
-    public DatabaseConfig findByDbName(String dbName) {
+    public DatabaseConnectionInfo findByDbName(String dbName) {
         return databases.get(dbName);
     }
-    public void addDatabase(String dbName, DatabaseConfig databaseConfig) {
-        databases.put(dbName, databaseConfig);
+    public void addDatabase(String dbName, DatabaseConnectionInfo databaseConnectionInfo) {
+        databases.put(dbName, databaseConnectionInfo);
     }
 }

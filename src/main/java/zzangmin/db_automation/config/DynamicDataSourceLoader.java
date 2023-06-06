@@ -28,7 +28,7 @@ public class DynamicDataSourceLoader {
         for (DBInstance instance : dbInstances) {
             String dbname = instance.dbInstanceIdentifier();
 
-            DatabaseConfig databaseConfig = DatabaseConfig.builder()
+            DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(instance.dbInstanceIdentifier())
                     .driverClassName("com.mysql.cj.jdbc.Driver")
                     .url("jdbc:mysql://" + instance.endpoint().address())
@@ -37,7 +37,7 @@ public class DynamicDataSourceLoader {
                     .build();
 
             // TODO: dbName 변경
-            dynamicDataSourceProperties.addDatabase(dbname, databaseConfig);
+            dynamicDataSourceProperties.addDatabase(dbname, databaseConnectionInfo);
         }
     }
 }

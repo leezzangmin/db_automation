@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import zzangmin.db_automation.entity.DBType;
 
 /**
  * admin(DBA)만 접근할 수 있는 컨트롤러.
@@ -21,7 +20,7 @@ import zzangmin.db_automation.entity.DBType;
 public class AdminController {
 
     @GetMapping("/admin")
-    public void getResource(@RequestParam("SQL") String SQL, DBType dbType) {
+    public void getResource(@RequestParam("SQL") String SQL, SelectedDataBase selectedDataBase) {
 
     }
 

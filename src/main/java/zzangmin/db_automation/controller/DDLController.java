@@ -5,7 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import zzangmin.db_automation.config.DatabaseConfig;
+import zzangmin.db_automation.argumentresolver.TargetDatabase;
+import zzangmin.db_automation.config.DatabaseConnectionInfo;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 
 import java.sql.Connection;
@@ -26,13 +27,13 @@ public class DDLController {
     }
 
     @PostMapping("/ddl/execute")
-    public String executeCommand(@RequestParam String dbName, @RequestParam String ddlCommand) {
+    public String executeCommand(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestParam String ddlCommand) {
         StringBuilder result = new StringBuilder();
-        DatabaseConfig databaseConfig = dynamicDataSourceProperties.findByDbName(dbName);
+        DatabaseConnectionInfo databaseConnectionInfo = dynamicDataSourceProperties.findByDbName(dbName);
 
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConfig.getUrl(), databaseConfig.getUsername(),"!!!!!!!!*" );//databaseConfig.getPassword());
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"Cromysql5128*" );//databaseConfig.getPassword());
 
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(ddlCommand);
@@ -41,13 +42,13 @@ public class DDLController {
                 result.append(resultSet.getString(1));
             }
 
-            result.append("DDL executed successfully on database: ").append(databaseConfig.getDatabaseName());
+            result.append("DDL executed successfully on database: ").append(databaseConnectionInfo.getDatabaseName());
 
             statement.close();
             connection.close();
         } catch (Exception e) {
             result.append(e);
-            result.append("Failed to execute DDL on database: ").append(databaseConfig.getDatabaseName());
+            result.append("Failed to execute DDL on database: ").append(databaseConnectionInfo.getDatabaseName());
             result.append("\n").append(e.getMessage());
         }
         return result.toString();
