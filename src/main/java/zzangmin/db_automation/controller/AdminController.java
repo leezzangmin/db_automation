@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AdminController {
 
     @GetMapping("/admin")
-    public void getResource(@RequestParam("SQL") String SQL, SelectedDataBase selectedDataBase) {
+    public void getResource(@RequestParam("SQL") String SQL) {
 
     }
 

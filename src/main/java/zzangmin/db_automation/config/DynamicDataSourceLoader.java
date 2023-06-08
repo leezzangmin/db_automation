@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.*;
 import zzangmin.db_automation.client.AwsClient;
+import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.List;
 

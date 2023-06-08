@@ -8,7 +8,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import zzangmin.db_automation.config.DatabaseConnectionInfo;
+import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 
 
@@ -29,7 +29,8 @@ public class TargetDatabaseArgumentResolver implements HandlerMethodArgumentReso
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        String databaseNameInput = request.getParameter("databaseNameInput");
+        String databaseNameInput = request.getParameter("databaseName");
+        System.out.println("databaseNameInput = " + databaseNameInput);
         if (databaseNameInput == null || databaseNameInput == "") {
             throw new IllegalArgumentException("올바른 DB명 입력이 아닙니다.");
         }

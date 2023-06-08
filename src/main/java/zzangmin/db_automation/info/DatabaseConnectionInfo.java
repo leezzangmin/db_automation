@@ -1,4 +1,4 @@
-package zzangmin.db_automation.config;
+package zzangmin.db_automation.info;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -13,5 +13,5 @@ public class DatabaseConnectionInfo {
     private String driverClassName;
     private String url;
     private String username;
-    private String password;
+    private String password; // TODO: aws parameter store 에서 fetch
 }

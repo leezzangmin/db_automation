@@ -1,7 +1,13 @@
 package zzangmin.db_automation.dto;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import zzangmin.db_automation.entity.CommandType;
 
-// 창의적인 SQL 방지 필요
-public record DDLRequestDTO(CommandType commandType, String commandSQL, String clusterIdentifier) {
+@ToString
+@Getter
+@NoArgsConstructor
+public class DDLRequestDTO {
+    private CommandType commandType;
 }

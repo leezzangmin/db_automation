@@ -1,6 +1,7 @@
 package zzangmin.db_automation.config;
 
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.HashMap;
 import java.util.Map;
