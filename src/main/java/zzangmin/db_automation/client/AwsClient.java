@@ -23,4 +23,8 @@ public class AwsClient {
         return rdsClient;
     }
 
+//    @Bean
+//    public SsmClient getSsmClient() {
+//    }
+
 }

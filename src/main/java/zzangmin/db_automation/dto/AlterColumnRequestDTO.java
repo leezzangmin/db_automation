@@ -1,7 +1,15 @@
 package zzangmin.db_automation.dto;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import zzangmin.db_automation.entity.CommandType;
 
-public class AlterColumnRequestDTO extends DDLRequestDTO {
+@ToString
+@Getter
+@NoArgsConstructor
+public class AlterColumnRequestDTO implements DDLRequestDTO {
+        private CommandType commandType;
         private String schemaName;
         private String tableName;
         private String columnName;

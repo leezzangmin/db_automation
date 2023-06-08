@@ -43,6 +43,7 @@ public class DDLController {
 
     @PutMapping("/ddl/table")
     public String createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody CreateTableRequestDTO ddlRequestDTO) {
+        ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
         return "ok";
     }
 
@@ -56,35 +57,5 @@ public class DDLController {
         return "ok";
     }
 
-
-    @PostMapping("/ddl/execute")
-    public String executeCommand(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody CreateTableRequestDTO ddlRequestDTO) {
-        System.out.println("ddlRequestDTO = " + ddlRequestDTO);
-        return "ok";
-
-//        StringBuilder result = new StringBuilder();
-//
-//        try {
-//            Connection connection = DriverManager.getConnection(
-//                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
-//
-//            Statement statement = connection.createStatement();
-//            ResultSet resultSet = statement.executeQuery(ddlCommand);
-//
-//            while (resultSet.next()) {
-//                result.append(resultSet.getString(1));
-//            }
-//
-//            result.append("DDL executed successfully on database: ").append(databaseConnectionInfo.getDatabaseName());
-//
-//            statement.close();
-//            connection.close();
-//        } catch (Exception e) {
-//            result.append(e);
-//            result.append("Failed to execute DDL on database: ").append(databaseConnectionInfo.getDatabaseName());
-//            result.append("\n").append(e.getMessage());
-//        }
-//        return result.toString();
-    }
 }
 

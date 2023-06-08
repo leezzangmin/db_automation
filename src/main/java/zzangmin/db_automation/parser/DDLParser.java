@@ -1,12 +1,113 @@
 package zzangmin.db_automation.parser;
 
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.dto.CreateTableRequestDTO;
+import zzangmin.db_automation.dto.DDLRequestDTO;
+import zzangmin.db_automation.entity.Column;
+import zzangmin.db_automation.entity.CommandType;
+import zzangmin.db_automation.entity.Constraint;
+import zzangmin.db_automation.entity.DDLCommand;
+
+import java.util.List;
 
 @Component
 public class DDLParser {
 
+    public String commandToSql(DDLRequestDTO ddlRequestDTO) {
+        if (ddlRequestDTO.getCommandType().equals(CommandType.ADD_COLUMN)) {
 
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN)) {
 
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_INDEX)) {
+
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_TABLE)) {
+            return createTableCommandToSql((CreateTableRequestDTO) ddlRequestDTO);
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.DELETE_COLUMN)) {
+
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
+
+        }
+
+        throw new IllegalArgumentException("존재하지 않는 명령입니다.");
+    }
+
+    private String addColumnCommandToSql(DDLCommand command) {
+        return "ok";
+    }
+
+    private String createTableCommandToSql(CreateTableRequestDTO dto) {
+        List<Column> columns = dto.getColumns();
+        List<Constraint> constraints = dto.getConstraints();
+        StringBuilder sb = new StringBuilder();
+        sb.append(generateCreateTableStatement(dto.getSchemaName(), dto.getTableName()));
+        sb.append(generateColumnStatement(columns));
+        sb.append(generateConstraintStatement(constraints));
+        sb.append(generateCreateTableOptions(dto.getEngine(), dto.getCharset(), dto.getCollate(), dto.getTableComment()));
+        return sb.toString();
+    }
+
+    private String generateCreateTableStatement(String schemaName, String tableName) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("CREATE TABLE `");
+        sb.append(schemaName);
+        sb.append("`.`");
+        sb.append(tableName);
+        sb.append("` (\n");
+        return sb.toString();
+    }
+    private String generateColumnStatement(List<Column> columns) {
+        StringBuilder sb = new StringBuilder();
+        for (Column column : columns) {
+            sb.append("\t`");
+            sb.append(column.getName());
+            sb.append("` ");
+            sb.append(column.getType());
+            sb.append(" ");
+            sb.append(column.generateNull());
+            sb.append(" ");
+            sb.append(column.generateUnique());
+            sb.append(" ");
+            sb.append(column.generateAutoIncrement());
+            sb.append(",\n");
+        }
+        return sb.toString();
+    }
+
+    private String generateConstraintStatement(List<Constraint> constraints) {
+        StringBuilder sb = new StringBuilder();
+        for (Constraint constraint : constraints) {
+            sb.append("\t");
+            sb.append(constraint.getType());
+            sb.append(" ");
+            sb.append(constraint.getKeyName());
+            sb.append(" (");
+            for (String keyName : constraint.getKeyColumnNames()) {
+                sb.append("`");
+                sb.append(keyName);
+                sb.append("`,");
+            }
+            // 마지막 쉼표 제거
+            sb.deleteCharAt(sb.lastIndexOf(","));
+            sb.append("),\n");
+        }
+        // 마지막 쉼표 제거
+        sb.deleteCharAt(sb.lastIndexOf(","));
+        return sb.toString();
+    }
+
+    private String generateCreateTableOptions(String engine, String charset, String collate, String comment) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(") ENGINE=");
+        sb.append(engine);
+        sb.append(" DEFAULT CHARSET=");
+        sb.append(charset);
+        sb.append(" COLLATE=");
+        sb.append(collate);
+        sb.append(" COMMENT='");
+        sb.append(comment);
+        sb.append("';");
+        return sb.toString();
+    }
 
     /**
      * ALTER TABLE [db명].[table명] ADD COLUMN asdf VARCHAR(123) NOT NULL
