@@ -1,17 +1,24 @@
 package zzangmin.db_automation.entity;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.ToString;
 
 @ToString
 @Getter
 public class Column {
+    @NotBlank
     private String name;
+    @NotBlank
     private String type; // varchar(123), bigint, datetime
+    @NotBlank
     private boolean isNull; // NOT NULL, DEFAULT NULL
     private String defaultValue;
+    @NotBlank
     private boolean isUnique;
+    @NotBlank
     private boolean isAutoIncrement;
+    @NotBlank
     private String comment;
 
     public String generateNull() {

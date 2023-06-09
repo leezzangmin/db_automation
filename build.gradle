@@ -29,6 +29,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 	// aws sdk for java
+	implementation 'software.amazon.awssdk:ssm:2.16.80'
+	implementation 'software.amazon.awssdk:cloudwatch:2.16.80'
 	implementation 'software.amazon.awssdk:rds:2.16.80'
 	implementation 'software.amazon.awssdk:core:2.16.80'
 }

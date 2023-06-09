@@ -31,10 +31,6 @@ public class DDLParser {
         throw new IllegalArgumentException("존재하지 않는 명령입니다.");
     }
 
-    private String addColumnCommandToSql(DDLCommand command) {
-        return "ok";
-    }
-
     private String createTableCommandToSql(CreateTableRequestDTO dto) {
         List<Column> columns = dto.getColumns();
         List<Constraint> constraints = dto.getConstraints();
@@ -78,8 +74,10 @@ public class DDLParser {
         for (Constraint constraint : constraints) {
             sb.append("\t");
             sb.append(constraint.getType());
-            sb.append(" ");
-            sb.append(constraint.getKeyName());
+            if (!constraint.getType().equals("PRIMARY KEY")) {
+                sb.append(" ");
+                sb.append(constraint.getKeyName());
+            }
             sb.append(" (");
             for (String keyName : constraint.getKeyColumnNames()) {
                 sb.append("`");

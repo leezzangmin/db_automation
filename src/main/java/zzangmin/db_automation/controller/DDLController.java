@@ -7,11 +7,7 @@ import zzangmin.db_automation.argumentresolver.TargetDatabase;
 import zzangmin.db_automation.dto.*;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DDLService;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import zzangmin.db_automation.validator.DDLValidator;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,6 +15,7 @@ import java.sql.Statement;
 public class DDLController {
 
     private final DDLService ddlService;
+    private final DDLValidator ddlValidator;
 
 //    @PostMapping("/ddl/validate")
 //    public String validCommand(@RequestParam String dbName, @RequestParam String ddlCommand) {
@@ -43,6 +40,7 @@ public class DDLController {
 
     @PutMapping("/ddl/table")
     public String createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody CreateTableRequestDTO ddlRequestDTO) {
+        ddlValidator.validateCreateTable(databaseConnectionInfo, ddlRequestDTO);
         ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
         return "ok";
     }
@@ -58,4 +56,3 @@ public class DDLController {
     }
 
 }
-

@@ -22,7 +22,9 @@ public class DDLService {
 
     public String createTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) {
         String createTableSQL = ddlParser.commandToSql(createTableRequestDTO);
-        return mysqlClient.executeSQL(databaseConnectionInfo, createTableSQL);
+        String s = mysqlClient.executeSQL(databaseConnectionInfo, createTableSQL);
+        System.out.println("s = " + s);
+        return s;
     }
 
 }
