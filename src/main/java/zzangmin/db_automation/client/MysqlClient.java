@@ -3,10 +3,7 @@ package zzangmin.db_automation.client;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.*;
 
 @Component
@@ -19,10 +16,8 @@ public class MysqlClient {
                     databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
 
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(SQL);
-            while (resultSet.next()) {
-                result.append(resultSet.getString("table_name"));
-            }
+            statement.execute(SQL);
+
             result.append("DDL executed successfully on database: ").append(databaseConnectionInfo.getDatabaseName());
             statement.close();
             connection.close();
@@ -59,6 +54,26 @@ public class MysqlClient {
         return tableNames;
     }
 
+    public Set<String> findSchemaNames(DatabaseConnectionInfo databaseConnectionInfo) {
+        String SQL = "SHOW DATABASES";
+        Set<String> schemaNames = new HashSet<>();
+        try {
+            Connection connection = DriverManager.getConnection(
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(SQL);
+            while (resultSet.next()) {
+                schemaNames.add(resultSet.getString(1));
+            }
+            statement.close();
+            connection.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return schemaNames;
+    }
+
     public List<String> findLongQueries(DatabaseConnectionInfo databaseConnectionInfo, int longQueryStandard) {
         String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST WHERE COMMAND = 'Query' AND TIME >= " + longQueryStandard;
         Set<String> LongQueries = new HashSet<>();
@@ -80,5 +95,27 @@ public class MysqlClient {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public String findCreateTableStatement(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        String SQL = "SHOW CREATE TABLE `" + schemaName + "`.`" + tableName + "`";
+        String createTableStatement = "";
+        try {
+            Connection connection = DriverManager.getConnection(
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+
+            try (PreparedStatement stmt = connection.prepareStatement(SQL);
+                 ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    createTableStatement = rs.getString(2);
+                    System.out.println(createTableStatement);
+                } else {
+                    System.out.println("Table not found.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return createTableStatement;
     }
 }

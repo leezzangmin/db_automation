@@ -1,7 +1,7 @@
 package zzangmin.db_automation.convention;
 
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.dto.CreateTableRequestDTO;
+import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
 
@@ -49,6 +49,9 @@ public class TableConvention {
             }
         }
         for (Constraint constraint : constraints) {
+            if (constraint.getType().equals("PRIMARY KEY")) {
+                continue;
+            }
             if (!isSnakeCase(constraint.getKeyName())) {
                 throw new IllegalArgumentException(constraint.getKeyName() + " 키 이름이 snake_case 가 아닙니다.");
             } else if (!isLowerCaseString(constraint.getKeyName())) {

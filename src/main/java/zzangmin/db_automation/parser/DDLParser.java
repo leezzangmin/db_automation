@@ -1,12 +1,11 @@
 package zzangmin.db_automation.parser;
 
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.dto.CreateTableRequestDTO;
-import zzangmin.db_automation.dto.DDLRequestDTO;
+import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
+import zzangmin.db_automation.dto.request.DDLRequestDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
-import zzangmin.db_automation.entity.DDLCommand;
 
 import java.util.List;
 
