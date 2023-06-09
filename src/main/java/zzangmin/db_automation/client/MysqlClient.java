@@ -59,8 +59,8 @@ public class MysqlClient {
         return tableNames;
     }
 
-    public List<String> findLongQueries(DatabaseConnectionInfo databaseConnectionInfo) {
-        String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST WHERE COMMAND = 'Query' AND TIME >= 0";
+    public List<String> findLongQueries(DatabaseConnectionInfo databaseConnectionInfo, int longQueryStandard) {
+        String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST WHERE COMMAND = 'Query' AND TIME >= " + longQueryStandard;
         Set<String> LongQueries = new HashSet<>();
         try {
             Connection connection = DriverManager.getConnection(

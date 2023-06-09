@@ -20,6 +20,7 @@ public class DDLService {
 
     }
 
+    // TODO: AOP 메타락 조회 및 kill
     public String createTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) {
         String createTableSQL = ddlParser.commandToSql(createTableRequestDTO);
         String s = mysqlClient.executeSQL(databaseConnectionInfo, createTableSQL);

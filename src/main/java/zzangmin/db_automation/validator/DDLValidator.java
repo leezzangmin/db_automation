@@ -41,7 +41,7 @@ public class DDLValidator {
     }
 
     private void validateIsLongQueryExists(DatabaseConnectionInfo databaseConnectionInfo) {
-        mysqlClient.findLongQueries(databaseConnectionInfo);
+        mysqlClient.findLongQueries(databaseConnectionInfo, LONG_QUERY_SECONDS_THRESHOLD);
     }
 
 
