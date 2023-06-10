@@ -3,7 +3,6 @@ package zzangmin.db_automation.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import zzangmin.db_automation.aop.ExecutionTimeAspect;
 import zzangmin.db_automation.argumentresolver.TargetDatabase;
 import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.dto.request.*;
@@ -20,7 +19,6 @@ public class DDLController {
     private final DDLService ddlService;
     private final DDLValidator ddlValidator;
     private final SlackClient slackClient;
-    private final ExecutionTimeAspect executionTimeAspect;
 
 
     @PostMapping("/ddl/validate")
@@ -45,14 +43,13 @@ public class DDLController {
     }
 
     @PutMapping("/ddl/table")
-    public CreateTableResponseDTO createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody CreateTableRequestDTO ddlRequestDTO) throws InterruptedException {
+    public CreateTableResponseDTO createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                              @RequestBody CreateTableRequestDTO ddlRequestDTO) {
         ddlValidator.validateCreateTable(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
-        Thread.sleep(1500);
-        long executionTime = executionTimeAspect.getExecutionTime();
-        System.out.println("executionTime = " + executionTime);
+
         // TODO: 실행시간, 인증/인가, slack 메세지 send
-        return new CreateTableResponseDTO(0.0, "test@gmail.com", databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), createTableStatement);
+        return new CreateTableResponseDTO("test@gmail.com", databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), createTableStatement);
     }
 
     @DeleteMapping("/ddl/column")

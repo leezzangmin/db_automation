@@ -1,6 +1,7 @@
 package zzangmin.db_automation.client;
 
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.entity.MysqlProcess;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.sql.*;
@@ -74,9 +75,9 @@ public class MysqlClient {
         return schemaNames;
     }
 
-    public List<String> findLongQueries(DatabaseConnectionInfo databaseConnectionInfo, int longQueryStandard) {
+    public List<MysqlProcess> findLongQueries(DatabaseConnectionInfo databaseConnectionInfo, int longQueryStandard) {
         String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST WHERE COMMAND = 'Query' AND TIME >= " + longQueryStandard;
-        Set<String> LongQueries = new HashSet<>();
+        List<MysqlProcess> longQueries = new ArrayList<>();
         try {
             Connection connection = DriverManager.getConnection(
                     databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
@@ -86,15 +87,20 @@ public class MysqlClient {
             while (resultSet.next()) {
                 long id = resultSet.getLong("ID");
                 String user = resultSet.getString("USER");
-                String query = resultSet.getString("INFO");
-                System.out.println("ID: " + id + ", User: " + user + ", Query: " + query);
+                String host = resultSet.getString("HOST");
+                String db = resultSet.getString("DB");
+                String command = resultSet.getString("COMMAND");
+                int time = resultSet.getInt("TIME");
+                String state = resultSet.getString("STATE");
+                String info = resultSet.getString("INFO");
+                longQueries.add(new MysqlProcess(id, user, host, db, command, time, state, info));
             }
             statement.close();
             connection.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return longQueries;
     }
 
     public String findCreateTableStatement(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {

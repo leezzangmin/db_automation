@@ -19,5 +19,13 @@ varchar 확장
 - 롱쿼리 있으면 pause
 - 개발자 메일계정으로 접근가능 클러스터 인증/인가
 - 표준검사
-- timeout
+- timeout ?ㅇ?
 - 스키마 용량, 정보, 마스킹 툴
+
+
+
+
+
+## knowledge
+- create table 은 METADATA LOCK 없음
+- add column 은 metadata lock 발생 (동일테이블에 한해)

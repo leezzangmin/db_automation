@@ -2,13 +2,13 @@ package zzangmin.db_automation.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 @Getter
 @AllArgsConstructor
-public class CreateTableResponseDTO {
+public class CreateTableResponseDTO extends ResponseDTO {
 
-    // 소요시간
-    private double executeDuration;
     // 실행자 ex) 이창민
     private String executeDoer;
     private String databaseInstanceName;

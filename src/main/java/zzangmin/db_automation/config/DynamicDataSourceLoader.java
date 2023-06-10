@@ -37,8 +37,8 @@ public class DynamicDataSourceLoader {
                     .password("12345678")
                     .build();
 
-            // TODO: dbName 변경
             dynamicDataSourceProperties.addDatabase(dbname, databaseConnectionInfo);
         }
+        dynamicDataSourceProperties.displayDatabases();
     }
 }

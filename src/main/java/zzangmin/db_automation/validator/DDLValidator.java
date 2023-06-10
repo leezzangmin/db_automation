@@ -6,8 +6,10 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.convention.TableConvention;
 import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
+import zzangmin.db_automation.entity.MysqlProcess;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
+import java.util.List;
 import java.util.Set;
 
 @Slf4j
@@ -15,7 +17,7 @@ import java.util.Set;
 @Component
 public class DDLValidator {
 
-    private static final int LONG_QUERY_SECONDS_THRESHOLD = 10;
+    private static final int LONG_QUERY_SECONDS_THRESHOLD = 0;
     private final MysqlClient mysqlClient;
     private final TableConvention tableConvention;
     private final RdsMetricValidator rdsMetricValidator;
@@ -50,7 +52,8 @@ public class DDLValidator {
     }
 
     private void validateIsLongQueryExists(DatabaseConnectionInfo databaseConnectionInfo) {
-        mysqlClient.findLongQueries(databaseConnectionInfo, LONG_QUERY_SECONDS_THRESHOLD);
+        List<MysqlProcess> longQueries = mysqlClient.findLongQueries(databaseConnectionInfo, LONG_QUERY_SECONDS_THRESHOLD);
+        // TODO: longQuery validation
     }
 
 }

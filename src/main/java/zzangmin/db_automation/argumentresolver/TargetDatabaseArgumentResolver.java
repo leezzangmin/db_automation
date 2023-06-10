@@ -22,7 +22,6 @@ public class TargetDatabaseArgumentResolver implements HandlerMethodArgumentReso
     public boolean supportsParameter(MethodParameter parameter) {
         boolean hasAuthAnnotation = parameter.hasParameterAnnotation(TargetDatabase.class);
         boolean hasDatabaseConnectionInfo = DatabaseConnectionInfo.class.isAssignableFrom(parameter.getParameterType());
-
         return hasAuthAnnotation && hasDatabaseConnectionInfo;
     }
 

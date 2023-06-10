@@ -1,41 +1,45 @@
 package zzangmin.db_automation.aop;
 
-import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.Around;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Pointcut;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.dto.response.ResponseDTO;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.lang.reflect.Method;
+
 
 @Aspect
 @Component
 public class ExecutionTimeAspect {
-    private final ThreadLocal<Long> executionTimeThreadLocal = new ThreadLocal<>();
-    private final Map<Long, Long> executionTimeMap = new HashMap<>();
+    private static final ThreadLocal<Long> executionTimeHolder = new ThreadLocal<>();
 
     @Autowired
     public ExecutionTimeAspect() {}
 
-    @Pointcut("@within(org.springframework.web.bind.annotation.RequestMapping)")
-    public void requestMappingMethods() {
+    @Pointcut(" @annotation(org.springframework.web.bind.annotation.GetMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
+    public void requestMappingMethods() {}
 
-    }
-
-    @Around("requestMappingMethods()")
-    public Object measureExecutionTime(ProceedingJoinPoint joinPoint) throws Throwable {
-        System.out.println("measure 호출됨");
+    @Before("requestMappingMethods()")
+    public void setStartTime(JoinPoint joinPoint) {
         long startTime = System.currentTimeMillis();
-        Object proceed = joinPoint.proceed();
-        long executionTime = System.currentTimeMillis() - startTime;
-        executionTimeThreadLocal.set(executionTime);
-        System.out.println("executionTime = " + executionTime);
-        return proceed;
+        executionTimeHolder.set(startTime);
     }
 
-    public long getExecutionTime() {
-        return executionTimeThreadLocal.get();
+    @AfterReturning(pointcut = "requestMappingMethods()", returning = "dto")
+    public void afterReturningSetDTOsDuration(Object dto) {
+        long endTime = System.currentTimeMillis();
+        long startTime = executionTimeHolder.get();
+        executionTimeHolder.remove();
+        long duration = calculateDuration(startTime, endTime);
+        ((ResponseDTO) dto).setExecuteDuration(duration);
     }
+
+    private long calculateDuration(long startTime, long endTime) {
+        return endTime - startTime;
+    }
+
 }
