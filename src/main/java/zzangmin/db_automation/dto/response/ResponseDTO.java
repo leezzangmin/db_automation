@@ -8,9 +8,13 @@ import lombok.ToString;
 @Getter
 @NoArgsConstructor
 public class ResponseDTO {
-    private double executeDuration;
+    private String executeDuration;
 
-    public void setExecuteDuration(double executeDuration) {
-        this.executeDuration = executeDuration;
+    public void setExecuteDuration(long executeDuration) {
+        this.executeDuration = millisecondToSecond(executeDuration) + "초";
+    }
+
+    private double millisecondToSecond(long millisecond) {
+        return (double) millisecond / 1000;
     }
 }

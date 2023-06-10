@@ -3,11 +3,9 @@ package zzangmin.db_automation.aop;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.dto.response.ResponseDTO;
-
-import java.lang.reflect.Method;
-
 
 @Aspect
 @Component
@@ -29,6 +27,7 @@ public class ExecutionTimeAspect {
         executionTimeHolder.set(startTime);
     }
 
+    @Order(1)
     @AfterReturning(pointcut = "requestMappingMethods()", returning = "dto")
     public void afterReturningSetDTOsDuration(Object dto) {
         long endTime = System.currentTimeMillis();

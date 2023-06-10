@@ -18,8 +18,8 @@ public class DDLController {
 
     private final DDLService ddlService;
     private final DDLValidator ddlValidator;
-    private final SlackClient slackClient;
 
+    // TODO: 인증/인가
 
     @PostMapping("/ddl/validate")
     public String validCommand(@RequestParam String dbName, @RequestParam String ddlCommand) {
@@ -47,8 +47,6 @@ public class DDLController {
                                               @RequestBody CreateTableRequestDTO ddlRequestDTO) {
         ddlValidator.validateCreateTable(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
-
-        // TODO: 실행시간, 인증/인가, slack 메세지 send
         return new CreateTableResponseDTO("test@gmail.com", databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), createTableStatement);
     }
 
