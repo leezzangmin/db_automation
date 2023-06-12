@@ -18,14 +18,14 @@ public class ColumnConvention {
         int currentLength = column.getVarcharLength();
         int currentByte = BYTE_PER_CHARACTER * currentLength;
         int futureByte = BYTE_PER_CHARACTER * futureLength;
+        if (currentByte >= futureByte) {
+            throw new IllegalArgumentException("varchar 컬럼을 축소하는 연산은 지원하지 않습니다.");
+        }
         if (currentByte > SWITCH_STANDARD_BYTE) {
             return;
         }
         if (futureByte > SWITCH_STANDARD_BYTE) {
             throw new IllegalArgumentException("in-place 로 처리될 수 없는 extend 요청입니다.");
-        }
-        if (currentByte >= futureByte) {
-            throw new IllegalArgumentException("varchar 컬럼을 축소하는 연산은 지원하지 않습니다.");
         }
     }
 
