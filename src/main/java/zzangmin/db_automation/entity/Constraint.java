@@ -16,5 +16,5 @@ public class Constraint {
     @NotBlank
     private String keyName; // promotion_type_date_promotion_end
     @NotBlank
-    private List<String> keyColumnNames; // (promotion_type, date_promotion_end);
+    private List<String> keyColumnNames; // promotion_type, date_promotion_end;
 }

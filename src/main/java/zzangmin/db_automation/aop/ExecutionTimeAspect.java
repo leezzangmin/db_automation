@@ -15,20 +15,16 @@ public class ExecutionTimeAspect {
     @Autowired
     public ExecutionTimeAspect() {}
 
-    @Pointcut(" @annotation(org.springframework.web.bind.annotation.GetMapping) " +
-            "|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
-            "|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
-            "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
-    public void requestMappingMethods() {}
+    @Pointcut("execution(* zzangmin.db_automation.service.DDLService.*(..))")
+    private void ddlServiceMethods() {}
 
-    @Before("requestMappingMethods()")
+    @Before("ddlServiceMethods()")
     public void setStartTime(JoinPoint joinPoint) {
         long startTime = System.currentTimeMillis();
         executionTimeHolder.set(startTime);
     }
 
-    @Order(1)
-    @AfterReturning(pointcut = "requestMappingMethods()", returning = "dto")
+    @AfterReturning(pointcut = "ddlServiceMethods()", returning = "dto")
     public void afterReturningSetDTOsDuration(Object dto) {
         long endTime = System.currentTimeMillis();
         long startTime = executionTimeHolder.get();

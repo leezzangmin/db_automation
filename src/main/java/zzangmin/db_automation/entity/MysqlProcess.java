@@ -1,5 +1,8 @@
 package zzangmin.db_automation.entity;
 
+import lombok.Getter;
+
+@Getter
 public class MysqlProcess {
 
     private long id;

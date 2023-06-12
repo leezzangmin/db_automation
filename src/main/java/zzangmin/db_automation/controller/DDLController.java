@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import zzangmin.db_automation.argumentresolver.TargetDatabase;
 import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.dto.request.*;
+import zzangmin.db_automation.dto.response.CreateIndexResponseDTO;
 import zzangmin.db_automation.dto.response.CreateTableResponseDTO;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DDLService;
@@ -38,16 +39,17 @@ public class DDLController {
     }
 
     @PutMapping("/ddl/index")
-    public String createIndex(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody CreateIndexRequestDTO ddlRequestDTO) {
-        return "ok";
+    public CreateIndexResponseDTO createIndex(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                              @RequestBody CreateIndexRequestDTO ddlRequestDTO) {
+        ddlValidator.validateCreateIndex(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.createIndex(databaseConnectionInfo, ddlRequestDTO);
     }
 
     @PutMapping("/ddl/table")
     public CreateTableResponseDTO createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                               @RequestBody CreateTableRequestDTO ddlRequestDTO) {
         ddlValidator.validateCreateTable(databaseConnectionInfo, ddlRequestDTO);
-        String createTableStatement = ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
-        return new CreateTableResponseDTO("test@gmail.com", databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), createTableStatement);
+        return ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
     }
 
     @DeleteMapping("/ddl/column")

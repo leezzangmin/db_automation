@@ -2,6 +2,7 @@ package zzangmin.db_automation.client;
 
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.MysqlProcess;
+import zzangmin.db_automation.entity.TableStatus;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.sql.*;
@@ -10,6 +11,9 @@ import java.util.*;
 @Component
 public class MysqlClient {
 
+    private static final int COMMAND_TIMEOUT_SECONDS = 600;
+
+
     public String executeSQL(DatabaseConnectionInfo databaseConnectionInfo, String SQL) {
         StringBuilder result = new StringBuilder();
         try {
@@ -17,6 +21,7 @@ public class MysqlClient {
                     databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
 
             Statement statement = connection.createStatement();
+            statement.setQueryTimeout(COMMAND_TIMEOUT_SECONDS);
             statement.execute(SQL);
 
             result.append("DDL executed successfully on database: ").append(databaseConnectionInfo.getDatabaseName());
@@ -29,10 +34,6 @@ public class MysqlClient {
             result.append("\n").append(e.getMessage());
         }
         return result.toString();
-    }
-
-    public String executeSQL() {
-        return "ok";
     }
 
     public Set<String> findTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
@@ -75,8 +76,13 @@ public class MysqlClient {
         return schemaNames;
     }
 
+    // TODO: SQL 조건문 추가
     public List<MysqlProcess> findLongQueries(DatabaseConnectionInfo databaseConnectionInfo, int longQueryStandard) {
-        String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST WHERE COMMAND = 'Query' AND TIME >= " + longQueryStandard;
+        String SQL = "SELECT * FROM " +
+                "INFORMATION_SCHEMA.PROCESSLIST " +
+                "WHERE COMMAND = 'Query' " +
+                "AND USER NOT IN ('rdsadmin', 'event_scheduler') " +
+                "AND TIME >= " + longQueryStandard;
         List<MysqlProcess> longQueries = new ArrayList<>();
         try {
             Connection connection = DriverManager.getConnection(
@@ -109,19 +115,46 @@ public class MysqlClient {
         try {
             Connection connection = DriverManager.getConnection(
                     databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
-
             try (PreparedStatement stmt = connection.prepareStatement(SQL);
                  ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     createTableStatement = rs.getString(2);
-                    System.out.println(createTableStatement);
-                } else {
-                    System.out.println("Table not found.");
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return createTableStatement;
+    }
+
+    public TableStatus findTableStatus(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        String SQL = "SELECT TABLE_NAME, TABLE_SCHEMA, TABLE_TYPE, ENGINE, TABLE_ROWS, DATA_LENGTH, INDEX_LENGTH, CREATE_TIME, UPDATE_TIME " +
+                "FROM INFORMATION_SCHEMA.TABLES " +
+                "WHERE TABLE_SCHEMA = '" + schemaName +
+                "' AND TABLE_NAME = '" + tableName + "'";
+        System.out.println("SQL = \n" + SQL);
+        try {
+            Connection connection = DriverManager.getConnection(
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(SQL);
+
+            if (resultSet.next()) {
+                String schema = resultSet.getString("TABLE_SCHEMA");
+                String table = resultSet.getString("TABLE_NAME");
+                String type = resultSet.getString("TABLE_TYPE");
+                String engine = resultSet.getString("ENGINE");
+                int rows = resultSet.getInt("TABLE_ROWS");
+                long dataLength = resultSet.getLong("DATA_LENGTH");
+                long indexLength = resultSet.getLong("INDEX_LENGTH");
+                String createTime = resultSet.getString("CREATE_TIME");
+                String updateTime = resultSet.getString("UPDATE_TIME");
+                return new TableStatus(schema, table, type, engine, rows, dataLength, indexLength, createTime, updateTime);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        throw new IllegalStateException("테이블 정보를 불러올 수 없습니다.");
     }
 }

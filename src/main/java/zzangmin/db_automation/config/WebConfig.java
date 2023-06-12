@@ -10,6 +10,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import zzangmin.db_automation.argumentresolver.RequestUUIDArgumentResolver;
 import zzangmin.db_automation.argumentresolver.TargetDatabaseArgumentResolver;
 import zzangmin.db_automation.interceptor.DurationInterceptor;
+import zzangmin.db_automation.interceptor.ExecutableTimeInterceptor;
 import zzangmin.db_automation.interceptor.UUIDInterceptor;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final RequestUUIDArgumentResolver requestUUIDArgumentResolver;
     private final UUIDInterceptor uuidInterceptor;
     private final DurationInterceptor durationInterceptor;
+    private final ExecutableTimeInterceptor executableTimeInterceptor;
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
@@ -34,6 +36,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(uuidInterceptor);
         registry.addInterceptor(durationInterceptor);
+        registry.addInterceptor(executableTimeInterceptor);
     }
 
     @Bean

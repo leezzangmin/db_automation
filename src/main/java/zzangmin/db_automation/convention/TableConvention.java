@@ -1,15 +1,15 @@
 package zzangmin.db_automation.convention;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
+@RequiredArgsConstructor
 @Component
 public class TableConvention {
 
@@ -18,52 +18,40 @@ public class TableConvention {
      * 1. 중복된 옵션(column, constraint) 있는지
      * 2. 테이블 생성 컨벤션 (engine charset, comment 등)
      */
-    private static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("^[a-z]+(_[a-z]+)*$");
-    private static final Pattern PURE_LOWER_CASE_PATTER = Pattern.compile("^[a-z_]+$");
     private static final String ENGINE_TYPE = "InnoDB";
     private static final String CHARSET = "utf8mb4";
     private static final String COLLATE = "utf8mb4_general_ci";
     private static final Set<String> CONSTRAINT_TYPE = Set.of("PRIMARY KEY", "UNIQUE KEY", "KEY");
+    private final CommonConvention commonConvention;
+    private final IndexConvention indexConvention;
 
-    public void validateTableConvention(CreateTableRequestDTO createTableRequestDTO) {
-        checkDuplicateColumnAndConstraintConvention(createTableRequestDTO.getColumns(), createTableRequestDTO.getConstraints());
-        checkNamingConvention(createTableRequestDTO);
-        checkColumnCommentExistConvention(createTableRequestDTO);
-        checkTableOptionConvention(createTableRequestDTO);
-        checkConstraintType(createTableRequestDTO.getConstraints());
+
+    public void validateTableConvention(List<Column> columns, List<Constraint> constraints, String tableName, String tableEngine, String tableCharset, String tableCollate, String tableComment) {
+        checkDuplicateColumnAndConstraintConvention(columns, constraints);
+        checkNamingConvention(columns, constraints, tableName);
+        checkColumnCommentExistConvention(columns);
+        checkTableOptionConvention(tableEngine, tableCharset, tableCollate, tableComment);
+        checkConstraintType(constraints);
     }
 
-    private void checkNamingConvention(CreateTableRequestDTO createTableRequestDTO) {
-        List<Column> columns = createTableRequestDTO.getColumns();
-        List<Constraint> constraints = createTableRequestDTO.getConstraints();
-        if (!isSnakeCase(createTableRequestDTO.getTableName())) {
-            throw new IllegalArgumentException("테이블명이 snake_case 가 아닙니다.");
-        } else if (!isLowerCaseString(createTableRequestDTO.getTableName())) {
-            throw new IllegalArgumentException("테이블명에 불필요한 문자가 포함되어 있습니다.");
-        }
+    private void checkNamingConvention(List<Column> columns, List<Constraint> constraints, String tableName) {
+        commonConvention.validateSnakeCase(tableName);
+        commonConvention.validateLowerCaseString(tableName);
         for (Column column : columns) {
-            if (!isSnakeCase(column.getName())) {
-                throw new IllegalArgumentException(column.getName() + "컬럼이 snake_case 가 아닙니다.");
-            } else if (!isLowerCaseString(column.getName())) {
-                throw new IllegalArgumentException(column.getName() + "컬럼에 불필요한 문자가 포함되어 있습니다.");
-            }
+            commonConvention.validateSnakeCase(column.getName());
+            commonConvention.validateLowerCaseString(column.getName());
         }
         for (Constraint constraint : constraints) {
             if (constraint.getType().equals("PRIMARY KEY")) {
                 continue;
             }
-            if (!isSnakeCase(constraint.getKeyName())) {
-                throw new IllegalArgumentException(constraint.getKeyName() + " 키 이름이 snake_case 가 아닙니다.");
-            } else if (!isLowerCaseString(constraint.getKeyName())) {
-                throw new IllegalArgumentException(constraint.getKeyName() + " 키 이름에 불필요한 문자가 포함되어 있습니다.");
-            } else if (!String.join("_", constraint.getKeyColumnNames()).equals(constraint.getKeyName())) {
-                throw new IllegalArgumentException(constraint.getKeyName() + " 키 이름이 컬럼을 '_' 으로 이어붙인 형식이 아닙니다.");
-            }
+            commonConvention.validateSnakeCase(constraint.getKeyName());
+            commonConvention.validateLowerCaseString(constraint.getKeyName());
+            indexConvention.validateConstraintNamingConvention(constraint.getKeyName(), constraint.getKeyColumnNames());
         }
     }
 
-    private void checkColumnCommentExistConvention(CreateTableRequestDTO createTableRequestDTO) {
-        List<Column> columns = createTableRequestDTO.getColumns();
+    private void checkColumnCommentExistConvention(List<Column> columns) {
         for (Column column : columns) {
             if (column.getComment().isBlank() || column.getComment().isEmpty()) {
                 throw new IllegalArgumentException("테이블 코멘트가 존재하지 않습니다.");
@@ -91,17 +79,17 @@ public class TableConvention {
         }
     }
 
-    private void checkTableOptionConvention(CreateTableRequestDTO createTableRequestDTO) {
-        if (!createTableRequestDTO.getEngine().equals(ENGINE_TYPE)) {
+    private void checkTableOptionConvention(String tableEngine, String tableCharset, String tableCollate, String tableComment) {
+        if (!tableEngine.equals(ENGINE_TYPE)) {
             throw new IllegalArgumentException("엔진명은 다음과 같아야합니다: " + ENGINE_TYPE);
         }
-        if (!createTableRequestDTO.getCharset().equals(CHARSET)) {
+        if (!tableCharset.equals(CHARSET)) {
             throw new IllegalArgumentException("캐릭터셋은 다음과 같아야합니다: " + CHARSET);
         }
-        if (!createTableRequestDTO.getCollate().equals(COLLATE)) {
+        if (!tableCollate.equals(COLLATE)) {
             throw new IllegalArgumentException("콜레이션은 다음과 같아야합니다: " + COLLATE);
         }
-        if (createTableRequestDTO.getTableComment().isBlank() || createTableRequestDTO.getTableComment().isEmpty()) {
+        if (tableComment.isBlank() || tableComment.isEmpty()) {
             throw new IllegalArgumentException("테이블 코멘트가 존재하지 않습니다.");
         }
     }
@@ -114,11 +102,5 @@ public class TableConvention {
         }
     }
 
-    private boolean isSnakeCase(String str) {
-        return SNAKE_CASE_PATTERN.matcher(str).matches();
-    }
 
-    private boolean isLowerCaseString(String str) {
-        return PURE_LOWER_CASE_PATTER.matcher(str).matches();
-    }
 }

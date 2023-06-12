@@ -16,5 +16,5 @@ public class CreateIndexRequestDTO implements DDLRequestDTO {
         private String schemaName;
         private String tableName;
         private String indexName;
-        private List<Column> columns;
+        private List<String> columnNames;
 }

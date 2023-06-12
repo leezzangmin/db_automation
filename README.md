@@ -15,14 +15,16 @@ varchar 확장
 ## TODO
 - metadata lock detection AOP
 - metadata 만 변경하는 작업은 즉시 실행(리스트업 필요)
-- execute 가능 시간은 interceptor 로 걸러도 괜찮을듯
+  - rename
+  - comment 수정
+  - 
 - 롱쿼리 있으면 pause
 - 개발자 메일계정으로 접근가능 클러스터 인증/인가
 - 표준검사
 - timeout ?ㅇ?
 - 스키마 용량, 정보, 마스킹 툴
-
-
+- 예외처리 및 예외응답 일원화
+- DB pw 환경변수화? - parameter store 에서 fetch
 
 
 

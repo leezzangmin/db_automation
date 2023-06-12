@@ -23,9 +23,8 @@ public class SlackSendAspect {
             "|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
             "|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
             "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
-    public void requestMappingMethods() {}
+    private void requestMappingMethods() {}
 
-    @Order(2)
     @AfterReturning(pointcut = "requestMappingMethods()", returning = "dto")
     public void afterReturningSendDTO(Object dto) {
        slackClient.sendMessage(((ResponseDTO) dto).toString());

@@ -1,6 +1,7 @@
 package zzangmin.db_automation.parser;
 
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
 import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
 import zzangmin.db_automation.dto.request.DDLRequestDTO;
 import zzangmin.db_automation.entity.Column;
@@ -18,7 +19,7 @@ public class DDLParser {
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN)) {
 
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_INDEX)) {
-
+            return createIndexCommandToSql((CreateIndexRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_TABLE)) {
             return createTableCommandToSql((CreateTableRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.DELETE_COLUMN)) {
@@ -30,10 +31,30 @@ public class DDLParser {
         throw new IllegalArgumentException("존재하지 않는 명령입니다.");
     }
 
+    private String createIndexCommandToSql(CreateIndexRequestDTO dto) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("CREATE INDEX ");
+        sb.append(dto.getIndexName());
+        sb.append(" on `");
+        sb.append(dto.getSchemaName());
+        sb.append("`.`");
+        sb.append(dto.getTableName());
+        sb.append("` (");
+        for (String columnName : dto.getColumnNames()) {
+            sb.append("`");
+            sb.append(columnName);
+            sb.append("`, ");
+        }
+        sb.deleteCharAt(sb.lastIndexOf(","));
+        sb.append(")\n");
+        return sb.toString();
+    }
+
     private String createTableCommandToSql(CreateTableRequestDTO dto) {
+        StringBuilder sb = new StringBuilder();
+
         List<Column> columns = dto.getColumns();
         List<Constraint> constraints = dto.getConstraints();
-        StringBuilder sb = new StringBuilder();
         sb.append(generateCreateTableStatement(dto.getSchemaName(), dto.getTableName()));
         sb.append(generateColumnStatement(columns));
         sb.append(generateConstraintStatement(constraints));
