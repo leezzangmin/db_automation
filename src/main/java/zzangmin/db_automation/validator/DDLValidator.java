@@ -4,15 +4,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
+import zzangmin.db_automation.convention.ColumnConvention;
 import zzangmin.db_automation.convention.IndexConvention;
 import zzangmin.db_automation.convention.TableConvention;
+import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
 import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
 import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
+import zzangmin.db_automation.dto.request.ExtendVarcharColumnRequestDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.MysqlProcess;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -26,11 +30,21 @@ public class DDLValidator {
     private final IndexConvention indexConvention;
     private final RdsMetricValidator rdsMetricValidator;
     private final TableStatusValidator tableStatusValidator;
+    private final ColumnConvention columnConvention;
+
+    public void validateAddColumn(DatabaseConnectionInfo databaseConnectionInfo, AddColumnRequestDTO addColumnRequestDTO) {
+        columnConvention.validateColumnConvention(addColumnRequestDTO.getColumn());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        tableStatusValidator.validateTableSize(databaseConnectionInfo, addColumnRequestDTO.getSchemaName(), addColumnRequestDTO.getTableName());
+        validateIsLongQueryExists(databaseConnectionInfo);
+
+    }
 
     public void validateCreateIndex(DatabaseConnectionInfo databaseConnectionInfo, CreateIndexRequestDTO createIndexRequestDTO) {
-        indexConvention.validateIndexConvention(createIndexRequestDTO.getIndexName(), createIndexRequestDTO.getColumnNames());
+        indexConvention.validateIndexConvention(createIndexRequestDTO.toConstraint());
         validateIsSchemaExists(databaseConnectionInfo, createIndexRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
+        validateIsIndexExists(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName(), createIndexRequestDTO.getColumnNames());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
         validateIsLongQueryExists(databaseConnectionInfo);
@@ -42,13 +56,24 @@ public class DDLValidator {
      * 2. cpu, memory 사용량
      * 3. 롱쿼리(트랜잭션)
      * 4. 테이블 status 임계치
+     * 5. FK 허용여부
+     * 6. 컬럼의 charset 및 collate 체크
+     *
      */
+
+    public void validateExtendVarchar(DatabaseConnectionInfo databaseConnectionInfo, ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO) {
+        Column column = mysqlClient.findColumn(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName(), extendVarcharColumnRequestDTO.getColumn().getName());
+        columnConvention.validateExtendVarcharConvention(column, extendVarcharColumnRequestDTO.getColumn().getVarcharLength());
+        validateIsSchemaExists(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName());
+        validateIsExistTableName(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+    }
+
     public void validateCreateTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) {
         tableConvention.validateTableConvention(createTableRequestDTO.getColumns(), createTableRequestDTO.getConstraints(), createTableRequestDTO.getTableName(), createTableRequestDTO.getEngine(), createTableRequestDTO.getCharset(), createTableRequestDTO.getCollate(), createTableRequestDTO.getTableComment());
         validateIsSchemaExists(databaseConnectionInfo, createTableRequestDTO.getSchemaName());
         validateIsNotExistTableName(databaseConnectionInfo, createTableRequestDTO.getSchemaName(), createTableRequestDTO.getTableName());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
-        // validateIsLongQueryExists(databaseConnectionInfo);
     }
 
     private void validateIsNotExistTableName(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
@@ -80,7 +105,27 @@ public class DDLValidator {
         }
     }
 
-    private void validateIsIndexExists(DatabaseConnectionInfo databaseConnectionInfo, String indexName, List<Column> columns) {
-
+    private void validateIsIndexExists(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, List<String> columnNames) {
+        Map<String, List<String>> indexes = mysqlClient.findIndexes(databaseConnectionInfo, schemaName, tableName);
+        for (String indexNameKey : indexes.keySet()) {
+            List<String> indexColumnNames = indexes.get(indexNameKey);
+            if (isEqualListString(indexColumnNames, columnNames)) {
+                throw new IllegalStateException("이미 존재하는 컬럼 조합의 인덱스가 존재합니다. 인덱스명: " + indexNameKey);
+            }
+        }
     }
+
+    private boolean isEqualListString(List<String> listA, List<String> listB) {
+        if (listA.size() != listB.size()) {
+            return false;
+        }
+        int size = listA.size();
+        for (int i = 0; i < size; i++) {
+            if (!listA.get(i).equals(listB.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

@@ -1,9 +1,8 @@
 package zzangmin.db_automation.parser;
 
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
-import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
-import zzangmin.db_automation.dto.request.DDLRequestDTO;
+import zzangmin.db_automation.dto.request.*;
+import zzangmin.db_automation.dto.response.AddColumnResponseDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
@@ -15,7 +14,7 @@ public class DDLParser {
 
     public String commandToSql(DDLRequestDTO ddlRequestDTO) {
         if (ddlRequestDTO.getCommandType().equals(CommandType.ADD_COLUMN)) {
-
+            return addColumnCommandToSql((AddColumnRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN)) {
 
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_INDEX)) {
@@ -25,10 +24,54 @@ public class DDLParser {
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.DELETE_COLUMN)) {
 
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
-
+            return extendVarcharColumnCommandToSql((ExtendVarcharColumnRequestDTO) ddlRequestDTO);
         }
 
         throw new IllegalArgumentException("존재하지 않는 명령입니다.");
+    }
+
+    private String extendVarcharColumnCommandToSql(ExtendVarcharColumnRequestDTO dto) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ALTER TABLE `");
+        sb.append(dto.getSchemaName());
+        sb.append("`.`");
+        sb.append(dto.getTableName());
+        sb.append("` MODIFY COLUMN ");
+        sb.append(dto.getColumn().getName());
+        sb.append(" ");
+        sb.append(dto.getColumn().getType());
+        sb.append(" ");
+        sb.append(dto.getColumn().generateNull());
+        sb.append(" ");
+        sb.append(dto.getColumn().generateUnique());
+        sb.append(" ");
+        sb.append(dto.getColumn().generateAutoIncrement());
+        sb.append(" COMMENT '");
+        sb.append(dto.getColumn().getComment());
+        sb.append("'");
+        return sb.toString();
+    }
+
+    private String addColumnCommandToSql(AddColumnRequestDTO dto) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ALTER TABLE `");
+        sb.append(dto.getSchemaName());
+        sb.append("`.`");
+        sb.append(dto.getTableName());
+        sb.append("` ADD COLUMN ");
+        sb.append(dto.getColumn().getName());
+        sb.append(" ");
+        sb.append(dto.getColumn().getType());
+        sb.append(" ");
+        sb.append(dto.getColumn().generateNull());
+        sb.append(" ");
+        sb.append(dto.getColumn().generateUnique());
+        sb.append(" ");
+        sb.append(dto.getColumn().generateAutoIncrement());
+        sb.append(" COMMENT '");
+        sb.append(dto.getColumn().getComment());
+        sb.append("'");
+        return sb.toString();
     }
 
     private String createIndexCommandToSql(CreateIndexRequestDTO dto) {
@@ -84,6 +127,9 @@ public class DDLParser {
             sb.append(column.generateUnique());
             sb.append(" ");
             sb.append(column.generateAutoIncrement());
+            sb.append(" COMMENT '");
+            sb.append(column.getComment());
+            sb.append("'");
             sb.append(",\n");
         }
         return sb.toString();

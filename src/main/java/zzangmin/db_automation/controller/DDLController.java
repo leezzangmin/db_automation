@@ -4,10 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import zzangmin.db_automation.argumentresolver.TargetDatabase;
-import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.dto.request.*;
+import zzangmin.db_automation.dto.response.AddColumnResponseDTO;
 import zzangmin.db_automation.dto.response.CreateIndexResponseDTO;
 import zzangmin.db_automation.dto.response.CreateTableResponseDTO;
+import zzangmin.db_automation.dto.response.ExtendVarcharColumnResponseDTO;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DDLService;
 import zzangmin.db_automation.validator.DDLValidator;
@@ -29,8 +30,10 @@ public class DDLController {
     }
 
     @PutMapping("/ddl/column")
-    public String addColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody AddColumnRequestDTO ddlRequestDTO) {
-        return "ok";
+    public AddColumnResponseDTO addColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                            @RequestBody AddColumnRequestDTO ddlRequestDTO) {
+        ddlValidator.validateAddColumn(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.addColumn(databaseConnectionInfo, ddlRequestDTO);
     }
 
     @PatchMapping("/ddl/column")
@@ -58,8 +61,10 @@ public class DDLController {
     }
 
     @PatchMapping("/ddl/varchar")
-    public String extendVarcharColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody ExtendVarcharColumnRequestDTO ddlRequestDTO) {
-        return "ok";
+    public ExtendVarcharColumnResponseDTO extendVarcharColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                                              @RequestBody ExtendVarcharColumnRequestDTO ddlRequestDTO) {
+        ddlValidator.validateExtendVarchar(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.extendVarcharColumn(databaseConnectionInfo, ddlRequestDTO);
     }
 
 }

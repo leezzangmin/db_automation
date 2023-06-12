@@ -18,7 +18,6 @@ public class TableStatusValidator {
 
     public void validateTableSize(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
         TableStatus tableStatus = mysqlClient.findTableStatus(databaseConnectionInfo, schemaName, tableName);
-        System.out.println("tableStatus = " + tableStatus);
         long totalTableByteSize = tableStatus.calculateTotalTableByteSize();
         if (totalTableByteSize > TABLE_BYTE_SIZE_THRESHOLD) {
             throw new IllegalStateException("테이블 사이즈가 커서 실행이 불가합니다. 현재 사이즈: " + totalTableByteSize);

@@ -9,9 +9,6 @@ varchar 확장
 - 개발자들이 직접 DDL을 안전하게 실행할 수 있게 되어 커뮤니케이션 비용 하락, 개발 속도 향상
 
 
-
-
-
 ## TODO
 - metadata lock detection AOP
 - metadata 만 변경하는 작업은 즉시 실행(리스트업 필요)
@@ -25,6 +22,7 @@ varchar 확장
 - 스키마 용량, 정보, 마스킹 툴
 - 예외처리 및 예외응답 일원화
 - DB pw 환경변수화? - parameter store 에서 fetch
+- 용량 크면 slack 으로 실행버튼을 정보랑 함께 전송해서(스키마, 테이블, 커맨드타입 등) pt-change-online shell 실행?
 
 
 

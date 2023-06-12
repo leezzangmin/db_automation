@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
+import zzangmin.db_automation.entity.Constraint;
 
 import java.util.List;
 
@@ -16,5 +17,10 @@ public class CreateIndexRequestDTO implements DDLRequestDTO {
         private String schemaName;
         private String tableName;
         private String indexName;
+        private String indexType;
         private List<String> columnNames;
+
+        public Constraint toConstraint() {
+                return new Constraint(this.getIndexType(), this.getIndexName(), this.getColumnNames());
+        }
 }

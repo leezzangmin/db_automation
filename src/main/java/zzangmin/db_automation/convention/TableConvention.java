@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static zzangmin.db_automation.convention.CommonConvention.*;
+
 @RequiredArgsConstructor
 @Component
 public class TableConvention {
@@ -18,20 +20,22 @@ public class TableConvention {
      * 1. 중복된 옵션(column, constraint) 있는지
      * 2. 테이블 생성 컨벤션 (engine charset, comment 등)
      */
-    private static final String ENGINE_TYPE = "InnoDB";
-    private static final String CHARSET = "utf8mb4";
-    private static final String COLLATE = "utf8mb4_general_ci";
-    private static final Set<String> CONSTRAINT_TYPE = Set.of("PRIMARY KEY", "UNIQUE KEY", "KEY");
+
     private final CommonConvention commonConvention;
     private final IndexConvention indexConvention;
+    private final ColumnConvention columnConvention;
 
 
     public void validateTableConvention(List<Column> columns, List<Constraint> constraints, String tableName, String tableEngine, String tableCharset, String tableCollate, String tableComment) {
         checkDuplicateColumnAndConstraintConvention(columns, constraints);
         checkNamingConvention(columns, constraints, tableName);
-        checkColumnCommentExistConvention(columns);
         checkTableOptionConvention(tableEngine, tableCharset, tableCollate, tableComment);
-        checkConstraintType(constraints);
+        for (Column column : columns) {
+            columnConvention.validateColumnConvention(column);
+        }
+        for (Constraint constraint : constraints) {
+            indexConvention.validateIndexConvention(constraint);
+        }
     }
 
     private void checkNamingConvention(List<Column> columns, List<Constraint> constraints, String tableName) {
@@ -48,14 +52,6 @@ public class TableConvention {
             commonConvention.validateSnakeCase(constraint.getKeyName());
             commonConvention.validateLowerCaseString(constraint.getKeyName());
             indexConvention.validateConstraintNamingConvention(constraint.getKeyName(), constraint.getKeyColumnNames());
-        }
-    }
-
-    private void checkColumnCommentExistConvention(List<Column> columns) {
-        for (Column column : columns) {
-            if (column.getComment().isBlank() || column.getComment().isEmpty()) {
-                throw new IllegalArgumentException("테이블 코멘트가 존재하지 않습니다.");
-            }
         }
     }
 
@@ -91,14 +87,6 @@ public class TableConvention {
         }
         if (tableComment.isBlank() || tableComment.isEmpty()) {
             throw new IllegalArgumentException("테이블 코멘트가 존재하지 않습니다.");
-        }
-    }
-
-    private void checkConstraintType(List<Constraint> constraints) {
-        for (Constraint constraint : constraints) {
-            if (!CONSTRAINT_TYPE.contains(constraint.getType())) {
-                throw new IllegalArgumentException("허용된 Constraint Type 이 아닙니다. [" + constraint.getType() + "]");
-            }
         }
     }
 

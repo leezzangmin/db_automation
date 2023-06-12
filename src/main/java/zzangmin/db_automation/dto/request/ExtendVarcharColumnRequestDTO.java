@@ -14,5 +14,4 @@ public class ExtendVarcharColumnRequestDTO implements DDLRequestDTO {
     private String schemaName;
     private String tableName;
     private Column column;
-    private short toBeLength;
 }

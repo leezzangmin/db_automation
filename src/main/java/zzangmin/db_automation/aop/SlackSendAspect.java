@@ -4,7 +4,6 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.dto.response.ResponseDTO;
@@ -19,10 +18,10 @@ public class SlackSendAspect {
         this.slackClient = slackClient;
     }
 
-    @Pointcut(" @annotation(org.springframework.web.bind.annotation.GetMapping) " +
-            "|| @annotation(org.springframework.web.bind.annotation.PostMapping) " +
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.PostMapping) " +
             "|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
-            "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
+            "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)" +
+            "|| @annotation(org.springframework.web.bind.annotation.PatchMapping)")
     private void requestMappingMethods() {}
 
     @AfterReturning(pointcut = "requestMappingMethods()", returning = "dto")

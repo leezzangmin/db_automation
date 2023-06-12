@@ -1,6 +1,7 @@
 package zzangmin.db_automation.client;
 
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.MysqlProcess;
 import zzangmin.db_automation.entity.TableStatus;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
@@ -78,8 +79,7 @@ public class MysqlClient {
 
     // TODO: SQL 조건문 추가
     public List<MysqlProcess> findLongQueries(DatabaseConnectionInfo databaseConnectionInfo, int longQueryStandard) {
-        String SQL = "SELECT * FROM " +
-                "INFORMATION_SCHEMA.PROCESSLIST " +
+        String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST " +
                 "WHERE COMMAND = 'Query' " +
                 "AND USER NOT IN ('rdsadmin', 'event_scheduler') " +
                 "AND TIME >= " + longQueryStandard;
@@ -132,7 +132,6 @@ public class MysqlClient {
                 "FROM INFORMATION_SCHEMA.TABLES " +
                 "WHERE TABLE_SCHEMA = '" + schemaName +
                 "' AND TABLE_NAME = '" + tableName + "'";
-        System.out.println("SQL = \n" + SQL);
         try {
             Connection connection = DriverManager.getConnection(
                     databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
@@ -156,5 +155,59 @@ public class MysqlClient {
             e.printStackTrace();
         }
         throw new IllegalStateException("테이블 정보를 불러올 수 없습니다.");
+    }
+
+    public Map<String, List<String>> findIndexes(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        String SQL = "SELECT INDEX_NAME, COLUMN_NAME " +
+                "FROM INFORMATION_SCHEMA.STATISTICS " +
+                "WHERE TABLE_SCHEMA = '" + schemaName + "' AND TABLE_NAME = '" + tableName + "' ORDER BY INDEX_NAME, SEQ_IN_INDEX";
+        try {
+            Connection connection = DriverManager.getConnection(
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery(SQL);
+
+            Map<String, List<String>> constraints = new HashMap<>();
+            while (resultSet.next()) {
+                String indexName = resultSet.getString("INDEX_NAME");
+                String columnName = resultSet.getString("COLUMN_NAME");
+                if (constraints.containsKey(indexName)) {
+                    List<String> columns = constraints.get(indexName);
+                    columns.add(columnName);
+                    continue;
+                }
+                List<String> columns = new ArrayList<>();
+                columns.add(columnName);
+                constraints.put(indexName, columns);
+            }
+            return constraints;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        throw new IllegalStateException("인덱스 정보를 불러올 수 없습니다.");
+    }
+
+    public Column findColumn(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, String columnName) {
+        String SQL = "SHOW COLUMNS FROM `" + schemaName + "`.`" + tableName + "` WHERE Field = '" + columnName + "'";
+        try {
+            Connection connection = DriverManager.getConnection(
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+            try (PreparedStatement stmt = connection.prepareStatement(SQL);
+                 ResultSet resultSet = stmt.executeQuery()) {
+                if (resultSet.next()) {
+                    String findColumnName = resultSet.getString("Field");
+                    String type = resultSet.getString("Type");
+                    String isNull = resultSet.getString("Null");
+                    String key = resultSet.getString("Key");
+                    String defaultValue = resultSet.getString("Default");
+                    String extra = resultSet.getString("Extra");
+                    return new Column(findColumnName, type, isNull.equals("NO") ? true : false, defaultValue, key.equals("UNI") ? true : false, extra.equals("auto_increment") ? true : false, null, null, null);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        throw new IllegalStateException("컬럼 정보를 불러올 수 없습니다.");
     }
 }
