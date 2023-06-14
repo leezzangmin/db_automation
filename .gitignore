@@ -199,3 +199,6 @@ application-dev.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/gradle,intellij+all,java,macos,windows
 /src/main/generated/
+/src/main/.aws-sam/
+/src/main/.aws-sam/build/
+/.aws-sam/
