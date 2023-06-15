@@ -13,7 +13,7 @@ import java.util.List;
 @ToString
 @Getter
 @NoArgsConstructor
-public class CreateTableRequestDTO implements DDLRequestDTO {
+public class CreateTableRequestDTO extends DDLRequestDTO {
 
     @NotBlank
     private CommandType commandType;

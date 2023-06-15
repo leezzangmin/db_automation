@@ -9,7 +9,7 @@ import zzangmin.db_automation.entity.CommandType;
 @ToString
 @Getter
 @NoArgsConstructor
-public class AddColumnRequestDTO implements DDLRequestDTO {
+public class AddColumnRequestDTO extends DDLRequestDTO {
       private CommandType commandType;
       private String schemaName;
       private String tableName;

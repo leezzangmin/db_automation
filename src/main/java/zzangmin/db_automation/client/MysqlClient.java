@@ -189,7 +189,7 @@ public class MysqlClient {
         throw new IllegalStateException("인덱스 정보를 불러올 수 없습니다.");
     }
 
-    public Column findColumn(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, String columnName) {
+    public Optional<Column> findColumn(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, String columnName) {
         String SQL = "SHOW COLUMNS FROM `" + schemaName + "`.`" + tableName + "` WHERE Field = '" + columnName + "'";
         try {
             Connection connection = DriverManager.getConnection(
@@ -203,13 +203,13 @@ public class MysqlClient {
                     String key = resultSet.getString("Key");
                     String defaultValue = resultSet.getString("Default");
                     String extra = resultSet.getString("Extra");
-                    return new Column(findColumnName, type, isNull.equals("NO") ? true : false, defaultValue, key.equals("UNI") ? true : false, extra.equals("auto_increment") ? true : false, null, null, null);
+                    return Optional.ofNullable(new Column(findColumnName, type, isNull.equals("NO") ? true : false, defaultValue, key.equals("UNI") ? true : false, extra.equals("auto_increment") ? true : false, null, null, null));
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        throw new IllegalStateException("컬럼 정보를 불러올 수 없습니다.");
+        return Optional.empty();
     }
 
     public List<MysqlProcess> findMetadataLockProcesses(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {

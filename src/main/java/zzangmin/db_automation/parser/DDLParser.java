@@ -22,12 +22,24 @@ public class DDLParser {
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_TABLE)) {
             return createTableCommandToSql((CreateTableRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.DELETE_COLUMN)) {
-
+            return deleteColumnCommandToSql((DeleteColumnRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
             return extendVarcharColumnCommandToSql((ExtendVarcharColumnRequestDTO) ddlRequestDTO);
         }
 
         throw new IllegalArgumentException("존재하지 않는 명령입니다.");
+    }
+
+    private String deleteColumnCommandToSql(DeleteColumnRequestDTO dto) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ALTER TABLE `");
+        sb.append(dto.getSchemaName());
+        sb.append("`.`");
+        sb.append(dto.getTableName());
+        sb.append("` DROP COLUMN `");
+        sb.append(dto.getColumnName());
+        sb.append("`");
+        return sb.toString();
     }
 
     private String extendVarcharColumnCommandToSql(ExtendVarcharColumnRequestDTO dto) {
@@ -58,9 +70,9 @@ public class DDLParser {
         sb.append(dto.getSchemaName());
         sb.append("`.`");
         sb.append(dto.getTableName());
-        sb.append("` ADD COLUMN ");
+        sb.append("` ADD COLUMN `");
         sb.append(dto.getColumn().getName());
-        sb.append(" ");
+        sb.append("` ");
         sb.append(dto.getColumn().getType());
         sb.append(" ");
         sb.append(dto.getColumn().generateNull());

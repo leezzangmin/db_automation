@@ -8,7 +8,7 @@ import zzangmin.db_automation.entity.CommandType;
 @ToString
 @Getter
 @NoArgsConstructor
-public class AlterColumnRequestDTO implements DDLRequestDTO {
+public class AlterColumnRequestDTO extends DDLRequestDTO {
         private CommandType commandType;
         private String schemaName;
         private String tableName;

@@ -12,7 +12,7 @@ import java.util.List;
 @ToString
 @Getter
 @NoArgsConstructor
-public class CreateIndexRequestDTO implements DDLRequestDTO {
+public class CreateIndexRequestDTO extends DDLRequestDTO {
         private CommandType commandType;
         private String schemaName;
         private String tableName;

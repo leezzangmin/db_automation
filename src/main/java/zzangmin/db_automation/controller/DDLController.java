@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import zzangmin.db_automation.argumentresolver.TargetDatabase;
 import zzangmin.db_automation.dto.request.*;
-import zzangmin.db_automation.dto.response.AddColumnResponseDTO;
-import zzangmin.db_automation.dto.response.CreateIndexResponseDTO;
-import zzangmin.db_automation.dto.response.CreateTableResponseDTO;
-import zzangmin.db_automation.dto.response.ExtendVarcharColumnResponseDTO;
+import zzangmin.db_automation.dto.response.*;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DDLService;
 import zzangmin.db_automation.validator.DDLValidator;
@@ -23,10 +20,11 @@ public class DDLController {
 
     // TODO: 인증/인가
 
-    @PostMapping("/ddl/validate")
-    public String validCommand(@RequestParam String dbName, @RequestParam String ddlCommand) {
+    @GetMapping("/ddl/validate")
+    public String validCommand(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                               @RequestBody DDLRequestDTO ddlRequestDTO) {
+        ddlValidator.validateDDLRequest(databaseConnectionInfo, ddlRequestDTO);
         return "ok";
-
     }
 
     @PutMapping("/ddl/column")
@@ -55,9 +53,12 @@ public class DDLController {
         return ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
     }
 
+    // TODO: rename -> delete
     @DeleteMapping("/ddl/column")
-    public String deleteColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody DeleteColumnRequestDTO ddlRequestDTO) {
-        return "ok";
+    public DeleteColumnResponseDTO deleteColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                                @RequestBody DeleteColumnRequestDTO ddlRequestDTO) {
+        ddlValidator.validateDeleteColumn(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.deleteColumn(databaseConnectionInfo, ddlRequestDTO);
     }
 
     @PatchMapping("/ddl/varchar")

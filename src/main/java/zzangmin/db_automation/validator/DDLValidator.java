@@ -7,11 +7,9 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.convention.ColumnConvention;
 import zzangmin.db_automation.convention.IndexConvention;
 import zzangmin.db_automation.convention.TableConvention;
-import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
-import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
-import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
-import zzangmin.db_automation.dto.request.ExtendVarcharColumnRequestDTO;
+import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
+import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.MysqlProcess;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
@@ -31,6 +29,31 @@ public class DDLValidator {
     private final RdsMetricValidator rdsMetricValidator;
     private final TableStatusValidator tableStatusValidator;
     private final ColumnConvention columnConvention;
+
+    public void validateDDLRequest(DatabaseConnectionInfo databaseConnectionInfo, DDLRequestDTO ddlRequestDTO) {
+        if (ddlRequestDTO.getCommandType().equals(CommandType.ADD_COLUMN)) {
+            validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
+            return;
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN)) {
+            return;
+
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_INDEX)) {
+            validateCreateIndex(databaseConnectionInfo, (CreateIndexRequestDTO) ddlRequestDTO);
+            return;
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_TABLE)) {
+            validateCreateTable(databaseConnectionInfo, (CreateTableRequestDTO) ddlRequestDTO);
+            return;
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ADD_COLUMN)) {
+            validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
+            return;
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.DELETE_COLUMN)) {
+            return;
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
+            validateExtendVarchar(databaseConnectionInfo, (ExtendVarcharColumnRequestDTO) ddlRequestDTO);
+            return;
+        }
+        throw new IllegalArgumentException("CommandType 지원 불가");
+    }
 
     public void validateAddColumn(DatabaseConnectionInfo databaseConnectionInfo, AddColumnRequestDTO addColumnRequestDTO) {
         columnConvention.validateColumnConvention(addColumnRequestDTO.getColumn());
@@ -62,7 +85,8 @@ public class DDLValidator {
      */
 
     public void validateExtendVarchar(DatabaseConnectionInfo databaseConnectionInfo, ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO) {
-        Column column = mysqlClient.findColumn(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName(), extendVarcharColumnRequestDTO.getColumn().getName());
+        Column column = mysqlClient.findColumn(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName(), extendVarcharColumnRequestDTO.getColumn().getName())
+                .orElseThrow(() -> new IllegalArgumentException("컬럼 정보를 불러올 수 없습니다. 존재하지 않는 컬럼명: "+ extendVarcharColumnRequestDTO.getColumn().getName()));
         columnConvention.validateExtendVarcharConvention(column, extendVarcharColumnRequestDTO.getColumn().getVarcharLength());
         validateIsSchemaExists(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName());
@@ -73,6 +97,13 @@ public class DDLValidator {
         tableConvention.validateTableConvention(createTableRequestDTO.getColumns(), createTableRequestDTO.getConstraints(), createTableRequestDTO.getTableName(), createTableRequestDTO.getEngine(), createTableRequestDTO.getCharset(), createTableRequestDTO.getCollate(), createTableRequestDTO.getTableComment());
         validateIsSchemaExists(databaseConnectionInfo, createTableRequestDTO.getSchemaName());
         validateIsNotExistTableName(databaseConnectionInfo, createTableRequestDTO.getSchemaName(), createTableRequestDTO.getTableName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+    }
+
+    public void validateDeleteColumn(DatabaseConnectionInfo databaseConnectionInfo, DeleteColumnRequestDTO deleteColumnRequestDTO) {
+        validateIsSchemaExists(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName());
+        validateIsExistTableName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
+        validateIsExistColumnName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName(), deleteColumnRequestDTO.getColumnName());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
     }
 
@@ -88,6 +119,11 @@ public class DDLValidator {
         if (!tableNames.contains(tableName)) {
             throw new IllegalStateException("대상 테이블이 존재하지 않습니다.");
         }
+    }
+
+    private void validateIsExistColumnName(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, String columnName) {
+        mysqlClient.findColumn(databaseConnectionInfo, schemaName, tableName, columnName)
+                .orElseThrow(() -> new IllegalArgumentException("컬럼 정보를 불러올 수 없습니다. 존재하지 않는 컬럼명: " + columnName));
     }
 
 
