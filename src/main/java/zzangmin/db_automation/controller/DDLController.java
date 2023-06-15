@@ -50,7 +50,7 @@ public class DDLController {
 
     @PutMapping("/ddl/table")
     public CreateTableResponseDTO createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
-                                              @RequestBody CreateTableRequestDTO ddlRequestDTO) {
+                                              @RequestBody CreateTableRequestDTO ddlRequestDTO) throws InterruptedException {
         ddlValidator.validateCreateTable(databaseConnectionInfo, ddlRequestDTO);
         return ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
     }

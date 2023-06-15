@@ -10,11 +10,11 @@ public class MysqlProcess {
     private String host;
     private String db;
     private String command;
-    private int time;
+    private long time;
     private String state;
     private String info;
 
-    public MysqlProcess(long id, String user, String host, String db, String command, int time, String state, String info) {
+    public MysqlProcess(long id, String user, String host, String db, String command, long time, String state, String info) {
         this.id = id;
         this.user = user;
         this.host = host;

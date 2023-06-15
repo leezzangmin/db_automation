@@ -31,7 +31,7 @@ public class ColumnConvention {
 
     public void validateColumnConvention(Column column) {
         validateColumnNamingConvention(column.getName());
-        validateColumnOption(column.getName(), column.getCharset(), column.getCollate());
+        validateColumnOption(column);
         checkColumnCommentExistConvention(column.getName(), column.getComment());
         checkUniqueNullable(column.isUnique(), column.isNull(), column.getDefaultValue());
     }
@@ -41,12 +41,15 @@ public class ColumnConvention {
         commonConvention.validateLowerCaseString(columnName);
     }
 
-    private void validateColumnOption(String columnName, String columnCharset, String columnCollate) {
-        if (!columnCharset.equals(CHARSET)) {
-            throw new IllegalArgumentException(columnName + " 의 CHARSET 이 " + CHARSET +" 이 아닙니다.");
+    private void validateColumnOption(Column column) {
+        if (column.getType().startsWith("varchar") || column.getType().startsWith("VARCHAR")) {
+            column.getVarcharLength();
         }
-        if (!columnCollate.equals(COLLATE)) {
-            throw new IllegalArgumentException(columnName + " 의 COLLATE 가 " + COLLATE +" 이 아닙니다.");
+        if (!column.getCharset().equals(CHARSET)) {
+            throw new IllegalArgumentException(column.getName() + " 의 CHARSET 이 " + CHARSET +" 이 아닙니다.");
+        }
+        if (!column.getCollate().equals(COLLATE)) {
+            throw new IllegalArgumentException(column.getName() + " 의 COLLATE 가 " + COLLATE +" 이 아닙니다.");
         }
     }
 

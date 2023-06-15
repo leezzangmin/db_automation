@@ -54,7 +54,7 @@ public class Column {
     }
 
     public int getVarcharLength() {
-        if (this.type.startsWith("varchar") || this.type.startsWith("VARCHAR")) {
+        if (this.type.matches("(?i)varchar\\(\\d+\\)")) {
             Pattern pattern = Pattern.compile("\\d+");
             Matcher matcher = pattern.matcher(type);
 
@@ -65,6 +65,8 @@ public class Column {
                 throw new IllegalArgumentException(this.name + "컬럼 varchar 타입에 숫자가 표기되어있지 않습니다.");
             }
         }
-        throw new IllegalStateException(this.name + " 컬럼은 varchar 타입이 아닙니다.");
+        throw new IllegalStateException(this.name + " 컬럼은 varchar 타입이 아닙니다. 정상 입력 ex: VARCHAR(255)");
     }
+
+
 }

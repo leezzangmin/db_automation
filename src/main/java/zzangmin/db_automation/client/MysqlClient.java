@@ -17,6 +17,7 @@ public class MysqlClient {
 
     public String executeSQL(DatabaseConnectionInfo databaseConnectionInfo, String SQL) {
         StringBuilder result = new StringBuilder();
+        System.out.println("SQL = " + SQL);
         try {
             Connection connection = DriverManager.getConnection(
                     databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
@@ -96,7 +97,7 @@ public class MysqlClient {
                 String host = resultSet.getString("HOST");
                 String db = resultSet.getString("DB");
                 String command = resultSet.getString("COMMAND");
-                int time = resultSet.getInt("TIME");
+                long time = resultSet.getLong("TIME");
                 String state = resultSet.getString("STATE");
                 String info = resultSet.getString("INFO");
                 longQueries.add(new MysqlProcess(id, user, host, db, command, time, state, info));
@@ -209,5 +210,32 @@ public class MysqlClient {
             e.printStackTrace();
         }
         throw new IllegalStateException("컬럼 정보를 불러올 수 없습니다.");
+    }
+
+    public List<MysqlProcess> findMetadataLockProcesses(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST WHERE State like 'Waiting for Waiting for table metadata lock'";
+        List<MysqlProcess> metadataLockProcesses = new ArrayList<>();
+        try {
+            Connection connection = DriverManager.getConnection(
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+            try (PreparedStatement stmt = connection.prepareStatement(SQL);
+                 ResultSet resultSet = stmt.executeQuery()) {
+                while (resultSet.next()) {
+                    long id = resultSet.getLong("id");
+                    String user = resultSet.getString("User");
+                    String host = resultSet.getString("Host");
+                    String db = resultSet.getString("db");
+                    String command = resultSet.getString("Command");
+                    long time = resultSet.getLong("Time");
+                    String state = resultSet.getString("State");
+                    String info = resultSet.getString("Info");
+                    metadataLockProcesses.add(new MysqlProcess(id, user, host, db, command, time, state, info));
+                }
+                return metadataLockProcesses;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        throw new IllegalStateException("metadata lock process 정보를 불러올 수 없습니다.");
     }
 }

@@ -49,7 +49,7 @@ public class IndexConvention {
 
     private void checkConstraintType(String constraintType) {
         if (!CONSTRAINT_TYPE.contains(constraintType)) {
-            throw new IllegalArgumentException("허용된 Constraint Type 이 아닙니다. [" + constraintType + "]");
+            throw new IllegalArgumentException("허용된 Constraint Type 이 아닙니다. [" + constraintType + "], 허용된 타입: " + CONSTRAINT_TYPE);
         }
     }
 

@@ -29,7 +29,6 @@ public class TargetDatabaseArgumentResolver implements HandlerMethodArgumentReso
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         String databaseNameInput = request.getParameter("databaseName");
-        System.out.println("databaseNameInput = " + databaseNameInput);
         if (databaseNameInput == null || databaseNameInput == "") {
             throw new IllegalArgumentException("올바른 DB명 입력이 아닙니다.");
         }
