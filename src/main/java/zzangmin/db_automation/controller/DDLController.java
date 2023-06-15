@@ -35,8 +35,10 @@ public class DDLController {
     }
 
     @PatchMapping("/ddl/column")
-    public String alterColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody AlterColumnRequestDTO ddlRequestDTO) {
-        return "ok";
+    public AlterColumnResponseDTO alterColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                              @RequestBody AlterColumnRequestDTO ddlRequestDTO) {
+        ddlValidator.validateAlterColumn(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.alterColumn(databaseConnectionInfo, ddlRequestDTO);
     }
 
     @PutMapping("/ddl/index")

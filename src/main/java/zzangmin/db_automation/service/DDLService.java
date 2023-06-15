@@ -49,9 +49,15 @@ public class DDLService {
 
     public DeleteColumnResponseDTO deleteColumn(DatabaseConnectionInfo databaseConnectionInfo, DeleteColumnRequestDTO deleteColumnRequestDTO) {
         String deleteColumnSQL = ddlParser.commandToSql(deleteColumnRequestDTO);
-        System.out.println("deleteColumnSQL = " + deleteColumnSQL);
         mysqlClient.executeSQL(databaseConnectionInfo, deleteColumnSQL);
         String createTableStatement = mysqlClient.findCreateTableStatement(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
         return new DeleteColumnResponseDTO("test@gmail.com", databaseConnectionInfo.getDatabaseName(), deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName(), deleteColumnRequestDTO.getColumnName(), createTableStatement);
+    }
+
+    public AlterColumnResponseDTO alterColumn(DatabaseConnectionInfo databaseConnectionInfo, AlterColumnRequestDTO alterColumnRequestDTO) {
+        String alterColumnSQL = ddlParser.commandToSql(alterColumnRequestDTO);
+        mysqlClient.executeSQL(databaseConnectionInfo, alterColumnSQL);
+        String createTableStatement = mysqlClient.findCreateTableStatement(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
+        return new AlterColumnResponseDTO("test@gmail.com", databaseConnectionInfo.getDatabaseName(), alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName(), createTableStatement);
     }
 }

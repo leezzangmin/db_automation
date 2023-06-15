@@ -35,8 +35,8 @@ public class DDLValidator {
             validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
             return;
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN)) {
+            validateAlterColumn(databaseConnectionInfo, (AlterColumnRequestDTO) ddlRequestDTO);
             return;
-
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_INDEX)) {
             validateCreateIndex(databaseConnectionInfo, (CreateIndexRequestDTO) ddlRequestDTO);
             return;
@@ -47,12 +47,22 @@ public class DDLValidator {
             validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
             return;
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.DELETE_COLUMN)) {
+            validateDeleteColumn(databaseConnectionInfo, (DeleteColumnRequestDTO) ddlRequestDTO);
             return;
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
             validateExtendVarchar(databaseConnectionInfo, (ExtendVarcharColumnRequestDTO) ddlRequestDTO);
             return;
         }
         throw new IllegalArgumentException("CommandType 지원 불가");
+    }
+
+    public void validateAlterColumn(DatabaseConnectionInfo databaseConnectionInfo, AlterColumnRequestDTO alterColumnRequestDTO) {
+        columnConvention.validateColumnConvention(alterColumnRequestDTO.getAfterColumn());
+        validateIsSchemaExists(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName());
+        validateIsExistTableName(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        tableStatusValidator.validateTableSize(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
+        validateIsLongQueryExists(databaseConnectionInfo);
     }
 
     public void validateAddColumn(DatabaseConnectionInfo databaseConnectionInfo, AddColumnRequestDTO addColumnRequestDTO) {
@@ -91,6 +101,7 @@ public class DDLValidator {
         validateIsSchemaExists(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        validateIsLongQueryExists(databaseConnectionInfo);
     }
 
     public void validateCreateTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) {
@@ -105,7 +116,12 @@ public class DDLValidator {
         validateIsExistTableName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
         validateIsExistColumnName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName(), deleteColumnRequestDTO.getColumnName());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        tableStatusValidator.validateTableSize(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
+        validateIsLongQueryExists(databaseConnectionInfo);
     }
+
+
+
 
     private void validateIsNotExistTableName(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
         Set<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);

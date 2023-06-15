@@ -32,22 +32,25 @@ public class Column {
     @NotBlank
     private String collate;
 
+
+    // TODO: isNull, isUnique json 파싱 제대로 안됨
     public String generateNull() {
-        if (isNull) {
+        System.out.println("this.isNull = " + this.isNull);
+        if (this.isNull) {
             return "DEFAULT NULL";
         }
         return "NOT NULL";
     }
 
     public String generateUnique() {
-        if (isUnique) {
+        if (this.isUnique) {
             return "UNIQUE";
         }
         return "";
     }
 
     public String generateAutoIncrement() {
-        if (isAutoIncrement) {
+        if (this.isAutoIncrement) {
             return "AUTO_INCREMENT";
         }
         return "";
@@ -56,7 +59,7 @@ public class Column {
     public int getVarcharLength() {
         if (this.type.matches("(?i)varchar\\(\\d+\\)")) {
             Pattern pattern = Pattern.compile("\\d+");
-            Matcher matcher = pattern.matcher(type);
+            Matcher matcher = pattern.matcher(this.type);
 
             if (matcher.find()) {
                 String extractedNumber = matcher.group();

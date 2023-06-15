@@ -16,7 +16,7 @@ public class DDLParser {
         if (ddlRequestDTO.getCommandType().equals(CommandType.ADD_COLUMN)) {
             return addColumnCommandToSql((AddColumnRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN)) {
-
+            return alterColumnCommandToSql((AlterColumnRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_INDEX)) {
             return createIndexCommandToSql((CreateIndexRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_TABLE)) {
@@ -28,6 +28,28 @@ public class DDLParser {
         }
 
         throw new IllegalArgumentException("존재하지 않는 명령입니다.");
+    }
+
+    private String alterColumnCommandToSql(AlterColumnRequestDTO dto) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ALTER TABLE `");
+        sb.append(dto.getSchemaName());
+        sb.append("`.`");
+        sb.append(dto.getTableName());
+        sb.append("` MODIFY COLUMN `");
+        sb.append(dto.getColumnName());
+        sb.append("` ");
+        sb.append(dto.getAfterColumn().getType());
+        sb.append(" ");
+        sb.append(dto.getAfterColumn().generateNull());
+        sb.append(" ");
+        sb.append(dto.getAfterColumn().generateUnique());
+        sb.append(" ");
+        sb.append(dto.getAfterColumn().generateAutoIncrement());
+        sb.append(" COMMENT '");
+        sb.append(dto.getAfterColumn().getComment());
+        sb.append("'");
+        return sb.toString();
     }
 
     private String deleteColumnCommandToSql(DeleteColumnRequestDTO dto) {
@@ -48,9 +70,9 @@ public class DDLParser {
         sb.append(dto.getSchemaName());
         sb.append("`.`");
         sb.append(dto.getTableName());
-        sb.append("` MODIFY COLUMN ");
+        sb.append("` MODIFY COLUMN `");
         sb.append(dto.getColumn().getName());
-        sb.append(" ");
+        sb.append("` ");
         sb.append(dto.getColumn().getType());
         sb.append(" ");
         sb.append(dto.getColumn().generateNull());
@@ -186,6 +208,130 @@ public class DDLParser {
     }
 
     /**
+     *
+     * https://dev.mysql.com/doc/refman/5.7/en/alter-table.html
+     *
+     * ALTER TABLE tbl_name
+     *     [alter_option [, alter_option] ...]
+     *     [partition_options]
+     *
+     * alter_option: {
+     *     table_options
+     *   | ADD [COLUMN] col_name column_definition
+     *         [FIRST | AFTER col_name]
+     *   | ADD [COLUMN] (col_name column_definition,...)
+     *   | ADD {INDEX | KEY} [index_name]
+     *         [index_type] (key_part,...) [index_option] ...
+     *   | ADD {FULLTEXT | SPATIAL} [INDEX | KEY] [index_name]
+     *         (key_part,...) [index_option] ...
+     *   | ADD [CONSTRAINT [symbol]] PRIMARY KEY
+     *         [index_type] (key_part,...)
+     *         [index_option] ...
+     *   | ADD [CONSTRAINT [symbol]] UNIQUE [INDEX | KEY]
+     *         [index_name] [index_type] (key_part,...)
+     *         [index_option] ...
+     *   | ADD [CONSTRAINT [symbol]] FOREIGN KEY
+     *         [index_name] (col_name,...)
+     *         reference_definition
+     *   | ADD CHECK (expr)
+     *   | ALGORITHM [=] {DEFAULT | INPLACE | COPY}
+     *   | ALTER [COLUMN] col_name {
+     *         SET DEFAULT {literal | (expr)}
+     *       | DROP DEFAULT
+     *     }
+     *   | CHANGE [COLUMN] old_col_name new_col_name column_definition
+     *         [FIRST | AFTER col_name]
+     *   | [DEFAULT] CHARACTER SET [=] charset_name [COLLATE [=] collation_name]
+     *   | CONVERT TO CHARACTER SET charset_name [COLLATE collation_name]
+     *   | {DISABLE | ENABLE} KEYS
+     *   | {DISCARD | IMPORT} TABLESPACE
+     *   | DROP [COLUMN] col_name
+     *   | DROP {INDEX | KEY} index_name
+     *   | DROP PRIMARY KEY
+     *   | DROP FOREIGN KEY fk_symbol
+     *   | FORCE
+     *   | LOCK [=] {DEFAULT | NONE | SHARED | EXCLUSIVE}
+     *   | MODIFY [COLUMN] col_name column_definition
+     *         [FIRST | AFTER col_name]
+     *   | ORDER BY col_name [, col_name] ...
+     *   | RENAME {INDEX | KEY} old_index_name TO new_index_name
+     *   | RENAME [TO | AS] new_tbl_name
+     *   | {WITHOUT | WITH} VALIDATION
+     * }
+     *
+     * partition_options:
+     *     partition_option [partition_option] ...
+     *
+     * partition_option: {
+     *     ADD PARTITION (partition_definition)
+     *   | DROP PARTITION partition_names
+     *   | DISCARD PARTITION {partition_names | ALL} TABLESPACE
+     *   | IMPORT PARTITION {partition_names | ALL} TABLESPACE
+     *   | TRUNCATE PARTITION {partition_names | ALL}
+     *   | COALESCE PARTITION number
+     *   | REORGANIZE PARTITION partition_names INTO (partition_definitions)
+     *   | EXCHANGE PARTITION partition_name WITH TABLE tbl_name [{WITH | WITHOUT} VALIDATION]
+     *   | ANALYZE PARTITION {partition_names | ALL}
+     *   | CHECK PARTITION {partition_names | ALL}
+     *   | OPTIMIZE PARTITION {partition_names | ALL}
+     *   | REBUILD PARTITION {partition_names | ALL}
+     *   | REPAIR PARTITION {partition_names | ALL}
+     *   | REMOVE PARTITIONING
+     *   | UPGRADE PARTITIONING
+     * }
+     *
+     * key_part:
+     *     col_name [(length)] [ASC | DESC]
+     *
+     * index_type:
+     *     USING {BTREE | HASH}
+     *
+     * index_option: {
+     *     KEY_BLOCK_SIZE [=] value
+     *   | index_type
+     *   | WITH PARSER parser_name
+     *   | COMMENT 'string'
+     * }
+     *
+     * table_options:
+     *     table_option [[,] table_option] ...
+     *
+     * table_option: {
+     *     AUTO_INCREMENT [=] value
+     *   | AVG_ROW_LENGTH [=] value
+     *   | [DEFAULT] CHARACTER SET [=] charset_name
+     *   | CHECKSUM [=] {0 | 1}
+     *   | [DEFAULT] COLLATE [=] collation_name
+     *   | COMMENT [=] 'string'
+     *   | COMPRESSION [=] {'ZLIB' | 'LZ4' | 'NONE'}
+     *   | CONNECTION [=] 'connect_string'
+     *   | {DATA | INDEX} DIRECTORY [=] 'absolute path to directory'
+     *   | DELAY_KEY_WRITE [=] {0 | 1}
+     *   | ENCRYPTION [=] {'Y' | 'N'}
+     *   | ENGINE [=] engine_name
+     *   | INSERT_METHOD [=] { NO | FIRST | LAST }
+     *   | KEY_BLOCK_SIZE [=] value
+     *   | MAX_ROWS [=] value
+     *   | MIN_ROWS [=] value
+     *   | PACK_KEYS [=] {0 | 1 | DEFAULT}
+     *   | PASSWORD [=] 'string'
+     *   | ROW_FORMAT [=] {DEFAULT | DYNAMIC | FIXED | COMPRESSED | REDUNDANT | COMPACT}
+     *   | STATS_AUTO_RECALC [=] {DEFAULT | 0 | 1}
+     *   | STATS_PERSISTENT [=] {DEFAULT | 0 | 1}
+     *   | STATS_SAMPLE_PAGES [=] value
+     *   | TABLESPACE tablespace_name [STORAGE {DISK | MEMORY}]
+     *   | UNION [=] (tbl_name[,tbl_name]...)
+     * }
+     *
+     * partition_options:
+     *     (see CREATE TABLE options)
+     *
+     *
+     *
+     *
+     *
+     *
+     *
      * ALTER TABLE [db명].[table명] ADD COLUMN asdf VARCHAR(123) NOT NULL
      *
      * Finished DDL execution. duration : 0.03 sec.
