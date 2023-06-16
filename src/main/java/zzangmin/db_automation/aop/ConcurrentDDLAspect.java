@@ -33,18 +33,11 @@ public class ConcurrentDDLAspect {
         addRunningDatabase(databaseName);
     }
 
-    @AfterReturning("requestMappingMethods()")
+    @After("requestMappingMethods()")
     public void afterReturningRequest(JoinPoint joinPoint) {
         String databaseName = findDatabaseNameFromHttpRequest();
         removeRunningDatabase(databaseName);
     }
-
-    @AfterThrowing(value = "requestMappingMethods()", throwing = "exception")
-    public void afterThrowingRequest(JoinPoint joinPoint, Throwable exception) {
-        String databaseName = findDatabaseNameFromHttpRequest();
-        removeRunningDatabase(databaseName);
-    }
-
 
     private boolean isDatabaseRunningDDL(String databaseName) {
         if (ddlRunningDatabases.containsKey(databaseName)) {

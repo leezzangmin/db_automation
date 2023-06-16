@@ -60,8 +60,8 @@ public class DDLValidator {
         columnConvention.validateColumnConvention(alterColumnRequestDTO.getAfterColumn());
         validateIsSchemaExists(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
@@ -78,21 +78,10 @@ public class DDLValidator {
         validateIsSchemaExists(databaseConnectionInfo, createIndexRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
         validateIsIndexExists(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName(), createIndexRequestDTO.getColumnNames());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         validateIsLongQueryExists(databaseConnectionInfo);
     }
-
-    /**
-     * 0. 요청 schema 존재여부
-     * 1. 테이블 이미 존재여부
-     * 2. cpu, memory 사용량
-     * 3. 롱쿼리(트랜잭션)
-     * 4. 테이블 status 임계치
-     * 5. FK 허용여부
-     * 6. 컬럼의 charset 및 collate 체크
-     *
-     */
 
     public void validateExtendVarchar(DatabaseConnectionInfo databaseConnectionInfo, ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO) {
         Column column = mysqlClient.findColumn(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName(), extendVarcharColumnRequestDTO.getColumn().getName())
@@ -115,8 +104,8 @@ public class DDLValidator {
         validateIsSchemaExists(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
         validateIsExistColumnName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName(), deleteColumnRequestDTO.getColumnName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 

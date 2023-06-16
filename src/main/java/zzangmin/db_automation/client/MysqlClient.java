@@ -2,6 +2,7 @@ package zzangmin.db_automation.client;
 
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.Column;
+import zzangmin.db_automation.entity.MetadataLockHolder;
 import zzangmin.db_automation.entity.MysqlProcess;
 import zzangmin.db_automation.entity.TableStatus;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
@@ -212,30 +213,67 @@ public class MysqlClient {
         return Optional.empty();
     }
 
-    public List<MysqlProcess> findMetadataLockProcesses(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
-        String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST WHERE State like 'Waiting for Waiting for table metadata lock'";
-        List<MysqlProcess> metadataLockProcesses = new ArrayList<>();
+    public List<MetadataLockHolder> findMetadataLockHolders(DatabaseConnectionInfo databaseConnectionInfo) {
+        String SQL = "SELECT " +
+                "MLOCK2.OBJECT_TYPE, " +
+                "MLOCK2.OBJECT_SCHEMA, " +
+                "MLOCK2.OBJECT_NAME," +
+                "MLOCK2.LOCK_TYPE, " +
+                "MLOCK2.LOCK_STATUS, " +
+                "THREADS.THREAD_ID, " +
+                "THREADS.PROCESSLIST_ID," +
+                "THREADS.PROCESSLIST_INFO, " +
+                "THREADS.PROCESSLIST_TIME " +
+                "FROM " +
+                "performance_schema.metadata_locks MLOCK1 " +
+                "JOIN " +
+                "performance_schema.metadata_locks MLOCK2 " +
+                "ON " +
+                "MLOCK1.OWNER_THREAD_ID<>MLOCK2.OWNER_THREAD_ID " +
+                "AND " +
+                "MLOCK1.OBJECT_NAME=MLOCK2.OBJECT_NAME " +
+                "AND " +
+                "MLOCK1.LOCK_STATUS = 'PENDING' " +
+                "JOIN " +
+                "performance_schema.threads THREADS " +
+                "ON " +
+                "MLOCK2.OWNER_THREAD_ID = THREADS.THREAD_ID";
+        System.out.println("SQL = " + SQL);
+        List<MetadataLockHolder> metadataLockHolders = new ArrayList<>();
         try {
             Connection connection = DriverManager.getConnection(
                     databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
             try (PreparedStatement stmt = connection.prepareStatement(SQL);
                  ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
-                    long id = resultSet.getLong("id");
-                    String user = resultSet.getString("User");
-                    String host = resultSet.getString("Host");
-                    String db = resultSet.getString("db");
-                    String command = resultSet.getString("Command");
-                    long time = resultSet.getLong("Time");
-                    String state = resultSet.getString("State");
-                    String info = resultSet.getString("Info");
-                    metadataLockProcesses.add(new MysqlProcess(id, user, host, db, command, time, state, info));
+                    String objectType = resultSet.getString("OBJECT_TYPE");
+                    String objectSchema = resultSet.getString("OBJECT_SCHEMA");
+                    String objectName = resultSet.getString("OBJECT_NAME");
+                    String lockType = resultSet.getString("LOCK_TYPE");
+                    String lockStatus = resultSet.getString("LOCK_STATUS");
+                    long threadId = resultSet.getLong("THREAD_ID");
+                    long processlistId = resultSet.getLong("PROCESSLIST_ID");
+                    String processlistInfo = resultSet.getString("PROCESSLIST_INFO");
+                    long processlistTime = resultSet.getLong("PROCESSLIST_TIME");
+                    metadataLockHolders.add(new MetadataLockHolder(objectType, objectSchema, objectName, lockType, lockStatus, threadId, processlistId, processlistInfo, processlistTime));
                 }
-                return metadataLockProcesses;
+                return metadataLockHolders;
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        throw new IllegalStateException("metadata lock process 정보를 불러올 수 없습니다.");
+        throw new IllegalStateException("metadata lock holder process 정보를 불러올 수 없습니다.");
+    }
+
+    public void killSession(DatabaseConnectionInfo databaseConnectionInfo, long sessionId) {
+        String SQL = "KILL " + sessionId;
+        try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(),
+                databaseConnectionInfo.getUsername(),"mysql5128*");
+             Statement statement = connection.createStatement()) {
+                statement.executeUpdate(SQL);
+            System.out.println("kill "+ sessionId + "executed.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
