@@ -36,27 +36,11 @@ dependencies {
 	implementation 'software.amazon.awssdk:rds:2.16.80'
 	implementation 'software.amazon.awssdk:core:2.16.80'
 
-	// https://github.com/awslabs/aws-serverless-java-container/wiki/Quick-start---Spring-Boot3
-	// implementation group: 'com.amazonaws.serverless', name: 'aws-serverless-java-container-springboot3', version: '2.0.0-M1'
-	implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot3:[2.0-SNAPSHOT,)'
-
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-task buildZip(type: Zip) {
-	from compileJava
-	from processResources
-	into('lib') {
-		from(configurations.compileClasspath) {
-			exclude 'tomcat-embed-*'
-		}
-	}
-}
-
-// ---------------------------------------------------------------------------------------------------------
 
 //def frontendDir = "$projectDir/src/main/frontend"
 //
@@ -99,5 +83,3 @@ task buildZip(type: Zip) {
 //	from "$frontendDir/build"
 //	into "$projectDir/src/main/resources/static"
 //}
-
-build.dependsOn buildZip
