@@ -3,7 +3,6 @@ package zzangmin.db_automation.entity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +11,7 @@ import java.util.regex.Pattern;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Column {
     @NotBlank
     private String name;
