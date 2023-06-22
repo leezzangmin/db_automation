@@ -58,7 +58,7 @@ public class MysqlClientTest {
             ResultSet resultSet = statement.executeQuery("SELECT count(*) from test_schema.test_table");
             if (resultSet.next()) {
                 int count = resultSet.getInt(1);
-                assertEquals(0, count);
+                assertEquals(1, count);
             }
         } catch (SQLException e) {
             fail(e.getMessage());
@@ -207,22 +207,27 @@ public class MysqlClientTest {
         assertEquals("utf8mb4_0900_ai_ci", column.getCollate());
     }
 
+    @DisplayName("findMetadataLockHolders로 Metadata Lock 유발 프로세스를 조회할 수 있다.")
     @Test
     public void testFindMetadataLockHolders() throws Exception {
         // given
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<?> holderFuture = executorService.submit(() -> {
+        String metadataHolderSQL = "select * from test_schema.test_table where sleep(5)=0 limit 1";
+
+        ExecutorService executorService1 = Executors.newSingleThreadExecutor();
+        ExecutorService executorService2 = Executors.newSingleThreadExecutor();
+
+        Future<?> holderFuture = executorService1.submit(() -> {
             try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
                  Statement statement = connection.createStatement()) {
                 statement.execute("start transaction");
-                statement.execute("select * from test_schema.test_table where sleep(5)=0 limit 1");
+                statement.execute(metadataHolderSQL);
                 statement.execute("commit ");
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
 
-        Future<?> alterFuture = executorService.submit(() -> {
+        Future<?> alterFuture = executorService2.submit(() -> {
             try (Connection connection = DriverManager.getConnection(
                     databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
                  Statement statement = connection.createStatement()) {
@@ -238,5 +243,72 @@ public class MysqlClientTest {
 
         // then
         assertThat(metadataLockHolders.isEmpty()).isFalse();
+        MetadataLockHolder metadataLockHolder = metadataLockHolders.get(0);
+        assertThat(metadataLockHolder.getProcessListInfo()).isEqualTo(metadataHolderSQL);
+    }
+
+    @DisplayName("killSession으로 세션을 종료할 수 있다.")
+    @Test
+    public void testKillSession() throws InterruptedException {
+        //given
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<?> longQueryFuture = executorService.submit(() -> {
+            try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                 Statement statement = connection.createStatement()) {
+                statement.execute("select * from test_schema.test_table where sleep(5)=0 limit 1");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        Thread.sleep(1000);
+        MysqlProcess longQuery = mysqlClient.findLongQueries(databaseConnectionInfo, 1).get(0);
+        long longQuerySessionId = longQuery.getId();
+
+        //when
+        mysqlClient.killSession(databaseConnectionInfo, longQuerySessionId);
+
+        //then
+        assertThat(mysqlClient.findLongQueries(databaseConnectionInfo, 1)).isEmpty();
+    }
+
+    @DisplayName("findDDLExecutingSession으로 DDL 실행중인 세션을 조회할 수 있다.")
+    @Test
+    public void testFindDDLExecutingSession() throws Exception {
+        // given (Alter 감지를 위해 강제로 metadata lock waiting 유발)
+        String metadataHolderSQL = "select * from test_schema.test_table where sleep(5)=0 limit 1";
+        String alterSQL = "ALTER TABLE test_schema.test_table ADD INDEX test_index(id, name)";
+
+        ExecutorService executorService1 = Executors.newSingleThreadExecutor();
+        ExecutorService executorService2 = Executors.newSingleThreadExecutor();
+
+        Future<?> holderFuture = executorService1.submit(() -> {
+            try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                 Statement statement = connection.createStatement()) {
+                statement.execute("start transaction");
+                statement.execute(metadataHolderSQL);
+                statement.execute("commit ");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        Future<?> alterFuture = executorService2.submit(() -> {
+            try (Connection connection = DriverManager.getConnection(
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                 Statement statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE test_schema.test_table ADD INDEX test_index(id, name)");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        Thread.sleep(1000);
+
+        // when
+        Optional<MysqlProcess> ddlExecutingSession = mysqlClient.findDDLExecutingSession(databaseConnectionInfo);
+
+        // then
+        assertThat(ddlExecutingSession.isPresent()).isTrue();
+        assertThat(ddlExecutingSession.get().getInfo()).isEqualTo(alterSQL);
+
     }
 }
