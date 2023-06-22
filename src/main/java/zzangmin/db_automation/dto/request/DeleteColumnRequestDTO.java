@@ -1,4 +1,4 @@
-package zzangmin.db_automation.dto;
+package zzangmin.db_automation.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,9 +9,9 @@ import zzangmin.db_automation.entity.CommandType;
 @ToString
 @Getter
 @NoArgsConstructor
-public class DeleteColumnRequestDTO implements DDLRequestDTO {
+public class DeleteColumnRequestDTO extends DDLRequestDTO {
     private CommandType commandType;
     private String schemaName;
     private String tableName;
-    private Column column;
+    private String columnName;
 }

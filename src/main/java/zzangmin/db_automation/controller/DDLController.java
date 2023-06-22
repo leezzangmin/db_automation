@@ -4,14 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import zzangmin.db_automation.argumentresolver.TargetDatabase;
-import zzangmin.db_automation.dto.*;
+import zzangmin.db_automation.dto.request.*;
+import zzangmin.db_automation.dto.response.*;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DDLService;
-
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import zzangmin.db_automation.validator.DDLValidator;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,43 +16,74 @@ import java.sql.Statement;
 public class DDLController {
 
     private final DDLService ddlService;
+    private final DDLValidator ddlValidator;
 
-//    @PostMapping("/ddl/validate")
-//    public String validCommand(@RequestParam String dbName, @RequestParam String ddlCommand) {
-//        return "ok";
-//
-//    }
+    // TODO: 인증/인가
+
+    @GetMapping("/ddl/validate")
+    public String validCommand(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                               @RequestBody DDLRequestDTO ddlRequestDTO) {
+        ddlValidator.validateDDLRequest(databaseConnectionInfo, ddlRequestDTO);
+        return "ok";
+    }
 
     @PutMapping("/ddl/column")
-    public String addColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody AddColumnRequestDTO ddlRequestDTO) {
-        return "ok";
+    public AddColumnResponseDTO addColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                            @RequestBody AddColumnRequestDTO ddlRequestDTO) {
+        ddlValidator.validateAddColumn(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.addColumn(databaseConnectionInfo, ddlRequestDTO);
     }
 
     @PatchMapping("/ddl/column")
-    public String alterColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody AlterColumnRequestDTO ddlRequestDTO) {
-        return "ok";
+    public AlterColumnResponseDTO alterColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                              @RequestBody AlterColumnRequestDTO ddlRequestDTO) {
+        ddlValidator.validateAlterColumn(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.alterColumn(databaseConnectionInfo, ddlRequestDTO);
     }
 
     @PutMapping("/ddl/index")
-    public String createIndex(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody CreateIndexRequestDTO ddlRequestDTO) {
-        return "ok";
+    public CreateIndexResponseDTO createIndex(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                              @RequestBody CreateIndexRequestDTO ddlRequestDTO) {
+        ddlValidator.validateCreateIndex(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.createIndex(databaseConnectionInfo, ddlRequestDTO);
     }
 
     @PutMapping("/ddl/table")
-    public String createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody CreateTableRequestDTO ddlRequestDTO) {
-        ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
-        return "ok";
+    public CreateTableResponseDTO createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                              @RequestBody CreateTableRequestDTO ddlRequestDTO) throws InterruptedException {
+        ddlValidator.validateCreateTable(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
     }
 
+    // TODO: rename -> delete
     @DeleteMapping("/ddl/column")
-    public String deleteColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody DeleteColumnRequestDTO ddlRequestDTO) {
-        return "ok";
+    public DeleteColumnResponseDTO deleteColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                                @RequestBody DeleteColumnRequestDTO ddlRequestDTO) {
+        ddlValidator.validateDeleteColumn(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.deleteColumn(databaseConnectionInfo, ddlRequestDTO);
     }
 
     @PatchMapping("/ddl/varchar")
-    public String extendVarcharColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo, @RequestBody ExtendVarcharColumnRequestDTO ddlRequestDTO) {
-        return "ok";
+    public ExtendVarcharColumnResponseDTO extendVarcharColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                                              @RequestBody ExtendVarcharColumnRequestDTO ddlRequestDTO) {
+        ddlValidator.validateExtendVarchar(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.extendVarcharColumn(databaseConnectionInfo, ddlRequestDTO);
     }
 
-}
+    @PatchMapping("/ddl/column/name")
+    public RenameColumnResponseDTO renameColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                                @RequestBody RenameColumnRequestDTO ddlRequestDTO) {
+        ddlValidator.validateRenameColumn(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.renameColumn(databaseConnectionInfo, ddlRequestDTO);
+    }
 
+//
+//    @PatchMapping"/ddl/index/name")
+//
+//    @PatchMapping("/ddl/column/comment")
+//
+//    @PatchMapping("/ddl/table/comment")
+
+
+
+}
