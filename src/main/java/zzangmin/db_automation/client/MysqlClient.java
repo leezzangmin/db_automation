@@ -1,6 +1,7 @@
 package zzangmin.db_automation.client;
 
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.convention.CommonConvention;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.MetadataLockHolder;
 import zzangmin.db_automation.entity.MysqlProcess;
@@ -21,7 +22,7 @@ public class MysqlClient {
         System.out.println("SQL = " + SQL);
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
 
             Statement statement = connection.createStatement();
             statement.setQueryTimeout(COMMAND_TIMEOUT_SECONDS);
@@ -44,7 +45,7 @@ public class MysqlClient {
         Set<String> tableNames = new HashSet<>();
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
 
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(SQL);
@@ -64,7 +65,7 @@ public class MysqlClient {
         Set<String> schemaNames = new HashSet<>();
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
 
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(SQL);
@@ -88,7 +89,7 @@ public class MysqlClient {
         List<MysqlProcess> longQueries = new ArrayList<>();
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
 
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(SQL);
@@ -116,7 +117,7 @@ public class MysqlClient {
         String createTableStatement = "";
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
             try (PreparedStatement stmt = connection.prepareStatement(SQL);
                  ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -136,7 +137,7 @@ public class MysqlClient {
                 "' AND TABLE_NAME = '" + tableName + "'";
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
 
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(SQL);
@@ -165,7 +166,7 @@ public class MysqlClient {
                 "WHERE TABLE_SCHEMA = '" + schemaName + "' AND TABLE_NAME = '" + tableName + "' ORDER BY INDEX_NAME, SEQ_IN_INDEX";
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
 
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(SQL);
@@ -190,21 +191,27 @@ public class MysqlClient {
         throw new IllegalStateException("인덱스 정보를 불러올 수 없습니다.");
     }
 
+
     public Optional<Column> findColumn(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, String columnName) {
-        String SQL = "SHOW COLUMNS FROM `" + schemaName + "`.`" + tableName + "` WHERE Field = '" + columnName + "'";
+        String SQL = "SELECT * " +
+                "FROM INFORMATION_SCHEMA.COLUMNS " +
+                "WHERE TABLE_SCHEMA = '" + schemaName + "' AND TABLE_NAME = '" + tableName + "' AND COLUMN_NAME = '" + columnName + "'";
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
             try (PreparedStatement stmt = connection.prepareStatement(SQL);
                  ResultSet resultSet = stmt.executeQuery()) {
                 if (resultSet.next()) {
-                    String findColumnName = resultSet.getString("Field");
-                    String type = resultSet.getString("Type");
-                    String isNull = resultSet.getString("Null");
-                    String key = resultSet.getString("Key");
-                    String defaultValue = resultSet.getString("Default");
+                    String findColumnName = resultSet.getString("COLUMN_NAME");
+                    String type = resultSet.getString("DATA_TYPE");
+                    String isNull = resultSet.getString("IS_NULLABLE");
+                    String key = resultSet.getString("COLUMN_KEY");
+                    String defaultValue = resultSet.getString("COLUMN_DEFAULT");
                     String extra = resultSet.getString("Extra");
-                    return Optional.ofNullable(new Column(findColumnName, type, isNull.equals("NO") ? true : false, defaultValue, key.equals("UNI") ? true : false, extra.equals("auto_increment") ? true : false, null, null, null));
+                    String columnComment = resultSet.getString("COLUMN_COMMENT");
+                    String charset = resultSet.getString("CHARACTER_SET_NAME");
+                    String collate = resultSet.getString("COLLATION_NAME");
+                    return Optional.ofNullable(new Column(findColumnName, type, isNull.equals("NO") ? false : true, defaultValue, key.equals("UNI") ? true : false, extra.equals("auto_increment") ? true : false, columnComment, Objects.isNull(charset) ? CommonConvention.CHARSET : charset, Objects.isNull(collate) ? CommonConvention.COLLATE : collate));
                 }
             }
         } catch (SQLException e) {
@@ -238,11 +245,10 @@ public class MysqlClient {
                 "performance_schema.threads THREADS " +
                 "ON " +
                 "MLOCK2.OWNER_THREAD_ID = THREADS.THREAD_ID";
-        System.out.println("SQL = " + SQL);
         List<MetadataLockHolder> metadataLockHolders = new ArrayList<>();
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(),"mysql5128*");
+                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
             try (PreparedStatement stmt = connection.prepareStatement(SQL);
                  ResultSet resultSet = stmt.executeQuery()) {
                 while (resultSet.next()) {
@@ -268,12 +274,38 @@ public class MysqlClient {
     public void killSession(DatabaseConnectionInfo databaseConnectionInfo, long sessionId) {
         String SQL = "KILL " + sessionId;
         try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(),
-                databaseConnectionInfo.getUsername(),"mysql5128*");
+                databaseConnectionInfo.getUsername(), "mysql5128*");
              Statement statement = connection.createStatement()) {
-                statement.executeUpdate(SQL);
-            System.out.println("kill "+ sessionId + "executed.");
+            statement.executeUpdate(SQL);
+            System.out.println("kill " + sessionId + "executed.");
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
+    public Optional<MysqlProcess> findDDLExecutingSession(DatabaseConnectionInfo databaseConnectionInfo) {
+        String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST WHERE COMMAND = 'Query' AND INFO LIKE 'ALTER%' OR INFO LIKE 'CREATE%' OR INFO LIKE 'DROP%'";
+        Optional<MysqlProcess> mysqlProcesses = Optional.empty();
+        try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(),
+                databaseConnectionInfo.getUsername(), "mysql5128*");
+             PreparedStatement stmt = connection.prepareStatement(SQL);
+             ResultSet resultSet = stmt.executeQuery()) {
+            if (resultSet.next()) {
+                long id = resultSet.getLong("ID");
+                String user = resultSet.getString("USER");
+                String host = resultSet.getString("HOST");
+                String db = resultSet.getString("DB");
+                String command = resultSet.getString("COMMAND");
+                long time = resultSet.getLong("TIME");
+                String state = resultSet.getString("STATE");
+                String info = resultSet.getString("INFO");
+                mysqlProcesses = Optional.ofNullable(new MysqlProcess(id, user, host, db, command, time, state, info));
+            }
+            return mysqlProcesses;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return mysqlProcesses;
+    }
+
 }

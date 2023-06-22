@@ -61,4 +61,11 @@ public class DDLService {
         String createTableStatement = mysqlClient.findCreateTableStatement(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
         return new AlterColumnResponseDTO("test@gmail.com", databaseConnectionInfo.getDatabaseName(), alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName(), createTableStatement);
     }
+
+    public RenameColumnResponseDTO renameColumn(DatabaseConnectionInfo databaseConnectionInfo, RenameColumnRequestDTO ddlRequestDTO) {
+        String renameColumnSQL = ddlParser.commandToSql(ddlRequestDTO);
+        mysqlClient.executeSQL(databaseConnectionInfo, renameColumnSQL);
+        String createTableStatement = mysqlClient.findCreateTableStatement(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName());
+        return new RenameColumnResponseDTO("test@gmail.com", databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), createTableStatement);
+    }
 }

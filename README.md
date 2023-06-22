@@ -9,6 +9,7 @@ varchar 확장
 - 개발자들이 직접 DDL을 안전하게 실행할 수 있게 되어 커뮤니케이션 비용 하락, 개발 속도 향상
 
 ## TODO
+- 메트릭 수치 안좋으면 cancel
 - metadata lock detection AOP
 - metadata 만 변경하는 작업은 즉시 실행(리스트업 필요)
   - rename

@@ -3,7 +3,6 @@ package zzangmin.db_automation.dto.request;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
 

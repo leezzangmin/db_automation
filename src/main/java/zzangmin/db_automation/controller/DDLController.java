@@ -70,4 +70,20 @@ public class DDLController {
         return ddlService.extendVarcharColumn(databaseConnectionInfo, ddlRequestDTO);
     }
 
+    @PatchMapping("/ddl/column/name")
+    public RenameColumnResponseDTO renameColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                                @RequestBody RenameColumnRequestDTO ddlRequestDTO) {
+        ddlValidator.validateRenameColumn(databaseConnectionInfo, ddlRequestDTO);
+        return ddlService.renameColumn(databaseConnectionInfo, ddlRequestDTO);
+    }
+
+//
+//    @PatchMapping"/ddl/index/name")
+//
+//    @PatchMapping("/ddl/column/comment")
+//
+//    @PatchMapping("/ddl/table/comment")
+
+
+
 }

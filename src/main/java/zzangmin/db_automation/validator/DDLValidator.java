@@ -52,6 +52,15 @@ public class DDLValidator {
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
             validateExtendVarchar(databaseConnectionInfo, (ExtendVarcharColumnRequestDTO) ddlRequestDTO);
             return;
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
+            validateRenameColumn(databaseConnectionInfo, (RenameColumnRequestDTO) ddlRequestDTO);
+            return ;
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_INDEX)) {
+            return;
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN_COMMENT)) {
+            return;
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_TABLE_COMMENT)) {
+            return;
         }
         throw new IllegalArgumentException("CommandType 지원 불가");
     }
@@ -109,8 +118,14 @@ public class DDLValidator {
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
-
-
+    public void validateRenameColumn(DatabaseConnectionInfo databaseConnectionInfo, RenameColumnRequestDTO ddlRequestDTO) {
+        columnConvention.validateColumnNamingConvention(ddlRequestDTO.getAfterColumnName());
+        validateIsSchemaExists(databaseConnectionInfo, ddlRequestDTO.getSchemaName());
+        validateIsExistColumnName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), ddlRequestDTO.getBeforeColumnName());
+        tableStatusValidator.validateTableSize(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        validateIsLongQueryExists(databaseConnectionInfo);
+    }
 
     private void validateIsNotExistTableName(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
         Set<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);

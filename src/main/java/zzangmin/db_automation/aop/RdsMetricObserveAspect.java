@@ -3,42 +3,45 @@ package zzangmin.db_automation.aop;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
-import zzangmin.db_automation.schedule.MetadataLockDetector;
+import zzangmin.db_automation.schedule.RdsMetricDetector;
 
 @RequiredArgsConstructor
 @Aspect
 @Component
-public class MetadataLockAspect {
+public class RdsMetricObserveAspect {
 
     private final DynamicDataSourceProperties dynamicDataSourceProperties;
-    private final MetadataLockDetector metadataLockDetector;
+    private final RdsMetricDetector rdsMetricDetector;
 
     @Pointcut("execution(* zzangmin.db_automation.service.DDLService.*(..))")
     public void ddlServiceMethods() {
     }
 
     @Before("ddlServiceMethods()")
-    public void startCheckMetadataLock(JoinPoint joinPoint) {
+    public void startCheckRdsMetric(JoinPoint joinPoint) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
         String databaseName = request.getParameter("databaseName");
         DatabaseConnectionInfo databaseConnectionInfo = dynamicDataSourceProperties.findByDbName(databaseName);
-        metadataLockDetector.startCheck(databaseConnectionInfo);
+        rdsMetricDetector.startCheck(databaseConnectionInfo);
     }
 
     @After("ddlServiceMethods()")
-    public void endCheckMetadataLock(JoinPoint joinPoint) {
+    public void endCheckRdsMetric(JoinPoint joinPoint) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
         String databaseName = request.getParameter("databaseName");
         DatabaseConnectionInfo databaseConnectionInfo = dynamicDataSourceProperties.findByDbName(databaseName);
-        metadataLockDetector.endCheck(databaseConnectionInfo);
+        rdsMetricDetector.endCheck(databaseConnectionInfo);
     }
 
 }

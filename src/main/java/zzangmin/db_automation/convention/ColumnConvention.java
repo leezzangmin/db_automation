@@ -36,7 +36,7 @@ public class ColumnConvention {
         checkUniqueNullable(column.isUnique(), column.isNull(), column.getDefaultValue());
     }
 
-    private void validateColumnNamingConvention(String columnName) {
+    public void validateColumnNamingConvention(String columnName) {
         commonConvention.validateSnakeCase(columnName);
         commonConvention.validateLowerCaseString(columnName);
     }

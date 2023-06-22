@@ -25,9 +25,30 @@ public class DDLParser {
             return deleteColumnCommandToSql((DeleteColumnRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
             return extendVarcharColumnCommandToSql((ExtendVarcharColumnRequestDTO) ddlRequestDTO);
-        }
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
+            return renameColumnCommandToSql((RenameColumnRequestDTO) ddlRequestDTO);
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_INDEX)) {
 
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN_COMMENT)) {
+
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_TABLE_COMMENT)) {
+
+        }
         throw new IllegalArgumentException("존재하지 않는 명령입니다.");
+    }
+
+    private String renameColumnCommandToSql(RenameColumnRequestDTO dto) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ALTER TABLE `");
+        sb.append(dto.getSchemaName());
+        sb.append("`.`");
+        sb.append(dto.getTableName());
+        sb.append("` RENAME COLUMN `");
+        sb.append(dto.getBeforeColumnName());
+        sb.append("` TO `");
+        sb.append(dto.getAfterColumnName());
+        sb.append("` ");
+        return sb.toString();
     }
 
     private String alterColumnCommandToSql(AlterColumnRequestDTO dto) {
@@ -110,13 +131,13 @@ public class DDLParser {
 
     private String createIndexCommandToSql(CreateIndexRequestDTO dto) {
         StringBuilder sb = new StringBuilder();
-        sb.append("CREATE INDEX ");
-        sb.append(dto.getIndexName());
-        sb.append(" on `");
+        sb.append("ALTER TABLE `");
         sb.append(dto.getSchemaName());
         sb.append("`.`");
         sb.append(dto.getTableName());
-        sb.append("` (");
+        sb.append("` ADD INDEX ");
+        sb.append(dto.getIndexName());
+        sb.append("(");
         for (String columnName : dto.getColumnNames()) {
             sb.append("`");
             sb.append(columnName);
@@ -148,6 +169,7 @@ public class DDLParser {
         sb.append("` (\n");
         return sb.toString();
     }
+
     private String generateColumnStatement(List<Column> columns) {
         StringBuilder sb = new StringBuilder();
         for (Column column : columns) {
@@ -184,11 +206,9 @@ public class DDLParser {
                 sb.append(keyName);
                 sb.append("`,");
             }
-            // 마지막 쉼표 제거
             sb.deleteCharAt(sb.lastIndexOf(","));
             sb.append("),\n");
         }
-        // 마지막 쉼표 제거
         sb.deleteCharAt(sb.lastIndexOf(","));
         return sb.toString();
     }
