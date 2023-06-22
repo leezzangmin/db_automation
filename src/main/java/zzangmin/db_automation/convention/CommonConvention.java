@@ -11,7 +11,7 @@ public class CommonConvention {
     public static final String ENGINE_TYPE = "InnoDB";
     public static final String CHARSET = "utf8mb4";
     public static final int BYTE_PER_CHARACTER = 4;
-    public static final String COLLATE = "utf8mb4_general_ci";
+    public static final String COLLATE = "utf8mb4_0900_ai_ci";
     public static final Set<String> CONSTRAINT_TYPE = Set.of("PRIMARY KEY", "UNIQUE KEY", "KEY");
 
     public static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("^[a-z]+(_[a-z]+)*$");
