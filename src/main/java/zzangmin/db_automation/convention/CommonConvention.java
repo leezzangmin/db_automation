@@ -8,6 +8,8 @@ import java.util.regex.Pattern;
 @Component
 public class CommonConvention {
 
+    public final static int TABLE_BYTE_SIZE_THRESHOLD = 123456789;
+    public final static int TABLE_ROW_SIZE_THRESHOLD = 9999999;
     public static final String ENGINE_TYPE = "InnoDB";
     public static final String CHARSET = "utf8mb4";
     public static final int BYTE_PER_CHARACTER = 4;

@@ -6,13 +6,12 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.entity.TableStatus;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
+import static zzangmin.db_automation.convention.CommonConvention.TABLE_BYTE_SIZE_THRESHOLD;
+import static zzangmin.db_automation.convention.CommonConvention.TABLE_ROW_SIZE_THRESHOLD;
+
 @RequiredArgsConstructor
 @Component
 public class TableStatusValidator {
-
-    private final static int TABLE_BYTE_SIZE_THRESHOLD = 123456789;
-    private final static int TABLE_ROW_SIZE_THRESHOLD = 9999999;
-
 
     private final MysqlClient mysqlClient;
 
