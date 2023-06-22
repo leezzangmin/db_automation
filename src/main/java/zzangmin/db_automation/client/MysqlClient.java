@@ -179,14 +179,19 @@ public class MysqlClient {
 
 
     public Optional<Column> findColumn(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, String columnName) {
-        String SQL = "SELECT * " +
+        String sql = "SELECT * " +
                 "FROM INFORMATION_SCHEMA.COLUMNS " +
-                "WHERE TABLE_SCHEMA = '" + schemaName + "' AND TABLE_NAME = '" + tableName + "' AND COLUMN_NAME = '" + columnName + "'";
-        try {
-            Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
-            try (PreparedStatement stmt = connection.prepareStatement(SQL);
-                 ResultSet resultSet = stmt.executeQuery()) {
+                "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?";
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
+
+            stmt.setString(1, schemaName);
+            stmt.setString(2, tableName);
+            stmt.setString(3, columnName);
+
+            try (ResultSet resultSet = stmt.executeQuery()) {
                 if (resultSet.next()) {
                     String findColumnName = resultSet.getString("COLUMN_NAME");
                     String type = resultSet.getString("DATA_TYPE");
@@ -197,24 +202,40 @@ public class MysqlClient {
                     String columnComment = resultSet.getString("COLUMN_COMMENT");
                     String charset = resultSet.getString("CHARACTER_SET_NAME");
                     String collate = resultSet.getString("COLLATION_NAME");
-                    return Optional.ofNullable(new Column(findColumnName, type, isNull.equals("NO") ? false : true, defaultValue, key.equals("UNI") ? true : false, extra.equals("auto_increment") ? true : false, columnComment, Objects.isNull(charset) ? CommonConvention.CHARSET : charset, Objects.isNull(collate) ? CommonConvention.COLLATE : collate));
+
+                    boolean isNullValue = isNull.equals("NO");
+                    boolean isUniqueKey = key.equals("UNI");
+                    boolean isAutoIncrement = extra.equals("auto_increment");
+
+                    return Optional.of(new Column(
+                            findColumnName,
+                            type,
+                            isNullValue,
+                            defaultValue,
+                            isUniqueKey,
+                            isAutoIncrement,
+                            columnComment,
+                            Objects.isNull(charset) ? CommonConvention.CHARSET : charset,
+                            Objects.isNull(collate) ? CommonConvention.COLLATE : collate));
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return Optional.empty();
     }
 
+
     public List<MetadataLockHolder> findMetadataLockHolders(DatabaseConnectionInfo databaseConnectionInfo) {
-        String SQL = "SELECT " +
+        String sql = "SELECT " +
                 "MLOCK2.OBJECT_TYPE, " +
                 "MLOCK2.OBJECT_SCHEMA, " +
-                "MLOCK2.OBJECT_NAME," +
+                "MLOCK2.OBJECT_NAME, " +
                 "MLOCK2.LOCK_TYPE, " +
                 "MLOCK2.LOCK_STATUS, " +
                 "THREADS.THREAD_ID, " +
-                "THREADS.PROCESSLIST_ID," +
+                "THREADS.PROCESSLIST_ID, " +
                 "THREADS.PROCESSLIST_INFO, " +
                 "THREADS.PROCESSLIST_TIME " +
                 "FROM " +
@@ -222,39 +243,41 @@ public class MysqlClient {
                 "JOIN " +
                 "performance_schema.metadata_locks MLOCK2 " +
                 "ON " +
-                "MLOCK1.OWNER_THREAD_ID<>MLOCK2.OWNER_THREAD_ID " +
+                "MLOCK1.OWNER_THREAD_ID <> MLOCK2.OWNER_THREAD_ID " +
                 "AND " +
-                "MLOCK1.OBJECT_NAME=MLOCK2.OBJECT_NAME " +
+                "MLOCK1.OBJECT_NAME = MLOCK2.OBJECT_NAME " +
                 "AND " +
                 "MLOCK1.LOCK_STATUS = 'PENDING' " +
                 "JOIN " +
                 "performance_schema.threads THREADS " +
                 "ON " +
                 "MLOCK2.OWNER_THREAD_ID = THREADS.THREAD_ID";
+
         List<MetadataLockHolder> metadataLockHolders = new ArrayList<>();
-        try {
-            Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
-            try (PreparedStatement stmt = connection.prepareStatement(SQL);
-                 ResultSet resultSet = stmt.executeQuery()) {
-                while (resultSet.next()) {
-                    String objectType = resultSet.getString("OBJECT_TYPE");
-                    String objectSchema = resultSet.getString("OBJECT_SCHEMA");
-                    String objectName = resultSet.getString("OBJECT_NAME");
-                    String lockType = resultSet.getString("LOCK_TYPE");
-                    String lockStatus = resultSet.getString("LOCK_STATUS");
-                    long threadId = resultSet.getLong("THREAD_ID");
-                    long processlistId = resultSet.getLong("PROCESSLIST_ID");
-                    String processlistInfo = resultSet.getString("PROCESSLIST_INFO");
-                    long processlistTime = resultSet.getLong("PROCESSLIST_TIME");
-                    metadataLockHolders.add(new MetadataLockHolder(objectType, objectSchema, objectName, lockType, lockStatus, threadId, processlistId, processlistInfo, processlistTime));
-                }
-                return metadataLockHolders;
+
+        try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
+             PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet resultSet = stmt.executeQuery()) {
+
+            while (resultSet.next()) {
+                String objectType = resultSet.getString("OBJECT_TYPE");
+                String objectSchema = resultSet.getString("OBJECT_SCHEMA");
+                String objectName = resultSet.getString("OBJECT_NAME");
+                String lockType = resultSet.getString("LOCK_TYPE");
+                String lockStatus = resultSet.getString("LOCK_STATUS");
+                long threadId = resultSet.getLong("THREAD_ID");
+                long processlistId = resultSet.getLong("PROCESSLIST_ID");
+                String processlistInfo = resultSet.getString("PROCESSLIST_INFO");
+                long processlistTime = resultSet.getLong("PROCESSLIST_TIME");
+
+                metadataLockHolders.add(new MetadataLockHolder(objectType, objectSchema, objectName, lockType, lockStatus, threadId, processlistId, processlistInfo, processlistTime));
             }
+
+            return metadataLockHolders;
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new IllegalStateException("metadata lock holder process 정보를 불러올 수 없습니다.");
         }
-        throw new IllegalStateException("metadata lock holder process 정보를 불러올 수 없습니다.");
     }
 
     public void killSession(DatabaseConnectionInfo databaseConnectionInfo, long sessionId) {
