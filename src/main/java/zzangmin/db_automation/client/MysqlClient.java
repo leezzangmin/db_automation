@@ -16,28 +16,15 @@ public class MysqlClient {
 
     private static final int COMMAND_TIMEOUT_SECONDS = 600;
 
-
-    public String executeSQL(DatabaseConnectionInfo databaseConnectionInfo, String SQL) {
-        StringBuilder result = new StringBuilder();
-        System.out.println("SQL = " + SQL);
-        try {
-            Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
-
-            Statement statement = connection.createStatement();
+    public void executeSQL(DatabaseConnectionInfo databaseConnectionInfo, String sql) {
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
+             Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(COMMAND_TIMEOUT_SECONDS);
-            statement.execute(SQL);
-
-            result.append("DDL executed successfully on database: ").append(databaseConnectionInfo.getDatabaseName());
-            statement.close();
-            connection.close();
-        } catch (Exception e) {
-            result.append(e.getStackTrace());
+            statement.execute(sql);
+        } catch (SQLException e) {
             e.printStackTrace();
-            result.append("Failed to execute DDL on database: ").append(databaseConnectionInfo.getDatabaseName());
-            result.append("\n").append(e.getMessage());
         }
-        return result.toString();
     }
 
     public Set<String> findTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
@@ -133,26 +120,25 @@ public class MysqlClient {
     public TableStatus findTableStatus(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
         String SQL = "SELECT TABLE_NAME, TABLE_SCHEMA, TABLE_TYPE, ENGINE, TABLE_ROWS, DATA_LENGTH, INDEX_LENGTH, CREATE_TIME, UPDATE_TIME " +
                 "FROM INFORMATION_SCHEMA.TABLES " +
-                "WHERE TABLE_SCHEMA = '" + schemaName +
-                "' AND TABLE_NAME = '" + tableName + "'";
-        try {
-            Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
-
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(SQL);
-
-            if (resultSet.next()) {
-                String schema = resultSet.getString("TABLE_SCHEMA");
-                String table = resultSet.getString("TABLE_NAME");
-                String type = resultSet.getString("TABLE_TYPE");
-                String engine = resultSet.getString("ENGINE");
-                int rows = resultSet.getInt("TABLE_ROWS");
-                long dataLength = resultSet.getLong("DATA_LENGTH");
-                long indexLength = resultSet.getLong("INDEX_LENGTH");
-                String createTime = resultSet.getString("CREATE_TIME");
-                String updateTime = resultSet.getString("UPDATE_TIME");
-                return new TableStatus(schema, table, type, engine, rows, dataLength, indexLength, createTime, updateTime);
+                "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+            statement.setString(1, schemaName);
+            statement.setString(2, tableName);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    String schema = resultSet.getString("TABLE_SCHEMA");
+                    String table = resultSet.getString("TABLE_NAME");
+                    String type = resultSet.getString("TABLE_TYPE");
+                    String engine = resultSet.getString("ENGINE");
+                    int rows = resultSet.getInt("TABLE_ROWS");
+                    long dataLength = resultSet.getLong("DATA_LENGTH");
+                    long indexLength = resultSet.getLong("INDEX_LENGTH");
+                    String createTime = resultSet.getString("CREATE_TIME");
+                    String updateTime = resultSet.getString("UPDATE_TIME");
+                    return new TableStatus(schema, table, type, engine, rows, dataLength, indexLength, createTime, updateTime);
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
