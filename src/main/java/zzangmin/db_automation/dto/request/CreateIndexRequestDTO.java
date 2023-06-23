@@ -1,9 +1,9 @@
 package zzangmin.db_automation.dto.request;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
 
 import java.util.List;
@@ -11,8 +11,8 @@ import java.util.List;
 @ToString
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
 public class CreateIndexRequestDTO extends DDLRequestDTO {
-        private CommandType commandType;
         private String schemaName;
         private String tableName;
         private String indexName;
