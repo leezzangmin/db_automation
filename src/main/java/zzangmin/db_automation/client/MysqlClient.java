@@ -195,6 +195,7 @@ public class MysqlClient {
                 if (resultSet.next()) {
                     String findColumnName = resultSet.getString("COLUMN_NAME");
                     String type = resultSet.getString("DATA_TYPE");
+                    int characterMaxLength = resultSet.getInt("CHARACTER_MAXIMUM_LENGTH");
                     String isNull = resultSet.getString("IS_NULLABLE");
                     String key = resultSet.getString("COLUMN_KEY");
                     String defaultValue = resultSet.getString("COLUMN_DEFAULT");
@@ -203,9 +204,10 @@ public class MysqlClient {
                     String charset = resultSet.getString("CHARACTER_SET_NAME");
                     String collate = resultSet.getString("COLLATION_NAME");
 
-                    boolean isNullValue = isNull.equals("NO");
+                    boolean isNullValue = isNull.equals("YES");
                     boolean isUniqueKey = key.equals("UNI");
                     boolean isAutoIncrement = extra.equals("auto_increment");
+                    type = Objects.isNull(characterMaxLength) ? type : type + "(" + characterMaxLength + ")";
 
                     return Optional.of(new Column(
                             findColumnName,
