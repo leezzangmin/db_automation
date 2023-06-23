@@ -75,6 +75,7 @@ public class DDLValidator {
     }
 
     public void validateAddColumn(DatabaseConnectionInfo databaseConnectionInfo, AddColumnRequestDTO addColumnRequestDTO) {
+        validateAddColumnHasAutoIncrementOption(addColumnRequestDTO.getColumn());
         columnConvention.validateColumnConvention(addColumnRequestDTO.getColumn());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, addColumnRequestDTO.getSchemaName(), addColumnRequestDTO.getTableName());
@@ -182,6 +183,12 @@ public class DDLValidator {
             }
         }
         return true;
+    }
+
+    private void validateAddColumnHasAutoIncrementOption(Column column) {
+        if (column.isAutoIncrement() == true) {
+            throw new IllegalStateException("auto_increment 옵션이 있는 컬럼은 추가할 수 없습니다.");
+        }
     }
 
 }
