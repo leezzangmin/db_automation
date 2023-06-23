@@ -47,7 +47,7 @@ public class DDLParser {
         sb.append(dto.getBeforeColumnName());
         sb.append("` TO `");
         sb.append(dto.getAfterColumnName());
-        sb.append("` ");
+        sb.append("`");
         return sb.toString();
     }
 
@@ -119,10 +119,10 @@ public class DDLParser {
         sb.append(dto.getColumn().getType());
         sb.append(" ");
         sb.append(dto.getColumn().generateNull());
-        sb.append(" ");
+        if (dto.getColumn().isUnique()) {
+            sb.append(" ");
+        }
         sb.append(dto.getColumn().generateUnique());
-        sb.append(" ");
-        sb.append(dto.getColumn().generateAutoIncrement());
         sb.append(" COMMENT '");
         sb.append(dto.getColumn().getComment());
         sb.append("'");
