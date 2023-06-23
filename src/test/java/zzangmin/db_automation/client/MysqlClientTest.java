@@ -197,7 +197,7 @@ public class MysqlClientTest {
         assertTrue(columnOptional.isPresent());
         Column column = columnOptional.get();
         assertEquals(columnName, column.getName());
-        assertEquals("varchar", column.getType());
+        assertEquals("varchar(45)", column.getType());
         assertTrue(column.isNull());
         assertFalse(column.isUnique());
         assertFalse(column.isAutoIncrement());
