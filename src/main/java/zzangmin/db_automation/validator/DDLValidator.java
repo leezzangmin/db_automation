@@ -103,6 +103,7 @@ public class DDLValidator {
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
+    // TODO: constraint empty 여부
     public void validateCreateTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) {
         tableConvention.validateTableConvention(createTableRequestDTO.getColumns(), createTableRequestDTO.getConstraints(), createTableRequestDTO.getTableName(), createTableRequestDTO.getEngine(), createTableRequestDTO.getCharset(), createTableRequestDTO.getCollate(), createTableRequestDTO.getTableComment());
         validateIsSchemaExists(databaseConnectionInfo, createTableRequestDTO.getSchemaName());

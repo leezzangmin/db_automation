@@ -27,6 +27,7 @@ public class DDLController {
         return "ok";
     }
 
+    // TODO: add column auto_increment block
     @PutMapping("/ddl/column")
     public AddColumnResponseDTO addColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                             @RequestBody AddColumnRequestDTO ddlRequestDTO) {
@@ -41,6 +42,7 @@ public class DDLController {
         return ddlService.alterColumn(databaseConnectionInfo, ddlRequestDTO);
     }
 
+    // TODO: primary key 필수 포함, id 컬럼 포함
     @PutMapping("/ddl/index")
     public CreateIndexResponseDTO createIndex(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                               @RequestBody CreateIndexRequestDTO ddlRequestDTO) {
