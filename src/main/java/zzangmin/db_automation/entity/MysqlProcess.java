@@ -1,7 +1,9 @@
 package zzangmin.db_automation.entity;
 
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 @Getter
 public class MysqlProcess {
 

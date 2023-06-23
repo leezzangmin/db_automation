@@ -13,8 +13,20 @@ public class ColumnConvention {
     private final CommonConvention commonConvention;
     private final static int SWITCH_STANDARD_BYTE = 255;
 
-    // 255 바이트 기준으로 1byte -> 2byte
+    public void validateColumnConvention(Column column) {
+        validateColumnNamingConvention(column.getName());
+        validateColumnOption(column);
+        checkColumnCommentExistConvention(column.getName(), column.getComment());
+        checkUniqueNullable(column.isUnique(), column.isNull(), column.getDefaultValue());
+    }
+
+    public void validateColumnNamingConvention(String columnName) {
+        commonConvention.validateSnakeCase(columnName);
+        commonConvention.validateLowerCaseString(columnName);
+    }
+
     public void validateExtendVarcharConvention(Column column, int futureLength) {
+        // 255 바이트 기준으로 1byte -> 2byte
         int currentLength = column.getVarcharLength();
         int currentByte = BYTE_PER_CHARACTER * currentLength;
         int futureByte = BYTE_PER_CHARACTER * futureLength;
@@ -27,18 +39,6 @@ public class ColumnConvention {
         if (futureByte > SWITCH_STANDARD_BYTE) {
             throw new IllegalArgumentException("in-place 로 처리될 수 없는 extend 요청입니다.");
         }
-    }
-
-    public void validateColumnConvention(Column column) {
-        validateColumnNamingConvention(column.getName());
-        validateColumnOption(column);
-        checkColumnCommentExistConvention(column.getName(), column.getComment());
-        checkUniqueNullable(column.isUnique(), column.isNull(), column.getDefaultValue());
-    }
-
-    public void validateColumnNamingConvention(String columnName) {
-        commonConvention.validateSnakeCase(columnName);
-        commonConvention.validateLowerCaseString(columnName);
     }
 
     private void validateColumnOption(Column column) {

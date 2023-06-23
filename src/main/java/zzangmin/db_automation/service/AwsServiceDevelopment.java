@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
-@Profile(value = "develop")
+//@Profile(value = "develop")
 @Service
 public class AwsServiceDevelopment implements AwsService {
 

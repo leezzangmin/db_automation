@@ -1,15 +1,13 @@
 package zzangmin.db_automation.entity;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
 
 @ToString
 @Getter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Constraint {

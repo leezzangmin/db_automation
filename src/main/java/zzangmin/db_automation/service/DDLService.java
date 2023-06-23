@@ -17,8 +17,6 @@ public class DDLService {
     private final DDLParser ddlParser;
     private final MysqlClient mysqlClient;
 
-    // TODO: AOP 메타락 조회 및 kill
-
     public ExtendVarcharColumnResponseDTO extendVarcharColumn(DatabaseConnectionInfo databaseConnectionInfo, ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO) {
         String extendVarcharSQL = ddlParser.commandToSql(extendVarcharColumnRequestDTO);
         mysqlClient.executeSQL(databaseConnectionInfo, extendVarcharSQL);

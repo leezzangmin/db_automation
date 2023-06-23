@@ -1,5 +1,6 @@
 package zzangmin.db_automation.info;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
@@ -7,6 +8,7 @@ import lombok.ToString;
 @ToString
 @Getter
 @Builder
+@AllArgsConstructor
 public class DatabaseConnectionInfo {
 
     private String databaseName;

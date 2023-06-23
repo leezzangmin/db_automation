@@ -20,8 +20,7 @@ public class MetadataLockAspect {
     private final MetadataLockDetector metadataLockDetector;
 
     @Pointcut("execution(* zzangmin.db_automation.service.DDLService.*(..))")
-    public void ddlServiceMethods() {
-    }
+    public void ddlServiceMethods() {}
 
     @Before("ddlServiceMethods()")
     public void startCheckMetadataLock(JoinPoint joinPoint) {
