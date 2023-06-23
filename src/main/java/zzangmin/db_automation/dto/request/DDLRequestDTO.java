@@ -5,12 +5,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import zzangmin.db_automation.entity.CommandType;
 
 
 @ToString
 @Getter
+@Setter
 @NoArgsConstructor
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
