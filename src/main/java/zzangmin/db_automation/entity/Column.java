@@ -32,11 +32,9 @@ public class Column {
     private String collate;
 
 
-    // TODO: isNull, isUnique json 파싱 제대로 안됨
     public String generateNull() {
-        System.out.println("this.isNull = " + this.isNull);
         if (this.isNull) {
-            return "DEFAULT NULL";
+            return "DEFAULT '" + defaultValue + "'";
         }
         return "NOT NULL";
     }
