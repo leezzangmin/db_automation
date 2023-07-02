@@ -7,6 +7,7 @@ import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
+import software.amazon.awssdk.services.pi.PiClient;
 import software.amazon.awssdk.services.ssm.SsmClient;
 
 
@@ -44,6 +45,16 @@ public class AwsClient {
                 .build();
 
         return cloudWatchClient;
+    }
+
+    @Bean
+    public PiClient getPerformanceInsightClient() {
+        PiClient performanceInsightClient = PiClient.builder()
+                .credentialsProvider(awsCredentialsProvider)
+                .region(defaultRegion)
+                .build();
+
+        return performanceInsightClient;
     }
 
 }

@@ -21,7 +21,7 @@ public class DescribeController {
 
     @GetMapping("/describe/clusters")
     public RdsClustersResponseDTO describeRdsClusters() {
-        return describeService.findClusters();
+        return describeService.findClustersInfo();
     }
 
     @GetMapping("/describe/cluster/status")
