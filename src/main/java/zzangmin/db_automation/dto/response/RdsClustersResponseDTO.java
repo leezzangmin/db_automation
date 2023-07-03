@@ -60,10 +60,7 @@ public class RdsClustersResponseDTO {
         private boolean performanceInsightsEnabled;
         private boolean deletionProtectionEnabled;
         private String instanceClass; // 인스턴스 타입
-
-
         //private LocalDateTime uptime;
-
         private int cpuUsage;
         private long freeableMemory;
         private int averageActiveSession;
@@ -71,7 +68,6 @@ public class RdsClustersResponseDTO {
         private long freeStorageSpace;
         private long selectThroughput;
         private long writeThroughput;
-
 
         public static RdsClusterResponseDTO of(DBInstance dbInstance, Map<String, Long> metrics) {
             String clusterName = dbInstance.getValueForField("DBInstanceIdentifier", String.class)

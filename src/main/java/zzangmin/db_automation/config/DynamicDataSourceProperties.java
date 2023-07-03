@@ -19,6 +19,10 @@ public class DynamicDataSourceProperties {
         databases.put(dbName, databaseConnectionInfo);
     }
 
+    public DatabaseConnectionInfo findByDbInstanceIdentifier(String DBInstanceIdentifier) {
+        return databases.get(DBInstanceIdentifier);
+    }
+
     public void displayDatabases() {
         System.out.println("databases: ");
         for (String databaseName : databases.keySet()) {

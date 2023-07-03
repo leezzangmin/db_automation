@@ -2,7 +2,6 @@ package zzangmin.db_automation.service;
 
 import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
 
-import java.util.List;
 import java.util.Map;
 
 public interface AwsService {

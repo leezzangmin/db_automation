@@ -21,8 +21,8 @@ public class TableStatusValidator {
         if (totalTableByteSize > TABLE_BYTE_SIZE_THRESHOLD) {
             throw new IllegalStateException("테이블 사이즈가 커서 실행이 불가합니다. 현재 사이즈: " + totalTableByteSize);
         }
-        if (tableStatus.getTableRows() > TABLE_ROW_SIZE_THRESHOLD) {
-            throw new IllegalStateException("테이블 row 가 커서 실행이 불가합니다. 현재 row size: " + tableStatus.getTableRows());
+        if (tableStatus.getTableRow() > TABLE_ROW_SIZE_THRESHOLD) {
+            throw new IllegalStateException("테이블 row 가 커서 실행이 불가합니다. 현재 row size: " + tableStatus.getTableRow());
         }
     }
 }

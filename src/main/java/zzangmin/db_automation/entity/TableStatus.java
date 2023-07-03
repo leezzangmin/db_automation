@@ -14,7 +14,7 @@ public class TableStatus {
     private String tableName;
     private String tableType;
     private String tableEngine;
-    private int tableRows;
+    private int tableRow;
     private long dataLength;
     private long indexLength;
     private String createTime;

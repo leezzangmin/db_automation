@@ -4,8 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import zzangmin.db_automation.argumentresolver.TargetDatabase;
+import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO;
 import zzangmin.db_automation.dto.response.RdsClustersResponseDTO;
+import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
+
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,14 +24,14 @@ public class DescribeController {
         return "ok";
     }
 
-    @GetMapping("/describe/clusters")
-    public RdsClustersResponseDTO describeRdsClusters() {
+    @GetMapping("/describe/clusterssssssss")
+    public RdsClustersResponseDTO describeRdsCluster() {
         return describeService.findClustersInfo();
     }
 
     @GetMapping("/describe/cluster/status")
-    public void describeRdsInstance() {
-
+    public List<RdsClusterSchemaTablesResponseDTO> describeRdsInstance(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo) {
+        return describeService.findClusterTables(databaseConnectionInfo);
     }
 
 
