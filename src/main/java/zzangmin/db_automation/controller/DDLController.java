@@ -7,8 +7,11 @@ import zzangmin.db_automation.argumentresolver.TargetDatabase;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.dto.response.*;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.service.ChangeHistoryService;
 import zzangmin.db_automation.service.DDLService;
 import zzangmin.db_automation.validator.DDLValidator;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -16,6 +19,7 @@ import zzangmin.db_automation.validator.DDLValidator;
 public class DDLController {
 
     private final DDLService ddlService;
+    private final ChangeHistoryService changeHistoryService;
     private final DDLValidator ddlValidator;
 
     // TODO: 인증/인가
@@ -32,7 +36,9 @@ public class DDLController {
     public AddColumnResponseDTO addColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                             @RequestBody AddColumnRequestDTO ddlRequestDTO) {
         ddlValidator.validateAddColumn(databaseConnectionInfo, ddlRequestDTO);
-        return ddlService.addColumn(databaseConnectionInfo, ddlRequestDTO);
+        AddColumnResponseDTO addColumnResponseDTO = ddlService.addColumn(databaseConnectionInfo, ddlRequestDTO);
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now(), "asdf"));
+        return addColumnResponseDTO;
     }
 
     @PatchMapping("/ddl/column")
