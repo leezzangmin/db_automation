@@ -25,7 +25,6 @@ public class DDLService {
     }
 
     public CreateTableResponseDTO createTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) throws InterruptedException {
-        Thread.sleep(1000);
         String createTableSQL = ddlParser.commandToSql(createTableRequestDTO);
         mysqlClient.executeSQL(databaseConnectionInfo, createTableSQL);
         String createTableStatement = mysqlClient.findCreateTableStatement(databaseConnectionInfo, createTableRequestDTO.getSchemaName(), createTableRequestDTO.getTableName());
