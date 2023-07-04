@@ -1,5 +1,6 @@
 package zzangmin.db_automation.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -18,11 +19,14 @@ public class Column {
     @NotBlank
     private String type; // varchar(123), bigint, datetime
     @NotBlank
+    @JsonProperty("isNull")
     private boolean isNull; // NOT NULL, DEFAULT NULL
     private String defaultValue;
     @NotBlank
+    @JsonProperty("isUnique")
     private boolean isUnique;
     @NotBlank
+    @JsonProperty("isAutoIncrement")
     private boolean isAutoIncrement;
     @NotBlank
     private String comment;
