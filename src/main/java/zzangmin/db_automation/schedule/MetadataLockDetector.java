@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MetadataLockDetector {
 
     private Map<String, DatabaseConnectionInfo> targetDatabases = new ConcurrentHashMap<>();
-    private static final int METADATA_LOCK_THRESHOLD_TIME = 3;
+    private static final int METADATA_LOCK_THRESHOLD_SECONDS = 3;
     private final MysqlClient mysqlClient;
 
     public void startCheck(DatabaseConnectionInfo databaseConnectionInfo) {
@@ -43,7 +43,7 @@ public class MetadataLockDetector {
 
     private void killLongMetadataLockHolder(DatabaseConnectionInfo databaseConnectionInfo, List<MetadataLockHolder> metadataLockHolders) {
         for (MetadataLockHolder metadataLockHolder : metadataLockHolders) {
-            if (metadataLockHolder.getProcesslistTime() >= METADATA_LOCK_THRESHOLD_TIME) {
+            if (metadataLockHolder.getProcesslistTime() >= METADATA_LOCK_THRESHOLD_SECONDS) {
                 long sessionId = metadataLockHolder.getProcesslistId();
                 mysqlClient.killSession(databaseConnectionInfo, sessionId);
             }

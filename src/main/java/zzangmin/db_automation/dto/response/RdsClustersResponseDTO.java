@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.rds.model.DBInstance;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * RDS 클러스터 상태 정보 목록 DTO
@@ -50,6 +51,7 @@ public class RdsClustersResponseDTO {
     private List<RdsClusterResponseDTO> clusters = new ArrayList<>();
 
     @AllArgsConstructor
+    @Getter
     public static class RdsClusterResponseDTO {
         private String clusterName;
         private String engineVersion;
@@ -58,22 +60,20 @@ public class RdsClustersResponseDTO {
         private boolean performanceInsightsEnabled;
         private boolean deletionProtectionEnabled;
         private String instanceClass; // 인스턴스 타입
-
-
-        private LocalDateTime uptime;
-
-        private String cloudwatchDashboardUrl;
+        //private LocalDateTime uptime;
         private int cpuUsage;
-        private int memoryUsage;
+        private long freeableMemory;
         private int averageActiveSession;
         private int connection;
+        private long freeStorageSpace;
+        private long selectThroughput;
+        private long writeThroughput;
 
-        public static RdsClusterResponseDTO of(DBInstance dbInstance) {
+        public static RdsClusterResponseDTO of(DBInstance dbInstance, Map<String, Long> metrics) {
             String clusterName = dbInstance.getValueForField("DBInstanceIdentifier", String.class)
                     .orElseThrow(() -> new IllegalArgumentException("DBInstanceDTO 파싱 오류"));
             String engineVersion = dbInstance.getValueForField("EngineVersion", String.class)
                     .orElseThrow(() -> new IllegalArgumentException("DBInstanceDTO 파싱 오류"));
-
             boolean multiAzEnabled = dbInstance.getValueForField("MultiAZ", Boolean.class)
                     .orElseThrow(() -> new IllegalArgumentException("DBInstanceDTO 파싱 오류"));
             boolean autoMinorVersionUpgradeEnabled = dbInstance.getValueForField("AutoMinorVersionUpgrade", Boolean.class)
@@ -82,30 +82,30 @@ public class RdsClustersResponseDTO {
                     .orElseThrow(() -> new IllegalArgumentException("DBInstanceDTO 파싱 오류"));
             boolean deletionProtectionEnabled = dbInstance.getValueForField("DeletionProtection", Boolean.class)
                     .orElseThrow(() -> new IllegalArgumentException("DBInstanceDTO 파싱 오류"));
-
             String instanceClass = dbInstance.getValueForField("DBInstanceClass", String.class)
                     .orElseThrow(() -> new IllegalArgumentException("DBInstanceDTO 파싱 오류"));
 
             // ======================================================================================
 
-            LocalDateTime uptime = LocalDateTime.now();
-            String cloudwatchDashboardUrl = "test";
-            int cpuUsage = 1;
-            int memoryUsage = 1;
-            int averageActiveSession = 1;
-            int connection = 1;
+            int cpuUsage = metrics.get("cpuUsage").intValue();
+            long memoryUsage = metrics.get("freeableMemory");
+            int averageActiveSession = metrics.get("averageActiveSession").intValue();
+            int connection = metrics.get("connection").intValue();
+            long diskUsage = metrics.get("freeStorageSpace");
+            long selectThroughput = metrics.get("readThroughput");
+            long writeThroughput = metrics.get("writeThroughput");
+
             return new RdsClusterResponseDTO(clusterName, engineVersion, multiAzEnabled, autoMinorVersionUpgradeEnabled, performanceInsightsEnabled, deletionProtectionEnabled,
-                    instanceClass, uptime, cloudwatchDashboardUrl, cpuUsage, memoryUsage, averageActiveSession, connection);
+                    instanceClass, cpuUsage, memoryUsage, averageActiveSession, connection, diskUsage, selectThroughput, writeThroughput);
         }
     }
 
-    public static RdsClustersResponseDTO of(List<DBInstance> dbInstances) {
+    public static RdsClustersResponseDTO of(List<DBInstance> dbInstances, List<Map<String, Long>> metricsList) {
         List<RdsClusterResponseDTO> clusters = new ArrayList<>();
-        for (DBInstance dbInstance : dbInstances) {
-            clusters.add(RdsClusterResponseDTO.of(dbInstance));
+        for (int i = 0; i < dbInstances.size(); i++) {
+            clusters.add(RdsClusterResponseDTO.of(dbInstances.get(i), metricsList.get(i)));
         }
         return new RdsClustersResponseDTO(clusters);
     }
-
 
 }

@@ -155,7 +155,7 @@ public class MysqlClientTest {
         assertEquals(tableName, tableStatus.getTableName());
         assertNotNull(tableStatus.getTableType());
         assertNotNull(tableStatus.getTableEngine());
-        assertTrue(tableStatus.getTableRows() >= 0);
+        assertTrue(tableStatus.getTableRow() >= 0);
         assertTrue(tableStatus.getDataLength() >= 0);
         assertTrue(tableStatus.getIndexLength() >= 0);
         assertNotNull(tableStatus.getCreateTime());
