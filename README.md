@@ -25,7 +25,8 @@ varchar 확장
 - DB pw 환경변수화? - parameter store 에서 fetch, env 파일 생성
 - 용량 크면 slack 으로 실행버튼을 정보랑 함께 전송해서(스키마, 테이블, 커맨드타입 등) pt-change-online shell 실행?
 - DDL 실행중 진행상황 Performance schema 통해서 확인.
-
+- 
+- 컬럼 변경이력 추적
 
 ## knowledge
 - create table 은 METADATA LOCK 없음

@@ -47,7 +47,6 @@ public class DescribeService {
                 .collect(Collectors.toSet());
         for (String schemaName : schemaNames) {
             Set<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
-            List<TableStatus> tableStatuses = mysqlClient.findTableStatuses(databaseConnectionInfo, schemaName, tableNames);
             List<TableInfo> tableInfos = mysqlClient.findTableStatuses(databaseConnectionInfo, schemaName, tableNames)
                     .stream()
                     .map(tableStatus -> new TableInfo(tableStatus.getTableName(), tableStatus.calculateTotalTableByteSize(), tableStatus.getTableRow()))
@@ -55,5 +54,9 @@ public class DescribeService {
             rdsClusterSchemaTablesResponseDTOs.add(new RdsClusterSchemaTablesResponseDTO(schemaName, tableInfos));
         }
         return rdsClusterSchemaTablesResponseDTOs;
+    }
+
+    public void findTableInfo(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+
     }
 }
