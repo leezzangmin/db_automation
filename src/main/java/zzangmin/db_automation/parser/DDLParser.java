@@ -183,6 +183,8 @@ public class DDLParser {
                 sb.append(" ");
             }
             sb.append(column.generateUnique());
+            sb.append(" ");
+            sb.append(column.generateAutoIncrement());
             sb.append(" COMMENT '");
             sb.append(column.getComment());
             sb.append("',\n");
