@@ -11,6 +11,7 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(Exception.class)
     public String globalException(Exception e) {
         log.error("Exception Occurred: {}", e.getMessage());
+        e.printStackTrace();
         return "ERROR. "+ e.getMessage().toString();
     }
 }
