@@ -11,7 +11,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Component
 public class RdsMetricValidator {
-    private final static Map<String, Double> METRIC_THRESHOLD = Map.of("cpuUsage", 70.0, "memoryUsage", 30.0);
+    private final static Map<String, Double> METRIC_THRESHOLD = Map.of("cpuUsage", 70.0, "freeableMemory", 999999999999999.9999);
     private final AwsService awsService;
 
     public void validateMetricStable(String databaseIdentifier) {
