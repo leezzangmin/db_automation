@@ -27,6 +27,7 @@ public class MysqlClient {
             log.info("executeSQL: {}", statement);
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -46,7 +47,7 @@ public class MysqlClient {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
 
         return tableNames;
@@ -65,7 +66,7 @@ public class MysqlClient {
                 schemaNames.add(resultSet.getString(1));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
 
         return schemaNames;
@@ -100,7 +101,7 @@ public class MysqlClient {
             statement.close();
             connection.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return longQueries;
     }
@@ -119,7 +120,7 @@ public class MysqlClient {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return createTableStatement;
     }
@@ -149,7 +150,7 @@ public class MysqlClient {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         throw new IllegalStateException("테이블 정보를 불러올 수 없습니다.");
     }
@@ -185,7 +186,7 @@ public class MysqlClient {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return tableStatuses;
     }
@@ -217,9 +218,8 @@ public class MysqlClient {
             log.info("findTableStatus: {}", statement);
             return constraints;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("인덱스 정보를 불러올 수 없습니다.");
         }
-        throw new IllegalStateException("인덱스 정보를 불러올 수 없습니다.");
     }
 
     public List<Column> findColumns(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
@@ -266,7 +266,7 @@ public class MysqlClient {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return columns;
     }
@@ -316,7 +316,7 @@ public class MysqlClient {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
         return Optional.empty();
     }
@@ -371,7 +371,6 @@ public class MysqlClient {
             log.info("findMetadataLockHolders: {}", statement);
             return metadataLockHolders;
         } catch (SQLException e) {
-            e.printStackTrace();
             throw new IllegalStateException("metadata lock holder process 정보를 불러올 수 없습니다.");
         }
     }
@@ -384,7 +383,7 @@ public class MysqlClient {
             statement.executeUpdate(SQL);
             log.info("killSession: {}", statement);
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -409,9 +408,8 @@ public class MysqlClient {
             log.info("findDDLExecutingSession: {}", statement);
             return mysqlProcesses;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
         }
-        return mysqlProcesses;
     }
 
 }
