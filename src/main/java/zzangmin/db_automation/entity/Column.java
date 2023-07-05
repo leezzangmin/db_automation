@@ -45,14 +45,14 @@ public class Column {
 
     public String generateUnique() {
         if (this.isUnique) {
-            return "UNIQUE";
+            return " UNIQUE";
         }
         return "";
     }
 
     public String generateAutoIncrement() {
         if (this.isAutoIncrement) {
-            return "AUTO_INCREMENT";
+            return " AUTO_INCREMENT";
         }
         return "";
     }
