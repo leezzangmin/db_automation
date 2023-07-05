@@ -19,6 +19,5 @@ public class CreateChangeHistoryRequestDTO {
     private String tableName;
     private String doer;
     private LocalDateTime doDateTime;
-    private String changeeeeeeeee;
 
 }

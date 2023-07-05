@@ -4,8 +4,9 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import zzangmin.db_automation.dto.request.CreateChangeHistoryRequestDTO;
+import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.ChangeHistory;
+import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.repository.ChangeHistoryRepository;
 
 // 변경관리 이력 쌓는 서비스
@@ -17,7 +18,7 @@ public class ChangeHistoryService {
     private final ChangeHistoryRepository changeHistoryRepository;
 
     @Transactional
-    public void addChangeHistory(CreateChangeHistoryRequestDTO createChangeHistoryRequestDTO) {
+    public void addChangeHistory(CreateChangeHistoryRequestDTO createChangeHistoryRequestDTO, DDLRequestDTO ddlRequestDTO) {
         ChangeHistory changeHistory = ChangeHistory.builder()
                 .commandType(createChangeHistoryRequestDTO.getCommandType())
                 .databaseIdentifier(createChangeHistoryRequestDTO.getDatabaseIdentifier())
@@ -25,9 +26,66 @@ public class ChangeHistoryService {
                 .tableName(createChangeHistoryRequestDTO.getTableName())
                 .doer(createChangeHistoryRequestDTO.getDoer())
                 .doDateTime(createChangeHistoryRequestDTO.getDoDateTime())
-                .changeeeeeeeee(createChangeHistoryRequestDTO.getChangeeeeeeeee())
+                .changeContent(generateChangeContent(createChangeHistoryRequestDTO, ddlRequestDTO))
                 .build();
         changeHistoryRepository.save(changeHistory);
-        log.info("ChangeHistoryService.addChangeHistory() : {}", changeHistory);
+        log.info("ChangeHistoryService.addChangeHistory(): {}", changeHistory);
+    }
+
+    private String generateChangeContent(CreateChangeHistoryRequestDTO createChangeHistoryRequestDTO, DDLRequestDTO ddlRequestDTO) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("schemaName: ");
+        sb.append(createChangeHistoryRequestDTO.getSchemaName());
+        sb.append(", tableName: ");
+        sb.append(createChangeHistoryRequestDTO.getTableName());
+        sb.append(", commandType: ");
+        sb.append(ddlRequestDTO.getCommandType());
+
+        if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_INDEX)) {
+            CreateIndexRequestDTO dto = (CreateIndexRequestDTO) ddlRequestDTO;
+            sb.append(", indexName: ");
+            sb.append(dto.getIndexName());
+            sb.append(", columnNames: ");
+            sb.append(dto.getColumnNames());
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_TABLE)) {
+            CreateTableRequestDTO dto = (CreateTableRequestDTO) ddlRequestDTO;
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ADD_COLUMN)) {
+            AddColumnRequestDTO dto = (AddColumnRequestDTO) ddlRequestDTO;
+            sb.append(", column: ");
+            sb.append(dto.getColumn());
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN)) {
+            AlterColumnRequestDTO dto = (AlterColumnRequestDTO) ddlRequestDTO;
+            sb.append(", after: ");
+            sb.append(dto.getAfterColumn());
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.DELETE_COLUMN)) {
+            DeleteColumnRequestDTO dto = (DeleteColumnRequestDTO) ddlRequestDTO;
+            sb.append(", delteColumnName: ");
+            sb.append(dto.getColumnName());
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
+            ExtendVarcharColumnRequestDTO dto = (ExtendVarcharColumnRequestDTO) ddlRequestDTO;
+            sb.append(", extendColumnName: ");
+            sb.append(dto.getColumn().getName());
+            sb.append(", extendColumnSize: ");
+            sb.append(dto.getColumn().getVarcharLength());
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
+            RenameColumnRequestDTO dto = (RenameColumnRequestDTO) ddlRequestDTO;
+            sb.append(", beforeColumnName: ");
+            sb.append(dto.getBeforeColumnName());
+            sb.append(", afterColumnName: ");
+            sb.append(dto.getAfterColumnName());
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_INDEX)) {
+            // TODO
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN_COMMENT)) {
+            // TODO
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_TABLE_COMMENT)) {
+            // TODO
+        } else {
+            throw new IllegalArgumentException("지원하지 않는 명령");
+        }
+        sb.append(", executeTime: ");
+        sb.append(createChangeHistoryRequestDTO.getDoDateTime());
+        sb.append(", doer: ");
+        sb.append(createChangeHistoryRequestDTO.getDoer());
+        return sb.toString();
     }
 }

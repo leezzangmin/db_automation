@@ -5,5 +5,6 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class AlterColumnCommentRequestDTO {
+public class AlterColumnCommentRequestDTO extends DDLRequestDTO {
+
 }

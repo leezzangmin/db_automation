@@ -22,6 +22,6 @@ public class ChangeHistory {
     private String tableName;
     private String doer;
     private LocalDateTime doDateTime;
-    private String changeeeeeeeee;
+    private String changeContent;
 
 }

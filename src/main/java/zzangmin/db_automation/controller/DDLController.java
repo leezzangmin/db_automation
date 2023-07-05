@@ -37,15 +37,15 @@ public class DDLController {
                             @RequestBody AddColumnRequestDTO ddlRequestDTO) {
         ddlValidator.validateAddColumn(databaseConnectionInfo, ddlRequestDTO);
         AddColumnResponseDTO addColumnResponseDTO = ddlService.addColumn(databaseConnectionInfo, ddlRequestDTO);
-        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now(), "asdf"));
-        return addColumnResponseDTO;
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now()), ddlRequestDTO);        return addColumnResponseDTO;
     }
 
     @PatchMapping("/ddl/column")
     public AlterColumnResponseDTO alterColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                               @RequestBody AlterColumnRequestDTO ddlRequestDTO) {
         ddlValidator.validateAlterColumn(databaseConnectionInfo, ddlRequestDTO);
-        return ddlService.alterColumn(databaseConnectionInfo, ddlRequestDTO);
+        AlterColumnResponseDTO alterColumnResponseDTO = ddlService.alterColumn(databaseConnectionInfo, ddlRequestDTO);
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now()), ddlRequestDTO);        return alterColumnResponseDTO;
     }
 
     // TODO: primary key 필수 포함, id 컬럼 포함
@@ -53,14 +53,16 @@ public class DDLController {
     public CreateIndexResponseDTO createIndex(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                               @RequestBody CreateIndexRequestDTO ddlRequestDTO) {
         ddlValidator.validateCreateIndex(databaseConnectionInfo, ddlRequestDTO);
-        return ddlService.createIndex(databaseConnectionInfo, ddlRequestDTO);
+        CreateIndexResponseDTO createIndexResponseDTO = ddlService.createIndex(databaseConnectionInfo, ddlRequestDTO);
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now()), ddlRequestDTO);        return createIndexResponseDTO;
     }
 
     @PutMapping("/ddl/table")
     public CreateTableResponseDTO createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                               @RequestBody CreateTableRequestDTO ddlRequestDTO) throws InterruptedException {
         ddlValidator.validateCreateTable(databaseConnectionInfo, ddlRequestDTO);
-        return ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
+        CreateTableResponseDTO createTableResponseDTO = ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now()), ddlRequestDTO);        return createTableResponseDTO;
     }
 
     // TODO: rename -> delete
@@ -68,21 +70,26 @@ public class DDLController {
     public DeleteColumnResponseDTO deleteColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                 @RequestBody DeleteColumnRequestDTO ddlRequestDTO) {
         ddlValidator.validateDeleteColumn(databaseConnectionInfo, ddlRequestDTO);
-        return ddlService.deleteColumn(databaseConnectionInfo, ddlRequestDTO);
+        DeleteColumnResponseDTO deleteColumnResponseDTO = ddlService.deleteColumn(databaseConnectionInfo, ddlRequestDTO);
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now()), ddlRequestDTO);        return deleteColumnResponseDTO;
     }
 
     @PatchMapping("/ddl/varchar")
     public ExtendVarcharColumnResponseDTO extendVarcharColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                               @RequestBody ExtendVarcharColumnRequestDTO ddlRequestDTO) {
         ddlValidator.validateExtendVarchar(databaseConnectionInfo, ddlRequestDTO);
-        return ddlService.extendVarcharColumn(databaseConnectionInfo, ddlRequestDTO);
+        ExtendVarcharColumnResponseDTO extendVarcharColumnResponseDTO = ddlService.extendVarcharColumn(databaseConnectionInfo, ddlRequestDTO);
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now()), ddlRequestDTO);
+        return extendVarcharColumnResponseDTO;
     }
 
     @PatchMapping("/ddl/column/name")
     public RenameColumnResponseDTO renameColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                 @RequestBody RenameColumnRequestDTO ddlRequestDTO) {
         ddlValidator.validateRenameColumn(databaseConnectionInfo, ddlRequestDTO);
-        return ddlService.renameColumn(databaseConnectionInfo, ddlRequestDTO);
+        RenameColumnResponseDTO renameColumnResponseDTO = ddlService.renameColumn(databaseConnectionInfo, ddlRequestDTO);
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now()), ddlRequestDTO);
+        return renameColumnResponseDTO;
     }
 
 //
