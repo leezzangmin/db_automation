@@ -27,7 +27,7 @@ public class ColumnConvention {
 
     public void validateExtendVarcharConvention(Column column, int futureLength) {
         // 255 바이트 기준으로 1byte -> 2byte
-        int currentLength = column.getVarcharLength();
+        int currentLength = column.injectVarcharLength();
         int currentByte = BYTE_PER_CHARACTER * currentLength;
         int futureByte = BYTE_PER_CHARACTER * futureLength;
         if (currentByte >= futureByte) {
@@ -43,7 +43,7 @@ public class ColumnConvention {
 
     private void validateColumnOption(Column column) {
         if (column.getType().startsWith("varchar") || column.getType().startsWith("VARCHAR")) {
-            column.getVarcharLength();
+            column.injectVarcharLength();
         }
         if (!column.getCharset().equals(CHARSET)) {
             throw new IllegalArgumentException(column.getName() + " 의 CHARSET 이 " + CHARSET +" 이 아닙니다.");

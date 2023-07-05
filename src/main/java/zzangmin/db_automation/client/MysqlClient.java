@@ -222,6 +222,54 @@ public class MysqlClient {
         throw new IllegalStateException("인덱스 정보를 불러올 수 없습니다.");
     }
 
+    public List<Column> findColumns(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        String SQL = "SELECT * " +
+                "FROM INFORMATION_SCHEMA.COLUMNS " +
+                "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
+        List<Column> columns = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            statement.setString(2, tableName);
+            log.info("findColumns: {}", statement);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String findColumnName = resultSet.getString("COLUMN_NAME");
+                    String type = resultSet.getString("DATA_TYPE");
+                    int characterMaxLength = resultSet.getInt("CHARACTER_MAXIMUM_LENGTH");
+                    String isNull = resultSet.getString("IS_NULLABLE");
+                    String key = resultSet.getString("COLUMN_KEY");
+                    String defaultValue = resultSet.getString("COLUMN_DEFAULT");
+                    String extra = resultSet.getString("Extra");
+                    String columnComment = resultSet.getString("COLUMN_COMMENT");
+                    String charset = resultSet.getString("CHARACTER_SET_NAME");
+                    String collate = resultSet.getString("COLLATION_NAME");
+
+                    boolean isNullValue = isNull.equals("YES");
+                    boolean isUniqueKey = key.equals("UNI");
+                    boolean isAutoIncrement = extra.equals("auto_increment");
+                    type = Objects.isNull(characterMaxLength) ? type : type + "(" + characterMaxLength + ")";
+                    columns.add(new Column(
+                            findColumnName,
+                            type,
+                            isNullValue,
+                            defaultValue,
+                            isUniqueKey,
+                            isAutoIncrement,
+                            columnComment,
+                            Objects.isNull(charset) ? CommonConvention.CHARSET : charset,
+                            Objects.isNull(collate) ? CommonConvention.COLLATE : collate));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return columns;
+    }
 
     public Optional<Column> findColumn(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, String columnName) {
         String SQL = "SELECT * " +
@@ -235,6 +283,8 @@ public class MysqlClient {
             statement.setString(1, schemaName);
             statement.setString(2, tableName);
             statement.setString(3, columnName);
+            log.info("findColumn: {}", statement);
+
 
             try (ResultSet resultSet = statement.executeQuery()) {
                 if (resultSet.next()) {
@@ -253,7 +303,6 @@ public class MysqlClient {
                     boolean isUniqueKey = key.equals("UNI");
                     boolean isAutoIncrement = extra.equals("auto_increment");
                     type = Objects.isNull(characterMaxLength) ? type : type + "(" + characterMaxLength + ")";
-                    log.info("findColumn: {}", statement);
                     return Optional.of(new Column(
                             findColumnName,
                             type,
@@ -269,9 +318,9 @@ public class MysqlClient {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        log.info("findColumn: {}", SQL);
         return Optional.empty();
     }
+
 
 
     public List<MetadataLockHolder> findMetadataLockHolders(DatabaseConnectionInfo databaseConnectionInfo) {

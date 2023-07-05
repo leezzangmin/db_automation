@@ -57,7 +57,7 @@ public class Column {
         return "";
     }
 
-    public int getVarcharLength() {
+    public int injectVarcharLength() {
         if (this.type.matches("(?i)varchar\\(\\d+\\)")) {
             Pattern pattern = Pattern.compile("\\d+");
             Matcher matcher = pattern.matcher(this.type);

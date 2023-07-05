@@ -3,10 +3,12 @@ package zzangmin.db_automation.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import zzangmin.db_automation.argumentresolver.TargetDatabase;
 import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO;
 import zzangmin.db_automation.dto.response.RdsClustersResponseDTO;
+import zzangmin.db_automation.dto.response.TableInfoResponseDTO;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
 
@@ -35,9 +37,10 @@ public class DescribeController {
     }
 
 
-//    @GetMapping("/ping")
-//    public List<String> healthCheck() {
-//        return Arrays.asList("hello", LocalDateTime.now().toString());
-//    }
+    @GetMapping("/describe/table")
+    public TableInfoResponseDTO describeTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                              @RequestParam String schemaName, @RequestParam String tableName) {
+        return describeService.findTableInfo(databaseConnectionInfo, schemaName, tableName);
+    }
 
 }

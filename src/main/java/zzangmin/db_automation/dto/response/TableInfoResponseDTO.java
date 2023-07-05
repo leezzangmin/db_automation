@@ -3,6 +3,7 @@ package zzangmin.db_automation.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import zzangmin.db_automation.entity.ChangeHistory;
 import zzangmin.db_automation.entity.Column;
 
 import java.util.List;
@@ -18,5 +19,5 @@ public class TableInfoResponseDTO {
     private List<Column> columns;
 
     // TODO: 변경이력
-    private List<String> updateHistories;
+    private List<ChangeHistory> changeHistories;
 }

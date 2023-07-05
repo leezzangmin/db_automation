@@ -8,8 +8,12 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO;
 import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO.TableInfo;
 import zzangmin.db_automation.dto.response.RdsClustersResponseDTO;
+import zzangmin.db_automation.dto.response.TableInfoResponseDTO;
+import zzangmin.db_automation.entity.ChangeHistory;
+import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.TableStatus;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.repository.ChangeHistoryRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,6 +27,7 @@ public class DescribeService {
 
     private final AwsService awsService;
     private final MysqlClient mysqlClient;
+    private final ChangeHistoryRepository changeHistoryRepository;
 
     // TODO: 캐싱(mysql) / 상태저장 (?) 필요
     // db에 정보 넣어두는 테이블1, 업데이트 정보 관리하는 테이블2, HTTP 캐싱처럼 테이블2만 수시 조회
@@ -56,7 +61,9 @@ public class DescribeService {
         return rdsClusterSchemaTablesResponseDTOs;
     }
 
-    public void findTableInfo(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
-
+    public TableInfoResponseDTO findTableInfo(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        List<ChangeHistory> changeHistories = changeHistoryRepository.findByDatabaseIdentifierAndSchemaNameAndTableName(databaseConnectionInfo.getDatabaseName(), schemaName, tableName);
+        List<Column> columns = mysqlClient.findColumns(databaseConnectionInfo, schemaName, tableName);
+        return new TableInfoResponseDTO(databaseConnectionInfo.getDatabaseName(), schemaName, tableName, columns, changeHistories);
     }
 }

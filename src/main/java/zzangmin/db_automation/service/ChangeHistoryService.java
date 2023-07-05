@@ -66,7 +66,7 @@ public class ChangeHistoryService {
             sb.append(", extendColumnName: ");
             sb.append(dto.getColumn().getName());
             sb.append(", extendColumnSize: ");
-            sb.append(dto.getColumn().getVarcharLength());
+            sb.append(dto.getColumn().injectVarcharLength());
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
             RenameColumnRequestDTO dto = (RenameColumnRequestDTO) ddlRequestDTO;
             sb.append(", beforeColumnName: ");
