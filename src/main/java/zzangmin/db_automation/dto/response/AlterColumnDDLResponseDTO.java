@@ -1,12 +1,12 @@
 package zzangmin.db_automation.dto.response;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class ExtendVarcharColumnResponseDTO extends ResponseDTO {
-
+public class AlterColumnDDLResponseDTO extends DDLResponseDTO {
 
     // 실행자 ex) ckdals1234@gmail.com
     private String executeDoer;
@@ -18,7 +18,7 @@ public class ExtendVarcharColumnResponseDTO extends ResponseDTO {
     @Override
     public String toString() {
         String executeDuration = super.getExecuteDuration();
-        return "ExtendVarcharColumnResponseDTO{" +
+        return "AlterColumnResponseDTO{" +
                 "executeDoer='" + executeDoer + '\'' +
                 ", databaseInstanceName='" + databaseInstanceName + '\'' +
                 ", schemaName='" + schemaName + '\'' +

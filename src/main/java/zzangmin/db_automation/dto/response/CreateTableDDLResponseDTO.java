@@ -5,8 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class RenameColumnResponseDTO extends ResponseDTO {
-
+public class CreateTableDDLResponseDTO extends DDLResponseDTO {
 
     // 실행자 ex) ckdals1234@gmail.com
     private String executeDoer;
@@ -18,7 +17,7 @@ public class RenameColumnResponseDTO extends ResponseDTO {
     @Override
     public String toString() {
         String executeDuration = super.getExecuteDuration();
-        return "RenameColumnResponseDTO{" +
+        return "CreateTableResponseDTO{" +
                 "executeDoer='" + executeDoer + '\'' +
                 ", databaseInstanceName='" + databaseInstanceName + '\'' +
                 ", schemaName='" + schemaName + '\'' +

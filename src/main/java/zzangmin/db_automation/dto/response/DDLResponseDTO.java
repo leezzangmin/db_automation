@@ -7,7 +7,7 @@ import lombok.ToString;
 @ToString
 @Getter
 @NoArgsConstructor
-public class ResponseDTO {
+public class DDLResponseDTO {
     private String executeDuration;
 
     public void setExecuteDuration(long executeDuration) {

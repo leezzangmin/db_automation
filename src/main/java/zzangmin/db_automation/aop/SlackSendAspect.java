@@ -6,7 +6,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.SlackClient;
-import zzangmin.db_automation.dto.response.ResponseDTO;
+import zzangmin.db_automation.dto.response.DDLResponseDTO;
 
 @Aspect
 @Component
@@ -26,7 +26,7 @@ public class SlackSendAspect {
 
     @AfterReturning(pointcut = "requestMappingMethods()", returning = "dto")
     public void afterReturningSendDTO(Object dto) {
-       slackClient.sendMessage(((ResponseDTO) dto).toString());
+       slackClient.sendMessage(((DDLResponseDTO) dto).toString());
     }
 
 }
