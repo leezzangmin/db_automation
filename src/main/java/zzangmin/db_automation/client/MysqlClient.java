@@ -31,9 +31,9 @@ public class MysqlClient {
         }
     }
 
-    public Set<String> findTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+    public List<String> findTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         String SQL = "SELECT table_name FROM information_schema.tables WHERE table_schema = ?";
-        Set<String> tableNames = new HashSet<>();
+        List<String> tableNames = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
                 databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
@@ -53,9 +53,9 @@ public class MysqlClient {
         return tableNames;
     }
 
-    public Set<String> findSchemaNames(DatabaseConnectionInfo databaseConnectionInfo) {
+    public List<String> findSchemaNames(DatabaseConnectionInfo databaseConnectionInfo) {
         String SQL = "SHOW DATABASES";
-        Set<String> schemaNames = new HashSet<>();
+        List<String> schemaNames = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
                 databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), "mysql5128*");
@@ -68,7 +68,6 @@ public class MysqlClient {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
-
         return schemaNames;
     }
 
@@ -155,7 +154,7 @@ public class MysqlClient {
         throw new IllegalStateException("테이블 정보를 불러올 수 없습니다.");
     }
 
-    public List<TableStatus> findTableStatuses(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, Set<String> tableNames) {
+    public List<TableStatus> findTableStatuses(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> tableNames) {
         String SQL = "SELECT TABLE_NAME, TABLE_SCHEMA, TABLE_TYPE, ENGINE, TABLE_ROWS, DATA_LENGTH, INDEX_LENGTH, CREATE_TIME, UPDATE_TIME " +
                 "FROM INFORMATION_SCHEMA.TABLES " +
                 "WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN ";

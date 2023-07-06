@@ -130,14 +130,14 @@ public class DDLValidator {
     }
 
     private void validateIsNotExistTableName(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
-        Set<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
+        List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
         if (tableNames.contains(tableName)) {
             throw new IllegalStateException("이미 존재하는 테이블입니다.");
         }
     }
 
     private void validateIsExistTableName(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
-        Set<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
+        List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
         if (!tableNames.contains(tableName)) {
             throw new IllegalStateException("대상 테이블이 존재하지 않습니다.");
         }
@@ -150,7 +150,7 @@ public class DDLValidator {
 
 
     private void validateIsSchemaExists(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
-        Set<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo);
+        List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo);
         if (!schemaNames.contains(schemaName)) {
             throw new IllegalStateException("존재하지 않는 스키마입니다.");
         }

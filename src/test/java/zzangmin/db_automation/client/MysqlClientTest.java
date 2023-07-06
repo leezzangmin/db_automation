@@ -74,7 +74,7 @@ public class MysqlClientTest {
         // given
 
         // when
-        Set<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
+        List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
 
         // then
         assertThat(tableNames.contains("test_table")).isTrue();
@@ -87,7 +87,7 @@ public class MysqlClientTest {
         // Given
 
         // When
-        Set<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo);
+        List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo);
 
         // Then
         assertTrue(schemaNames.contains("test_schema"));
