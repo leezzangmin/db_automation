@@ -4,7 +4,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.dto.response.ResponseDTO;
+import zzangmin.db_automation.dto.response.DDLResponseDTO;
 
 @Aspect
 @Component
@@ -29,7 +29,7 @@ public class ExecutionTimeAspect {
         long startTime = executionTimeHolder.get();
         executionTimeHolder.remove();
         long duration = calculateDuration(startTime, endTime);
-        ((ResponseDTO) dto).setExecuteDuration(duration);
+        ((DDLResponseDTO) dto).setExecuteDuration(duration);
     }
 
     private long calculateDuration(long startTime, long endTime) {

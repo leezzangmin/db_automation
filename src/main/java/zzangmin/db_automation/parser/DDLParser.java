@@ -2,7 +2,6 @@ package zzangmin.db_automation.parser;
 
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.dto.request.*;
-import zzangmin.db_automation.dto.response.AddColumnResponseDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
