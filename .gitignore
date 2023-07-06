@@ -203,3 +203,4 @@ application-dev.properties
 /src/main/.aws-sam/build/
 /.aws-sam/
 /src/main/resources/static/static/
+/src/main/resources/static/
