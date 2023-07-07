@@ -5,7 +5,19 @@ const CreateTable = () => {
     const [selectedCluster, setSelectedCluster] = useState('');
     const [selectedSchema, setSelectedSchema] = useState('');
     const [tableName, setTableName] = useState('');
-    const [columns, setColumns] = useState([{ name: '', type: '', isNull: true, defaultValue: '', isUnique: false, isAutoIncrement: false, comment: '', charset: '', collate: '' }]);
+    const [columns, setColumns] = useState([
+        {
+            name: '',
+            type: '',
+            isNull: true,
+            defaultValue: '',
+            isUnique: false,
+            isAutoIncrement: false,
+            comment: '',
+            charset: 'utf8mb4',
+            collate: 'utf8mb4_0900_ai_ci',
+        },
+    ]);
     const [constraints, setConstraints] = useState([{ type: 'PRIMARY KEY', keyName: '', keyColumnNames: [''] }]);
     const [engine, setEngine] = useState('InnoDB');
     const [charset, setCharset] = useState('utf8mb4');
