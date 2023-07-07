@@ -5,10 +5,8 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.rds.model.DBInstance;
 import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
 import zzangmin.db_automation.client.MysqlClient;
-import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO;
+import zzangmin.db_automation.dto.response.*;
 import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO.TableInfo;
-import zzangmin.db_automation.dto.response.RdsClustersResponseDTO;
-import zzangmin.db_automation.dto.response.TableInfoResponseDTO;
 import zzangmin.db_automation.entity.ChangeHistory;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.TableStatus;
@@ -46,12 +44,12 @@ public class DescribeService {
     // TODO: 페이징, 정렬 (용량,이름,행수), 검색
     public List<RdsClusterSchemaTablesResponseDTO> findClusterTables(DatabaseConnectionInfo databaseConnectionInfo) {
         List<RdsClusterSchemaTablesResponseDTO> rdsClusterSchemaTablesResponseDTOs = new ArrayList<>();
-        Set<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
+        List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
                 .stream()
                 .filter(s -> !schemaBlackList.contains(s))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         for (String schemaName : schemaNames) {
-            Set<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
+            List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
             List<TableInfo> tableInfos = mysqlClient.findTableStatuses(databaseConnectionInfo, schemaName, tableNames)
                     .stream()
                     .map(tableStatus -> new TableInfo(tableStatus.getTableName(), tableStatus.calculateTotalTableByteSize(), tableStatus.getTableRow()))
@@ -65,5 +63,17 @@ public class DescribeService {
         List<ChangeHistory> changeHistories = changeHistoryRepository.findByDatabaseIdentifierAndSchemaNameAndTableName(databaseConnectionInfo.getDatabaseName(), schemaName, tableName);
         List<Column> columns = mysqlClient.findColumns(databaseConnectionInfo, schemaName, tableName);
         return new TableInfoResponseDTO(databaseConnectionInfo.getDatabaseName(), schemaName, tableName, columns, changeHistories);
+    }
+
+    public SchemaNamesResponseDTO findSchemaNames(DatabaseConnectionInfo databaseConnectionInfo) {
+        return new SchemaNamesResponseDTO(databaseConnectionInfo.getDatabaseName(), mysqlClient.findSchemaNames(databaseConnectionInfo)
+                .stream()
+                .filter(s -> !schemaBlackList.contains(s))
+                .collect(Collectors.toList()));
+    }
+
+    public TableNamesResponseDTO findTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
+        return new TableNamesResponseDTO(databaseConnectionInfo.getDatabaseName(), schemaName, tableNames);
     }
 }
