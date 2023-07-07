@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import AddColumn from "./AddColumn";
+import CreateIndex from "./CreateIndex";
+import CreateTable from "./CreateTable";
 
 const SelectDDLCommand = () => {
     const [selectedCommand, setSelectedCommand] = useState('');
@@ -36,13 +38,13 @@ const SelectDDLCommand = () => {
 
             {selectedCommand === 'create_index' && (
                 <div>
-                    {/* Create Index Form */}
+                    <CreateIndex />
                 </div>
             )}
 
             {selectedCommand === 'create_table' && (
                 <div>
-                    {/* Create Table Form */}
+                    <CreateTable />
                 </div>
             )}
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import FetchSchemaAndTable from "./FetchSchemaAndTable";
-import DDLExecution from "./DDLExecution";
-import SelectDDLCommand from "./SelectDDLCommand";
+import SelectDDLCommand from "./ddl/SelectDDLCommand";
 
 const App = () => {
     return (
