@@ -17,4 +17,8 @@ public class DatabaseConnectionInfo {
     private String username;
     // TODO: aws parameter store 에서 fetch
     private String password;
+
+    public String databaseSummary() {
+        return this.databaseName + " (" + this.url + ")\n";
+    }
 }
