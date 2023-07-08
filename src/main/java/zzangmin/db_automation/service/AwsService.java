@@ -10,6 +10,9 @@ import software.amazon.awssdk.services.pi.model.GetResourceMetricsRequest;
 import software.amazon.awssdk.services.pi.model.GetResourceMetricsResponse;
 import software.amazon.awssdk.services.pi.model.MetricQuery;
 import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
+import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
+import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 import zzangmin.db_automation.client.AwsClient;
 
 import java.time.Duration;
@@ -28,6 +31,16 @@ public class AwsService {
     private static final int DURATION_MINUTE = 5;
     private static final int PERIOD_SECONDS = 60 * DURATION_MINUTE;
     private static final String RDS_SERVICE_TYPE = "RDS";
+
+    public String findRdsPassword(String databaseIdentifier) {
+        SsmClient ssmClient = awsClient.getSsmClient();
+        GetParameterRequest parameterRequest = GetParameterRequest.builder()
+                .name(databaseIdentifier + "-password")
+                .withDecryption(true)
+                .build();
+        GetParameterResponse parameterResponse = ssmClient.getParameter(parameterRequest);
+        return parameterResponse.parameter().value();
+    }
 
     public Map<String, Double> findRdsPeakCpuAndMemoryUsage(String databaseIdentifier) {
         CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient();

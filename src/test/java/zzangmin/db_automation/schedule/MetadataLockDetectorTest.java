@@ -45,6 +45,7 @@ class MetadataLockDetectorTest {
     @Test
     void checkMetadataLock_WithTargetDatabases() {
         // given
+
         DatabaseConnectionInfo databaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", "mysql5128*");
         metadataLockDetector.startCheck(databaseConnectionInfo);
         List<MetadataLockHolder> metadataLockHolders = new ArrayList<>();
