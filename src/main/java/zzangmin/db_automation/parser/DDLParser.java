@@ -2,7 +2,6 @@ package zzangmin.db_automation.parser;
 
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.dto.request.*;
-import zzangmin.db_automation.dto.response.AddColumnResponseDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
@@ -63,9 +62,7 @@ public class DDLParser {
         sb.append(dto.getAfterColumn().getType());
         sb.append(" ");
         sb.append(dto.getAfterColumn().generateNull());
-        sb.append(" ");
         sb.append(dto.getAfterColumn().generateUnique());
-        sb.append(" ");
         sb.append(dto.getAfterColumn().generateAutoIncrement());
         sb.append(" COMMENT '");
         sb.append(dto.getAfterColumn().getComment());
@@ -97,9 +94,7 @@ public class DDLParser {
         sb.append(dto.getColumn().getType());
         sb.append(" ");
         sb.append(dto.getColumn().generateNull());
-        sb.append(" ");
         sb.append(dto.getColumn().generateUnique());
-        sb.append(" ");
         sb.append(dto.getColumn().generateAutoIncrement());
         sb.append(" COMMENT '");
         sb.append(dto.getColumn().getComment());
@@ -119,9 +114,6 @@ public class DDLParser {
         sb.append(dto.getColumn().getType());
         sb.append(" ");
         sb.append(dto.getColumn().generateNull());
-        if (dto.getColumn().isUnique()) {
-            sb.append(" ");
-        }
         sb.append(dto.getColumn().generateUnique());
         sb.append(" COMMENT '");
         sb.append(dto.getColumn().getComment());
@@ -179,10 +171,8 @@ public class DDLParser {
             sb.append(column.getType());
             sb.append(" ");
             sb.append(column.generateNull());
-            if (column.isUnique()) {
-                sb.append(" ");
-            }
             sb.append(column.generateUnique());
+            sb.append(column.generateAutoIncrement());
             sb.append(" COMMENT '");
             sb.append(column.getComment());
             sb.append("',\n");

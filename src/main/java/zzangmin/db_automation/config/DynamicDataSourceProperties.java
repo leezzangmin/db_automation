@@ -1,11 +1,13 @@
 package zzangmin.db_automation.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class DynamicDataSourceProperties {
 
@@ -19,14 +21,9 @@ public class DynamicDataSourceProperties {
         databases.put(dbName, databaseConnectionInfo);
     }
 
-    public DatabaseConnectionInfo findByDbInstanceIdentifier(String DBInstanceIdentifier) {
-        return databases.get(DBInstanceIdentifier);
-    }
-
     public void displayDatabases() {
-        System.out.println("databases: ");
         for (String databaseName : databases.keySet()) {
-            System.out.println(databases.get(databaseName));
+            log.info("databases: {}", databases.get(databaseName));
         }
     }
 }

@@ -1,5 +1,6 @@
 package zzangmin.db_automation.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -18,11 +19,14 @@ public class Column {
     @NotBlank
     private String type; // varchar(123), bigint, datetime
     @NotBlank
+    @JsonProperty("isNull")
     private boolean isNull; // NOT NULL, DEFAULT NULL
     private String defaultValue;
     @NotBlank
+    @JsonProperty("isUnique")
     private boolean isUnique;
     @NotBlank
+    @JsonProperty("isAutoIncrement")
     private boolean isAutoIncrement;
     @NotBlank
     private String comment;
@@ -34,26 +38,29 @@ public class Column {
 
     public String generateNull() {
         if (this.isNull) {
-            return "DEFAULT '" + defaultValue + "'";
+            if (defaultValue.equals("null") || defaultValue.equals("NULL")) {
+                return "DEFAULT NULL";
+            }
+            return "DEFAULT '" + this.defaultValue + "'";
         }
         return "NOT NULL";
     }
 
     public String generateUnique() {
         if (this.isUnique) {
-            return "UNIQUE";
+            return " UNIQUE";
         }
         return "";
     }
 
     public String generateAutoIncrement() {
         if (this.isAutoIncrement) {
-            return "AUTO_INCREMENT";
+            return " AUTO_INCREMENT";
         }
         return "";
     }
 
-    public int getVarcharLength() {
+    public int injectVarcharLength() {
         if (this.type.matches("(?i)varchar\\(\\d+\\)")) {
             Pattern pattern = Pattern.compile("\\d+");
             Matcher matcher = pattern.matcher(this.type);

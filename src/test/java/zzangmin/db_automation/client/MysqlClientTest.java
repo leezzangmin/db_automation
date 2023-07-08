@@ -8,6 +8,7 @@ import zzangmin.db_automation.entity.MetadataLockHolder;
 import zzangmin.db_automation.entity.MysqlProcess;
 import zzangmin.db_automation.entity.TableStatus;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.service.AwsService;
 
 import java.sql.*;
 import java.util.List;
@@ -26,19 +27,23 @@ public class MysqlClientTest {
 
     @Autowired
     private MysqlClient mysqlClient;
+    @Autowired
+    private AwsService awsService;
 
-    private DatabaseConnectionInfo databaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", "mysql5128*");
+    private DatabaseConnectionInfo databaseConnectionInfo;
     private String schemaName = "test_schema";
 
     @BeforeEach
     public void setUp() {
+        databaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", awsService.findRdsPassword("zzangmin-db"));
+        mysqlClient.executeSQL(databaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
         mysqlClient.executeSQL(databaseConnectionInfo, "CREATE TABLE test_schema.test_table (id INT NOT NULL AUTO_INCREMENT COMMENT 'asdf', name VARCHAR(45) NULL COMMENT 'name comment', PRIMARY KEY (id), KEY name(name)) COMMENT 'TABLE COMMENT'");
         mysqlClient.executeSQL(databaseConnectionInfo, "INSERT INTO test_schema.test_table (name) VALUES ('test_name')");
     }
 
     @AfterEach
     public void tearDown() {
-        mysqlClient.executeSQL(databaseConnectionInfo, "DROP TABLE test_schema.test_table");
+        mysqlClient.executeSQL(databaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
     }
 
     @DisplayName("executeSQL 을 통해 SQL 을 실행할 수 있다.")
@@ -46,7 +51,7 @@ public class MysqlClientTest {
     public void testExecuteSQL() {
         // given
         String sql = "CREATE TABLE test_schema.test_table2 (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(45) NULL, PRIMARY KEY (id))";
-        DatabaseConnectionInfo databaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", "mysql5128*");
+        DatabaseConnectionInfo databaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", awsService.findRdsPassword("zzangmin-db"));
 
         // when
         mysqlClient.executeSQL(databaseConnectionInfo, sql);
@@ -74,7 +79,7 @@ public class MysqlClientTest {
         // given
 
         // when
-        Set<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
+        List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
 
         // then
         assertThat(tableNames.contains("test_table")).isTrue();
@@ -87,7 +92,7 @@ public class MysqlClientTest {
         // Given
 
         // When
-        Set<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo);
+        List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo);
 
         // Then
         assertTrue(schemaNames.contains("test_schema"));

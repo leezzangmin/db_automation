@@ -2,14 +2,15 @@ package zzangmin.db_automation.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.rds.model.DBInstance;
-import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
+import software.amazon.awssdk.services.rds.model.DBCluster;
+import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
 import zzangmin.db_automation.client.MysqlClient;
-import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO;
+import zzangmin.db_automation.dto.response.*;
 import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO.TableInfo;
-import zzangmin.db_automation.dto.response.RdsClustersResponseDTO;
-import zzangmin.db_automation.entity.TableStatus;
+import zzangmin.db_automation.entity.ChangeHistory;
+import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.repository.ChangeHistoryRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,31 +24,31 @@ public class DescribeService {
 
     private final AwsService awsService;
     private final MysqlClient mysqlClient;
+    private final ChangeHistoryRepository changeHistoryRepository;
 
     // TODO: 캐싱(mysql) / 상태저장 (?) 필요
     // db에 정보 넣어두는 테이블1, 업데이트 정보 관리하는 테이블2, HTTP 캐싱처럼 테이블2만 수시 조회
     // -> 업데이트 정보 있으면 getAndDel + awscli호출 + 테이블1업데이트
     public RdsClustersResponseDTO findClustersInfo() {
-        DescribeDbInstancesResponse allRdsInstanceInfo = awsService.findAllRdsInstanceInfo();
-        List<DBInstance> dbInstancesInfo = allRdsInstanceInfo.dbInstances();
+        DescribeDbClustersResponse allClusterInfo = awsService.findAllClusterInfo();
+        List<DBCluster> dbClusters = allClusterInfo.dbClusters();
         List<Map<String, Long>> rdsInfo = new ArrayList<>();
-        dbInstancesInfo.stream()
-                .map(i -> i.getValueForField("DBInstanceIdentifier", String.class).get())
+        dbClusters.stream()
+                .map(i -> i.getValueForField("DBClusterIdentifier", String.class).get())
                 .forEach(i -> rdsInfo.add(awsService.findAllInstanceMetricsInfo(i)));
-        return RdsClustersResponseDTO.of(dbInstancesInfo, rdsInfo);
+        return RdsClustersResponseDTO.of(dbClusters, rdsInfo);
     }
 
     // 클러스터의 서비스용 스키마의 테이블 목록(용량, 등)
     // TODO: 페이징, 정렬 (용량,이름,행수), 검색
     public List<RdsClusterSchemaTablesResponseDTO> findClusterTables(DatabaseConnectionInfo databaseConnectionInfo) {
         List<RdsClusterSchemaTablesResponseDTO> rdsClusterSchemaTablesResponseDTOs = new ArrayList<>();
-        Set<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
+        List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
                 .stream()
                 .filter(s -> !schemaBlackList.contains(s))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         for (String schemaName : schemaNames) {
-            Set<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
-            List<TableStatus> tableStatuses = mysqlClient.findTableStatuses(databaseConnectionInfo, schemaName, tableNames);
+            List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
             List<TableInfo> tableInfos = mysqlClient.findTableStatuses(databaseConnectionInfo, schemaName, tableNames)
                     .stream()
                     .map(tableStatus -> new TableInfo(tableStatus.getTableName(), tableStatus.calculateTotalTableByteSize(), tableStatus.getTableRow()))
@@ -55,5 +56,23 @@ public class DescribeService {
             rdsClusterSchemaTablesResponseDTOs.add(new RdsClusterSchemaTablesResponseDTO(schemaName, tableInfos));
         }
         return rdsClusterSchemaTablesResponseDTOs;
+    }
+
+    public TableInfoResponseDTO findTableInfo(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        List<ChangeHistory> changeHistories = changeHistoryRepository.findByDatabaseIdentifierAndSchemaNameAndTableName(databaseConnectionInfo.getDatabaseName(), schemaName, tableName);
+        List<Column> columns = mysqlClient.findColumns(databaseConnectionInfo, schemaName, tableName);
+        return new TableInfoResponseDTO(databaseConnectionInfo.getDatabaseName(), schemaName, tableName, columns, changeHistories);
+    }
+
+    public SchemaNamesResponseDTO findSchemaNames(DatabaseConnectionInfo databaseConnectionInfo) {
+        return new SchemaNamesResponseDTO(databaseConnectionInfo.getDatabaseName(), mysqlClient.findSchemaNames(databaseConnectionInfo)
+                .stream()
+                .filter(s -> !schemaBlackList.contains(s))
+                .collect(Collectors.toList()));
+    }
+
+    public TableNamesResponseDTO findTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
+        return new TableNamesResponseDTO(databaseConnectionInfo.getDatabaseName(), schemaName, tableNames);
     }
 }
