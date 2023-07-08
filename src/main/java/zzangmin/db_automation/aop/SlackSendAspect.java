@@ -57,6 +57,7 @@ public class SlackSendAspect {
                 sb.append(((DatabaseConnectionInfo) arg).databaseSummary());
             }
         }
+        sb.append("\n");
         sb.append(((DDLResponseDTO) dto).toString());
         slackClient.sendMessage(sb.toString());
     }
