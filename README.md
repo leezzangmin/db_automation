@@ -29,8 +29,6 @@ db 운영 자동화 백오피스 프로젝트입니다.
 
 - 작업 시작할 때 슬랙으로 알림 (작업자, 작업시간, 작업내용, 작업커맨드)
 - 작업 실패할 때 슬랙으로 알림 (작업자, 작업시간, 작업내용, 작업커맨드, 에러메시지)
-  
-## knowledge
-- create table 은 METADATA LOCK 없음
-- add column 은 metadata lock 발생 (동일테이블에 한해(?))
-- 
+
+## feature
+- parameter store pw / [dbName]-password
