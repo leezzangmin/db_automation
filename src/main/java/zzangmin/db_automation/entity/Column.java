@@ -38,7 +38,10 @@ public class Column {
 
     public String generateNull() {
         if (this.isNull) {
-            return "DEFAULT '" + defaultValue + "'";
+            if (defaultValue.equals("null") || defaultValue.equals("NULL")) {
+                return "DEFAULT NULL";
+            }
+            return "DEFAULT '" + this.defaultValue + "'";
         }
         return "NOT NULL";
     }
