@@ -9,14 +9,17 @@ import software.amazon.awssdk.services.pi.PiClient;
 import software.amazon.awssdk.services.pi.model.GetResourceMetricsRequest;
 import software.amazon.awssdk.services.pi.model.GetResourceMetricsResponse;
 import software.amazon.awssdk.services.pi.model.MetricQuery;
-import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
+import software.amazon.awssdk.services.rds.RdsClient;
+import software.amazon.awssdk.services.rds.model.*;
 import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 import zzangmin.db_automation.client.AwsClient;
+import zzangmin.db_automation.schedule.standardcheck.ParameterGroupStandard;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +31,40 @@ import java.util.stream.Collectors;
 public class AwsService {
 
     private final AwsClient awsClient;
+
     private static final int DURATION_MINUTE = 5;
     private static final int PERIOD_SECONDS = 60 * DURATION_MINUTE;
     private static final String RDS_SERVICE_TYPE = "RDS";
+
+    public List<String> findParameterGroupNames() {
+        List<String> clusterParameterGroupNames = new ArrayList<>();
+
+        RdsClient rdsClient = awsClient.getRdsClient();
+        DescribeDbClustersResponse describeDbClustersResponse = rdsClient.describeDBClusters();
+        List<DBCluster> dbClusters = describeDbClustersResponse.dbClusters();
+        for (DBCluster dbCluster : dbClusters) {
+            String clusterParameterGroupName = dbCluster.dbClusterParameterGroup();
+            clusterParameterGroupNames.add(clusterParameterGroupName);
+        }
+        return clusterParameterGroupNames;
+    }
+
+    public DescribeDbClusterParametersResponse findClusterParameterGroup(String parameterGroupName) {
+        RdsClient rdsClient = awsClient.getRdsClient();
+        DescribeDbClusterParametersResponse describeDbClusterParametersResponse = rdsClient.describeDBClusterParameters(
+                DescribeDbClusterParametersRequest.builder()
+                        .filters(ParameterGroupStandard.standardParameters.keySet()
+                                .stream()
+                                .map(parameterName -> Filter.builder()
+                                        .name("parameter-name")
+                                        .values(parameterName)
+                                        .build())
+                                .collect(Collectors.toList()))
+                        .dbClusterParameterGroupName(parameterGroupName)
+                        .build()
+        );
+        return describeDbClusterParametersResponse;
+    }
 
     public String findRdsPassword(String databaseIdentifier) {
         SsmClient ssmClient = awsClient.getSsmClient();
@@ -66,9 +100,16 @@ public class AwsService {
         return peakValues;
     }
 
-    public DescribeDbInstancesResponse findAllRdsInstanceInfo() {
+    public List<DBInstance> findAllInstanceInfo() {
         return awsClient.getRdsClient()
-                .describeDBInstances();
+                .describeDBInstances()
+                .dbInstances();
+    }
+
+    public DescribeDbClustersResponse findAllClusterInfo() {
+        DescribeDbClustersResponse describeDbClustersResponse = awsClient.getRdsClient()
+                .describeDBClusters();
+        return describeDbClustersResponse;
     }
 
     public Map<String, Long> findAllInstanceMetricsInfo(String databaseIdentifiers) {
@@ -104,6 +145,7 @@ public class AwsService {
                     .orElseThrow(() -> new IllegalStateException("Metric id not found"));
             List<Double> singleValue = metricDataResult.getValueForField("Values", List.class)
                     .orElseThrow(() -> new IllegalStateException("Metric values not found"));
+
             Double metricValue = singleValue.get(0);
             metrics.put(metricLabel, metricValue.longValue());
         }
@@ -134,7 +176,7 @@ public class AwsService {
                                 .namespace("AWS/RDS")
                                 .metricName("CPUUtilization")
                                 .dimensions(Dimension.builder()
-                                        .name("DBInstanceIdentifier")
+                                        .name("DBClusterIdentifier")
                                         .value(databaseIdentifier)
                                         .build())
                                 .build())
@@ -153,7 +195,7 @@ public class AwsService {
                                 .namespace("AWS/RDS")
                                 .metricName("FreeableMemory")
                                 .dimensions(Dimension.builder()
-                                        .name("DBInstanceIdentifier")
+                                        .name("DBClusterIdentifier")
                                         .value(databaseIdentifier)
                                         .build())
                                 .build())
@@ -172,7 +214,7 @@ public class AwsService {
                                 .namespace("AWS/RDS")
                                 .metricName("DatabaseConnections")
                                 .dimensions(Dimension.builder()
-                                        .name("DBInstanceIdentifier")
+                                        .name("DBClusterIdentifier")
                                         .value(databaseIdentifier)
                                         .build())
                                 .build())
@@ -185,13 +227,13 @@ public class AwsService {
 
     private MetricDataQuery generateDiskUsageMetricQuery(String databaseIdentifier) {
         return MetricDataQuery.builder()
-                .id("freeStorageSpace")
+                .id("freeLocalStorage")
                 .metricStat(MetricStat.builder()
                         .metric(Metric.builder()
                                 .namespace("AWS/RDS")
-                                .metricName("FreeStorageSpace")
+                                .metricName("FreeLocalStorage")
                                 .dimensions(Dimension.builder()
-                                        .name("DBInstanceIdentifier")
+                                        .name("DBClusterIdentifier")
                                         .value(databaseIdentifier)
                                         .build())
                                 .build())
@@ -210,7 +252,7 @@ public class AwsService {
                                 .namespace("AWS/RDS")
                                 .metricName("ReadThroughput")
                                 .dimensions(Dimension.builder()
-                                        .name("DBInstanceIdentifier")
+                                        .name("DBClusterIdentifier")
                                         .value(databaseIdentifier)
                                         .build())
                                 .build())
@@ -229,7 +271,7 @@ public class AwsService {
                                 .namespace("AWS/RDS")
                                 .metricName("WriteThroughput")
                                 .dimensions(Dimension.builder()
-                                        .name("DBInstanceIdentifier")
+                                        .name("DBClusterIdentifier")
                                         .value(databaseIdentifier)
                                         .build())
                                 .build())

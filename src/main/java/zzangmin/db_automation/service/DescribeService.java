@@ -2,14 +2,13 @@ package zzangmin.db_automation.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.rds.model.DBInstance;
-import software.amazon.awssdk.services.rds.model.DescribeDbInstancesResponse;
+import software.amazon.awssdk.services.rds.model.DBCluster;
+import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.response.*;
 import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO.TableInfo;
 import zzangmin.db_automation.entity.ChangeHistory;
 import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.TableStatus;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.repository.ChangeHistoryRepository;
 
@@ -31,13 +30,13 @@ public class DescribeService {
     // db에 정보 넣어두는 테이블1, 업데이트 정보 관리하는 테이블2, HTTP 캐싱처럼 테이블2만 수시 조회
     // -> 업데이트 정보 있으면 getAndDel + awscli호출 + 테이블1업데이트
     public RdsClustersResponseDTO findClustersInfo() {
-        DescribeDbInstancesResponse allRdsInstanceInfo = awsService.findAllRdsInstanceInfo();
-        List<DBInstance> dbInstancesInfo = allRdsInstanceInfo.dbInstances();
+        DescribeDbClustersResponse allClusterInfo = awsService.findAllClusterInfo();
+        List<DBCluster> dbClusters = allClusterInfo.dbClusters();
         List<Map<String, Long>> rdsInfo = new ArrayList<>();
-        dbInstancesInfo.stream()
-                .map(i -> i.getValueForField("DBInstanceIdentifier", String.class).get())
+        dbClusters.stream()
+                .map(i -> i.getValueForField("DBClusterIdentifier", String.class).get())
                 .forEach(i -> rdsInfo.add(awsService.findAllInstanceMetricsInfo(i)));
-        return RdsClustersResponseDTO.of(dbInstancesInfo, rdsInfo);
+        return RdsClustersResponseDTO.of(dbClusters, rdsInfo);
     }
 
     // 클러스터의 서비스용 스키마의 테이블 목록(용량, 등)

@@ -2,6 +2,7 @@ package zzangmin.db_automation.config;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.*;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
@@ -9,6 +10,7 @@ import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class DynamicDataSourceLoader {
@@ -17,22 +19,22 @@ public class DynamicDataSourceLoader {
     private final AwsService awsService;
 
     public void loadDynamicDataSources() {
-        DescribeDbInstancesResponse response = awsService.findAllRdsInstanceInfo();
-        List<DBInstance> dbInstances = response.dbInstances();
+        DescribeDbClustersResponse response = awsService.findAllClusterInfo();
+        List<DBCluster> dbClusters = response.dbClusters();
 
-        for (DBInstance instance : dbInstances) {
-            String dbname = instance.dbInstanceIdentifier();
-            String password = awsService.findRdsPassword(dbname);
-
+        for (DBCluster cluster : dbClusters) {
+            String dbName = cluster.dbClusterIdentifier();
+            String password = awsService.findRdsPassword(dbName);
+            log.info("dbcluster: {} ", cluster);
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
-                    .databaseName(instance.dbInstanceIdentifier())
+                    .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
-                    .url("jdbc:mysql://" + instance.endpoint().address())
-                    .username(instance.masterUsername())
+                    .url("jdbc:mysql://" + cluster.endpoint())
+                    .username(cluster.masterUsername())
                     .password(password)
                     .build();
 
-            dynamicDataSourceProperties.addDatabase(dbname, databaseConnectionInfo);
+            dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
         }
         dynamicDataSourceProperties.displayDatabases();
     }
