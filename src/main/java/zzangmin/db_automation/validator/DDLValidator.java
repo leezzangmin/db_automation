@@ -11,11 +11,11 @@ import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.MysqlProcess;
+import zzangmin.db_automation.entity.Table;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -105,7 +105,8 @@ public class DDLValidator {
 
     // TODO: constraint empty 여부
     public void validateCreateTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) {
-        tableConvention.validateTableConvention(createTableRequestDTO.getColumns(), createTableRequestDTO.getConstraints(), createTableRequestDTO.getTableName(), createTableRequestDTO.getEngine(), createTableRequestDTO.getCharset(), createTableRequestDTO.getCollate(), createTableRequestDTO.getTableComment());
+        Table table = new Table(createTableRequestDTO.getTableName(), createTableRequestDTO.getColumns(), createTableRequestDTO.getConstraints(), createTableRequestDTO.getEngine(), createTableRequestDTO.getCharset(), createTableRequestDTO.getCollate(), createTableRequestDTO.getTableComment());
+        tableConvention.validateTableConvention(table);
         validateIsSchemaExists(databaseConnectionInfo, createTableRequestDTO.getSchemaName());
         validateIsNotExistTableName(databaseConnectionInfo, createTableRequestDTO.getSchemaName(), createTableRequestDTO.getTableName());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
