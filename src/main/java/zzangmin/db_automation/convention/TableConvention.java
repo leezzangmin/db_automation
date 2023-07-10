@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
+import zzangmin.db_automation.entity.Table;
 
 import java.util.HashSet;
 import java.util.List;
@@ -25,15 +26,14 @@ public class TableConvention {
     private final IndexConvention indexConvention;
     private final ColumnConvention columnConvention;
 
-
-    public void validateTableConvention(List<Column> columns, List<Constraint> constraints, String tableName, String tableEngine, String tableCharset, String tableCollate, String tableComment) {
-        checkDuplicateColumnAndConstraintConvention(columns, constraints);
-        checkNamingConvention(columns, constraints, tableName);
-        checkTableOptionConvention(tableEngine, tableCharset, tableCollate, tableComment);
-        for (Column column : columns) {
+    public void validateTableConvention(Table table) {
+        checkDuplicateColumnAndConstraintConvention(table.getColumns(), table.getConstraints());
+        checkNamingConvention(table.getColumns(), table.getConstraints(), table.getTableName());
+        checkTableOptionConvention(table.getTableEngine(), table.getTableCharset(), table.getTableCollate(), table.getTableComment());
+        for (Column column : table.getColumns()) {
             columnConvention.validateColumnConvention(column);
         }
-        for (Constraint constraint : constraints) {
+        for (Constraint constraint : table.getConstraints()) {
             indexConvention.validateIndexConvention(constraint);
         }
     }
@@ -51,7 +51,6 @@ public class TableConvention {
             }
             commonConvention.validateSnakeCase(constraint.getKeyName());
             commonConvention.validateLowerCaseString(constraint.getKeyName());
-            indexConvention.validateConstraintNamingConvention(constraint.getKeyName(), constraint.getKeyColumnNames());
         }
     }
 
@@ -77,13 +76,13 @@ public class TableConvention {
 
     private void checkTableOptionConvention(String tableEngine, String tableCharset, String tableCollate, String tableComment) {
         if (!tableEngine.equals(ENGINE_TYPE)) {
-            throw new IllegalArgumentException("엔진명은 다음과 같아야합니다: " + ENGINE_TYPE);
+            throw new IllegalArgumentException("테이블 엔진은 다음과 같아야합니다: " + ENGINE_TYPE);
         }
         if (!tableCharset.equals(CHARSET)) {
-            throw new IllegalArgumentException("캐릭터셋은 다음과 같아야합니다: " + CHARSET);
+            throw new IllegalArgumentException("테이블 캐릭터셋은 다음과 같아야합니다: " + CHARSET);
         }
         if (!tableCollate.equals(COLLATE)) {
-            throw new IllegalArgumentException("콜레이션은 다음과 같아야합니다: " + COLLATE);
+            throw new IllegalArgumentException("테이블 콜레이션은 다음과 같아야합니다: " + COLLATE);
         }
         if (tableComment.isBlank() || tableComment.isEmpty()) {
             throw new IllegalArgumentException("테이블 코멘트가 존재하지 않습니다.");

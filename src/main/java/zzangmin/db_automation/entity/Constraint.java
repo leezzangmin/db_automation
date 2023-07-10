@@ -3,6 +3,7 @@ package zzangmin.db_automation.entity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ToString
@@ -16,5 +17,9 @@ public class Constraint {
     @NotBlank
     private String keyName; // promotion_type_date_promotion_end
     @NotBlank
-    private List<String> keyColumnNames; // promotion_type, date_promotion_end;
+    private List<String> keyColumnNames = new ArrayList<>(); // promotion_type, date_promotion_end;
+
+    public void addKeyColumnNames(List<String> keyColumnNames) {
+        this.keyColumnNames.addAll(keyColumnNames);
+    }
 }

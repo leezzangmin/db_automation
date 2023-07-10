@@ -15,7 +15,7 @@ import software.amazon.awssdk.services.ssm.SsmClient;
 import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
 import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
 import zzangmin.db_automation.client.AwsClient;
-import zzangmin.db_automation.schedule.standardcheck.ParameterGroupStandard;
+import zzangmin.db_automation.schedule.standardcheck.standardvalue.ParameterGroupStandard;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -68,6 +68,7 @@ public class AwsService {
 
     public String findRdsPassword(String databaseIdentifier) {
         SsmClient ssmClient = awsClient.getSsmClient();
+        System.out.println("databaseIdentifier = " + databaseIdentifier);
         GetParameterRequest parameterRequest = GetParameterRequest.builder()
                 .name(databaseIdentifier + "-password")
                 .withDecryption(true)
@@ -101,9 +102,22 @@ public class AwsService {
     }
 
     public List<DBInstance> findAllInstanceInfo() {
-        return awsClient.getRdsClient()
-                .describeDBInstances()
-                .dbInstances();
+        RdsClient rdsClient = awsClient.getRdsClient();
+
+        // 클러스터에 속하지 않은 인스턴스만 필터링
+        DescribeDbInstancesResponse response = rdsClient.describeDBInstances();
+        List<DBInstance> allInstances = response.dbInstances();
+        List<String> clusterInstanceIdentifiers = response.dbInstances()
+                .stream()
+                .filter(dbInstance -> dbInstance.dbClusterIdentifier() != null)
+                .map(DBInstance::dbInstanceIdentifier)
+                .collect(Collectors.toList());
+
+        List<DBInstance> standaloneInstances = allInstances.stream()
+                .filter(dbInstance -> !clusterInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier()))
+                .collect(Collectors.toList());
+
+        return standaloneInstances;
     }
 
     public DescribeDbClustersResponse findAllClusterInfo() {

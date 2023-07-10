@@ -1,7 +1,7 @@
 package zzangmin.db_automation.convention;
 
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.schedule.standardcheck.CommonStandard;
+import zzangmin.db_automation.schedule.standardcheck.standardvalue.CommonStandard;
 
 import java.util.Set;
 import java.util.regex.Pattern;

@@ -1,4 +1,4 @@
-package zzangmin.db_automation.schedule.standardcheck;
+package zzangmin.db_automation.schedule.standardcheck.standardvalue;
 
 import java.util.HashMap;
 import java.util.Map;

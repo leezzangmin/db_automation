@@ -1,4 +1,4 @@
-package zzangmin.db_automation.schedule.standardcheck;
+package zzangmin.db_automation.schedule.standardcheck.standardvalue;
 
 public class CommonStandard {
 
