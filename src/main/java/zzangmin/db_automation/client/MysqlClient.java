@@ -1,13 +1,9 @@
 package zzangmin.db_automation.client;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.convention.CommonConvention;
-import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.MetadataLockHolder;
-import zzangmin.db_automation.entity.MysqlProcess;
-import zzangmin.db_automation.entity.TableStatus;
+import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.sql.*;
@@ -215,7 +211,7 @@ public class MysqlClient {
                 columns.add(columnName);
                 constraints.put(indexName, columns);
             }
-            log.info("findTableStatus: {}", statement);
+            log.info("findIndexes: {}", statement);
             return constraints;
         } catch (SQLException e) {
             throw new IllegalStateException("인덱스 정보를 불러올 수 없습니다.");
@@ -243,7 +239,7 @@ public class MysqlClient {
                     int characterMaxLength = resultSet.getInt("CHARACTER_MAXIMUM_LENGTH");
                     String isNull = resultSet.getString("IS_NULLABLE");
                     String key = resultSet.getString("COLUMN_KEY");
-                    String defaultValue = resultSet.getString("COLUMN_DEFAULT");
+                        String defaultValue = resultSet.getString("COLUMN_DEFAULT");
                     String extra = resultSet.getString("Extra");
                     String columnComment = resultSet.getString("COLUMN_COMMENT");
                     String charset = resultSet.getString("CHARACTER_SET_NAME");
@@ -412,4 +408,148 @@ public class MysqlClient {
         }
     }
 
+    public List<Table> findTables(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> tableNames) {
+        String findTableAndColumnSQL = "SELECT t.TABLE_NAME, t.TABLE_SCHEMA, t.TABLE_TYPE, t.ENGINE, t.CREATE_TIME, t.UPDATE_TIME, t.TABLE_COLLATION, t.TABLE_COMMENT, " +
+                "c.COLUMN_NAME, c.DATA_TYPE, c.CHARACTER_MAXIMUM_LENGTH, c.IS_NULLABLE, c.COLUMN_KEY, " +
+                "c.COLUMN_DEFAULT, c.Extra, c.COLUMN_COMMENT, c.CHARACTER_SET_NAME, c.COLLATION_NAME " +
+                "FROM INFORMATION_SCHEMA.TABLES t " +
+                "LEFT JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_SCHEMA = c.TABLE_SCHEMA AND t.TABLE_NAME = c.TABLE_NAME " +
+                "WHERE t.TABLE_SCHEMA = ? AND t.TABLE_NAME IN ";
+        String findIndexSQL = "SELECT INDEX_NAME, COLUMN_NAME, TABLE_NAME, NON_UNIQUE " +
+                "FROM INFORMATION_SCHEMA.STATISTICS " +
+                "WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN ";
+
+        Map<String, List<Column>> tableColumns = new HashMap<>();
+        Map<String, Table> tables = new HashMap<>();
+
+        String tableNamesStr = "('" + String.join("','", tableNames) + "')";
+        findTableAndColumnSQL += tableNamesStr;
+        findIndexSQL += tableNamesStr;
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(findTableAndColumnSQL)) {
+
+            statement.setString(1, schemaName);
+
+            log.info("findTables: {}", statement);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+
+                while (resultSet.next()) {
+                    String tableName = resultSet.getString("TABLE_NAME");
+                    String tableEngine = resultSet.getString("ENGINE");
+                    String tableCharset = "utf8mb4"; // TODO
+                    String tableCollate = resultSet.getString("TABLE_COLLATION");
+                    String tableComment = resultSet.getString("TABLE_COMMENT");
+
+                    String columnName = resultSet.getString("COLUMN_NAME");
+                    String type = resultSet.getString("DATA_TYPE");
+                    int characterMaxLength = resultSet.getInt("CHARACTER_MAXIMUM_LENGTH");
+                    String isNull = resultSet.getString("IS_NULLABLE");
+                    String key = resultSet.getString("COLUMN_KEY");
+                    String defaultValue = resultSet.getString("COLUMN_DEFAULT");
+                    String extra = resultSet.getString("Extra");
+                    String columnComment = resultSet.getString("COLUMN_COMMENT");
+                    String charset = resultSet.getString("CHARACTER_SET_NAME");
+                    String collate = resultSet.getString("COLLATION_NAME");
+
+                    boolean isNullValue = isNull.equals("YES");
+                    boolean isUniqueKey = key.equals("UNI");
+                    boolean isAutoIncrement = extra.equals("auto_increment");
+                    type = Objects.isNull(characterMaxLength) ? type : type + "(" + characterMaxLength + ")";
+                    Column column = new Column(
+                            columnName,
+                            type,
+                            isNullValue,
+                            defaultValue,
+                            isUniqueKey,
+                            isAutoIncrement,
+                            columnComment,
+                            Objects.isNull(charset) ? CommonConvention.CHARSET : charset,
+                            Objects.isNull(collate) ? CommonConvention.COLLATE : collate);
+                    Table table = Table.builder()
+                            .tableName(tableName)
+                            .tableEngine(tableEngine)
+                            .columns(new ArrayList<>())
+                            .constraints(new ArrayList<>())
+                            .tableCharset(tableCharset)
+                            .tableCollate(tableCollate)
+                            .tableComment(tableComment)
+                            .build();
+                    if (tableColumns.containsKey(tableName)) {
+                        tableColumns.get(tableName).add(column);
+                    } else {
+                        tableColumns.put(tableName, new ArrayList<>(List.of(column)));
+                    }
+                    tables.put(tableName, table);
+                }
+            }
+
+            Map<String,Map<String, List<String>>> keyColumnNames = new HashMap<>();
+            Map<String, Map<String, Constraint>> tableConstraints = new HashMap<>();
+            try {
+                PreparedStatement findIndexStatement = connection.prepareStatement(findIndexSQL);
+                findIndexStatement.setString(1, schemaName);
+                ResultSet indexResultSet = findIndexStatement.executeQuery();
+
+                while (indexResultSet.next()) {
+                    String tableName = indexResultSet.getString("TABLE_NAME");
+                    String indexName = indexResultSet.getString("INDEX_NAME");
+                    String columnName = indexResultSet.getString("COLUMN_NAME");
+                    String nonUnique = indexResultSet.getString("NON_UNIQUE");
+
+                    if (keyColumnNames.containsKey(tableName)) {
+                        if (keyColumnNames.get(tableName).containsKey(indexName)) {
+                            keyColumnNames.get(tableName).get(indexName).add(columnName);
+                        } else {
+                            keyColumnNames.get(tableName).put(indexName, new ArrayList<>(List.of(columnName)));
+                        }
+                    } else {
+                        keyColumnNames.put(tableName, new HashMap<>(Map.of(indexName, new ArrayList<>(List.of(columnName)))));
+                    }
+
+                    Constraint constraint = new Constraint(indexName.equals("PRIMARY") ? "PRIMARY KEY" : (nonUnique.equals("1") ? "KEY" : "UNIQUE KEY"), indexName,  new ArrayList<>());
+
+                    if (tableConstraints.containsKey(tableName)) {
+                        tableConstraints.get(tableName)
+                                .put(indexName, constraint);
+                    } else {
+                        tableConstraints.put(tableName, new HashMap<>(Map.of(indexName, constraint)));
+                    }
+
+                }
+
+                for (String tableName : keyColumnNames.keySet()) {
+                    Map<String, List<String>> indexColumnNames = keyColumnNames.get(tableName);
+                    for (String indexName : indexColumnNames.keySet()) {
+                        tableConstraints.get(tableName)
+                                .get(indexName)
+                                .addKeyColumnNames(indexColumnNames.get(indexName));
+                    }
+                }
+
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+
+            for (String tableName : tables.keySet()) {
+                Table table = tables.get(tableName);
+                table.addColumns(tableColumns.get(tableName));
+
+                table.addConstraints(
+                        tableConstraints.getOrDefault(tableName, new HashMap<>())
+                                .values()
+                                .stream()
+                                .toList());
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return tables.values()
+                .stream()
+                .toList();
+    }
 }
