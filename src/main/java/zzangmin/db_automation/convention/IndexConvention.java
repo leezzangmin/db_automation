@@ -19,15 +19,12 @@ public class IndexConvention {
     // https://dev.mysql.com/doc/refman/5.7/en/create-index.html
     private final CommonConvention commonConvention;
 
-    /**
-     * 1. 인덱스 네이밍 컨벤션
-     * 2. 중복된 옵션 존재 여부 (동일 column 입력, 동일 이름 constraint 및 동일 속성 존재여부)
-     * 3.
-     */
     public void validateIndexConvention(Constraint constraint) {
-        commonConvention.validateSnakeCase(constraint.getKeyName());
+        if (!constraint.getType().equals("PRIMARY KEY")) {
+            commonConvention.validateSnakeCase(constraint.getKeyName());
+            validateConstraintNamingConvention(constraint.getKeyName(), constraint.getKeyColumnNames());
+        }
         validateDuplicateColumnConvention(constraint.getKeyColumnNames());
-        validateConstraintNamingConvention(constraint.getKeyName(), constraint.getKeyColumnNames());
         checkConstraintType(constraint.getType());
     }
 
