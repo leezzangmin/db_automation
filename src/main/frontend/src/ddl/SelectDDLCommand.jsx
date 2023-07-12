@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import AddColumn from "./AddColumn";
 import CreateIndex from "./CreateIndex";
 import CreateTable from "./CreateTable";
+import DeleteColumn from "./DeleteColumn";
 
 const SelectDDLCommand = () => {
     const [selectedCommand, setSelectedCommand] = useState('');
@@ -50,7 +51,7 @@ const SelectDDLCommand = () => {
 
             {selectedCommand === 'delete_column' && (
                 <div>
-                    {/* Delete Column Form */}
+                    <DeleteColumn />
                 </div>
             )}
 
