@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +39,9 @@ public class Column {
 
     public String generateNull() {
         if (this.isNull) {
+            if (Objects.isNull(this.defaultValue)) {
+                return "DEFAULT NULL";
+            }
             if (defaultValue.equals("null") || defaultValue.equals("NULL")) {
                 return "DEFAULT NULL";
             }
