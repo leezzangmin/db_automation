@@ -18,10 +18,10 @@ public class MysqlClient {
     public void executeSQL(DatabaseConnectionInfo databaseConnectionInfo, String SQL) {
         try (Connection connection = DriverManager.getConnection(
                 databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
-             Statement statement = connection.createStatement()) {
-            statement.setQueryTimeout(COMMAND_TIMEOUT_SECONDS);
-            statement.execute(SQL);
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
             log.info("executeSQL: {}", statement);
+            statement.setQueryTimeout(COMMAND_TIMEOUT_SECONDS);
+            statement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
