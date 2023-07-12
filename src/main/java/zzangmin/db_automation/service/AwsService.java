@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 public class AwsService {
 
     private final AwsClient awsClient;
-
     private static final int DURATION_MINUTE = 5;
     private static final int PERIOD_SECONDS = 60 * DURATION_MINUTE;
     private static final String RDS_SERVICE_TYPE = "RDS";
@@ -68,7 +67,6 @@ public class AwsService {
 
     public String findRdsPassword(String databaseIdentifier) {
         SsmClient ssmClient = awsClient.getSsmClient();
-        System.out.println("databaseIdentifier = " + databaseIdentifier);
         GetParameterRequest parameterRequest = GetParameterRequest.builder()
                 .name(databaseIdentifier + "-password")
                 .withDecryption(true)
@@ -123,7 +121,14 @@ public class AwsService {
     public DescribeDbClustersResponse findAllClusterInfo() {
         DescribeDbClustersResponse describeDbClustersResponse = awsClient.getRdsClient()
                 .describeDBClusters();
-        return describeDbClustersResponse;
+
+        DescribeDbClustersResponse availableClustersResponse = DescribeDbClustersResponse.builder()
+                .dbClusters(describeDbClustersResponse.dbClusters().stream()
+                        .filter(cluster -> cluster.status().equals("available"))
+                        .collect(Collectors.toList()))
+                .build();
+
+        return availableClustersResponse;
     }
 
     public Map<String, Long> findAllInstanceMetricsInfo(String databaseIdentifiers) {
@@ -159,7 +164,6 @@ public class AwsService {
                     .orElseThrow(() -> new IllegalStateException("Metric id not found"));
             List<Double> singleValue = metricDataResult.getValueForField("Values", List.class)
                     .orElseThrow(() -> new IllegalStateException("Metric values not found"));
-
             Double metricValue = singleValue.get(0);
             metrics.put(metricLabel, metricValue.longValue());
         }
