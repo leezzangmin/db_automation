@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import FetchSchemaAndTable from './FetchSchemaAndTable';
+import React, {useEffect, useState} from 'react';
 
 const CreateIndex = () => {
     const [response, setResponse] = useState(null);
@@ -9,6 +8,9 @@ const CreateIndex = () => {
     const [indexName, setIndexName] = useState('');
     const [indexType, setIndexType] = useState('KEY'); // Initial index type set to "KEY"
     const [columnNames, setColumnNames] = useState(['']);
+    const [clusterNames, setClusterNames] = useState([]);
+    const [schemaNames, setSchemaNames] = useState([]);
+    const [tableNames, setTableNames] = useState([]);
 
     const handleCreateIndex = async () => {
         const url = `/ddl/index?databaseName=${selectedCluster}`;
@@ -47,6 +49,83 @@ const CreateIndex = () => {
         setColumnNames(updatedColumnNames);
     };
 
+    useEffect(() => {
+        fetchClusterNames();
+    }, []);
+
+
+    const fetchClusterNames = async () => {
+        try {
+            const url = '/describe/clusterNames';
+            const response = await fetch(url);
+            if (response.ok) {
+                const data = await response.json();
+                setClusterNames(data.clusterNames);
+            } else {
+                console.error('Failed to fetch cluster names:', response.status);
+            }
+        } catch (error) {
+            console.error('Failed to fetch cluster names:', error);
+        }
+    };
+
+    const fetchSchemas = async (clusterName) => {
+        try {
+            const url = `/describe/cluster/schemaNames?databaseName=${clusterName}`;
+            const response = await fetch(url);
+            if (response.ok) {
+                const data = await response.json();
+                setSchemaNames(data.schemaNames);
+            } else {
+                console.error('Failed to fetch schema names:', response.status);
+            }
+        } catch (error) {
+            console.error('Failed to fetch schema names:', error);
+        }
+    };
+
+    const fetchTables = async (clusterName, schemaName) => {
+        try {
+            const url = `/describe/cluster/schemas?databaseName=${clusterName}&schemaName=${schemaName}`;
+            const response = await fetch(url);
+            if (response.ok) {
+                const data = await response.json();
+                const schemaData = data.find((item) => item.schemaName === schemaName);
+                if (schemaData) {
+                    const tableNames = schemaData.tableInfos.map((table) => table.tableName);
+                    setTableNames(tableNames);
+                }
+            } else {
+                console.error('Failed to fetch tables:', response.status);
+            }
+        } catch (error) {
+            console.error('Failed to fetch tables:', error);
+        }
+    };
+
+    const handleClusterChange = (e) => {
+        const selectedCluster = e.target.value;
+        setSelectedCluster(selectedCluster);
+        setSelectedSchema('');
+        setTableNames([]);
+
+        if (selectedCluster) {
+            fetchSchemas(selectedCluster);
+        } else {
+            setSchemaNames([]);
+        }
+    };
+
+    const handleSchemaChange = (e) => {
+        const selectedSchema = e.target.value;
+        setSelectedSchema(selectedSchema);
+        setTableNames([]);
+
+        if (selectedCluster && selectedSchema) {
+            fetchTables(selectedCluster, selectedSchema);
+        }
+    };
+
     const handleAddColumnName = () => {
         setColumnNames([...columnNames, '']);
     };
@@ -59,13 +138,39 @@ const CreateIndex = () => {
 
     return (
         <div>
-            <FetchSchemaAndTable
-                onSelectClusterSchemaTable={({ selectedCluster, selectedSchema, selectedTable }) => {
-                    setSelectedCluster(selectedCluster);
-                    setSelectedSchema(selectedSchema);
-                    setSelectedTable(selectedTable);
-                }}
-            />
+            <label>Select Cluster:</label>
+            <select value={selectedCluster} onChange={handleClusterChange}>
+                <option value="">Select a cluster</option>
+                {clusterNames.map((name, index) => (
+                    <option key={index} value={name}>
+                        {name}
+                    </option>
+                ))}
+            </select>
+
+            <label>Select Schema:</label>
+            <select value={selectedSchema} onChange={handleSchemaChange}>
+                <option value="">Select a schema</option>
+                {schemaNames.map((name, index) => (
+                    <option key={index} value={name}>
+                        {name}
+                    </option>
+                ))}
+            </select>
+
+            <label>Select Table:</label>
+            <select
+                value={selectedTable}
+                onChange={(e) => setSelectedTable(e.target.value)}
+            >
+                <option value="">Select a table</option>
+                {tableNames.map((name, index) => (
+                    <option key={index} value={name}>
+                        {name}
+                    </option>
+                ))}
+            </select>
+
 
             <label>Index Name:</label>
             <input
