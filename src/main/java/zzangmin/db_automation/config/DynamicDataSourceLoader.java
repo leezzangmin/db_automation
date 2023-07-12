@@ -26,9 +26,11 @@ public class DynamicDataSourceLoader {
         List<DBInstance> instances = awsService.findAllInstanceInfo();
 
         for (DBCluster cluster : dbClusters) {
+            if (!isClusterStatusAvailable(cluster)) {
+                continue;
+            }
             String dbName = cluster.dbClusterIdentifier();
             String password = awsService.findRdsPassword(dbName);
-            log.info("dbCluster: {} ", cluster);
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
@@ -41,9 +43,11 @@ public class DynamicDataSourceLoader {
         }
 
         for (DBInstance instance : instances) {
+            if (!isInstanceStatusAvailable(instance)) {
+                continue;
+            }
             String dbName = instance.dbInstanceIdentifier();
             String password = awsService.findRdsPassword(dbName);
-            log.info("dbInstance: {} ", instance);
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
@@ -54,7 +58,21 @@ public class DynamicDataSourceLoader {
             dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
         }
 
-
         dynamicDataSourceProperties.displayDatabases();
     }
+
+    private boolean isClusterStatusAvailable(DBCluster cluster) {
+        if (cluster.status().equals("available")) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isInstanceStatusAvailable(DBInstance instance) {
+        if (instance.dbInstanceStatus().equals("available")) {
+            return true;
+        }
+        return false;
+    }
+
 }
