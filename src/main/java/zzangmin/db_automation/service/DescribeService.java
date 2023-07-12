@@ -64,6 +64,10 @@ public class DescribeService {
         return new TableInfoResponseDTO(databaseConnectionInfo.getDatabaseName(), schemaName, tableName, columns, changeHistories);
     }
 
+    public String findTableSchema(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        return mysqlClient.findCreateTableStatement(databaseConnectionInfo, schemaName, tableName);
+    }
+
     public SchemaNamesResponseDTO findSchemaNames(DatabaseConnectionInfo databaseConnectionInfo) {
         return new SchemaNamesResponseDTO(databaseConnectionInfo.getDatabaseName(), mysqlClient.findSchemaNames(databaseConnectionInfo)
                 .stream()

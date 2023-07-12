@@ -42,9 +42,15 @@ public class DescribeController {
     }
 
     @GetMapping("/describe/table/status")
-    public TableInfoResponseDTO describeTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+    public TableInfoResponseDTO describeTableStatus(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                               @RequestParam String schemaName, @RequestParam String tableName) {
         return describeService.findTableInfo(databaseConnectionInfo, schemaName, tableName);
+    }
+
+    @GetMapping("/describe/table")
+    public String describeTableSchema(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                                    @RequestParam String schemaName, @RequestParam String tableName) {
+        return describeService.findTableSchema(databaseConnectionInfo, schemaName, tableName);
     }
 
 }
