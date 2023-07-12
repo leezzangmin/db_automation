@@ -15,7 +15,7 @@ public class StandardChecker {
     private final SchemaStandardChecker schemaStandardChecker;
     private final SlackClient slackClient;
 
-    @Scheduled(fixedDelay = 1000000)
+    //@Scheduled(fixedDelay = 1000000)
     public void checkStandard() {
         String parameterCheckResult = parameterStandardChecker.checkParameterStandard();
         String clusterCreationStandardResult = clusterCreationStandardChecker.checkClusterCreationStandard();
