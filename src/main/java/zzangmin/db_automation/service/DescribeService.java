@@ -58,6 +58,11 @@ public class DescribeService {
         return rdsClusterSchemaTablesResponseDTOs;
     }
 
+    public ClusterNamesResponseDTO findClusterNames() {
+        List<String> clusterNames = awsService.findAllClusterNames();
+        return new ClusterNamesResponseDTO(clusterNames);
+    }
+
     public TableInfoResponseDTO findTableInfo(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
         List<ChangeHistory> changeHistories = changeHistoryRepository.findByDatabaseIdentifierAndSchemaNameAndTableName(databaseConnectionInfo.getDatabaseName(), schemaName, tableName);
         List<Column> columns = mysqlClient.findColumns(databaseConnectionInfo, schemaName, tableName);

@@ -19,6 +19,11 @@ public class DescribeController {
 
     private final DescribeService describeService;
 
+    @GetMapping("/describe/clusterNames")
+    public ClusterNamesResponseDTO describeClusterNames() {
+        return describeService.findClusterNames();
+    }
+
     @GetMapping("/describe/cluster/schemaNames")
     public SchemaNamesResponseDTO describeSchemaNames(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo) {
         return describeService.findSchemaNames(databaseConnectionInfo);
