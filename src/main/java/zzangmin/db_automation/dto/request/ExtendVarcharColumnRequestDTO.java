@@ -10,7 +10,6 @@ import zzangmin.db_automation.entity.CommandType;
 @Getter
 @NoArgsConstructor
 public class ExtendVarcharColumnRequestDTO extends DDLRequestDTO {
-    private CommandType commandType;
     private String schemaName;
     private String tableName;
     private Column column;
