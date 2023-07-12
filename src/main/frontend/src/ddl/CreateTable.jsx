@@ -162,10 +162,10 @@ const CreateTable = () => {
 
     const fetchClusters = async () => {
         try {
-            const response = await fetch('/describe/clusters');
+            const response = await fetch('/describe/clusterNames');
             if (response.ok) {
                 const data = await response.json();
-                const names = data.clusters.map((cluster) => cluster.clusterName);
+                const names = data.clusterNames;
                 setClusterNames(names);
             } else {
                 console.error('Failed to fetch clusters:', response.status);
