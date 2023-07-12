@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ToString
@@ -13,5 +14,5 @@ import java.util.List;
 public class TableNamesResponseDTO {
     private String databaseIdentifier;
     private String schemaName;
-    private List<String> tableNames;
+    private List<String> tableNames = new ArrayList<>();
 }
