@@ -3,6 +3,7 @@ import AddColumn from "./AddColumn";
 import CreateIndex from "./CreateIndex";
 import CreateTable from "./CreateTable";
 import DeleteColumn from "./DeleteColumn";
+import AlterColumn from "./AlterColumn";
 
 const SelectDDLCommand = () => {
     const [selectedCommand, setSelectedCommand] = useState('');
@@ -33,7 +34,7 @@ const SelectDDLCommand = () => {
 
             {selectedCommand === 'alter_column' && (
                 <div>
-                    {/* Alter Column Form */}
+                    <AlterColumn />
                 </div>
             )}
 
