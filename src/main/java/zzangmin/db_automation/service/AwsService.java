@@ -149,9 +149,10 @@ public class AwsService {
         Instant startTime = endTime.minus(Duration.ofMinutes(DURATION_MINUTE));
 
         // TODO: 프리티어에서는 performance insights 사용 불가능, (DbiResourceId 로 변경)
-        // GetResourceMetricsRequest piRequest = generateAverageActiveSessionsRequest("DbiResourceId");
-        // GetResourceMetricsResponse averageActiveSessions = performanceInsightClient.getResourceMetrics(piRequest);
-        GetResourceMetricsResponse averageActiveSessions = null;
+         GetResourceMetricsRequest piRequest = generateAverageActiveSessionsRequest(findWriterInstanceDbiResourceId(databaseIdentifiers));
+         GetResourceMetricsResponse getResourceMetricsResponse = performanceInsightClient.getResourceMetrics(piRequest);
+        Double averageActiveSession = getResourceMetricsResponse.metricList().get(0).dataPoints().get(0).value();
+
 
         GetMetricDataRequest cpuMemoryConnectionDiskRequest = GetMetricDataRequest.builder()
                 .startTime(startTime)
@@ -178,7 +179,8 @@ public class AwsService {
             Double metricValue = singleValue.get(0);
             metrics.put(metricLabel, metricValue.longValue());
         }
-        metrics.put("averageActiveSession", 1234567L);
+
+        metrics.put("averageActiveSession", averageActiveSession.longValue());
         return metrics;
     }
 
@@ -309,6 +311,17 @@ public class AwsService {
                         .build())
                 .returnData(true)
                 .build();
+    }
+
+    private String findWriterInstanceDbiResourceId(String databaseIdentifier) {
+        DescribeDbInstancesResponse instancesResponse = awsClient.getRdsClient().describeDBInstances();
+        for (DBInstance dbInstance : instancesResponse.dbInstances()) {
+            List<String> readReplicaDBInstanceIdentifiers = dbInstance.readReplicaDBInstanceIdentifiers();
+            if (!readReplicaDBInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier()) && dbInstance.dbClusterIdentifier().equals(databaseIdentifier)) {
+                return dbInstance.dbiResourceId();
+            }
+        }
+        throw new IllegalStateException("Writer DbiResourceId not found");
     }
 
 }
