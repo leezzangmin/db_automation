@@ -5,6 +5,7 @@ import CreateTable from "./CreateTable";
 import DeleteColumn from "./DeleteColumn";
 import AlterColumn from "./AlterColumn";
 import RenameColumn from "./RenameColumn";
+import ExtendVarchar from "./ExtendVarchar";
 
 const SelectDDLCommand = () => {
     const [selectedCommand, setSelectedCommand] = useState('');
@@ -59,7 +60,7 @@ const SelectDDLCommand = () => {
 
             {selectedCommand === 'extend_varchar_column' && (
                 <div>
-                    {/* Extend Varchar Column Form */}
+                    <ExtendVarchar />
                 </div>
             )}
 
