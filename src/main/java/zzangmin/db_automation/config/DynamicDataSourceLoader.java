@@ -57,8 +57,7 @@ public class DynamicDataSourceLoader {
                     .build();
             dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
         }
-
-        dynamicDataSourceProperties.displayDatabases();
+        dynamicDataSourceProperties.logDatabases();
     }
 
     private boolean isClusterStatusAvailable(DBCluster cluster) {
