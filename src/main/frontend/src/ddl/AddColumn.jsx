@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const AddColumn = () => {
     const [response, setResponse] = useState(null);
-    const [selectedCluster, setSelectedCluster] = useState('');
+    const [selectedDBMS, setSelectedDBMS] = useState('');
     const [selectedSchema, setSelectedSchema] = useState('');
     const [selectedTable, setSelectedTable] = useState('');
     const [column, setColumn] = useState({
@@ -16,12 +16,12 @@ const AddColumn = () => {
         charset: 'utf8mb4',
         collate: 'utf8mb4_0900_ai_ci',
     });
-    const [clusterNames, setClusterNames] = useState([]);
+    const [dbmsNames, setDBMSNames] = useState([]);
     const [schemaNames, setSchemaNames] = useState([]);
     const [tableNames, setTableNames] = useState([]);
 
     const handleAddColumn = async () => {
-        const url = `/ddl/column?databaseName=${selectedCluster}`;
+        const url = `/ddl/column?databaseName=${selectedDBMS}`;
         const requestBody = {
             commandType: 'ADD_COLUMN',
             schemaName: selectedSchema,
@@ -29,6 +29,7 @@ const AddColumn = () => {
             column,
         };
 
+        console.log('Request:', requestBody);
         try {
             const response = await fetch(url, {
                 method: 'PUT',
@@ -49,24 +50,24 @@ const AddColumn = () => {
         }
     };
 
-    const fetchClusterNames = async () => {
+    const fetchDBMSNames = async () => {
         try {
-            const url = '/describe/clusterNames';
+            const url = '/describe/dbmsNames';
             const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
-                setClusterNames(data.clusterNames);
+                setDBMSNames(data.dbmsNames);
             } else {
-                console.error('Failed to fetch cluster names:', response.status);
+                console.error('Failed to fetch dbms names:', response.status);
             }
         } catch (error) {
-            console.error('Failed to fetch cluster names:', error);
+            console.error('Failed to fetch dbms names:', error);
         }
     };
 
-    const fetchSchemas = async (clusterName) => {
+    const fetchSchemas = async (dbmsName) => {
         try {
-            const url = `/describe/cluster/schemaNames?databaseName=${clusterName}`;
+            const url = `/describe/dbms/schemaNames?databaseName=${dbmsName}`;
             const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
@@ -79,9 +80,9 @@ const AddColumn = () => {
         }
     };
 
-    const fetchTables = async (clusterName, schemaName) => {
+    const fetchTables = async (dbmsName, schemaName) => {
         try {
-            const url = `/describe/cluster/schemas?databaseName=${clusterName}&schemaName=${schemaName}`;
+            const url = `/describe/dbms/schemas?databaseName=${dbmsName}&schemaName=${schemaName}`;
             const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
@@ -98,14 +99,14 @@ const AddColumn = () => {
         }
     };
 
-    const handleClusterChange = (e) => {
-        const selectedCluster = e.target.value;
-        setSelectedCluster(selectedCluster);
+    const handleDBMSChange = (e) => {
+        const selectedDBMS = e.target.value;
+        setSelectedDBMS(selectedDBMS);
         setSelectedSchema('');
         setTableNames([]);
 
-        if (selectedCluster) {
-            fetchSchemas(selectedCluster);
+        if (selectedDBMS) {
+            fetchSchemas(selectedDBMS);
         } else {
             setSchemaNames([]);
         }
@@ -116,8 +117,8 @@ const AddColumn = () => {
         setSelectedSchema(selectedSchema);
         setTableNames([]);
 
-        if (selectedCluster && selectedSchema) {
-            fetchTables(selectedCluster, selectedSchema);
+        if (selectedDBMS && selectedSchema) {
+            fetchTables(selectedDBMS, selectedSchema);
         }
     };
 
@@ -167,15 +168,15 @@ const AddColumn = () => {
     };
 
     useEffect(() => {
-        fetchClusterNames();
+        fetchDBMSNames();
     }, []);
 
     return (
         <div>
-            <label>Select Cluster:</label>
-            <select value={selectedCluster} onChange={handleClusterChange}>
-                <option value="">Select a cluster</option>
-                {clusterNames.map((name, index) => (
+            <label>Select DBMS:</label>
+            <select value={selectedDBMS} onChange={handleDBMSChange}>
+                <option value="">Select a DBMS</option>
+                {dbmsNames.map((name, index) => (
                     <option key={index} value={name}>
                         {name}
                     </option>

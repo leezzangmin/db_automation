@@ -23,6 +23,7 @@ const CreateIndex = () => {
             columnNames: columnNames.filter(name => name !== ''),
         };
 
+        console.log('Request:', requestBody);
         try {
             const response = await fetch(url, {
                 method: 'PUT',
