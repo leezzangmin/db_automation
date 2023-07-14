@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.dto.response.*;
+import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.parser.DDLParser;
 
@@ -18,7 +19,10 @@ public class DDLService {
     private final MysqlClient mysqlClient;
 
     public ExtendVarcharColumnDDLResponseDTO extendVarcharColumn(DatabaseConnectionInfo databaseConnectionInfo, ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO) {
-        String extendVarcharSQL = ddlParser.commandToSql(extendVarcharColumnRequestDTO);
+        Column column = mysqlClient.findColumn(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName(), extendVarcharColumnRequestDTO.getTargetColumnName())
+                .orElseThrow(() -> new IllegalArgumentException("컬럼 정보를 불러올 수 없습니다. 존재하지 않는 컬럼명: "+ extendVarcharColumnRequestDTO.getTargetColumnName()));
+        column.changeColumnType("varchar(" + extendVarcharColumnRequestDTO.getExtendSize() + ")");
+        String extendVarcharSQL = ddlParser.extendVarcharColumnCommandToSql(extendVarcharColumnRequestDTO, column);
         mysqlClient.executeSQL(databaseConnectionInfo, extendVarcharSQL);
         String createTableStatement = mysqlClient.findCreateTableStatement(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName());
         return new ExtendVarcharColumnDDLResponseDTO("test@gmail.com", databaseConnectionInfo.getDatabaseName(), extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName(), createTableStatement);
