@@ -15,7 +15,6 @@ public class DatabaseConnectionInfo {
     private String driverClassName;
     private String url;
     private String username;
-    // TODO: aws parameter store 에서 fetch
     private String password;
 
     public String databaseSummary() {

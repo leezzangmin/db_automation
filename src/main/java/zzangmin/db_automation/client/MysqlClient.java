@@ -69,7 +69,6 @@ public class MysqlClient {
     }
 
 
-    // TODO: SQL 조건문 추가
     public List<MysqlProcess> findLongQueries(DatabaseConnectionInfo databaseConnectionInfo, int longQueryStandard) {
         String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST " +
                 "WHERE COMMAND = 'Query' " +
