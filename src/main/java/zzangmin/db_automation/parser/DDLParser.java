@@ -57,7 +57,7 @@ public class DDLParser {
         sb.append("`.`");
         sb.append(dto.getTableName());
         sb.append("` MODIFY COLUMN `");
-        sb.append(dto.getColumnName());
+        sb.append(dto.getTargetColumnName());
         sb.append("` ");
         sb.append(dto.getAfterColumn().getType());
         sb.append(" ");
