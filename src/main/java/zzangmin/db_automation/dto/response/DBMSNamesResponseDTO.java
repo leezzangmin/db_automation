@@ -10,6 +10,6 @@ import java.util.List;
 @ToString
 @Getter
 @AllArgsConstructor
-public class ClusterNamesResponseDTO {
-        private List<String> clusterNames = new ArrayList<>();
+public class DBMSNamesResponseDTO {
+        private List<String> dbmsNames = new ArrayList<>();
 }
