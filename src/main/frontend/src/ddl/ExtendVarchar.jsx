@@ -1,38 +1,30 @@
 import React, { useState, useEffect } from 'react';
 
-const AddColumn = () => {
+const ExtendVarchar = () => {
     const [response, setResponse] = useState(null);
-    const [selectedDBMS, setSelectedDBMS] = useState('');
+    const [tableSchema, setTableSchema] = useState(null);
     const [selectedSchema, setSelectedSchema] = useState('');
     const [selectedTable, setSelectedTable] = useState('');
-    const [column, setColumn] = useState({
-        name: 'column_name',
-        type: 'TEXT',
-        isNull: true,
-        defaultValue: '',
-        isUnique: false,
-        isAutoIncrement: false,
-        comment: 'column comment required',
-        charset: 'utf8mb4',
-        collate: 'utf8mb4_0900_ai_ci',
-    });
+    const [targetColumnName, setTargetColumnName] = useState('target_column_name');
+    const [extendSize, setExtendSize] = useState('255');
+    const [selectedDBMS, setSelectedDBMS] = useState('');
     const [dbmsNames, setDBMSNames] = useState([]);
     const [schemaNames, setSchemaNames] = useState([]);
     const [tableNames, setTableNames] = useState([]);
 
-    const handleAddColumn = async () => {
-        const url = `/ddl/column?databaseName=${selectedDBMS}`;
+    const handleExtendColumn = async () => {
+        const url = `/ddl/varchar?databaseName=${selectedDBMS}`;
         const requestBody = {
-            commandType: 'ADD_COLUMN',
+            commandType: 'EXTEND_VARCHAR_COLUMN',
             schemaName: selectedSchema,
             tableName: selectedTable,
-            column,
+            targetColumnName: targetColumnName,
+            extendSize: extendSize,
         };
-
         console.log('Request:', requestBody);
         try {
             const response = await fetch(url, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -49,6 +41,21 @@ const AddColumn = () => {
             console.error('Request failed:', error);
         }
     };
+
+    const fetchTableSchema = async (selectedDBMS, selectedSchema, selectedTable) => {
+        try {
+            const url = `/describe/table?databaseName=${selectedDBMS}&schemaName=${selectedSchema}&tableName=${selectedTable}`;
+            const response = await fetch(url);
+            if (response.ok) {
+                const data = await response.text();
+                setTableSchema(data);
+            } else {
+                console.error('Failed to fetch table schema:', response.status);
+            }
+        } catch (error) {
+            console.error('Failed to fetch table schema:', error);
+        }
+    }
 
     const fetchDBMSNames = async () => {
         try {
@@ -122,49 +129,23 @@ const AddColumn = () => {
         }
     };
 
-    const handleColumnNameChange = (e) => {
+    const handleTableChange = (e) => {
+        const selectedTable = e.target.value;
+        setSelectedTable(selectedTable);
+
+        if (selectedDBMS && selectedSchema && selectedTable) {
+            fetchTableSchema(selectedDBMS, selectedSchema, selectedTable);
+        }
+    };
+
+
+    const handleTargetColumnNameChange = (e) => {
         const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, name: value }));
+        setTargetColumnName(value);
     };
-
-    const handleColumnTypeChange = (e) => {
+    const handleExtendSizeChange = (e) => {
         const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, type: value }));
-    };
-
-    const handleColumnIsNullChange = (e) => {
-        const value = e.target.value === 'true';
-        setColumn((prevColumn) => ({ ...prevColumn, isNull: value }));
-    };
-
-    const handleColumnDefaultValueChange = (e) => {
-        const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, defaultValue: value }));
-    };
-
-    const handleColumnIsUniqueChange = (e) => {
-        const value = e.target.value === 'true';
-        setColumn((prevColumn) => ({ ...prevColumn, isUnique: value }));
-    };
-
-    const handleColumnIsAutoIncrementChange = (e) => {
-        const value = e.target.value === 'true';
-        setColumn((prevColumn) => ({ ...prevColumn, isAutoIncrement: value }));
-    };
-
-    const handleColumnCommentChange = (e) => {
-        const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, comment: value }));
-    };
-
-    const handleColumnCharsetChange = (e) => {
-        const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, charset: value }));
-    };
-
-    const handleColumnCollateChange = (e) => {
-        const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, collate: value }));
+        setExtendSize(value);
     };
 
     useEffect(() => {
@@ -195,9 +176,7 @@ const AddColumn = () => {
 
             <label>Select Table:</label>
             <select
-                value={selectedTable}
-                onChange={(e) => setSelectedTable(e.target.value)}
-            >
+                value={selectedTable} onChange={handleTableChange}>
                 <option value="">Select a table</option>
                 {tableNames.map((name, index) => (
                     <option key={index} value={name}>
@@ -205,74 +184,26 @@ const AddColumn = () => {
                     </option>
                 ))}
             </select>
+            {tableSchema && <p>{tableSchema}</p>}
 
-            <label>Column Name:</label>
+            <label>Target Column Name:</label>
             <input
                 type="text"
-                value={column.name}
-                onChange={handleColumnNameChange}
+                value={targetColumnName}
+                onChange={handleTargetColumnNameChange}
             />
 
-            <label>Column Type:</label>
+            <label>Extend Size:</label>
             <input
                 type="text"
-                value={column.type}
-                onChange={handleColumnTypeChange}
+                value={extendSize}
+                onChange={handleExtendSizeChange}
             />
 
-            <label>Is Null:</label>
-            <select value={column.isNull} onChange={handleColumnIsNullChange}>
-                <option value={true}>True</option>
-                <option value={false}>False</option>
-            </select>
-
-            <label>Default Value:</label>
-            <input
-                type="text"
-                value={column.defaultValue}
-                onChange={handleColumnDefaultValueChange}
-            />
-
-            <label>Is Unique:</label>
-            <select value={column.isUnique} onChange={handleColumnIsUniqueChange}>
-                <option value={true}>True</option>
-                <option value={false}>False</option>
-            </select>
-
-            <label>Is Auto Increment:</label>
-            <select
-                value={column.isAutoIncrement}
-                onChange={handleColumnIsAutoIncrementChange}
-            >
-                <option value={true}>True</option>
-                <option value={false}>False</option>
-            </select>
-
-            <label>Comment:</label>
-            <input
-                type="text"
-                value={column.comment}
-                onChange={handleColumnCommentChange}
-            />
-
-            <label>Charset:</label>
-            <input
-                type="text"
-                value={column.charset}
-                onChange={handleColumnCharsetChange}
-            />
-
-            <label>Collate:</label>
-            <input
-                type="text"
-                value={column.collate}
-                onChange={handleColumnCollateChange}
-            />
-
-            <button onClick={handleAddColumn}>Add Column</button>
+            <button onClick={handleExtendColumn}>Extend Column</button>
             {response && <p>{JSON.stringify(response)}</p>}
         </div>
     );
 };
 
-export default AddColumn;
+export default ExtendVarchar;

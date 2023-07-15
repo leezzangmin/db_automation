@@ -19,29 +19,29 @@ public class DescribeController {
 
     private final DescribeService describeService;
 
-    @GetMapping("/describe/clusterNames")
-    public ClusterNamesResponseDTO describeClusterNames() {
-        return describeService.findClusterNames();
+    @GetMapping("/describe/dbmsNames")
+    public DBMSNamesResponseDTO describeDBMSNames() {
+        return describeService.findDBMSNames();
     }
 
-    @GetMapping("/describe/cluster/schemaNames")
+    @GetMapping("/describe/dbms/schemaNames")
     public SchemaNamesResponseDTO describeSchemaNames(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo) {
         return describeService.findSchemaNames(databaseConnectionInfo);
     }
 
-    @GetMapping("/describe/cluster/tableNames")
+    @GetMapping("/describe/dbms/tableNames")
     public TableNamesResponseDTO describeTableNames(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                     @RequestParam String schemaName) {
         return describeService.findTableNames(databaseConnectionInfo, schemaName);
     }
 
-    @GetMapping("/describe/clusters")
+    @GetMapping("/describe/cluster")
     public RdsClustersResponseDTO describeRdsCluster() {
         return describeService.findClustersInfo();
     }
 
     // 스키마 목록, 테이블 목록 및 사이즈
-    @GetMapping("/describe/cluster/schemas")
+    @GetMapping("/describe/dbms/schemas")
     public List<RdsClusterSchemaTablesResponseDTO> describeRdsInstance(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo) {
         return describeService.findClusterTables(databaseConnectionInfo);
     }

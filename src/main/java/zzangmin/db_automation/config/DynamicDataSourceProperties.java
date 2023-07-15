@@ -21,7 +21,11 @@ public class DynamicDataSourceProperties {
         databases.put(dbName, databaseConnectionInfo);
     }
 
-    public void displayDatabases() {
+    public Map<String, DatabaseConnectionInfo> getDatabases() {
+        return databases;
+    }
+
+    public void logDatabases() {
         for (String databaseName : databases.keySet()) {
             log.info("databases: {}", databases.get(databaseName));
         }

@@ -17,7 +17,6 @@ public class ColumnConvention {
         validateColumnNamingConvention(column.getName());
         validateColumnOption(column);
         checkColumnCommentExistConvention(column.getName(), column.getComment());
-        checkUniqueNullable(column.isUnique(), column.isNull(), column.getDefaultValue());
     }
 
     public void validateColumnNamingConvention(String columnName) {
@@ -58,10 +57,5 @@ public class ColumnConvention {
             throw new IllegalArgumentException(columnName + " 의 코멘트가 존재하지 않습니다.");
         }
     }
-    
-    private void checkUniqueNullable(boolean isUnique, boolean isNull, String defaultValue) {
-        if (isUnique && isNull) {
-            // TODO: unique + not null 은 빈 테이블만 수행 가능함. 여기서 체크하는게 맞나
-        }
-    }
+
 }

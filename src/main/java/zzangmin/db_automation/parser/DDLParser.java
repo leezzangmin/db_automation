@@ -22,8 +22,6 @@ public class DDLParser {
             return createTableCommandToSql((CreateTableRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.DELETE_COLUMN)) {
             return deleteColumnCommandToSql((DeleteColumnRequestDTO) ddlRequestDTO);
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
-            return extendVarcharColumnCommandToSql((ExtendVarcharColumnRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
             return renameColumnCommandToSql((RenameColumnRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_INDEX)) {
@@ -57,7 +55,7 @@ public class DDLParser {
         sb.append("`.`");
         sb.append(dto.getTableName());
         sb.append("` MODIFY COLUMN `");
-        sb.append(dto.getColumnName());
+        sb.append(dto.getTargetColumnName());
         sb.append("` ");
         sb.append(dto.getAfterColumn().getType());
         sb.append(" ");
@@ -82,22 +80,22 @@ public class DDLParser {
         return sb.toString();
     }
 
-    private String extendVarcharColumnCommandToSql(ExtendVarcharColumnRequestDTO dto) {
+    public String extendVarcharColumnCommandToSql(ExtendVarcharColumnRequestDTO dto, Column afterColumn) {
         StringBuilder sb = new StringBuilder();
         sb.append("ALTER TABLE `");
         sb.append(dto.getSchemaName());
         sb.append("`.`");
         sb.append(dto.getTableName());
         sb.append("` MODIFY COLUMN `");
-        sb.append(dto.getColumn().getName());
+        sb.append(afterColumn.getName());
         sb.append("` ");
-        sb.append(dto.getColumn().getType());
+        sb.append(afterColumn.getType());
         sb.append(" ");
-        sb.append(dto.getColumn().generateNull());
-        sb.append(dto.getColumn().generateUnique());
-        sb.append(dto.getColumn().generateAutoIncrement());
+        sb.append(afterColumn.generateNull());
+        sb.append(afterColumn.generateUnique());
+        sb.append(afterColumn.generateAutoIncrement());
         sb.append(" COMMENT '");
-        sb.append(dto.getColumn().getComment());
+        sb.append(afterColumn.getComment());
         sb.append("'");
         return sb.toString();
     }

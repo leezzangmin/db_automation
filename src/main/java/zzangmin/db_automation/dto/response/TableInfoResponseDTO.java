@@ -18,6 +18,5 @@ public class TableInfoResponseDTO {
     private String tableName;
     private List<Column> columns;
 
-    // TODO: 변경이력
     private List<ChangeHistory> changeHistories;
 }

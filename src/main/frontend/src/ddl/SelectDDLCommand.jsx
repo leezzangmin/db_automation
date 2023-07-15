@@ -3,6 +3,9 @@ import AddColumn from "./AddColumn";
 import CreateIndex from "./CreateIndex";
 import CreateTable from "./CreateTable";
 import DeleteColumn from "./DeleteColumn";
+import AlterColumn from "./AlterColumn";
+import RenameColumn from "./RenameColumn";
+import ExtendVarchar from "./ExtendVarchar";
 
 const SelectDDLCommand = () => {
     const [selectedCommand, setSelectedCommand] = useState('');
@@ -33,7 +36,7 @@ const SelectDDLCommand = () => {
 
             {selectedCommand === 'alter_column' && (
                 <div>
-                    {/* Alter Column Form */}
+                    <AlterColumn />
                 </div>
             )}
 
@@ -57,13 +60,13 @@ const SelectDDLCommand = () => {
 
             {selectedCommand === 'extend_varchar_column' && (
                 <div>
-                    {/* Extend Varchar Column Form */}
+                    <ExtendVarchar />
                 </div>
             )}
 
             {selectedCommand === 'rename_column' && (
                 <div>
-                    {/* Rename Column Form */}
+                    <RenameColumn />
                 </div>
             )}
         </div>

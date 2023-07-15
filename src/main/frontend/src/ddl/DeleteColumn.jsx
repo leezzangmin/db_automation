@@ -2,23 +2,24 @@ import React, { useState, useEffect } from 'react';
 
 const DeleteColumn = () => {
     const [response, setResponse] = useState(null);
-    const [selectedCluster, setSelectedCluster] = useState('');
+    const [tableSchema, setTableSchema] = useState(null);
     const [selectedSchema, setSelectedSchema] = useState('');
     const [selectedTable, setSelectedTable] = useState('');
     const [columnName, setColumnName] = useState('delete_column_name');
-    const [clusterNames, setClusterNames] = useState([]);
+    const [selectedDBMS, setSelectedDBMS] = useState('');
+    const [dbmsNames, setDBMSNames] = useState([]);
     const [schemaNames, setSchemaNames] = useState([]);
     const [tableNames, setTableNames] = useState([]);
 
     const handleDeleteColumn = async () => {
-        const url = `/ddl/column?databaseName=${selectedCluster}`;
+        const url = `/ddl/column?databaseName=${selectedDBMS}`;
         const requestBody = {
             commandType: 'DELETE_COLUMN',
             schemaName: selectedSchema,
             tableName: selectedTable,
             columnName: columnName,
         };
-
+        console.log('Request:', requestBody);
         try {
             const response = await fetch(url, {
                 method: 'DELETE',
@@ -39,24 +40,39 @@ const DeleteColumn = () => {
         }
     };
 
-    const fetchClusterNames = async () => {
+    const fetchTableSchema = async (selectedDBMS, selectedSchema, selectedTable) => {
         try {
-            const url = '/describe/clusterNames';
+            const url = `/describe/table?databaseName=${selectedDBMS}&schemaName=${selectedSchema}&tableName=${selectedTable}`;
+            const response = await fetch(url);
+            if (response.ok) {
+                const data = await response.text();
+                setTableSchema(data);
+            } else {
+                console.error('Failed to fetch table schema:', response.status);
+            }
+        } catch (error) {
+            console.error('Failed to fetch table schema:', error);
+        }
+    }
+
+    const fetchDBMSNames = async () => {
+        try {
+            const url = '/describe/dbmsNames';
             const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
-                setClusterNames(data.clusterNames);
+                setDBMSNames(data.dbmsNames);
             } else {
-                console.error('Failed to fetch cluster names:', response.status);
+                console.error('Failed to fetch dbms names:', response.status);
             }
         } catch (error) {
-            console.error('Failed to fetch cluster names:', error);
+            console.error('Failed to fetch dbms names:', error);
         }
     };
 
-    const fetchSchemas = async (clusterName) => {
+    const fetchSchemas = async (dbmsName) => {
         try {
-            const url = `/describe/cluster/schemaNames?databaseName=${clusterName}`;
+            const url = `/describe/dbms/schemaNames?databaseName=${dbmsName}`;
             const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
@@ -69,9 +85,9 @@ const DeleteColumn = () => {
         }
     };
 
-    const fetchTables = async (clusterName, schemaName) => {
+    const fetchTables = async (dbmsName, schemaName) => {
         try {
-            const url = `/describe/cluster/schemas?databaseName=${clusterName}&schemaName=${schemaName}`;
+            const url = `/describe/dbms/schemas?databaseName=${dbmsName}&schemaName=${schemaName}`;
             const response = await fetch(url);
             if (response.ok) {
                 const data = await response.json();
@@ -88,14 +104,14 @@ const DeleteColumn = () => {
         }
     };
 
-    const handleClusterChange = (e) => {
-        const selectedCluster = e.target.value;
-        setSelectedCluster(selectedCluster);
+    const handleDBMSChange = (e) => {
+        const selectedDBMS = e.target.value;
+        setSelectedDBMS(selectedDBMS);
         setSelectedSchema('');
         setTableNames([]);
 
-        if (selectedCluster) {
-            fetchSchemas(selectedCluster);
+        if (selectedDBMS) {
+            fetchSchemas(selectedDBMS);
         } else {
             setSchemaNames([]);
         }
@@ -106,27 +122,36 @@ const DeleteColumn = () => {
         setSelectedSchema(selectedSchema);
         setTableNames([]);
 
-        if (selectedCluster && selectedSchema) {
-            fetchTables(selectedCluster, selectedSchema);
+        if (selectedDBMS && selectedSchema) {
+            fetchTables(selectedDBMS, selectedSchema);
         }
     };
+
+    const handleTableChange = (e) => {
+        const selectedTable = e.target.value;
+        setSelectedTable(selectedTable);
+
+        if (selectedDBMS && selectedSchema && selectedTable) {
+            fetchTableSchema(selectedDBMS, selectedSchema, selectedTable);
+        }
+    };
+
 
     const handleColumnNameChange = (e) => {
         const value = e.target.value;
         setColumnName(value);
-        // setColumnName((prevColumn) => (value ? value : prevColumn));
     };
 
     useEffect(() => {
-        fetchClusterNames();
+        fetchDBMSNames();
     }, []);
 
     return (
         <div>
-            <label>Select Cluster:</label>
-            <select value={selectedCluster} onChange={handleClusterChange}>
-                <option value="">Select a cluster</option>
-                {clusterNames.map((name, index) => (
+            <label>Select DBMS:</label>
+            <select value={selectedDBMS} onChange={handleDBMSChange}>
+                <option value="">Select a DBMS</option>
+                {dbmsNames.map((name, index) => (
                     <option key={index} value={name}>
                         {name}
                     </option>
@@ -145,9 +170,7 @@ const DeleteColumn = () => {
 
             <label>Select Table:</label>
             <select
-                value={selectedTable}
-                onChange={(e) => setSelectedTable(e.target.value)}
-            >
+                value={selectedTable} onChange={handleTableChange}>
                 <option value="">Select a table</option>
                 {tableNames.map((name, index) => (
                     <option key={index} value={name}>
@@ -155,6 +178,7 @@ const DeleteColumn = () => {
                     </option>
                 ))}
             </select>
+            {tableSchema && <p>{tableSchema}</p>}
 
             <label>Column Name:</label>
             <input

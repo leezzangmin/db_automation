@@ -22,8 +22,6 @@ public class DDLController {
     private final ChangeHistoryService changeHistoryService;
     private final DDLValidator ddlValidator;
 
-    // TODO: 인증/인가
-
     @GetMapping("/ddl/validate")
     public String validCommand(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                @RequestBody DDLRequestDTO ddlRequestDTO) {
@@ -31,7 +29,6 @@ public class DDLController {
         return "ok";
     }
 
-    // TODO: add column auto_increment block
     @PutMapping("/ddl/column")
     public AddColumnDDLResponseDTO addColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                              @RequestBody AddColumnRequestDTO ddlRequestDTO) {
@@ -48,7 +45,6 @@ public class DDLController {
         changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now()), ddlRequestDTO);        return alterColumnResponseDTO;
     }
 
-    // TODO: primary key 필수 포함, id 컬럼 포함
     @PutMapping("/ddl/index")
     public CreateIndexDDLResponseDTO createIndex(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                  @RequestBody CreateIndexRequestDTO ddlRequestDTO) {
@@ -65,7 +61,6 @@ public class DDLController {
         changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(), databaseConnectionInfo.getDatabaseName(), ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), "test@gmail.com", LocalDateTime.now()), ddlRequestDTO);        return createTableResponseDTO;
     }
 
-    // TODO: rename -> delete
     @DeleteMapping("/ddl/column")
     public DeleteColumnDDLResponseDTO deleteColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                    @RequestBody DeleteColumnRequestDTO ddlRequestDTO) {

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.rds.model.DBCluster;
 import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
 import zzangmin.db_automation.client.MysqlClient;
+import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.response.*;
 import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO.TableInfo;
 import zzangmin.db_automation.entity.ChangeHistory;
@@ -25,10 +26,8 @@ public class DescribeService {
     private final AwsService awsService;
     private final MysqlClient mysqlClient;
     private final ChangeHistoryRepository changeHistoryRepository;
+    private final DynamicDataSourceProperties dynamicDataSourceProperties;
 
-    // TODO: 캐싱(mysql) / 상태저장 (?) 필요
-    // db에 정보 넣어두는 테이블1, 업데이트 정보 관리하는 테이블2, HTTP 캐싱처럼 테이블2만 수시 조회
-    // -> 업데이트 정보 있으면 getAndDel + awscli호출 + 테이블1업데이트
     public RdsClustersResponseDTO findClustersInfo() {
         DescribeDbClustersResponse allClusterInfo = awsService.findAllClusterInfo();
         List<DBCluster> dbClusters = allClusterInfo.dbClusters();
@@ -40,7 +39,6 @@ public class DescribeService {
     }
 
     // 클러스터의 서비스용 스키마의 테이블 목록(용량, 등)
-    // TODO: 페이징, 정렬 (용량,이름,행수), 검색
     public List<RdsClusterSchemaTablesResponseDTO> findClusterTables(DatabaseConnectionInfo databaseConnectionInfo) {
         List<RdsClusterSchemaTablesResponseDTO> rdsClusterSchemaTablesResponseDTOs = new ArrayList<>();
         List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
@@ -58,9 +56,12 @@ public class DescribeService {
         return rdsClusterSchemaTablesResponseDTOs;
     }
 
-    public ClusterNamesResponseDTO findClusterNames() {
-        List<String> clusterNames = awsService.findAllClusterNames();
-        return new ClusterNamesResponseDTO(clusterNames);
+    public DBMSNamesResponseDTO findDBMSNames() {
+        List<String> dbmsNames = dynamicDataSourceProperties.getDatabases()
+                .keySet()
+                .stream()
+                .collect(Collectors.toList());
+        return new DBMSNamesResponseDTO(dbmsNames);
     }
 
     public TableInfoResponseDTO findTableInfo(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {

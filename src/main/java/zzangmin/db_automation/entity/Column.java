@@ -79,5 +79,8 @@ public class Column {
         throw new IllegalStateException(this.name + " 컬럼은 varchar 타입이 아닙니다. 정상 입력 ex: VARCHAR(255)");
     }
 
+    public void changeColumnType(String type) {
+        this.type = type;
+    }
 
 }

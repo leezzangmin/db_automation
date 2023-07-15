@@ -64,9 +64,9 @@ public class ChangeHistoryService {
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
             ExtendVarcharColumnRequestDTO dto = (ExtendVarcharColumnRequestDTO) ddlRequestDTO;
             sb.append(", extendColumnName: ");
-            sb.append(dto.getColumn().getName());
+            sb.append(dto.getTargetColumnName());
             sb.append(", extendColumnSize: ");
-            sb.append(dto.getColumn().injectVarcharLength());
+            sb.append(dto.getExtendSize());
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
             RenameColumnRequestDTO dto = (RenameColumnRequestDTO) ddlRequestDTO;
             sb.append(", beforeColumnName: ");

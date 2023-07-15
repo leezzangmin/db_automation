@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-const AddColumn = () => {
+const AlterColumn = () => {
     const [response, setResponse] = useState(null);
     const [selectedDBMS, setSelectedDBMS] = useState('');
     const [selectedSchema, setSelectedSchema] = useState('');
     const [selectedTable, setSelectedTable] = useState('');
-    const [column, setColumn] = useState({
+    const [targetColumnName, setTargetColumnName] = useState('target_column_name');
+    const [afterColumn, setAfterColumn] = useState({
         name: 'column_name',
         type: 'TEXT',
         isNull: true,
@@ -20,19 +21,19 @@ const AddColumn = () => {
     const [schemaNames, setSchemaNames] = useState([]);
     const [tableNames, setTableNames] = useState([]);
 
-    const handleAddColumn = async () => {
+    const handleAlterColumn = async () => {
         const url = `/ddl/column?databaseName=${selectedDBMS}`;
         const requestBody = {
-            commandType: 'ADD_COLUMN',
+            commandType: 'ALTER_COLUMN',
             schemaName: selectedSchema,
             tableName: selectedTable,
-            column,
+            targetColumnName: targetColumnName,
+            afterColumn: afterColumn,
         };
-
         console.log('Request:', requestBody);
         try {
             const response = await fetch(url, {
-                method: 'PUT',
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -122,50 +123,57 @@ const AddColumn = () => {
         }
     };
 
-    const handleColumnNameChange = (e) => {
+    const handleAfterColumnNameChange = (e) => {
         const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, name: value }));
+        setAfterColumn((prevColumn) => ({ ...prevColumn, name: value }));
     };
 
-    const handleColumnTypeChange = (e) => {
+    const handleAfterColumnTypeChange = (e) => {
         const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, type: value }));
+        setAfterColumn((prevColumn) => ({ ...prevColumn, type: value }));
     };
 
-    const handleColumnIsNullChange = (e) => {
+    const handleAfterColumnIsNullChange = (e) => {
         const value = e.target.value === 'true';
-        setColumn((prevColumn) => ({ ...prevColumn, isNull: value }));
+        setAfterColumn((prevColumn) => ({ ...prevColumn, isNull: value }));
     };
 
-    const handleColumnDefaultValueChange = (e) => {
+    const handleAfterColumnDefaultValueChange = (e) => {
         const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, defaultValue: value }));
+        setAfterColumn((prevColumn) => ({ ...prevColumn, defaultValue: value }));
     };
 
-    const handleColumnIsUniqueChange = (e) => {
+    const handleAfterColumnIsUniqueChange = (e) => {
         const value = e.target.value === 'true';
-        setColumn((prevColumn) => ({ ...prevColumn, isUnique: value }));
+        setAfterColumn((prevColumn) => ({ ...prevColumn, isUnique: value }));
     };
 
-    const handleColumnIsAutoIncrementChange = (e) => {
+    const handleAfterColumnIsAutoIncrementChange = (e) => {
         const value = e.target.value === 'true';
-        setColumn((prevColumn) => ({ ...prevColumn, isAutoIncrement: value }));
+        setAfterColumn((prevColumn) => ({ ...prevColumn, isAutoIncrement: value }));
     };
 
-    const handleColumnCommentChange = (e) => {
+    const handleAfterColumnCommentChange = (e) => {
         const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, comment: value }));
+        setAfterColumn((prevColumn) => ({ ...prevColumn, comment: value }));
     };
 
-    const handleColumnCharsetChange = (e) => {
+    const handleAfterColumnCharsetChange = (e) => {
         const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, charset: value }));
+        setAfterColumn((prevColumn) => ({ ...prevColumn, charset: value }));
     };
 
-    const handleColumnCollateChange = (e) => {
+    const handleAfterColumnCollateChange = (e) => {
         const value = e.target.value;
-        setColumn((prevColumn) => ({ ...prevColumn, collate: value }));
+        setAfterColumn((prevColumn) => ({ ...prevColumn, collate: value }));
     };
+
+    const handleTargetColumnNameChange = (e) => {
+        const value = e.target.value;
+        setTargetColumnName(value);
+        setAfterColumn((prevColumn) => ({ ...prevColumn, name: value }));
+    };
+
 
     useEffect(() => {
         fetchDBMSNames();
@@ -206,73 +214,74 @@ const AddColumn = () => {
                 ))}
             </select>
 
-            <label>Column Name:</label>
+            <label>Target Column Name:</label>
             <input
                 type="text"
-                value={column.name}
-                onChange={handleColumnNameChange}
+                value={targetColumnName}
+                onChange={handleTargetColumnNameChange}
             />
 
-            <label>Column Type:</label>
+            <label>After Column Type:</label>
             <input
                 type="text"
-                value={column.type}
-                onChange={handleColumnTypeChange}
+                value={afterColumn.type}
+                onChange={handleAfterColumnTypeChange}
             />
 
-            <label>Is Null:</label>
-            <select value={column.isNull} onChange={handleColumnIsNullChange}>
+            <label>After Column Is Null:</label>
+            <select value={afterColumn.isNull} onChange={handleAfterColumnIsNullChange}>
                 <option value={true}>True</option>
                 <option value={false}>False</option>
             </select>
 
-            <label>Default Value:</label>
+            <label>After Column Default Value:</label>
             <input
                 type="text"
-                value={column.defaultValue}
-                onChange={handleColumnDefaultValueChange}
+                value={afterColumn.defaultValue}
+                onChange={handleAfterColumnDefaultValueChange}
             />
 
-            <label>Is Unique:</label>
-            <select value={column.isUnique} onChange={handleColumnIsUniqueChange}>
+            <label>After Column Is Unique:</label>
+            <select value={afterColumn.isUnique}
+                    onChange={handleAfterColumnIsUniqueChange}>
                 <option value={true}>True</option>
                 <option value={false}>False</option>
             </select>
 
-            <label>Is Auto Increment:</label>
+            <label>After Column Is Auto Increment:</label>
             <select
-                value={column.isAutoIncrement}
-                onChange={handleColumnIsAutoIncrementChange}
+                value={afterColumn.isAutoIncrement}
+                onChange={handleAfterColumnIsAutoIncrementChange}
             >
                 <option value={true}>True</option>
                 <option value={false}>False</option>
             </select>
 
-            <label>Comment:</label>
+            <label>After Column Comment:</label>
             <input
                 type="text"
-                value={column.comment}
-                onChange={handleColumnCommentChange}
+                value={afterColumn.comment}
+                onChange={handleAfterColumnCommentChange}
             />
 
-            <label>Charset:</label>
+            <label>After Column Charset:</label>
             <input
                 type="text"
-                value={column.charset}
-                onChange={handleColumnCharsetChange}
+                value={afterColumn.charset}
+                onChange={handleAfterColumnCharsetChange}
             />
 
-            <label>Collate:</label>
+            <label>After Column Collate:</label>
             <input
                 type="text"
-                value={column.collate}
-                onChange={handleColumnCollateChange}
+                value={afterColumn.collate}
+                onChange={handleAfterColumnCollateChange}
             />
 
-            <button onClick={handleAddColumn}>Add Column</button>
+            <button onClick={handleAlterColumn}>Alter Column</button>
             {response && <p>{JSON.stringify(response)}</p>}
         </div>
     );
 };
 
-export default AddColumn;
+export default AlterColumn;
