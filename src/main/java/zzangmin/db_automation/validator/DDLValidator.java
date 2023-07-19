@@ -81,6 +81,7 @@ public class DDLValidator {
         tableStatusValidator.validateTableSize(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         validateIsLongQueryExists(databaseConnectionInfo);
+        validateCreateIndexType(createIndexRequestDTO.getIndexType());
     }
 
     public void validateExtendVarchar(DatabaseConnectionInfo databaseConnectionInfo, ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO) {
@@ -182,4 +183,10 @@ public class DDLValidator {
         }
     }
 
+    private void validateCreateIndexType(String indexType) {
+        if (indexType.equals("KEY") || indexType.equals("UNIQUE KEY")) {
+            return;
+        }
+        throw new IllegalArgumentException("지원하지 않는 인덱스 타입입니다.");
+    }
 }
