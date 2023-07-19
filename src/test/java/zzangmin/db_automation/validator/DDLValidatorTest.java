@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
 import zzangmin.db_automation.dto.request.AlterColumnRequestDTO;
+import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
@@ -14,6 +15,7 @@ import zzangmin.db_automation.service.AwsService;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -94,7 +96,6 @@ class DDLValidatorTest {
         Assertions.assertThrows(IllegalStateException.class, () -> ddlValidator.validateAddColumn(backOfficeDatabaseConnectionInfo, addColumnRequestDTO));
     }
 
-
     @DisplayName("alter column validation이 정상적으로 수행되어야 한다.")
     @Test
     void validateAlterColumnTest() {
@@ -106,6 +107,34 @@ class DDLValidatorTest {
         Assertions.assertDoesNotThrow(() -> ddlValidator.validateAlterColumn(backOfficeDatabaseConnectionInfo, alterColumnRequestDTO));
     }
 
+    @DisplayName("create index validation이 정상적으로 수행되어야 한다.")
+    @Test
+    void validateCreateIndexTest() {
+        //given
+        CreateIndexRequestDTO createIndexRequestDTO = new CreateIndexRequestDTO(schemaName, "test_table", "id_name", "KEY", List.of("id", "name"));
+        //when & then
+        Assertions.assertDoesNotThrow(() -> ddlValidator.validateCreateIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO));
+    }
+
+    @DisplayName("이미 존재하는 인덱스를 추가하려고 하면 오류가 발생해야 한다.")
+    @Test
+    void validateCreateIndexTest_existIndex() {
+        //given
+        CreateIndexRequestDTO createIndexRequestDTO = new CreateIndexRequestDTO(schemaName, "test_table", "id", "KEY", List.of("id"));
+        //when & then
+        Assertions.assertThrows(IllegalStateException.class, () -> ddlValidator.validateCreateIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO));
+    }
+
+    @DisplayName("KEY 혹은 UNIQUE KEY 가 아닌 인덱스를 추가하려고 하면 오류가 발생해야 한다.")
+    @Test
+    void validateCreateIndexTest_pk() {
+        //given
+        CreateIndexRequestDTO createIndexRequestDTO1 = new CreateIndexRequestDTO(schemaName, "test_table", "id_name", "PRIMARY KEY", List.of("id","name"));
+        CreateIndexRequestDTO createIndexRequestDTO2 = new CreateIndexRequestDTO(schemaName, "test_table", "id_name", "정체불명 KEY", List.of("id","name"));
+        //when & then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ddlValidator.validateCreateIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ddlValidator.validateCreateIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO2));
+    }
 
 
 }
