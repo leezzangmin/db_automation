@@ -8,10 +8,7 @@ import zzangmin.db_automation.convention.ColumnConvention;
 import zzangmin.db_automation.convention.IndexConvention;
 import zzangmin.db_automation.convention.TableConvention;
 import zzangmin.db_automation.dto.request.*;
-import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.CommandType;
-import zzangmin.db_automation.entity.MysqlProcess;
-import zzangmin.db_automation.entity.Table;
+import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.List;
@@ -164,11 +161,10 @@ public class DDLValidator {
     }
 
     private void validateIsIndexExists(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, List<String> columnNames) {
-        Map<String, List<String>> indexes = mysqlClient.findIndexes(databaseConnectionInfo, schemaName, tableName);
-        for (String indexNameKey : indexes.keySet()) {
-            List<String> indexColumnNames = indexes.get(indexNameKey);
-            if (isEqualListString(indexColumnNames, columnNames)) {
-                throw new IllegalStateException("이미 존재하는 컬럼 조합의 인덱스가 존재합니다. 인덱스명: " + indexNameKey);
+        List<Constraint> indexes = mysqlClient.findIndexes(databaseConnectionInfo, schemaName, tableName);
+        for (Constraint index : indexes) {
+            if (isEqualListString(index.getKeyColumnNames(), columnNames)) {
+                throw new IllegalStateException("이미 존재하는 컬럼 조합의 인덱스가 존재합니다. 인덱스명: " + index.getKeyName());
             }
         }
     }
