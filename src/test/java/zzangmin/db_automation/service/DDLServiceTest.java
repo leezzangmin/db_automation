@@ -138,5 +138,27 @@ class DDLServiceTest {
         ddlService.deleteColumn(backOfficeDatabaseConnectionInfo, deleteColumnRequestDTO);
         //then
         Optional<Column> findColumn = mysqlClient.findColumn(backOfficeDatabaseConnectionInfo, schemaName, "test_table", "name");
-        Assertions.assertThat(findColumn.isPresent()).isEqualTo(false); }
+        Assertions.assertThat(findColumn.isPresent()).isEqualTo(false);
+    }
+
+    @DisplayName("alter column 성공 테스트")
+    @Test
+    void alterColumn() {
+        //given
+        Column column = new Column("name", "VARCHAR(255)", false, null, false, false, "alter column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        AlterColumnRequestDTO alterColumnRequestDTO = new AlterColumnRequestDTO(schemaName, "test_table", "name", column);
+        alterColumnRequestDTO.setCommandType(CommandType.ALTER_COLUMN);
+        //when
+        ddlService.alterColumn(backOfficeDatabaseConnectionInfo, alterColumnRequestDTO);
+        //then
+        Column findColumn = mysqlClient.findColumn(backOfficeDatabaseConnectionInfo, schemaName, "test_table", "name").get();
+        Assertions.assertThat(findColumn.getName()).isEqualTo("name");
+        Assertions.assertThat(findColumn.getType()).isEqualTo("varchar(255)");
+        Assertions.assertThat(findColumn.isNull()).isEqualTo(false);
+        Assertions.assertThat(findColumn.getDefaultValue()).isEqualTo(null);
+        Assertions.assertThat(findColumn.isAutoIncrement()).isEqualTo(false);
+        Assertions.assertThat(findColumn.getComment()).isEqualTo("alter column comment");
+        Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
+        Assertions.assertThat(findColumn.getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
+    }
 }
