@@ -19,7 +19,7 @@ import java.util.Map;
 @Component
 public class DDLValidator {
 
-    private static final int LONG_QUERY_SECONDS_THRESHOLD = 10;
+    private static final int LONG_QUERY_SECONDS_THRESHOLD = 3;
     private final MysqlClient mysqlClient;
     private final TableConvention tableConvention;
     private final IndexConvention indexConvention;
@@ -52,12 +52,6 @@ public class DDLValidator {
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
             validateRenameColumn(databaseConnectionInfo, (RenameColumnRequestDTO) ddlRequestDTO);
             return ;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_INDEX)) {
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN_COMMENT)) {
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_TABLE_COMMENT)) {
-            return;
         }
         throw new IllegalArgumentException("CommandType 지원 불가");
     }
@@ -77,7 +71,6 @@ public class DDLValidator {
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, addColumnRequestDTO.getSchemaName(), addColumnRequestDTO.getTableName());
         validateIsLongQueryExists(databaseConnectionInfo);
-
     }
 
     public void validateCreateIndex(DatabaseConnectionInfo databaseConnectionInfo, CreateIndexRequestDTO createIndexRequestDTO) {
@@ -155,6 +148,7 @@ public class DDLValidator {
 
     private void validateIsLongQueryExists(DatabaseConnectionInfo databaseConnectionInfo) {
         List<MysqlProcess> longQueries = mysqlClient.findLongQueries(databaseConnectionInfo, LONG_QUERY_SECONDS_THRESHOLD);
+        System.out.println("longQueries = " + longQueries);
         if (longQueries.size() != 0) {
             throw new IllegalStateException("실행중인 long query 가 존재합니다.");
         }
