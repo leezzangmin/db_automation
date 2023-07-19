@@ -7,8 +7,10 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
 import zzangmin.db_automation.dto.request.AlterColumnRequestDTO;
 import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
+import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
+import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.AwsService;
 
@@ -38,14 +40,6 @@ class DDLValidatorTest {
     @BeforeEach
     public void setUp() {
         backOfficeDatabaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", awsService.findRdsPassword("zzangmin-db"));
-        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DELETE FROM automation_change_history.change_history where table_name = 'test_table'");
-        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
-        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TABLE test_schema.test_table (id INT NOT NULL AUTO_INCREMENT COMMENT 'asdf', name VARCHAR(45) NULL COMMENT 'name comment', PRIMARY KEY (id), KEY name(name)) COMMENT 'TABLE COMMENT'");
-    }
-
-    @AfterEach
-    public void tearDown() {
-        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
     }
 
     @DisplayName("long query가 있으면 validation이 실패해야 한다.")
@@ -135,6 +129,22 @@ class DDLValidatorTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> ddlValidator.validateCreateIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO1));
         Assertions.assertThrows(IllegalArgumentException.class, () -> ddlValidator.validateCreateIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO2));
     }
+
+    @DisplayName("create table validation이 정상적으로 수행되어야 한다.")
+    @Test
+    void validateCreateTableTest() {
+        //given
+        Column column1 = new Column("id", "INT", false, "0", false, true, "column1 comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column2 = new Column("name", "INT", false, "0", false, false, "column2 comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+
+        Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
+        Constraint constraint2 = new Constraint("UNIQUE KEY", "name", List.of("name"));
+        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", List.of(column1), List.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        createTableRequestDTO.setCommandType(CommandType.CREATE_TABLE);
+        //when & then
+        Assertions.assertDoesNotThrow(() -> ddlValidator.validateCreateTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO));
+    }
+
 
 
 }
