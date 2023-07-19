@@ -170,6 +170,11 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# icloud
+*.*.*.icloud
+*.*.icloud
+*.icloud
+
 ### Gradle ###
 .gradle
 **/build/
