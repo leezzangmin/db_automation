@@ -24,19 +24,25 @@ public class MetadataLockAspect {
 
     @Before("ddlServiceMethods()")
     public void startCheckMetadataLock(JoinPoint joinPoint) {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-        String databaseName = request.getParameter("databaseName");
-        DatabaseConnectionInfo databaseConnectionInfo = dynamicDataSourceProperties.findByDbName(databaseName);
+        DatabaseConnectionInfo databaseConnectionInfo = null;
+        Object[] methodArgs = joinPoint.getArgs();
+        for (Object arg : methodArgs) {
+            if (arg instanceof DatabaseConnectionInfo) {
+                databaseConnectionInfo = (DatabaseConnectionInfo) arg;
+            }
+        }
         metadataLockDetector.startCheck(databaseConnectionInfo);
     }
 
     @After("ddlServiceMethods()")
     public void endCheckMetadataLock(JoinPoint joinPoint) {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-        String databaseName = request.getParameter("databaseName");
-        DatabaseConnectionInfo databaseConnectionInfo = dynamicDataSourceProperties.findByDbName(databaseName);
+        DatabaseConnectionInfo databaseConnectionInfo = null;
+        Object[] methodArgs = joinPoint.getArgs();
+        for (Object arg : methodArgs) {
+            if (arg instanceof DatabaseConnectionInfo) {
+                databaseConnectionInfo = (DatabaseConnectionInfo) arg;
+            }
+        }
         metadataLockDetector.endCheck(databaseConnectionInfo);
     }
 
