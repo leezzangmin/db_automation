@@ -27,10 +27,7 @@ import zzangmin.db_automation.entity.CommandType;
         @JsonSubTypes.Type(value = CreateTableRequestDTO.class, name = "CREATE_TABLE"),
         @JsonSubTypes.Type(value = DeleteColumnRequestDTO.class, name = "DELETE_COLUMN"),
         @JsonSubTypes.Type(value = ExtendVarcharColumnRequestDTO.class, name = "EXTEND_VARCHAR_COLUMN"),
-        @JsonSubTypes.Type(value = RenameColumnRequestDTO.class, name = "RENAME_COLUMN"),
-        @JsonSubTypes.Type(value = RenameIndexRequestDTO.class, name = "RENAME_INDEX"),
-        @JsonSubTypes.Type(value = AlterColumnCommentRequestDTO.class, name = "ALTER_COLUMN_COMMENT"),
-        @JsonSubTypes.Type(value = AlterTableCommentRequestDTO.class, name = "ALTER_TABLE_COMMENT"),
+        @JsonSubTypes.Type(value = RenameColumnRequestDTO.class, name = "RENAME_COLUMN")
 })
 public abstract class DDLRequestDTO {
     @NotBlank

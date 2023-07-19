@@ -80,12 +80,6 @@ public class ChangeHistoryService {
             sb.append(dto.getBeforeColumnName());
             sb.append(", afterColumnName: ");
             sb.append(dto.getAfterColumnName());
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_INDEX)) {
-            // TODO
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN_COMMENT)) {
-            // TODO
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_TABLE_COMMENT)) {
-            // TODO
         } else {
             throw new IllegalArgumentException("지원하지 않는 명령");
         }
