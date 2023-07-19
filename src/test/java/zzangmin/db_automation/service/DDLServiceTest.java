@@ -161,4 +161,19 @@ class DDLServiceTest {
         Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
         Assertions.assertThat(findColumn.getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
     }
+
+    @DisplayName("rename column 성공 테스트")
+    @Test
+    void renameColumn() {
+        //given
+        RenameColumnRequestDTO renameColumnRequestDTO = new RenameColumnRequestDTO(schemaName, "test_table", "name", "rename");
+        renameColumnRequestDTO.setCommandType(CommandType.RENAME_COLUMN);
+        //when
+        ddlService.renameColumn(backOfficeDatabaseConnectionInfo, renameColumnRequestDTO);
+        //then
+        Optional<Column> beforeColumn = mysqlClient.findColumn(backOfficeDatabaseConnectionInfo, schemaName, "test_table", "name");
+        Assertions.assertThat(beforeColumn.isPresent()).isEqualTo(false);
+        Optional<Column> findColumn = mysqlClient.findColumn(backOfficeDatabaseConnectionInfo, schemaName, "test_table", "rename");
+        Assertions.assertThat(findColumn.isPresent()).isEqualTo(true);
+    }
 }
