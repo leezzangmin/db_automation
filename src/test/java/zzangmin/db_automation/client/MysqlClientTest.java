@@ -3,10 +3,7 @@ package zzangmin.db_automation.client;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.MetadataLockHolder;
-import zzangmin.db_automation.entity.MysqlProcess;
-import zzangmin.db_automation.entity.TableStatus;
+import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.AwsService;
 
@@ -173,19 +170,17 @@ public class MysqlClientTest {
         String tableName = "test_table";
 
         // when
-        Map<String, List<String>> indexes = mysqlClient.findIndexes(databaseConnectionInfo, schemaName, tableName);
+        List<Constraint> indexes = mysqlClient.findIndexes(databaseConnectionInfo, schemaName, tableName);
 
         // then
         assertNotNull(indexes);
-        assertTrue(indexes.containsKey("PRIMARY"));
-        List<String> primaryColumns = indexes.get("PRIMARY");
-        assertEquals(1, primaryColumns.size());
-        assertTrue(primaryColumns.contains("id"));
-
-        assertTrue(indexes.containsKey("name"));
-        List<String> nameColumns = indexes.get("name");
-        assertEquals(1, nameColumns.size());
-        assertTrue(nameColumns.contains("name"));
+        for (Constraint index : indexes) {
+            if (index.getType().equals("PRIMARY KEY")) {
+                assertThat(index.getKeyName()).isEqualTo("id");
+            } else if (index.getType().equals("KEY")) {
+                assertThat(index.getKeyName()).isEqualTo("name");
+            }
+        }
     }
 
     @DisplayName("findColumn으로 특정 컬럼 정보를 조회할 수 있다.")
