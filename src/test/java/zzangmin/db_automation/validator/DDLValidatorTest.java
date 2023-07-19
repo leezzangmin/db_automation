@@ -4,10 +4,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import zzangmin.db_automation.client.MysqlClient;
-import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
-import zzangmin.db_automation.dto.request.AlterColumnRequestDTO;
-import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
-import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
+import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
@@ -40,6 +37,14 @@ class DDLValidatorTest {
     @BeforeEach
     public void setUp() {
         backOfficeDatabaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", awsService.findRdsPassword("zzangmin-db"));
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TABLE test_schema.test_table (id INT NOT NULL AUTO_INCREMENT COMMENT 'asdf', name VARCHAR(45) NULL COMMENT 'name comment', PRIMARY KEY (id), KEY name(name)) COMMENT 'TABLE COMMENT'");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "INSERT INTO test_schema.test_table (name) VALUES ('test_name')");
+    }
+
+    @AfterEach
+    public void tearDown() {
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
     }
 
     @DisplayName("long query가 있으면 validation이 실패해야 한다.")
@@ -145,6 +150,39 @@ class DDLValidatorTest {
         Assertions.assertDoesNotThrow(() -> ddlValidator.validateCreateTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO));
     }
 
+    @DisplayName("delete column validation이 정상적으로 수행되어야 한다.")
+    @Test
+    void validateDeleteColumnTest() {
+        //given
+        DeleteColumnRequestDTO deleteColumnRequestDTO = new DeleteColumnRequestDTO(schemaName, "test_table", "name");
+        //when & then
+        Assertions.assertDoesNotThrow(() -> ddlValidator.validateDeleteColumn(backOfficeDatabaseConnectionInfo, deleteColumnRequestDTO));
+    }
 
+    @DisplayName("extend varchar column validation이 정상적으로 수행되어야 한다.")
+    @Test
+    void validateExtendVarcharColumnTest() {
+        //given
+        ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO = new ExtendVarcharColumnRequestDTO(schemaName, "test_table", "name", 50);
+        //when & then
+        Assertions.assertDoesNotThrow(() -> ddlValidator.validateExtendVarchar(backOfficeDatabaseConnectionInfo, extendVarcharColumnRequestDTO));
+    }
 
+    @DisplayName("extend varchar column 시 inplace로 처리되지 않으면 오류가 발생해야 한다.")
+    @Test
+    void validateExtendVarcharColumnTest_notInPlace() {
+        //given
+        ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO = new ExtendVarcharColumnRequestDTO(schemaName, "test_table", "name", 500);
+        //when & then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> ddlValidator.validateExtendVarchar(backOfficeDatabaseConnectionInfo, extendVarcharColumnRequestDTO));
+    }
+
+    @DisplayName("rename column validation이 정상적으로 수행되어야 한다.")
+    @Test
+    void validateRenameColumnTest() {
+        //given
+        RenameColumnRequestDTO renameColumnRequestDTO = new RenameColumnRequestDTO(schemaName, "test_table", "name", "new_name");
+        //when & then
+        Assertions.assertDoesNotThrow(() -> ddlValidator.validateRenameColumn(backOfficeDatabaseConnectionInfo, renameColumnRequestDTO));
+    }
 }
