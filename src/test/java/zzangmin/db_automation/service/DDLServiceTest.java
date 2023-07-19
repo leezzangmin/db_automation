@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import zzangmin.db_automation.client.MysqlClient;
+import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
 import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
 import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
 import zzangmin.db_automation.dto.request.ExtendVarcharColumnRequestDTO;
@@ -103,10 +104,30 @@ class DDLServiceTest {
         createIndexRequestDTO.setCommandType(CommandType.CREATE_INDEX);
         //when
         ddlService.createIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO);
-        ddlService.createIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO);
         //then
         List<Constraint> indexes = mysqlClient.findIndexes(backOfficeDatabaseConnectionInfo, schemaName, "test_table");
         Assertions.assertThat(indexes.size()).isEqualTo(3);
     }
 
+    @DisplayName("add column 성공 테스트")
+    @Test
+    void addColumn() {
+        //given
+        Column column = new Column("add", "INT", false, null, false, false, "add column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
+        addColumnRequestDTO.setCommandType(CommandType.ADD_COLUMN);
+        //when
+        ddlService.addColumn(backOfficeDatabaseConnectionInfo, addColumnRequestDTO);
+        //then
+        Column findColumn = mysqlClient.findColumn(backOfficeDatabaseConnectionInfo, schemaName, "test_table", "add").get();
+        Assertions.assertThat(findColumn.getName()).isEqualTo("add");
+        Assertions.assertThat(findColumn.getType()).startsWithIgnoringCase("int");
+        Assertions.assertThat(findColumn.isNull()).isEqualTo(false);
+        Assertions.assertThat(findColumn.getDefaultValue()).isEqualTo(null);
+        Assertions.assertThat(findColumn.isAutoIncrement()).isEqualTo(false);
+        Assertions.assertThat(findColumn.getComment()).isEqualTo("add column comment");
+        Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
+        Assertions.assertThat(findColumn.getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
+
+    }
 }
