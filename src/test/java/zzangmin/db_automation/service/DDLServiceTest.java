@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import zzangmin.db_automation.client.MysqlClient;
+import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
 import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
 import zzangmin.db_automation.dto.request.ExtendVarcharColumnRequestDTO;
 import zzangmin.db_automation.entity.Column;
@@ -17,6 +18,7 @@ import zzangmin.db_automation.entity.Table;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,6 +93,20 @@ class DDLServiceTest {
         Assertions.assertThat(findTable.getTableEngine()).isEqualTo("InnoDB");
 
 
+    }
+
+    @DisplayName("create index 성공 테스트")
+    @Test
+    void createIndex() {
+        //given
+        CreateIndexRequestDTO createIndexRequestDTO = new CreateIndexRequestDTO(schemaName, "test_table", "id_name", "KEY", List.of("id", "name"));
+        createIndexRequestDTO.setCommandType(CommandType.CREATE_INDEX);
+        //when
+        ddlService.createIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO);
+        ddlService.createIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO);
+        //then
+        List<Constraint> indexes = mysqlClient.findIndexes(backOfficeDatabaseConnectionInfo, schemaName, "test_table");
+        Assertions.assertThat(indexes.size()).isEqualTo(3);
     }
 
 }
