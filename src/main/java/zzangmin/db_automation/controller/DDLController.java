@@ -87,13 +87,4 @@ public class DDLController {
         return renameColumnResponseDTO;
     }
 
-//
-//    @PatchMapping"/ddl/index/name")
-//
-//    @PatchMapping("/ddl/column/comment")
-//
-//    @PatchMapping("/ddl/table/comment")
-
-
-
 }
