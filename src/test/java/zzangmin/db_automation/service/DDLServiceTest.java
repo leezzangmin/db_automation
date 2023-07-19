@@ -8,10 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import zzangmin.db_automation.client.MysqlClient;
-import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
-import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
-import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
-import zzangmin.db_automation.dto.request.ExtendVarcharColumnRequestDTO;
+import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
@@ -20,6 +17,7 @@ import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -128,6 +126,17 @@ class DDLServiceTest {
         Assertions.assertThat(findColumn.getComment()).isEqualTo("add column comment");
         Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
         Assertions.assertThat(findColumn.getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
-
     }
+
+    @DisplayName("delete column 성공 테스트")
+    @Test
+    void deleteColumn() {
+        //given
+        DeleteColumnRequestDTO deleteColumnRequestDTO = new DeleteColumnRequestDTO(schemaName, "test_table", "name");
+        deleteColumnRequestDTO.setCommandType(CommandType.DELETE_COLUMN);
+        //when
+        ddlService.deleteColumn(backOfficeDatabaseConnectionInfo, deleteColumnRequestDTO);
+        //then
+        Optional<Column> findColumn = mysqlClient.findColumn(backOfficeDatabaseConnectionInfo, schemaName, "test_table", "name");
+        Assertions.assertThat(findColumn.isPresent()).isEqualTo(false); }
 }
