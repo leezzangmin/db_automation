@@ -9,6 +9,8 @@ import zzangmin.db_automation.entity.ChangeHistory;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.repository.ChangeHistoryRepository;
 
+import java.util.List;
+
 // 변경관리 이력 쌓는 서비스
 
 @Slf4j
@@ -30,6 +32,11 @@ public class ChangeHistoryService {
                 .build();
         changeHistoryRepository.save(changeHistory);
         log.info("ChangeHistoryService.addChangeHistory(): {}", changeHistory);
+    }
+
+    @Transactional
+    public List<ChangeHistory> findChangeHistories(String databaseIdentifier, String schemaName, String tableName) {
+        return changeHistoryRepository.findByDatabaseIdentifierAndSchemaNameAndTableName(databaseIdentifier, schemaName, tableName);
     }
 
     private String generateChangeContent(CreateChangeHistoryRequestDTO createChangeHistoryRequestDTO, DDLRequestDTO ddlRequestDTO) {
