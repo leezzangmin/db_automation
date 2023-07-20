@@ -186,8 +186,39 @@ public class MysqlClient {
         return tableStatuses;
     }
 
-    public Map<String, List<String>> findIndexes(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
-        String SQL = "SELECT INDEX_NAME, COLUMN_NAME " +
+//    public Map<String, List<String>> findIndexes2(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+//        String SQL = "SELECT INDEX_NAME, COLUMN_NAME " +
+//                "FROM INFORMATION_SCHEMA.STATISTICS " +
+//                "WHERE TABLE_SCHEMA = '" + schemaName + "' AND TABLE_NAME = '" + tableName + "' ORDER BY INDEX_NAME, SEQ_IN_INDEX";
+//        try {
+//            Connection connection = DriverManager.getConnection(
+//                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+//
+//            Statement statement = connection.createStatement();
+//            ResultSet resultSet = statement.executeQuery(SQL);
+//
+//            Map<String, List<String>> constraints = new HashMap<>();
+//            while (resultSet.next()) {
+//                String indexName = resultSet.getString("INDEX_NAME");
+//                String columnName = resultSet.getString("COLUMN_NAME");
+//                if (constraints.containsKey(indexName)) {
+//                    List<String> columns = constraints.get(indexName);
+//                    columns.add(columnName);
+//                    continue;
+//                }
+//                List<String> columns = new ArrayList<>();
+//                columns.add(columnName);
+//                constraints.put(indexName, columns);
+//            }
+//            log.info("findIndexes: {}", statement);
+//            return constraints;
+//        } catch (SQLException e) {
+//            throw new IllegalStateException("인덱스 정보를 불러올 수 없습니다.");
+//        }
+//    }
+
+    public List<Constraint> findIndexes(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        String SQL = "SELECT INDEX_NAME, COLUMN_NAME, NON_UNIQUE " +
                 "FROM INFORMATION_SCHEMA.STATISTICS " +
                 "WHERE TABLE_SCHEMA = '" + schemaName + "' AND TABLE_NAME = '" + tableName + "' ORDER BY INDEX_NAME, SEQ_IN_INDEX";
         try {
@@ -197,22 +228,43 @@ public class MysqlClient {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(SQL);
 
-            Map<String, List<String>> constraints = new HashMap<>();
+            List<Constraint> constraints = new ArrayList<>();
+            Map<String, List<String>> indexNames = new HashMap<>();
+            Map<String, String> indexTypes = new HashMap<>();
             while (resultSet.next()) {
                 String indexName = resultSet.getString("INDEX_NAME");
                 String columnName = resultSet.getString("COLUMN_NAME");
-                if (constraints.containsKey(indexName)) {
-                    List<String> columns = constraints.get(indexName);
+                String unique = resultSet.getString("NON_UNIQUE");
+                if (unique.equals("0")) {
+                    if (indexName.equals("PRIMARY")) {
+                        indexTypes.put(indexName, "PRIMARY KEY");
+                    } else {
+                        indexTypes.put(indexName, "UNIQUE KEY");
+                    }
+                } else {
+                    indexTypes.put(indexName, "KEY");
+                }
+
+                if (indexNames.containsKey(indexName)) {
+                    List<String> columns = indexNames.get(indexName);
                     columns.add(columnName);
                     continue;
                 }
                 List<String> columns = new ArrayList<>();
                 columns.add(columnName);
-                constraints.put(indexName, columns);
+                indexNames.put(indexName, columns);
+            }
+
+            for (String indexName : indexNames.keySet()) {
+                List<String> columnNames = indexNames.get(indexName);
+                String type = indexTypes.get(indexName);
+                Constraint constraint = new Constraint(type, String.join("_", columnNames), columnNames);
+                constraints.add(constraint);
             }
             log.info("findIndexes: {}", statement);
             return constraints;
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new IllegalStateException("인덱스 정보를 불러올 수 없습니다.");
         }
     }

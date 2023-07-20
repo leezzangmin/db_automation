@@ -28,19 +28,26 @@ public class RdsMetricObserveAspect {
 
     @Before("ddlServiceMethods()")
     public void startCheckRdsMetric(JoinPoint joinPoint) {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-        String databaseName = request.getParameter("databaseName");
-        DatabaseConnectionInfo databaseConnectionInfo = dynamicDataSourceProperties.findByDbName(databaseName);
+        DatabaseConnectionInfo databaseConnectionInfo = null;
+        Object[] methodArgs = joinPoint.getArgs();
+        for (Object arg : methodArgs) {
+            if (arg instanceof DatabaseConnectionInfo) {
+                databaseConnectionInfo = (DatabaseConnectionInfo) arg;
+            }
+        }
         rdsMetricDetector.startCheck(databaseConnectionInfo);
     }
 
     @After("ddlServiceMethods()")
     public void endCheckRdsMetric(JoinPoint joinPoint) {
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = attributes.getRequest();
-        String databaseName = request.getParameter("databaseName");
-        DatabaseConnectionInfo databaseConnectionInfo = dynamicDataSourceProperties.findByDbName(databaseName);
+        DatabaseConnectionInfo databaseConnectionInfo = null;
+        Object[] methodArgs = joinPoint.getArgs();
+        for (Object arg : methodArgs) {
+            if (arg instanceof DatabaseConnectionInfo) {
+                databaseConnectionInfo = (DatabaseConnectionInfo) arg;
+            }
+        }
+
         rdsMetricDetector.endCheck(databaseConnectionInfo);
     }
 

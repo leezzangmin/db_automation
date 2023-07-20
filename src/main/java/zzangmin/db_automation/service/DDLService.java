@@ -28,7 +28,7 @@ public class DDLService {
         return new ExtendVarcharColumnDDLResponseDTO("test@gmail.com", databaseConnectionInfo.getDatabaseName(), extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName(), createTableStatement);
     }
 
-    public CreateTableDDLResponseDTO createTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) throws InterruptedException {
+    public CreateTableDDLResponseDTO createTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) {
         String createTableSQL = ddlParser.commandToSql(createTableRequestDTO);
         mysqlClient.executeSQL(databaseConnectionInfo, createTableSQL);
         String createTableStatement = mysqlClient.findCreateTableStatement(databaseConnectionInfo, createTableRequestDTO.getSchemaName(), createTableRequestDTO.getTableName());

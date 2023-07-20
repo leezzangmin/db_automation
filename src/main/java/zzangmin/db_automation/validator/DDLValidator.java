@@ -8,10 +8,7 @@ import zzangmin.db_automation.convention.ColumnConvention;
 import zzangmin.db_automation.convention.IndexConvention;
 import zzangmin.db_automation.convention.TableConvention;
 import zzangmin.db_automation.dto.request.*;
-import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.CommandType;
-import zzangmin.db_automation.entity.MysqlProcess;
-import zzangmin.db_automation.entity.Table;
+import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.List;
@@ -22,7 +19,7 @@ import java.util.Map;
 @Component
 public class DDLValidator {
 
-    private static final int LONG_QUERY_SECONDS_THRESHOLD = 10;
+    private static final int LONG_QUERY_SECONDS_THRESHOLD = 3;
     private final MysqlClient mysqlClient;
     private final TableConvention tableConvention;
     private final IndexConvention indexConvention;
@@ -55,12 +52,6 @@ public class DDLValidator {
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
             validateRenameColumn(databaseConnectionInfo, (RenameColumnRequestDTO) ddlRequestDTO);
             return ;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_INDEX)) {
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN_COMMENT)) {
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_TABLE_COMMENT)) {
-            return;
         }
         throw new IllegalArgumentException("CommandType 지원 불가");
     }
@@ -80,7 +71,6 @@ public class DDLValidator {
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, addColumnRequestDTO.getSchemaName(), addColumnRequestDTO.getTableName());
         validateIsLongQueryExists(databaseConnectionInfo);
-
     }
 
     public void validateCreateIndex(DatabaseConnectionInfo databaseConnectionInfo, CreateIndexRequestDTO createIndexRequestDTO) {
@@ -91,6 +81,7 @@ public class DDLValidator {
         tableStatusValidator.validateTableSize(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         validateIsLongQueryExists(databaseConnectionInfo);
+        validateCreateIndexType(createIndexRequestDTO.getIndexType());
     }
 
     public void validateExtendVarchar(DatabaseConnectionInfo databaseConnectionInfo, ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO) {
@@ -158,17 +149,17 @@ public class DDLValidator {
 
     private void validateIsLongQueryExists(DatabaseConnectionInfo databaseConnectionInfo) {
         List<MysqlProcess> longQueries = mysqlClient.findLongQueries(databaseConnectionInfo, LONG_QUERY_SECONDS_THRESHOLD);
+        System.out.println("longQueries = " + longQueries);
         if (longQueries.size() != 0) {
             throw new IllegalStateException("실행중인 long query 가 존재합니다.");
         }
     }
 
     private void validateIsIndexExists(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, List<String> columnNames) {
-        Map<String, List<String>> indexes = mysqlClient.findIndexes(databaseConnectionInfo, schemaName, tableName);
-        for (String indexNameKey : indexes.keySet()) {
-            List<String> indexColumnNames = indexes.get(indexNameKey);
-            if (isEqualListString(indexColumnNames, columnNames)) {
-                throw new IllegalStateException("이미 존재하는 컬럼 조합의 인덱스가 존재합니다. 인덱스명: " + indexNameKey);
+        List<Constraint> indexes = mysqlClient.findIndexes(databaseConnectionInfo, schemaName, tableName);
+        for (Constraint index : indexes) {
+            if (isEqualListString(index.getKeyColumnNames(), columnNames)) {
+                throw new IllegalStateException("이미 존재하는 컬럼 조합의 인덱스가 존재합니다. 인덱스명: " + index.getKeyName());
             }
         }
     }
@@ -192,4 +183,10 @@ public class DDLValidator {
         }
     }
 
+    private void validateCreateIndexType(String indexType) {
+        if (indexType.equals("KEY") || indexType.equals("UNIQUE KEY")) {
+            return;
+        }
+        throw new IllegalArgumentException("지원하지 않는 인덱스 타입입니다.");
+    }
 }

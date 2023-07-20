@@ -9,6 +9,8 @@ import zzangmin.db_automation.entity.ChangeHistory;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.repository.ChangeHistoryRepository;
 
+import java.util.List;
+
 // 변경관리 이력 쌓는 서비스
 
 @Slf4j
@@ -30,6 +32,11 @@ public class ChangeHistoryService {
                 .build();
         changeHistoryRepository.save(changeHistory);
         log.info("ChangeHistoryService.addChangeHistory(): {}", changeHistory);
+    }
+
+    @Transactional
+    public List<ChangeHistory> findChangeHistories(String databaseIdentifier, String schemaName, String tableName) {
+        return changeHistoryRepository.findByDatabaseIdentifierAndSchemaNameAndTableName(databaseIdentifier, schemaName, tableName);
     }
 
     private String generateChangeContent(CreateChangeHistoryRequestDTO createChangeHistoryRequestDTO, DDLRequestDTO ddlRequestDTO) {
@@ -73,12 +80,6 @@ public class ChangeHistoryService {
             sb.append(dto.getBeforeColumnName());
             sb.append(", afterColumnName: ");
             sb.append(dto.getAfterColumnName());
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_INDEX)) {
-            // TODO
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN_COMMENT)) {
-            // TODO
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_TABLE_COMMENT)) {
-            // TODO
         } else {
             throw new IllegalArgumentException("지원하지 않는 명령");
         }

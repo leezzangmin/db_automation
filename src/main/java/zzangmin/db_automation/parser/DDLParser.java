@@ -24,12 +24,6 @@ public class DDLParser {
             return deleteColumnCommandToSql((DeleteColumnRequestDTO) ddlRequestDTO);
         } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
             return renameColumnCommandToSql((RenameColumnRequestDTO) ddlRequestDTO);
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_INDEX)) {
-
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN_COMMENT)) {
-
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_TABLE_COMMENT)) {
-
         }
         throw new IllegalArgumentException("존재하지 않는 명령입니다.");
     }
