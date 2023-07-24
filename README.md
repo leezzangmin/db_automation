@@ -39,7 +39,8 @@
 <summary>테이블 생성</summary>
 <div markdown="1">
 
-![create_table_2](https://github.com/leezzangmin/db_automation/assets/64303390/dc877bf0-15e8-4313-a99a-1fa33e329309)
+![create_table_2](https://github.com/leezzangmin/db_automation/assets/64303390/0637f01f-fe97-47fd-a98c-541d7842e1e2)
+
 
 </div>
 </details><br>
@@ -49,7 +50,8 @@
 <summary>컬럼 추가</summary>
 <div markdown="1">
 
-![add_column](https://github.com/leezzangmin/db_automation/assets/64303390/43871366-f8eb-471d-a27d-b2fa5ccced2d)
+![add_column](https://github.com/leezzangmin/db_automation/assets/64303390/54a65461-f53a-468c-8efd-aea417530730)
+
 
 </div>
 </details><br>
@@ -58,7 +60,7 @@
 <summary>인덱스 생성</summary>
 <div markdown="1">
 
-![create_index](https://github.com/leezzangmin/db_automation/assets/64303390/ff653009-6a43-4bb4-bdb2-6bb2a909ac26)
+![create_index](https://github.com/leezzangmin/db_automation/assets/64303390/5b6a5e4d-1c45-42aa-8a89-c715c14b896c)
 
 </div>
 </details>
@@ -133,8 +135,8 @@
 <details>
 <summary>시연 동영상</summary>
 <div markdown="1">
-
-![describe](https://github.com/leezzangmin/db_automation/assets/64303390/997a79be-a245-438c-bab1-b20a086f5bb9)
+    
+![describe](https://github.com/leezzangmin/db_automation/assets/64303390/5d8d8f62-a902-4360-9344-a37d37eecbe8)
 
 </div>
 </details>
