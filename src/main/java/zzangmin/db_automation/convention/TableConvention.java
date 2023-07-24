@@ -8,6 +8,7 @@ import zzangmin.db_automation.entity.Table;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import static zzangmin.db_automation.convention.CommonConvention.*;
@@ -84,7 +85,7 @@ public class TableConvention {
         if (!tableCollate.equals(COLLATE)) {
             throw new IllegalArgumentException("테이블 콜레이션은 다음과 같아야합니다: " + COLLATE);
         }
-        if (tableComment.isBlank() || tableComment.isEmpty()) {
+        if (Objects.isNull(tableComment) || tableComment.isBlank() || tableComment.isEmpty()) {
             throw new IllegalArgumentException("테이블 코멘트가 존재하지 않습니다.");
         }
     }
