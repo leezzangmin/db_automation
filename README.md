@@ -1,5 +1,5 @@
 
-# MSA 환경 DBMS 운영 자동화 백오피스 프로젝트  
+# MSA 환경 DBMS 운영 자동화 백오피스 프로젝트
 
 ****  
 
@@ -28,17 +28,19 @@
     클러스터의 버전, CPU, Memory, Storage, Connection, QPS 등의 상태 조회
     스키마, 테이블 목록 및 용량 등 조회
     테이블 스키마의 변경 히스토리 조회
-  
+
 ****  
 
 ## 시연 영상 및 샘플
 
-### 1. DDL 실행 동영상  
+### 1. DDL 실행 동영상
 (시연 영상 외의 컬럼 삭제, 변경, Rename, Varchar 확장 등의 연산도 지원)
 <details>  
 <summary>테이블 생성</summary>
 <div markdown="1">
-![create_table_2](https://github.com/leezzangmin/db_automation/assets/64303390/dc877bf0-15e8-4313-a99a-1fa33e329309)  
+
+![create_table_2](https://github.com/leezzangmin/db_automation/assets/64303390/dc877bf0-15e8-4313-a99a-1fa33e329309)
+
 </div>
 </details><br>
 
@@ -46,14 +48,18 @@
 <details>  
 <summary>컬럼 추가</summary>
 <div markdown="1">
-![add_column](https://github.com/leezzangmin/db_automation/assets/64303390/43871366-f8eb-471d-a27d-b2fa5ccced2d)  
+
+![add_column](https://github.com/leezzangmin/db_automation/assets/64303390/43871366-f8eb-471d-a27d-b2fa5ccced2d)
+
 </div>
 </details><br>
 
 <details>  
 <summary>인덱스 생성</summary>
 <div markdown="1">
-![create_index](https://github.com/leezzangmin/db_automation/assets/64303390/ff653009-6a43-4bb4-bdb2-6bb2a909ac26)  
+
+![create_index](https://github.com/leezzangmin/db_automation/assets/64303390/ff653009-6a43-4bb4-bdb2-6bb2a909ac26)
+
 </div>
 </details>
 
@@ -65,61 +71,61 @@
 <summary>DB 표준 목록</summary>
 <div markdown="1">  
 
-  1. 클러스터 생성 표준값
-     ```java
-      public class ClusterCreationStandard {
-      
-        public final static Map<String, String> clusterCreationStandard = new HashMap<>();
-      
-        static {
-            clusterCreationStandard.put("BackupRetentionPeriod", "7");
-            clusterCreationStandard.put("MultiAZ", "true");
-            clusterCreationStandard.put("DeletionProtection", "true");
-            clusterCreationStandard.put("Engine", "aurora-mysql");
-            clusterCreationStandard.put("EngineVersion", "8.0.mysql_aurora.3.03.1");
-            clusterCreationStandard.put("Port", "3306");
-            clusterCreationStandard.put("MasterUsername", "admin");
-        }
+1. 클러스터 생성 표준값
+   ```java
+    public class ClusterCreationStandard {
+    
+      public final static Map<String, String> clusterCreationStandard = new HashMap<>();
+    
+      static {
+          clusterCreationStandard.put("BackupRetentionPeriod", "7");
+          clusterCreationStandard.put("MultiAZ", "true");
+          clusterCreationStandard.put("DeletionProtection", "true");
+          clusterCreationStandard.put("Engine", "aurora-mysql");
+          clusterCreationStandard.put("EngineVersion", "8.0.mysql_aurora.3.03.1");
+          clusterCreationStandard.put("Port", "3306");
+          clusterCreationStandard.put("MasterUsername", "admin");
       }
-      ```
-     
-  2. 인스턴스 생성 표준값
+    }
+    ```
+
+2. 인스턴스 생성 표준값
+    ```java
+    public class InstanceCreationStandard {
+    
+        public final static Map<String, String> instanceCreationStandard = new HashMap<>();
+    
+        static {
+            instanceCreationStandard.put("AutoMinorVersionUpgrade", "false");
+            instanceCreationStandard.put("DeletionProtection", "true");
+            instanceCreationStandard.put("PerformanceInsightsEnabled", "true");
+            instanceCreationStandard.put("EnabledCloudwatchLogsExports", "[slowquery]");
+            instanceCreationStandard.put("TagList", "[]");
+        }
+    }
+    ```
+
+3. 파라미터 표준값
       ```java
-      public class InstanceCreationStandard {
-      
-          public final static Map<String, String> instanceCreationStandard = new HashMap<>();
-      
+      public class ParameterGroupStandard {
+          public final static Map<String, String> standardParameters = new HashMap<>();
+          
           static {
-              instanceCreationStandard.put("AutoMinorVersionUpgrade", "false");
-              instanceCreationStandard.put("DeletionProtection", "true");
-              instanceCreationStandard.put("PerformanceInsightsEnabled", "true");
-              instanceCreationStandard.put("EnabledCloudwatchLogsExports", "[slowquery]");
-              instanceCreationStandard.put("TagList", "[]");
+              standardParameters.put("max_connections", "10000");
+              standardParameters.put("character_set_connection", "utf8mb4");
+              standardParameters.put("character_set_database", "utf8mb4");
+              standardParameters.put("character_set_filesystem", "utf8mb4");
+              standardParameters.put("character_set_server", "utf8mb4");
+              standardParameters.put("character_set_results", "utf8mb4");
+              standardParameters.put("collation_connection", "utf8mb4_0900_ai_ci");
+              standardParameters.put("collation_server", "utf8mb4_0900_ai_ci");
+              standardParameters.put("slow_query_log", "1");
+              standardParameters.put("time_zone", "UTC");
+              standardParameters.put("transaction_isolation", "REPEATABLE-READ");
+              standardParameters.put("performance_schema", "1");
           }
       }
       ```
-     
-  3. 파라미터 표준값
-        ```java
-        public class ParameterGroupStandard {
-            public final static Map<String, String> standardParameters = new HashMap<>();
-            
-            static {
-                standardParameters.put("max_connections", "10000");
-                standardParameters.put("character_set_connection", "utf8mb4");
-                standardParameters.put("character_set_database", "utf8mb4");
-                standardParameters.put("character_set_filesystem", "utf8mb4");
-                standardParameters.put("character_set_server", "utf8mb4");
-                standardParameters.put("character_set_results", "utf8mb4");
-                standardParameters.put("collation_connection", "utf8mb4_0900_ai_ci");
-                standardParameters.put("collation_server", "utf8mb4_0900_ai_ci");
-                standardParameters.put("slow_query_log", "1");
-                standardParameters.put("time_zone", "UTC");
-                standardParameters.put("transaction_isolation", "REPEATABLE-READ");
-                standardParameters.put("performance_schema", "1");
-            }
-        }
-        ```
 </div>
 </details>
 <br>
@@ -127,7 +133,9 @@
 <details>
 <summary>시연 동영상</summary>
 <div markdown="1">
+
 ![describe](https://github.com/leezzangmin/db_automation/assets/64303390/997a79be-a245-438c-bab1-b20a086f5bb9)
+
 </div>
 </details>
 
@@ -146,7 +154,7 @@
 - Slack
 
 [//]: # ()
-[//]: # 
+[//]: #
 
 [//]: # (- 메트릭 수치 안좋으면 cancel)
 
