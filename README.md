@@ -67,7 +67,19 @@
 
 <br>
 
-### 2. DB 표준 검사 샘플
+### 2. DB 상태 조회
+<details>
+<summary>시연 동영상</summary>
+<div markdown="1">
+    
+![describe](https://github.com/leezzangmin/db_automation/assets/64303390/5d8d8f62-a902-4360-9344-a37d37eecbe8)
+
+</div>
+</details>
+<br>
+
+
+### 3. DB 표준 검사 샘플
 
 <details>  
 <summary>DB 표준 목록</summary>
@@ -133,10 +145,10 @@
 <br>
 
 <details>
-<summary>시연 동영상</summary>
+<summary>표준 검사 동작 예시</summary>
 <div markdown="1">
     
-![describe](https://github.com/leezzangmin/db_automation/assets/64303390/5d8d8f62-a902-4360-9344-a37d37eecbe8)
+![스크린샷 2023-07-24 오후 6 38 46](https://github.com/leezzangmin/db_automation/assets/64303390/1bd077b4-25e1-4457-ad27-19255064b505)
 
 </div>
 </details>
