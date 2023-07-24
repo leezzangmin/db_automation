@@ -97,10 +97,14 @@ const TableStatusInfo = () => {
     const handleTableChange = (e) => {
         const selectedTable = e.target.value;
         setSelectedTable(selectedTable);
+    };
+
+    useEffect(() => {
         if (selectedTable) {
             fetchTableStatusInfo();
         }
-    };
+    }, [selectedTable]);
+
 
     useEffect(() => {
         fetchDBMSNames();
