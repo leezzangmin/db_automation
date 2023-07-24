@@ -34,15 +34,39 @@
 ## 시연 영상 및 샘플
 
 ### 1. DDL 실행 동영상  
-    테이블 생성
+(시연 영상 외의 컬럼 삭제, 변경, Rename, Varchar 확장 등의 연산도 지원)
+<details>  
+<summary>테이블 생성</summary>
+<div markdown="1">
+![create_table_2](https://github.com/leezzangmin/db_automation/assets/64303390/dc877bf0-15e8-4313-a99a-1fa33e329309)  
+</div>
+</details><br>
 
-### 
+
+<details>  
+<summary>컬럼 추가</summary>
+<div markdown="1">
+![add_column](https://github.com/leezzangmin/db_automation/assets/64303390/43871366-f8eb-471d-a27d-b2fa5ccced2d)  
+</div>
+</details><br>
+
+<details>  
+<summary>인덱스 생성</summary>
+<div markdown="1">
+![create_index](https://github.com/leezzangmin/db_automation/assets/64303390/ff653009-6a43-4bb4-bdb2-6bb2a909ac26)  
+</div>
+</details>
+
+<br>
 
 ### 2. DB 표준 검사 샘플
-  
-- DB 표준 목록  
+
+<details>  
+<summary>DB 표준 목록</summary>
+<div markdown="1">  
+
   1. 클러스터 생성 표준값
-      ```java
+     ```java
       public class ClusterCreationStandard {
       
         public final static Map<String, String> clusterCreationStandard = new HashMap<>();
@@ -76,30 +100,40 @@
       ```
      
   3. 파라미터 표준값
-    ```java
-    public class ParameterGroupStandard {
-        public final static Map<String, String> standardParameters = new HashMap<>();
-        
-        static {
-            standardParameters.put("max_connections", "10000");
-            standardParameters.put("character_set_connection", "utf8mb4");
-            standardParameters.put("character_set_database", "utf8mb4");
-            standardParameters.put("character_set_filesystem", "utf8mb4");
-            standardParameters.put("character_set_server", "utf8mb4");
-            standardParameters.put("character_set_results", "utf8mb4");
-            standardParameters.put("collation_connection", "utf8mb4_0900_ai_ci");
-            standardParameters.put("collation_server", "utf8mb4_0900_ai_ci");
-            standardParameters.put("slow_query_log", "1");
-            standardParameters.put("time_zone", "UTC");
-            standardParameters.put("transaction_isolation", "REPEATABLE-READ");
-            standardParameters.put("performance_schema", "1");
+        ```java
+        public class ParameterGroupStandard {
+            public final static Map<String, String> standardParameters = new HashMap<>();
+            
+            static {
+                standardParameters.put("max_connections", "10000");
+                standardParameters.put("character_set_connection", "utf8mb4");
+                standardParameters.put("character_set_database", "utf8mb4");
+                standardParameters.put("character_set_filesystem", "utf8mb4");
+                standardParameters.put("character_set_server", "utf8mb4");
+                standardParameters.put("character_set_results", "utf8mb4");
+                standardParameters.put("collation_connection", "utf8mb4_0900_ai_ci");
+                standardParameters.put("collation_server", "utf8mb4_0900_ai_ci");
+                standardParameters.put("slow_query_log", "1");
+                standardParameters.put("time_zone", "UTC");
+                standardParameters.put("transaction_isolation", "REPEATABLE-READ");
+                standardParameters.put("performance_schema", "1");
+            }
         }
-    }
-    ```
+        ```
+</div>
+</details>
+<br>
 
-****  
+<details>
+<summary>시연 동영상</summary>
+<div markdown="1">
+![describe](https://github.com/leezzangmin/db_automation/assets/64303390/997a79be-a245-438c-bab1-b20a086f5bb9)
+</div>
+</details>
 
-## 아키텍처
+
+[//]: # (****  )
+[//]: # (## 아키텍처)
 
 ****  
 
@@ -111,32 +145,58 @@
 - React
 - Slack
 
-## TODO
-- 메트릭 수치 안좋으면 cancel
-- metadata lock detection AOP
-- metadata 만 변경하는 작업은 즉시 실행(리스트업 필요)
-  - rename
-  - comment 수정
-  - 
-  - 
-- 롱쿼리 있으면 pause
-- 이미 실행중인 DDL 존재하면 block 혹은 명령 저장 후 순차실행 - o
-- 개발자 메일계정으로 접근가능 클러스터 인증/인가
-- 표준검사
-- timeout ?ㅇ?
-- 스키마 용량, 정보, 마스킹 툴
-- 예외처리 및 예외응답 일원화
-- DB pw 환경변수화? - parameter store 에서 fetch, env 파일 생성
-- 용량 크면 slack 으로 실행버튼을 정보랑 함께 전송해서(스키마, 테이블, 커맨드타입 등) pt-change-online shell 실행?
-- DDL 실행중 진행상황 Performance schema 통해서 확인.
-- 
-- 컬럼 변경이력 추적
-- 인덱스 (col1, col2) 있을때 (col1) 인덱스 신규생성 block 기능, pk 포함 인덱스 생성 방지
+[//]: # ()
+[//]: # 
 
-- 작업 시작할 때 슬랙으로 알림 (작업자, 작업시간, 작업내용, 작업커맨드)
-- 작업 실패할 때 슬랙으로 알림 (작업자, 작업시간, 작업내용, 작업커맨드, 에러메시지)
+[//]: # (- 메트릭 수치 안좋으면 cancel)
 
-- stop 상태의 dbms는 dynamic load X
+[//]: # (- metadata lock detection AOP)
 
-## feature
-- parameter store pw / [dbName]-password
+[//]: # (- metadata 만 변경하는 작업은 즉시 실행&#40;리스트업 필요&#41;)
+
+[//]: # (  - rename)
+
+[//]: # (  - comment 수정)
+
+[//]: # (  - )
+
+[//]: # (  - )
+
+[//]: # (- 롱쿼리 있으면 pause)
+
+[//]: # (- 이미 실행중인 DDL 존재하면 block 혹은 명령 저장 후 순차실행 - o)
+
+[//]: # (- 개발자 메일계정으로 접근가능 클러스터 인증/인가)
+
+[//]: # (- 표준검사)
+
+[//]: # (- timeout ?ㅇ?)
+
+[//]: # (- 스키마 용량, 정보, 마스킹 툴)
+
+[//]: # (- 예외처리 및 예외응답 일원화)
+
+[//]: # (- DB pw 환경변수화? - parameter store 에서 fetch, env 파일 생성)
+
+[//]: # (- 용량 크면 slack 으로 실행버튼을 정보랑 함께 전송해서&#40;스키마, 테이블, 커맨드타입 등&#41; pt-change-online shell 실행?)
+
+[//]: # (- DDL 실행중 진행상황 Performance schema 통해서 확인.)
+
+[//]: # (- )
+
+[//]: # (- 컬럼 변경이력 추적)
+
+[//]: # (- 인덱스 &#40;col1, col2&#41; 있을때 &#40;col1&#41; 인덱스 신규생성 block 기능, pk 포함 인덱스 생성 방지)
+
+[//]: # ()
+[//]: # (- 작업 시작할 때 슬랙으로 알림 &#40;작업자, 작업시간, 작업내용, 작업커맨드&#41;)
+
+[//]: # (- 작업 실패할 때 슬랙으로 알림 &#40;작업자, 작업시간, 작업내용, 작업커맨드, 에러메시지&#41;)
+
+[//]: # ()
+[//]: # (- stop 상태의 dbms는 dynamic load X)
+
+[//]: # ()
+[//]: # (## feature)
+
+[//]: # (- parameter store pw / [dbName]-password)
