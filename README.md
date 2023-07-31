@@ -1,5 +1,5 @@
 
-# MSA 환경 DBMS 운영 자동화 백오피스 프로젝트
+# AWS MySQL, MSA 환경 DBMS 운영 자동화 백오피스 프로젝트
 
 ****  
 
@@ -166,6 +166,9 @@
 - AWS SDK (for java)
 - React
 - Slack
+
+## API 명세
+- 
 
 [//]: # ()
 [//]: #
