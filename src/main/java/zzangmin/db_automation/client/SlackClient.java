@@ -13,7 +13,7 @@ import org.springframework.http.HttpHeaders;
 @Component
 public class SlackClient {
 
-    private final static String slackWebhookUrl = "https://hooks.slack.com/services/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";
+    private final static String slackWebhookUrl = System.getenv("SLACK_WEBHOOK_URL");
     private final RestTemplate restTemplate;
 
     public void sendMessage(String message) {
