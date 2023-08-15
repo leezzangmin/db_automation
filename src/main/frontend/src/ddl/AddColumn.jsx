@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const AddColumn = () => {
     const [response, setResponse] = useState(null);
+    const [tableSchema, setTableSchema] = useState(null);
     const [selectedDBMS, setSelectedDBMS] = useState('');
     const [selectedSchema, setSelectedSchema] = useState('');
     const [selectedTable, setSelectedTable] = useState('');
@@ -99,6 +100,21 @@ const AddColumn = () => {
         }
     };
 
+    const fetchTableSchema = async (selectedDBMS, selectedSchema, selectedTable) => {
+        try {
+            const url = `/describe/table?databaseName=${selectedDBMS}&schemaName=${selectedSchema}&tableName=${selectedTable}`;
+            const response = await fetch(url);
+            if (response.ok) {
+                const data = await response.text();
+                setTableSchema(data);
+            } else {
+                console.error('Failed to fetch table schema:', response.status);
+            }
+        } catch (error) {
+            console.error('Failed to fetch table schema:', error);
+        }
+    }
+
     const handleDBMSChange = (e) => {
         const selectedDBMS = e.target.value;
         setSelectedDBMS(selectedDBMS);
@@ -121,6 +137,20 @@ const AddColumn = () => {
             fetchTables(selectedDBMS, selectedSchema);
         }
     };
+
+    const handleTableChange = (e) => {
+        console.log('handleTableChange called');
+        const selectedTable = e.target.value;
+        setSelectedTable(selectedTable);
+
+        if (selectedDBMS && selectedSchema && selectedTable) {
+            fetchTableSchema(selectedDBMS, selectedSchema, selectedTable);
+        }
+    };
+
+    useEffect(() => {
+        fetchDBMSNames();
+    }, []);
 
     const handleColumnNameChange = (e) => {
         const value = e.target.value;
@@ -167,10 +197,6 @@ const AddColumn = () => {
         setColumn((prevColumn) => ({ ...prevColumn, collate: value }));
     };
 
-    useEffect(() => {
-        fetchDBMSNames();
-    }, []);
-
     return (
         <div>
             <label>Select DBMS:</label>
@@ -195,9 +221,7 @@ const AddColumn = () => {
 
             <label>Select Table:</label>
             <select
-                value={selectedTable}
-                onChange={(e) => setSelectedTable(e.target.value)}
-            >
+                value={selectedTable} onChange={handleTableChange}>
                 <option value="">Select a table</option>
                 {tableNames.map((name, index) => (
                     <option key={index} value={name}>
@@ -205,6 +229,7 @@ const AddColumn = () => {
                     </option>
                 ))}
             </select>
+            {tableSchema && <p>{tableSchema}</p>}
 
             <label>Column Name:</label>
             <input
