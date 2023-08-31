@@ -6,23 +6,25 @@ import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Component
 public class DynamicDataSourceProperties {
 
-    private Map<String, DatabaseConnectionInfo> databases = new HashMap();
+    private static Map<String, DatabaseConnectionInfo> databases = new ConcurrentHashMap<>();
 
     public DatabaseConnectionInfo findByDbName(String dbName) {
         return databases.get(dbName);
     }
 
-    public void addDatabase(String dbName, DatabaseConnectionInfo databaseConnectionInfo) {
+    // 같은 패키지에 속한 DynamicDataSourceLoader 에서만 접근 가능한 메서드 (package-private)
+    void addDatabase(String dbName, DatabaseConnectionInfo databaseConnectionInfo) {
         databases.put(dbName, databaseConnectionInfo);
     }
 
-    public Map<String, DatabaseConnectionInfo> getDatabases() {
-        return databases;
+    public static Map<String, DatabaseConnectionInfo> getDatabases() {
+        return new HashMap<String, DatabaseConnectionInfo>(databases);
     }
 
     public void logDatabases() {
