@@ -311,4 +311,40 @@ public class MysqlClientTest {
         assertThat(ddlExecutingSession.get().getInfo()).isEqualTo(alterSQL);
 
     }
+
+    @DisplayName("findHistoryListLengthTest 으로 historyListLength의 길이를 조회할 수 있다")
+    @Test
+    void findHistoryListLengthTest() {
+        //given
+
+        //when
+        long historyListLength = mysqlClient.findHistoryListLength(databaseConnectionInfo);
+        System.out.println("historyListLength = " + historyListLength);
+        //then
+        assertThat(historyListLength).isPositive();
+    }
+
+    @DisplayName("findLongTransactionThreadId 으로 threadID를 조회할 수 있다.")
+    @Test
+    void findLongTransactionThreadIdTest() {
+        //given
+
+        //when
+        int longTransactionProcesslistId = mysqlClient.findLongTransactionProcesslistId(databaseConnectionInfo);
+        //then
+        assertThat(longTransactionProcesslistId).isPositive();
+    }
+
+    @DisplayName("findQueryInTransaction 으로 트랜잭션 내의 쿼리를 조회할 수 있다.")
+    @Test
+    void findQueryInTransactionTest() {
+        //given
+
+        //when
+        List<Query> queryInTransaction = mysqlClient.findQueryInTransaction(databaseConnectionInfo, 530);
+        System.out.println("queryInTransaction = " + queryInTransaction);
+        // queryInTransaction = [Query(databaseName=zzangmin-db, processlistId=530, user=admin, host=220.120.162.204:59541, eventName=statement/sql/begin, sqlText=null, digestText=START TRANSACTION), Query(databaseName=zzangmin-db, processlistId=530, user=admin, host=220.120.162.204:59541, eventName=statement/sql/select, sqlText=null, digestText=SELECT * FROM `sysbench` . `sbtest2` LIMIT ?)]
+        //then
+        assertThat(queryInTransaction).isNotEmpty();
+    }
 }
