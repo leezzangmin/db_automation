@@ -186,37 +186,6 @@ public class MysqlClient {
         return tableStatuses;
     }
 
-//    public Map<String, List<String>> findIndexes2(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
-//        String SQL = "SELECT INDEX_NAME, COLUMN_NAME " +
-//                "FROM INFORMATION_SCHEMA.STATISTICS " +
-//                "WHERE TABLE_SCHEMA = '" + schemaName + "' AND TABLE_NAME = '" + tableName + "' ORDER BY INDEX_NAME, SEQ_IN_INDEX";
-//        try {
-//            Connection connection = DriverManager.getConnection(
-//                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
-//
-//            Statement statement = connection.createStatement();
-//            ResultSet resultSet = statement.executeQuery(SQL);
-//
-//            Map<String, List<String>> constraints = new HashMap<>();
-//            while (resultSet.next()) {
-//                String indexName = resultSet.getString("INDEX_NAME");
-//                String columnName = resultSet.getString("COLUMN_NAME");
-//                if (constraints.containsKey(indexName)) {
-//                    List<String> columns = constraints.get(indexName);
-//                    columns.add(columnName);
-//                    continue;
-//                }
-//                List<String> columns = new ArrayList<>();
-//                columns.add(columnName);
-//                constraints.put(indexName, columns);
-//            }
-//            log.info("findIndexes: {}", statement);
-//            return constraints;
-//        } catch (SQLException e) {
-//            throw new IllegalStateException("인덱스 정보를 불러올 수 없습니다.");
-//        }
-//    }
-
     public List<Constraint> findIndexes(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
         String SQL = "SELECT INDEX_NAME, COLUMN_NAME, NON_UNIQUE " +
                 "FROM INFORMATION_SCHEMA.STATISTICS " +
@@ -603,4 +572,92 @@ public class MysqlClient {
                 .stream()
                 .toList();
     }
+
+    public int findLongTransactionProcesslistId(DatabaseConnectionInfo databaseConnectionInfo) {
+        String SQL = "SELECT PROCESSLIST_ID FROM performance_schema.threads " +
+                "WHERE PROCESSLIST_ID IS NOT NULL AND TYPE='FOREGROUND' AND PROCESSLIST_USER!='rdsadmin' AND PROCESSLIST_USER!='event_scheduler' " +
+                "ORDER BY PROCESSLIST_TIME DESC limit 1;";
+        int processlistId = -1;
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(SQL)) {
+            log.info("findLongTransactionProcesslistId: {}", SQL);
+            if (resultSet.next()) {
+                processlistId = resultSet.getInt("PROCESSLIST_ID");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        if (processlistId == -1L) {
+            throw new IllegalStateException("PROCSSLIST_ID 를 불러오는 데 실패했습니다. " + databaseConnectionInfo);
+        }
+        return processlistId;
+    }
+
+    public List<Query> findQueryInTransaction(DatabaseConnectionInfo databaseConnectionInfo, int processlistId) {
+        String SQL = "SELECT ps.id , " +
+                "       ps.user, " +
+                "       ps.host, " +
+                "       esh.event_name, " +
+                "       esh.sql_text , " +
+                "       esh.digest_text " +
+                "FROM information_schema.innodb_trx trx " +
+                "JOIN information_schema.processlist ps ON trx.trx_mysql_thread_id = ps.id " +
+                "JOIN performance_schema.threads th ON th.processlist_id = trx.trx_mysql_thread_id " +
+                "AND trx.trx_mysql_thread_id = ? " +
+                "JOIN performance_schema.events_statements_history esh ON esh.thread_id = th.thread_id " +
+                "WHERE esh.EVENT_ID >= ( " +
+                "    SELECT MAX(EVENT_ID) " +
+                "    FROM performance_schema.events_statements_history " +
+                "    WHERE EVENT_NAME = 'statement/sql/begin') " +
+                "ORDER BY esh.EVENT_ID";
+
+
+        List<Query> queries = new ArrayList();
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+            statement.setString(1, String.valueOf(processlistId));
+            log.info("findQueryInTransaction: {}", statement);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    int findProcesslistId = resultSet.getInt("id");
+                    String user = resultSet.getString("user");
+                    String host = resultSet.getString("host");
+                    String eventName = resultSet.getString("event_name");
+                    String sqlText = resultSet.getString("sql_text");
+                    String digestText = resultSet.getString("digest_text");
+                    queries.add(new Query(databaseConnectionInfo.getDatabaseName(), findProcesslistId, user, host, eventName, sqlText, digestText));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return queries;
+    }
+
+    public long findHistoryListLength(DatabaseConnectionInfo databaseConnectionInfo) {
+        String SQL = "SELECT COUNT FROM INFORMATION_SCHEMA.INNODB_METRICS WHERE NAME = 'trx_rseg_history_len'";
+        long historyListLength = -1L;
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(SQL)) {
+            log.info("findHistoryListLength: {}", SQL);
+            if (resultSet.next()) {
+                historyListLength = resultSet.getLong("COUNT");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        if (historyListLength == -1L) {
+            throw new IllegalStateException("historyListLength 를 불러오는 데 실패했습니다. " + databaseConnectionInfo);
+        }
+        return historyListLength;
+    }
+
 }
