@@ -219,7 +219,7 @@ const AddColumn = () => {
                 ))}
             </select>
 
-            <label>Select 2Table:</label>
+            <label>Select Table:</label>
             <select
                 value={selectedTable} onChange={handleTableChange}>
                 <option value="">Select a table</option>
