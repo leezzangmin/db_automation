@@ -167,6 +167,14 @@
 - React
 - Slack
 
+## 실행 방법
+- 환경변수에 `SLACK_WEBHOOK_URL` 설정
+- application.properties 파일에 inhouse용 DB 접속 정보 기재 필요
+- 실행하는 환경에서 aws configure 사전 수행 필요
+  - 해당 롤에 rds, secret manager, cloudwatch 권한 필요
+- Database credential 은 aws Secret Manager에 등록 필요
+  - postfix 는 `-db-credential` 로 지정
+
 ## API 명세
 - 
 
