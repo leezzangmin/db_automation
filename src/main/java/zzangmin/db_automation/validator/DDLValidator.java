@@ -149,7 +149,7 @@ public class DDLValidator {
 
     private void validateIsLongQueryExists(DatabaseConnectionInfo databaseConnectionInfo) {
         List<MysqlProcess> longQueries = mysqlClient.findLongQueries(databaseConnectionInfo, LONG_QUERY_SECONDS_THRESHOLD);
-        System.out.println("longQueries = " + longQueries);
+        log.info("longQueries = " + longQueries);
         if (longQueries.size() != 0) {
             throw new IllegalStateException("실행중인 long query 가 존재합니다.");
         }

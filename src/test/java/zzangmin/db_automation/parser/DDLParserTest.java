@@ -132,8 +132,6 @@ class DDLParserTest {
                 "PRIMARY KEY (`test_column`),\n" +
                 "KEY `test_table` (`test_column_two`)\n" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='test table comment'";
-        System.out.println("expectedSql = " + expectedSql);
-        System.out.println("sql = " + sql);
         assertEquals(expectedSql, sql);
     }
 
