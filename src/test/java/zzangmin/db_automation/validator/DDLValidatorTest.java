@@ -9,7 +9,7 @@ import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.AwsService;
 
 import java.sql.Connection;
@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class DDLValidatorTest {

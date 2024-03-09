@@ -1,4 +1,4 @@
-package zzangmin.db_automation.info;
+package zzangmin.db_automation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

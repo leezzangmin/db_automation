@@ -2,9 +2,7 @@ package zzangmin.db_automation.convention;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.entity.Constraint;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.HashSet;
 import java.util.List;

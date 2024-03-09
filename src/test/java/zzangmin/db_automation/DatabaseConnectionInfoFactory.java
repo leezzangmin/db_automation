@@ -2,7 +2,7 @@ package zzangmin.db_automation;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 
 @Component

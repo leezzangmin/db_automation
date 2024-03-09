@@ -14,12 +14,10 @@ import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.Table;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 import java.util.List;
 import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class DDLServiceTest {

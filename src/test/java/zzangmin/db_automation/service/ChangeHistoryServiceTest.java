@@ -13,7 +13,7 @@ import zzangmin.db_automation.dto.request.CreateChangeHistoryRequestDTO;
 import zzangmin.db_automation.entity.ChangeHistory;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.dto.request.DDLRequestDTO;
 import zzangmin.db_automation.dto.response.DDLResponseDTO;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 @RequiredArgsConstructor
 @Aspect

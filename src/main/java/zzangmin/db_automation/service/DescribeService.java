@@ -10,7 +10,7 @@ import zzangmin.db_automation.dto.response.*;
 import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO.TableInfo;
 import zzangmin.db_automation.entity.ChangeHistory;
 import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.repository.ChangeHistoryRepository;
 
 import java.util.*;

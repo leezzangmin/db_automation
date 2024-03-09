@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import zzangmin.db_automation.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.entity.*;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.AwsService;
 
 import java.sql.*;

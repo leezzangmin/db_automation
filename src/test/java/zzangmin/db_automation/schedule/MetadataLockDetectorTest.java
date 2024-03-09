@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.entity.MetadataLockHolder;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
