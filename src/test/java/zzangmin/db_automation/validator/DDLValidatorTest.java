@@ -3,6 +3,7 @@ package zzangmin.db_automation.validator;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import zzangmin.db_automation.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
@@ -24,6 +25,9 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class DDLValidatorTest {
     @Autowired
+    private DatabaseConnectionInfoFactory databaseConnectionInfoFactory;
+
+    @Autowired
     private DDLValidator ddlValidator;
 
     @Autowired
@@ -36,7 +40,7 @@ class DDLValidatorTest {
 
     @BeforeEach
     public void setUp() {
-        backOfficeDatabaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", awsService.findRdsPassword("zzangmin-db"));
+        backOfficeDatabaseConnectionInfo = databaseConnectionInfoFactory.createDatabaseConnectionInfo();
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TABLE test_schema.test_table (id INT NOT NULL AUTO_INCREMENT COMMENT 'asdf', name VARCHAR(45) NULL COMMENT 'name comment', PRIMARY KEY (id), KEY name(name)) COMMENT 'TABLE COMMENT'");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "INSERT INTO test_schema.test_table (name) VALUES ('test_name')");

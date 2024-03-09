@@ -3,15 +3,14 @@ package zzangmin.db_automation.client;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import zzangmin.db_automation.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.info.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.AwsService;
 
 import java.sql.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -23,24 +22,27 @@ import static org.junit.jupiter.api.Assertions.*;
 public class MysqlClientTest {
 
     @Autowired
+    private DatabaseConnectionInfoFactory databaseConnectionInfoFactory;
+
+    @Autowired
     private MysqlClient mysqlClient;
     @Autowired
     private AwsService awsService;
 
-    private DatabaseConnectionInfo databaseConnectionInfo;
+    private DatabaseConnectionInfo backOfficeDatabaseConnectionInfo;
     private String schemaName = "test_schema";
 
     @BeforeEach
     public void setUp() {
-        databaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", awsService.findRdsPassword("zzangmin-db"));
-        mysqlClient.executeSQL(databaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
-        mysqlClient.executeSQL(databaseConnectionInfo, "CREATE TABLE test_schema.test_table (id INT NOT NULL AUTO_INCREMENT COMMENT 'asdf', name VARCHAR(45) NULL COMMENT 'name comment', PRIMARY KEY (id), KEY name(name)) COMMENT 'TABLE COMMENT'");
-        mysqlClient.executeSQL(databaseConnectionInfo, "INSERT INTO test_schema.test_table (name) VALUES ('test_name')");
+        backOfficeDatabaseConnectionInfo = databaseConnectionInfoFactory.createDatabaseConnectionInfo();
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TABLE test_schema.test_table (id INT NOT NULL AUTO_INCREMENT COMMENT 'asdf', name VARCHAR(45) NULL COMMENT 'name comment', PRIMARY KEY (id), KEY name(name)) COMMENT 'TABLE COMMENT'");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "INSERT INTO test_schema.test_table (name) VALUES ('test_name')");
     }
 
     @AfterEach
     public void tearDown() {
-        mysqlClient.executeSQL(databaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
     }
 
     @DisplayName("executeSQL 을 통해 SQL 을 실행할 수 있다.")
@@ -48,14 +50,13 @@ public class MysqlClientTest {
     public void testExecuteSQL() {
         // given
         String sql = "CREATE TABLE test_schema.test_table2 (id INT NOT NULL AUTO_INCREMENT, name VARCHAR(45) NULL, PRIMARY KEY (id))";
-        DatabaseConnectionInfo databaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", awsService.findRdsPassword("zzangmin-db"));
 
         // when
-        mysqlClient.executeSQL(databaseConnectionInfo, sql);
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, sql);
 
         // then
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
              Statement statement = connection.createStatement()) {
             ResultSet resultSet = statement.executeQuery("SELECT count(*) from test_schema.test_table");
             if (resultSet.next()) {
@@ -67,7 +68,7 @@ public class MysqlClientTest {
         }
 
         // cleanup
-        mysqlClient.executeSQL(databaseConnectionInfo, "DROP TABLE test_schema.test_table2");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE test_schema.test_table2");
     }
 
     @DisplayName("findTableNames 로 특정 스키마의 테이블 이름을 조회할 수 있다.")
@@ -76,7 +77,7 @@ public class MysqlClientTest {
         // given
 
         // when
-        List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
+        List<String> tableNames = mysqlClient.findTableNames(backOfficeDatabaseConnectionInfo, schemaName);
 
         // then
         assertThat(tableNames.contains("test_table")).isTrue();
@@ -89,7 +90,7 @@ public class MysqlClientTest {
         // Given
 
         // When
-        List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo);
+        List<String> schemaNames = mysqlClient.findSchemaNames(backOfficeDatabaseConnectionInfo);
 
         // Then
         assertTrue(schemaNames.contains("test_schema"));
@@ -103,7 +104,7 @@ public class MysqlClientTest {
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         Future<?> longQueryFuture = executorService.submit(() -> {
             try (Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                    backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
                  Statement statement = connection.createStatement()) {
                 statement.execute("SELECT SLEEP(5)");
             } catch (Exception e) {
@@ -115,7 +116,7 @@ public class MysqlClientTest {
         Thread.sleep(2000);
 
         // When
-        List<MysqlProcess> longQueries = mysqlClient.findLongQueries(databaseConnectionInfo, longQueryStandard);
+        List<MysqlProcess> longQueries = mysqlClient.findLongQueries(backOfficeDatabaseConnectionInfo, longQueryStandard);
 
         // Then
         assertThat(longQueries.isEmpty()).isFalse();
@@ -131,7 +132,7 @@ public class MysqlClientTest {
         String tableName = "test_table";
 
         // when
-        String createTableStatement = mysqlClient.findCreateTableStatement(databaseConnectionInfo, schemaName, tableName);
+        String createTableStatement = mysqlClient.findCreateTableStatement(backOfficeDatabaseConnectionInfo, schemaName, tableName);
 
         // then
         assertNotNull(createTableStatement);
@@ -139,7 +140,7 @@ public class MysqlClientTest {
         assertTrue(createTableStatement.contains(tableName));
 
         // cleanup
-        mysqlClient.executeSQL(databaseConnectionInfo, "DROP TABLE test_schema.test_table");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE test_schema.test_table");
     }
 
     @DisplayName("findTableStatus 메서드로 테이블 상태를 조회할 수 있다.")
@@ -149,7 +150,7 @@ public class MysqlClientTest {
         String tableName = "test_table";
 
         // when
-        TableStatus tableStatus = mysqlClient.findTableStatus(databaseConnectionInfo, schemaName, tableName);
+        TableStatus tableStatus = mysqlClient.findTableStatus(backOfficeDatabaseConnectionInfo, schemaName, tableName);
 
         // then
         assertNotNull(tableStatus);
@@ -170,7 +171,7 @@ public class MysqlClientTest {
         String tableName = "test_table";
 
         // when
-        List<Constraint> indexes = mysqlClient.findIndexes(databaseConnectionInfo, schemaName, tableName);
+        List<Constraint> indexes = mysqlClient.findIndexes(backOfficeDatabaseConnectionInfo, schemaName, tableName);
 
         // then
         assertNotNull(indexes);
@@ -191,7 +192,7 @@ public class MysqlClientTest {
         String columnName = "name";
 
         // when
-        Optional<Column> columnOptional = mysqlClient.findColumn(databaseConnectionInfo, schemaName, tableName, columnName);
+        Optional<Column> columnOptional = mysqlClient.findColumn(backOfficeDatabaseConnectionInfo, schemaName, tableName, columnName);
 
         // then
         assertTrue(columnOptional.isPresent());
@@ -217,7 +218,7 @@ public class MysqlClientTest {
         ExecutorService executorService2 = Executors.newSingleThreadExecutor();
 
         Future<?> holderFuture = executorService1.submit(() -> {
-            try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+            try (Connection connection = DriverManager.getConnection(backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
                  Statement statement = connection.createStatement()) {
                 statement.execute("start transaction");
                 statement.execute(metadataHolderSQL);
@@ -229,7 +230,7 @@ public class MysqlClientTest {
 
         Future<?> alterFuture = executorService2.submit(() -> {
             try (Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                    backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
                  Statement statement = connection.createStatement()) {
                 statement.execute("ALTER TABLE test_schema.test_table ADD INDEX test_index(id, name)");
             } catch (Exception e) {
@@ -239,7 +240,7 @@ public class MysqlClientTest {
         Thread.sleep(1000);
 
         // when
-        List<MetadataLockHolder> metadataLockHolders = mysqlClient.findMetadataLockHolders(databaseConnectionInfo);
+        List<MetadataLockHolder> metadataLockHolders = mysqlClient.findMetadataLockHolders(backOfficeDatabaseConnectionInfo);
 
         // then
         assertThat(metadataLockHolders.isEmpty()).isFalse();
@@ -253,7 +254,7 @@ public class MysqlClientTest {
         //given
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         Future<?> longQueryFuture = executorService.submit(() -> {
-            try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+            try (Connection connection = DriverManager.getConnection(backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
                  Statement statement = connection.createStatement()) {
                 statement.execute("select * from test_schema.test_table where sleep(5)=0 limit 1");
             } catch (Exception e) {
@@ -261,14 +262,14 @@ public class MysqlClientTest {
             }
         });
         Thread.sleep(1000);
-        MysqlProcess longQuery = mysqlClient.findLongQueries(databaseConnectionInfo, 1).get(0);
+        MysqlProcess longQuery = mysqlClient.findLongQueries(backOfficeDatabaseConnectionInfo, 1).get(0);
         long longQuerySessionId = longQuery.getId();
 
         //when
-        mysqlClient.killSession(databaseConnectionInfo, longQuerySessionId);
+        mysqlClient.killSession(backOfficeDatabaseConnectionInfo, longQuerySessionId);
 
         //then
-        assertThat(mysqlClient.findLongQueries(databaseConnectionInfo, 1)).isEmpty();
+        assertThat(mysqlClient.findLongQueries(backOfficeDatabaseConnectionInfo, 1)).isEmpty();
     }
 
     @DisplayName("findDDLExecutingSession으로 DDL 실행중인 세션을 조회할 수 있다.")
@@ -282,7 +283,7 @@ public class MysqlClientTest {
         ExecutorService executorService2 = Executors.newSingleThreadExecutor();
 
         Future<?> holderFuture = executorService1.submit(() -> {
-            try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+            try (Connection connection = DriverManager.getConnection(backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
                  Statement statement = connection.createStatement()) {
                 statement.execute("start transaction");
                 statement.execute(metadataHolderSQL);
@@ -294,7 +295,7 @@ public class MysqlClientTest {
 
         Future<?> alterFuture = executorService2.submit(() -> {
             try (Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                    backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
                  Statement statement = connection.createStatement()) {
                 statement.execute("ALTER TABLE test_schema.test_table ADD INDEX test_index(id, name)");
             } catch (Exception e) {
@@ -304,7 +305,7 @@ public class MysqlClientTest {
         Thread.sleep(1000);
 
         // when
-        Optional<MysqlProcess> ddlExecutingSession = mysqlClient.findDDLExecutingSession(databaseConnectionInfo);
+        Optional<MysqlProcess> ddlExecutingSession = mysqlClient.findDDLExecutingSession(backOfficeDatabaseConnectionInfo);
 
         // then
         assertThat(ddlExecutingSession.isPresent()).isTrue();
