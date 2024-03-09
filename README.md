@@ -174,6 +174,7 @@
   - 해당 롤에 rds, secret manager, cloudwatch 권한 필요
 - Database credential 은 aws Secret Manager에 등록 필요
   - postfix 는 `-db-credential` 로 지정
+- schema.sql 스크립트 미리 수행
 
 ## API 명세
 - 
