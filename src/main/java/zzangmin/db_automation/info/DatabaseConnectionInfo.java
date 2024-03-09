@@ -19,17 +19,7 @@ public class DatabaseConnectionInfo {
     private String password;
 
 
-    public DatabaseConnectionInfo getApplicationDatabaseConnectionInfo(
-            @Value("${spring.datasource.driver-class-name}") String driverClassName,
-            @Value("${spring.datasource.url}") String url,
-            @Value("${spring.datasource.usernam}") String username,
-            @Value("${spring.datasource.password}") String password) {
-        this.databaseName = null;
-        this.driverClassName = driverClassName;
-        this.url = url;
-        this.username = username;
-        this.password = password;
-    }
+
 
     public String databaseSummary() {
         return this.databaseName + " (" + this.url + ")\n";
