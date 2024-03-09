@@ -2,6 +2,7 @@ package zzangmin.db_automation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.*;
@@ -67,12 +68,21 @@ public class AwsService {
     }
 
     public String findRdsPassword(String databaseIdentifier) {
+        String password;
         SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient();
         GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
                 .secretId(databaseIdentifier + DB_CREDENTIAL_POSTPIX)
                 .build();
         GetSecretValueResponse valueResponse = secretManagerClient.getSecretValue(valueRequest);
-        return valueResponse.secretString();
+
+        try {
+            password = new JSONObject(valueResponse.secretString())
+                    .getString("password");
+        } catch (Exception e) {
+            throw new IllegalStateException("rds password fetch failed");
+        }
+
+        return password;
     }
 
     public Map<String, Double> findRdsPeakCpuAndMemoryUsage(String databaseIdentifier) {
@@ -321,10 +331,11 @@ public class AwsService {
             log.info("dbInstance: {}", dbInstance);
             List<String> readReplicaDBInstanceIdentifiers = dbInstance.readReplicaDBInstanceIdentifiers();
             if (!readReplicaDBInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier())
-                    && dbInstance.dbClusterIdentifier().equals(databaseIdentifier)) {
+                    && dbInstance.dbInstanceIdentifier().startsWith(databaseIdentifier)) {
                 return dbInstance.dbiResourceId();
             }
         }
+        // dbInstance.dbClusterIdentifier().equals(databaseIdentifier)
         throw new IllegalStateException("Writer DbiResourceId not found");
     }
 
