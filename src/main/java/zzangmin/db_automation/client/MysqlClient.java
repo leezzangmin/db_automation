@@ -101,18 +101,43 @@ public class MysqlClient {
         return longQueries;
     }
 
+    public String findCreateDatabaseStatement(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SHOW CREATE DATABASE `" + schemaName + "`";
+        String createDatabaseStatement = "";
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(),
+                databaseConnectionInfo.getUsername(),
+                databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL);
+             ResultSet rs = statement.executeQuery()) {
+
+            log.info("findCreateDatabaseStatement: {}", statement);
+
+            if (rs.next()) {
+                createDatabaseStatement = rs.getString(2);
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return createDatabaseStatement;
+    }
+
     public String findCreateTableStatement(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
         String SQL = "SHOW CREATE TABLE `" + schemaName + "`.`" + tableName + "`";
         String createTableStatement = "";
-        try {
-            Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
-            try (PreparedStatement statement = connection.prepareStatement(SQL);
-                 ResultSet rs = statement.executeQuery()) {
-                log.info("findCreateTableStatement: {}", statement);
-                if (rs.next()) {
-                    createTableStatement = rs.getString(2);
-                }
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(),
+                databaseConnectionInfo.getUsername(),
+                databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL);
+             ResultSet rs = statement.executeQuery()) {
+
+            log.info("findCreateTableStatement: {}", statement);
+
+            if (rs.next()) {
+                createTableStatement = rs.getString(2);
             }
         } catch (SQLException e) {
             throw new RuntimeException(e.getMessage());
