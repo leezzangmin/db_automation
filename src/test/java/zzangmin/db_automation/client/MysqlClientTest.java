@@ -139,8 +139,21 @@ public class MysqlClientTest {
         assertTrue(createTableStatement.startsWith("CREATE TABLE"));
         assertTrue(createTableStatement.contains(tableName));
 
-        // cleanup
-        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE test_schema.test_table");
+    }
+
+    @DisplayName("findCreateDatabaseStatement으로 database 생성문을 조회할 수 있다.")
+    @Test
+    void testFindCreateDatabaseStatement() {
+        // given
+        String schemaName = "test_schema";
+
+        //when
+        String createDatabaseStatement = mysqlClient.findCreateDatabaseStatement(backOfficeDatabaseConnectionInfo, schemaName);
+
+        //then
+        assertNotNull(createDatabaseStatement);
+        assertTrue(createDatabaseStatement.startsWith("CREATE DATABASE"));
+        assertTrue(createDatabaseStatement.contains(schemaName));
     }
 
     @DisplayName("findTableStatus 메서드로 테이블 상태를 조회할 수 있다.")
@@ -312,4 +325,6 @@ public class MysqlClientTest {
         assertThat(ddlExecutingSession.get().getInfo()).isEqualTo(alterSQL);
 
     }
+
+
 }
