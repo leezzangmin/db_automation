@@ -148,13 +148,29 @@ public class MysqlClientTest {
         String schemaName = "test_schema";
 
         //when
-        String createDatabaseStatement = mysqlClient.findCreateDatabaseStatement(backOfficeDatabaseConnectionInfo, schemaName);
+        Optional<String> createDatabaseStatementOptional = mysqlClient.findCreateDatabaseStatement(backOfficeDatabaseConnectionInfo, schemaName);
 
         //then
+        String createDatabaseStatement = createDatabaseStatementOptional.get();
         assertNotNull(createDatabaseStatement);
         assertTrue(createDatabaseStatement.startsWith("CREATE DATABASE"));
         assertTrue(createDatabaseStatement.contains(schemaName));
     }
+
+    @DisplayName("findCreateDatabaseStatement 으로 존재하지 않는 database를 조회하면 Optional empty를 반환한다")
+    @Test
+    void testOptionalFindCreateDatabaseStatement() {
+        // given
+        String schemaName = "no_exists_database";
+
+        //when
+        Optional<String> createDatabaseStatementOptional = mysqlClient.findCreateDatabaseStatement(backOfficeDatabaseConnectionInfo, schemaName);
+
+        //then
+
+        assertThat(createDatabaseStatementOptional).isEqualTo(Optional.empty());
+    }
+
 
     @DisplayName("findTableStatus 메서드로 테이블 상태를 조회할 수 있다.")
     @Test
