@@ -1,9 +1,10 @@
-package zzangmin.db_automation.info;
+package zzangmin.db_automation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.beans.factory.annotation.Value;
 
 @ToString
 @Getter
@@ -17,7 +18,12 @@ public class DatabaseConnectionInfo {
     private String username;
     private String password;
 
+
+
+
     public String databaseSummary() {
         return this.databaseName + " (" + this.url + ")\n";
     }
+
+
 }

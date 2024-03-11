@@ -13,7 +13,7 @@ public class ExecutableTimeInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         LocalTime currentTime = LocalTime.now();
-        LocalTime startTime = LocalTime.of(01, 0);
+        LocalTime startTime = LocalTime.of(00, 0);
         LocalTime endTime = LocalTime.of(23, 59);
 
         if (currentTime.isBefore(startTime) || currentTime.isAfter(endTime)) {

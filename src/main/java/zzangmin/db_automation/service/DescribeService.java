@@ -10,7 +10,7 @@ import zzangmin.db_automation.dto.response.*;
 import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO.TableInfo;
 import zzangmin.db_automation.entity.ChangeHistory;
 import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.repository.ChangeHistoryRepository;
 
 import java.util.*;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class DescribeService {
 
-    public static final List<String> schemaBlackList = List.of("information_schema", "mysql", "performance_schema", "sys");
+    public static final List<String> schemaBlackList = List.of("information_schema", "mysql", "performance_schema", "sys", "dba");
 
     private final AwsService awsService;
     private final MysqlClient mysqlClient;

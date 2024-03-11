@@ -1,13 +1,12 @@
 package zzangmin.db_automation.schedule.standardcheck;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.SlackClient;
 
 @RequiredArgsConstructor
 @Component
-public class StandardChecker {
+public class StandardMonitor {
 
     private final ClusterCreationStandardChecker clusterCreationStandardChecker;
     private final InstanceCreationStandardChecker instanceCreationStandardChecker;

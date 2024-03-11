@@ -9,10 +9,9 @@ import zzangmin.db_automation.convention.IndexConvention;
 import zzangmin.db_automation.convention.TableConvention;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.*;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -149,7 +148,7 @@ public class DDLValidator {
 
     private void validateIsLongQueryExists(DatabaseConnectionInfo databaseConnectionInfo) {
         List<MysqlProcess> longQueries = mysqlClient.findLongQueries(databaseConnectionInfo, LONG_QUERY_SECONDS_THRESHOLD);
-        System.out.println("longQueries = " + longQueries);
+        log.info("longQueries = " + longQueries);
         if (longQueries.size() != 0) {
             throw new IllegalStateException("실행중인 long query 가 존재합니다.");
         }

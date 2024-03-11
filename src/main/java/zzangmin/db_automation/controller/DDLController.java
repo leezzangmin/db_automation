@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import zzangmin.db_automation.argumentresolver.TargetDatabase;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.dto.response.*;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.ChangeHistoryService;
 import zzangmin.db_automation.service.DDLService;
 import zzangmin.db_automation.validator.DDLValidator;

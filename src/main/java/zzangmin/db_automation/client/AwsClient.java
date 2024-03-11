@@ -8,7 +8,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.pi.PiClient;
-import software.amazon.awssdk.services.ssm.SsmClient;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 
 
 @Component
@@ -28,13 +28,13 @@ public class AwsClient {
     }
 
     @Bean
-    public SsmClient getSsmClient() {
-        SsmClient ssmClient = SsmClient.builder()
+    public SecretsManagerClient getSecretManagerClient() {
+        SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
                 .credentialsProvider(awsCredentialsProvider)
                 .region(defaultRegion)
                 .build();
 
-        return ssmClient;
+        return secretsManagerClient;
     }
 
     @Bean

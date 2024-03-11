@@ -1,7 +1,6 @@
 package zzangmin.db_automation.client;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -14,9 +13,7 @@ import org.springframework.http.HttpHeaders;
 @Component
 public class SlackClient {
 
-    @Value("${SLACK_WEBHOOK_URL}")
-    private String slackWebhookUrl;
-
+    private final static String slackWebhookUrl = System.getenv("SLACK_WEBHOOK_URL");
     private final RestTemplate restTemplate;
 
     public void sendMessage(String message) {

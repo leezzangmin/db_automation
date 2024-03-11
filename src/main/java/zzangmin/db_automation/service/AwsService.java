@@ -2,6 +2,7 @@ package zzangmin.db_automation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.*;
@@ -11,9 +12,9 @@ import software.amazon.awssdk.services.pi.model.GetResourceMetricsResponse;
 import software.amazon.awssdk.services.pi.model.MetricQuery;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.*;
-import software.amazon.awssdk.services.ssm.SsmClient;
-import software.amazon.awssdk.services.ssm.model.GetParameterRequest;
-import software.amazon.awssdk.services.ssm.model.GetParameterResponse;
+import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
+import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import zzangmin.db_automation.client.AwsClient;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.ParameterGroupStandard;
 
@@ -34,6 +35,7 @@ public class AwsService {
     private static final int DURATION_MINUTE = 5;
     private static final int PERIOD_SECONDS = 60 * DURATION_MINUTE;
     private static final String RDS_SERVICE_TYPE = "RDS";
+    private static final String DB_CREDENTIAL_POSTPIX = "-db-credential";
 
     public List<String> findParameterGroupNames() {
         List<String> clusterParameterGroupNames = new ArrayList<>();
@@ -66,13 +68,21 @@ public class AwsService {
     }
 
     public String findRdsPassword(String databaseIdentifier) {
-        SsmClient ssmClient = awsClient.getSsmClient();
-        GetParameterRequest parameterRequest = GetParameterRequest.builder()
-                .name(databaseIdentifier + "-password")
-                .withDecryption(true)
+        String password;
+        SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient();
+        GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
+                .secretId(databaseIdentifier + DB_CREDENTIAL_POSTPIX)
                 .build();
-        GetParameterResponse parameterResponse = ssmClient.getParameter(parameterRequest);
-        return parameterResponse.parameter().value();
+        GetSecretValueResponse valueResponse = secretManagerClient.getSecretValue(valueRequest);
+
+        try {
+            password = new JSONObject(valueResponse.secretString())
+                    .getString("password");
+        } catch (Exception e) {
+            throw new IllegalStateException("rds password fetch failed");
+        }
+
+        return password;
     }
 
     public Map<String, Double> findRdsPeakCpuAndMemoryUsage(String databaseIdentifier) {
@@ -149,8 +159,8 @@ public class AwsService {
         Instant startTime = endTime.minus(Duration.ofMinutes(DURATION_MINUTE));
 
         // TODO: 프리티어에서는 performance insights 사용 불가능, (DbiResourceId 로 변경)
-         GetResourceMetricsRequest piRequest = generateAverageActiveSessionsRequest(findWriterInstanceDbiResourceId(databaseIdentifiers));
-         GetResourceMetricsResponse getResourceMetricsResponse = performanceInsightClient.getResourceMetrics(piRequest);
+        GetResourceMetricsRequest piRequest = generateAverageActiveSessionsRequest(findWriterInstanceDbiResourceId(databaseIdentifiers));
+        GetResourceMetricsResponse getResourceMetricsResponse = performanceInsightClient.getResourceMetrics(piRequest);
         Double averageActiveSession = getResourceMetricsResponse.metricList().get(0).dataPoints().get(0).value();
 
 
@@ -314,13 +324,18 @@ public class AwsService {
     }
 
     private String findWriterInstanceDbiResourceId(String databaseIdentifier) {
-        DescribeDbInstancesResponse instancesResponse = awsClient.getRdsClient().describeDBInstances();
+        log.info("databaseIdentifier: {}", databaseIdentifier);
+        DescribeDbInstancesResponse instancesResponse = awsClient.getRdsClient()
+                .describeDBInstances();
         for (DBInstance dbInstance : instancesResponse.dbInstances()) {
+            log.info("dbInstance: {}", dbInstance);
             List<String> readReplicaDBInstanceIdentifiers = dbInstance.readReplicaDBInstanceIdentifiers();
-            if (!readReplicaDBInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier()) && dbInstance.dbClusterIdentifier().equals(databaseIdentifier)) {
+            if (!readReplicaDBInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier())
+                    && dbInstance.dbInstanceIdentifier().startsWith(databaseIdentifier)) {
                 return dbInstance.dbiResourceId();
             }
         }
+        // dbInstance.dbClusterIdentifier().equals(databaseIdentifier)
         throw new IllegalStateException("Writer DbiResourceId not found");
     }
 
