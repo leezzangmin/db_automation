@@ -168,6 +168,7 @@
 - Slack
 
 ## 실행 방법
+- npm 설치 (node.js 설치)
 - 환경변수에 `SLACK_WEBHOOK_URL` 설정
 - application.properties 파일에 inhouse용 DB 접속 정보 기재 필요
 - 실행하는 환경에서 aws configure 사전 수행 필요
