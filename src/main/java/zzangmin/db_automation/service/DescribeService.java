@@ -26,7 +26,6 @@ public class DescribeService {
     private final AwsService awsService;
     private final MysqlClient mysqlClient;
     private final ChangeHistoryRepository changeHistoryRepository;
-    private final DynamicDataSourceProperties dynamicDataSourceProperties;
 
     public RdsClustersResponseDTO findClustersInfo() {
         DescribeDbClustersResponse allClusterInfo = awsService.findAllClusterInfo();
@@ -57,7 +56,7 @@ public class DescribeService {
     }
 
     public DBMSNamesResponseDTO findDBMSNames() {
-        List<String> dbmsNames = dynamicDataSourceProperties.getDatabases()
+        List<String> dbmsNames = DynamicDataSourceProperties.getDatabases()
                 .keySet()
                 .stream()
                 .collect(Collectors.toList());
