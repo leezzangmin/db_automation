@@ -101,7 +101,7 @@ public class MysqlClient {
         return longQueries;
     }
 
-    public String findCreateDatabaseStatement(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+    public Optional<String> findCreateDatabaseStatement(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         String SQL = "SHOW CREATE DATABASE `" + schemaName + "`";
         String createDatabaseStatement = "";
 
@@ -118,9 +118,9 @@ public class MysqlClient {
                 createDatabaseStatement = rs.getString(2);
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e.getMessage());
+            return Optional.empty();
         }
-        return createDatabaseStatement;
+        return Optional.of(createDatabaseStatement);
     }
 
     public String findCreateTableStatement(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
