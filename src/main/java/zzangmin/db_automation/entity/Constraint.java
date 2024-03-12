@@ -25,7 +25,7 @@ public class Constraint {
     }
 
 
-    public String compare(Constraint otherConstraint) {
+    public String reportDifference(Constraint otherConstraint) {
         StringBuilder differences = new StringBuilder();
         if (!this.type.equals(otherConstraint.type)) {
             differences.append(String.format("제약조건 타입이 다릅니다: %s <-> %s%n", this.type, otherConstraint.type));
