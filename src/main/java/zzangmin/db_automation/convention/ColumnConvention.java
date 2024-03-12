@@ -1,30 +1,27 @@
 package zzangmin.db_automation.convention;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+
 import zzangmin.db_automation.entity.Column;
 
 import static zzangmin.db_automation.convention.CommonConvention.*;
 
-@RequiredArgsConstructor
-@Component
+
 public class ColumnConvention {
 
-    private final CommonConvention commonConvention;
     private final static int SWITCH_STANDARD_BYTE = 255;
 
-    public void validateColumnConvention(Column column) {
+    public static void validateColumnConvention(Column column) {
         validateColumnNamingConvention(column.getName());
         validateColumnOption(column);
         checkColumnCommentExistConvention(column.getName(), column.getComment());
     }
 
-    public void validateColumnNamingConvention(String columnName) {
-        commonConvention.validateSnakeCase(columnName);
-        commonConvention.validateLowerCaseString(columnName);
+    public static void validateColumnNamingConvention(String columnName) {
+        CommonConvention.validateSnakeCase(columnName);
+        CommonConvention.validateLowerCaseString(columnName);
     }
 
-    public void validateExtendVarcharConvention(Column column, int futureLength) {
+    public static void validateExtendVarcharConvention(Column column, int futureLength) {
         // 255 바이트 기준으로 1byte -> 2byte
         int currentLength = column.injectVarcharLength();
         int currentByte = BYTE_PER_CHARACTER * currentLength;
@@ -40,7 +37,7 @@ public class ColumnConvention {
         }
     }
 
-    private void validateColumnOption(Column column) {
+    private static void validateColumnOption(Column column) {
         if (column.getType().startsWith("varchar") || column.getType().startsWith("VARCHAR")) {
             column.injectVarcharLength();
         }
@@ -52,7 +49,7 @@ public class ColumnConvention {
         }
     }
 
-    private void checkColumnCommentExistConvention(String columnName, String columnComment) {
+    private static void checkColumnCommentExistConvention(String columnName, String columnComment) {
         if (columnComment.isBlank() || columnComment.isEmpty()) {
             throw new IllegalArgumentException(columnName + " 의 코멘트가 존재하지 않습니다.");
         }

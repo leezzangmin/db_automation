@@ -13,8 +13,7 @@ import java.util.Set;
 
 import static zzangmin.db_automation.convention.CommonConvention.*;
 
-@RequiredArgsConstructor
-@Component
+
 public class TableConvention {
 
     /**
@@ -23,39 +22,35 @@ public class TableConvention {
      * 2. 테이블 생성 컨벤션 (engine charset, comment 등)
      */
 
-    private final CommonConvention commonConvention;
-    private final IndexConvention indexConvention;
-    private final ColumnConvention columnConvention;
-
-    public void validateTableConvention(Table table) {
+    public static void validateTableConvention(Table table) {
         checkDuplicateColumnAndConstraintConvention(table.getColumns(), table.getConstraints());
         checkNamingConvention(table.getColumns(), table.getConstraints(), table.getTableName());
         checkTableOptionConvention(table.getTableEngine(), table.getTableCharset(), table.getTableCollate(), table.getTableComment());
         for (Column column : table.getColumns()) {
-            columnConvention.validateColumnConvention(column);
+            ColumnConvention.validateColumnConvention(column);
         }
         for (Constraint constraint : table.getConstraints()) {
-            indexConvention.validateIndexConvention(constraint);
+            IndexConvention.validateIndexConvention(constraint);
         }
     }
 
-    private void checkNamingConvention(List<Column> columns, List<Constraint> constraints, String tableName) {
-        commonConvention.validateSnakeCase(tableName);
-        commonConvention.validateLowerCaseString(tableName);
+    private static void checkNamingConvention(List<Column> columns, List<Constraint> constraints, String tableName) {
+        CommonConvention.validateSnakeCase(tableName);
+        CommonConvention.validateLowerCaseString(tableName);
         for (Column column : columns) {
-            commonConvention.validateSnakeCase(column.getName());
-            commonConvention.validateLowerCaseString(column.getName());
+            CommonConvention.validateSnakeCase(column.getName());
+            CommonConvention.validateLowerCaseString(column.getName());
         }
         for (Constraint constraint : constraints) {
             if (constraint.getType().equals("PRIMARY KEY")) {
                 continue;
             }
-            commonConvention.validateSnakeCase(constraint.getKeyName());
-            commonConvention.validateLowerCaseString(constraint.getKeyName());
+            CommonConvention.validateSnakeCase(constraint.getKeyName());
+            CommonConvention.validateLowerCaseString(constraint.getKeyName());
         }
     }
 
-    private void checkDuplicateColumnAndConstraintConvention(List<Column> columns, List<Constraint> constraints) {
+    private static void checkDuplicateColumnAndConstraintConvention(List<Column> columns, List<Constraint> constraints) {
         Set<String> columnNames = new HashSet<>();
         for (Column column : columns) {
             String columnName = column.getName();
@@ -75,7 +70,7 @@ public class TableConvention {
         }
     }
 
-    private void checkTableOptionConvention(String tableEngine, String tableCharset, String tableCollate, String tableComment) {
+    private static void checkTableOptionConvention(String tableEngine, String tableCharset, String tableCollate, String tableComment) {
         if (!tableEngine.equals(ENGINE_TYPE)) {
             throw new IllegalArgumentException("테이블 엔진은 다음과 같아야합니다: " + ENGINE_TYPE);
         }

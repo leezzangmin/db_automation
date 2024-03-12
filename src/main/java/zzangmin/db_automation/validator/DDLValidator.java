@@ -20,11 +20,9 @@ public class DDLValidator {
 
     private static final int LONG_QUERY_SECONDS_THRESHOLD = 3;
     private final MysqlClient mysqlClient;
-    private final TableConvention tableConvention;
-    private final IndexConvention indexConvention;
     private final RdsMetricValidator rdsMetricValidator;
     private final TableStatusValidator tableStatusValidator;
-    private final ColumnConvention columnConvention;
+
 
     public void validateDDLRequest(DatabaseConnectionInfo databaseConnectionInfo, DDLRequestDTO ddlRequestDTO) {
         if (ddlRequestDTO.getCommandType().equals(CommandType.ADD_COLUMN)) {
@@ -56,7 +54,7 @@ public class DDLValidator {
     }
 
     public void validateAlterColumn(DatabaseConnectionInfo databaseConnectionInfo, AlterColumnRequestDTO alterColumnRequestDTO) {
-        columnConvention.validateColumnConvention(alterColumnRequestDTO.getAfterColumn());
+        ColumnConvention.validateColumnConvention(alterColumnRequestDTO.getAfterColumn());
         validateIsSchemaExists(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
@@ -66,14 +64,14 @@ public class DDLValidator {
 
     public void validateAddColumn(DatabaseConnectionInfo databaseConnectionInfo, AddColumnRequestDTO addColumnRequestDTO) {
         validateAddColumnHasAutoIncrementOption(addColumnRequestDTO.getColumn());
-        columnConvention.validateColumnConvention(addColumnRequestDTO.getColumn());
+        ColumnConvention.validateColumnConvention(addColumnRequestDTO.getColumn());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, addColumnRequestDTO.getSchemaName(), addColumnRequestDTO.getTableName());
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
     public void validateCreateIndex(DatabaseConnectionInfo databaseConnectionInfo, CreateIndexRequestDTO createIndexRequestDTO) {
-        indexConvention.validateIndexConvention(createIndexRequestDTO.toConstraint());
+        IndexConvention.validateIndexConvention(createIndexRequestDTO.toConstraint());
         validateIsSchemaExists(databaseConnectionInfo, createIndexRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
         validateIsIndexExists(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName(), createIndexRequestDTO.getColumnNames());
@@ -86,7 +84,7 @@ public class DDLValidator {
     public void validateExtendVarchar(DatabaseConnectionInfo databaseConnectionInfo, ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO) {
         Column column = mysqlClient.findColumn(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName(), extendVarcharColumnRequestDTO.getTargetColumnName())
                 .orElseThrow(() -> new IllegalArgumentException("컬럼 정보를 불러올 수 없습니다. 존재하지 않는 컬럼명: "+ extendVarcharColumnRequestDTO.getTargetColumnName()));
-        columnConvention.validateExtendVarcharConvention(column, extendVarcharColumnRequestDTO.getExtendSize());
+        ColumnConvention.validateExtendVarcharConvention(column, extendVarcharColumnRequestDTO.getExtendSize());
         validateIsSchemaExists(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
@@ -95,7 +93,7 @@ public class DDLValidator {
 
     public void validateCreateTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) {
         Table table = new Table(createTableRequestDTO.getTableName(), createTableRequestDTO.getColumns(), createTableRequestDTO.getConstraints(), createTableRequestDTO.getEngine(), createTableRequestDTO.getCharset(), createTableRequestDTO.getCollate(), createTableRequestDTO.getTableComment());
-        tableConvention.validateTableConvention(table);
+        TableConvention.validateTableConvention(table);
         validateIsSchemaExists(databaseConnectionInfo, createTableRequestDTO.getSchemaName());
         validateIsNotExistTableName(databaseConnectionInfo, createTableRequestDTO.getSchemaName(), createTableRequestDTO.getTableName());
         rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
@@ -111,7 +109,7 @@ public class DDLValidator {
     }
 
     public void validateRenameColumn(DatabaseConnectionInfo databaseConnectionInfo, RenameColumnRequestDTO ddlRequestDTO) {
-        columnConvention.validateColumnNamingConvention(ddlRequestDTO.getAfterColumnName());
+        ColumnConvention.validateColumnNamingConvention(ddlRequestDTO.getAfterColumnName());
         validateIsSchemaExists(databaseConnectionInfo, ddlRequestDTO.getSchemaName());
         validateIsExistColumnName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), ddlRequestDTO.getBeforeColumnName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName());
