@@ -42,8 +42,7 @@ public class TableDifferenceChecker {
 
             for (String sourceTableName : sourceTables.keySet()) {
                 Table sourceTable = sourceTables.get(sourceTableName);
-                Table replicaTable = replicaTables.get(sourceTableName);
-
+                Table replicaTable = replicaTables.getOrDefault(sourceTableName, null);
                 differenceResult.append(sourceTable.reportDifference(replicaTable));
             }
         }
