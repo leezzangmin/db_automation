@@ -83,7 +83,7 @@ public class Column {
         this.type = type;
     }
 
-    public String compare(Column other) {
+    public String reportDifference(Column other) {
         StringBuilder differences = new StringBuilder();
 
         if (!this.type.equals(other.type)) {
