@@ -1,4 +1,4 @@
-package zzangmin.db_automation;
+package zzangmin.db_automation.testfactory;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

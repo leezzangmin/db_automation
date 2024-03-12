@@ -12,4 +12,12 @@ public class StringMessageUtil {
         differenceResult.append("\n");
         return differenceResult.toString();
     }
+
+    public static String convertTableDifferenceMessage() {
+        StringBuilder differenceResult = new StringBuilder();
+
+
+
+        return differenceResult.toString();
+    }
 }

@@ -25,7 +25,7 @@ public class LongTransactionDetector {
     private final MysqlClient mysqlClient;
     private final SlackClient slackClient;
 
-    @Scheduled(fixedDelay = TRANSACTION_SEARCH_DELAY)
+    //@Scheduled(fixedDelay = TRANSACTION_SEARCH_DELAY)
     public void findLongTransaction() {
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
         for (String databaseName : databases.keySet()) {

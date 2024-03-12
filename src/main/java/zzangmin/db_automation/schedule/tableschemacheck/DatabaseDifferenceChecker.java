@@ -20,29 +20,29 @@ public class DatabaseDifferenceChecker {
     private final MysqlClient mysqlClient;
 
 
-    public String compareDatabase(DatabaseConnectionInfo prodInfo, DatabaseConnectionInfo stageInfo) {
+    public String compareDatabase(DatabaseConnectionInfo sourceInfo, DatabaseConnectionInfo replicaInfo) {
         StringBuilder differenceResult = new StringBuilder();
 
-        Map<String, String> prodSchemaCreateStatements = mysqlClient.findSchemaNames(prodInfo)
+        Map<String, String> sourceSchemaCreateStatements = mysqlClient.findSchemaNames(sourceInfo)
                 .stream()
                 .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
                 .collect(Collectors.toMap(
                         schemaName -> schemaName,
-                        schemaName -> mysqlClient.findCreateDatabaseStatement(prodInfo, schemaName).get()));
+                        schemaName -> mysqlClient.findCreateDatabaseStatement(sourceInfo, schemaName).get()));
 
-        Map<String, String> stageSchemaCreateStatements = mysqlClient.findSchemaNames(stageInfo)
+        Map<String, String> stageSchemaCreateStatements = mysqlClient.findSchemaNames(replicaInfo)
                 .stream()
                 .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
                 .collect(Collectors.toMap(
                         schemaName -> schemaName,
-                        schemaName -> mysqlClient.findCreateDatabaseStatement(stageInfo, schemaName).get()));
+                        schemaName -> mysqlClient.findCreateDatabaseStatement(replicaInfo, schemaName).get()));
 
-        for (String prodSchemaName : prodSchemaCreateStatements.keySet()) {
-            String prodStatement = prodSchemaCreateStatements.get(prodSchemaName);
-            String stageStatement = stageSchemaCreateStatements.get(prodSchemaName);
+        for (String sourceSchemaName : sourceSchemaCreateStatements.keySet()) {
+            String sourceStatement = sourceSchemaCreateStatements.get(sourceSchemaName);
+            String replicaStatement = stageSchemaCreateStatements.get(sourceSchemaName);
 
-            if (!prodStatement.equals(stageStatement)) {
-                differenceResult.append(StringMessageUtil.convertCreateDatabaseDifferenceMessage(prodSchemaName, prodStatement, stageStatement));
+            if (!sourceStatement.equals(replicaStatement)) {
+                differenceResult.append(StringMessageUtil.convertCreateDatabaseDifferenceMessage(sourceSchemaName, sourceStatement, replicaStatement));
             }
         }
 
