@@ -38,6 +38,12 @@ public class Table {
 
     public String reportDifference(Table otherTable) {
         StringBuilder differences = new StringBuilder();
+
+        if (otherTable == null) {
+            differences.append(String.format("%s 테이블을 stage에서 찾을 수 없습니다.", this.tableName));
+            return differences.toString();
+        }
+
         if (!this.tableName.equals(otherTable.tableName)) {
             differences.append(String.format("테이블 이름이 다릅니다: %s <-> %s%n", this.tableName, otherTable.tableName));
         }
@@ -65,7 +71,7 @@ public class Table {
             for (Column otherColumn : otherTable.columns) {
                 if (column.getName().equals(otherColumn.getName())) {
                     found = true;
-                    String columnDifferences = column.compare(otherColumn);
+                    String columnDifferences = column.reportDifference(otherColumn);
                     if (!columnDifferences.isEmpty()) {
                         differences.append(String.format("컬럼 [%s] 차이점: %s%n", column.getName(), columnDifferences));
                     }
@@ -82,7 +88,7 @@ public class Table {
             for (Constraint otherConstraint : otherTable.constraints) {
                 if (constraint.getKeyName().equals(otherConstraint.getKeyName())) {
                     found = true;
-                    String constraintDifferences = constraint.compare(otherConstraint);
+                    String constraintDifferences = constraint.reportDifference(otherConstraint);
                     if (!constraintDifferences.isEmpty()) {
                         differences.append(String.format("제약조건 [%s] 차이점: %s%n", constraint.getKeyName(), constraintDifferences));
                     }
