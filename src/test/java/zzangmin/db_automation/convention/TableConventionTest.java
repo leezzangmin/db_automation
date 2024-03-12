@@ -13,11 +13,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
-class TableConventionTest {
 
-    @Autowired
-    private TableConvention tableConvention;
+class TableConventionTest {
 
     @DisplayName("table convention validation이 정상적으로 수행되어야 한다.")
     @Test
@@ -30,7 +27,7 @@ class TableConventionTest {
         Constraint constraint3 = new Constraint("KEY", "id_name", List.of("id_name"));
         Table table = new Table("table_name", List.of(column1, column2), List.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
-        Assertions.assertDoesNotThrow(() -> tableConvention.validateTableConvention(table));
+        Assertions.assertDoesNotThrow(() -> TableConvention.validateTableConvention(table));
 
     }
 
@@ -45,7 +42,7 @@ class TableConventionTest {
         Constraint constraint3 = new Constraint("KEY", "id_name", List.of("id_name"));
         Table table = new Table("NOTSNAKE123", List.of(column1, column2), List.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
-        Assertions.assertThrows(IllegalArgumentException.class, () -> tableConvention.validateTableConvention(table));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
 
     }
 
@@ -60,7 +57,7 @@ class TableConventionTest {
         Constraint constraint3 = new Constraint("KEY", "id_name", List.of("id_name"));
         Table table = new Table("test_table", List.of(column1, column2), List.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
-        Assertions.assertThrows(IllegalArgumentException.class, () -> tableConvention.validateTableConvention(table));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
 
     }
 
@@ -75,7 +72,7 @@ class TableConventionTest {
         Constraint constraint3 = new Constraint("KEY", "id_name", List.of("id_name"));
         Table table = new Table("test_table", List.of(column1, column2), List.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
-        Assertions.assertThrows(IllegalArgumentException.class, () -> tableConvention.validateTableConvention(table));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
 
     }
 
@@ -88,7 +85,7 @@ class TableConventionTest {
         Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
         Table table = new Table("NOTSNAKE123", List.of(column1, column2), List.of(constraint1), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
-        Assertions.assertThrows(IllegalArgumentException.class, () -> tableConvention.validateTableConvention(table));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
 
     }
 
@@ -106,10 +103,10 @@ class TableConventionTest {
         Table table3 = new Table("table_name", List.of(column1, column2), List.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "invalidCollate", "table comment");
         Table table4 = new Table("table_name", List.of(column1, column2), List.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", null);
         //when & then
-        Assertions.assertThrows(IllegalArgumentException.class, () -> tableConvention.validateTableConvention(table1));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> tableConvention.validateTableConvention(table2));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> tableConvention.validateTableConvention(table3));
-        Assertions.assertThrows(IllegalArgumentException.class, () -> tableConvention.validateTableConvention(table4));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table1));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table2));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table3));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table4));
 
     }
 }

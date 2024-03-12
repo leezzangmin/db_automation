@@ -9,11 +9,8 @@ import zzangmin.db_automation.entity.Column;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DisplayName("ColumnConvention 테스트")
-@SpringBootTest
 class ColumnConventionTest {
 
-    @Autowired
-    private ColumnConvention columnConvention;
 
     @Test
     @DisplayName("컬럼 컨벤션 검증")
@@ -32,7 +29,7 @@ class ColumnConventionTest {
                 .build();
 
         // When & Then
-        assertDoesNotThrow(() -> columnConvention.validateColumnConvention(column));
+        assertDoesNotThrow(() -> ColumnConvention.validateColumnConvention(column));
     }
 
     @Test
@@ -52,7 +49,7 @@ class ColumnConventionTest {
                 .build();
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> columnConvention.validateColumnConvention(column));
+        assertThrows(IllegalArgumentException.class, () -> ColumnConvention.validateColumnConvention(column));
     }
 
     @Test
@@ -62,7 +59,7 @@ class ColumnConventionTest {
         String columnName = "user_id";
 
         // When & Then
-        assertDoesNotThrow(() -> columnConvention.validateColumnNamingConvention(columnName));
+        assertDoesNotThrow(() -> ColumnConvention.validateColumnNamingConvention(columnName));
     }
 
     @Test
@@ -72,7 +69,7 @@ class ColumnConventionTest {
         String columnName = "123user_id";
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> columnConvention.validateColumnNamingConvention(columnName));
+        assertThrows(IllegalArgumentException.class, () -> ColumnConvention.validateColumnNamingConvention(columnName));
     }
 
 
@@ -94,7 +91,7 @@ class ColumnConventionTest {
         int futureLength = 150;
 
         // When & Then
-        assertDoesNotThrow(() -> columnConvention.validateExtendVarcharConvention(column, futureLength));
+        assertDoesNotThrow(() -> ColumnConvention.validateExtendVarcharConvention(column, futureLength));
     }
 
     @Test
@@ -115,7 +112,7 @@ class ColumnConventionTest {
         int futureLength = 256;
 
         // When & Then
-        assertThrows(IllegalArgumentException.class, () -> columnConvention.validateExtendVarcharConvention(column, futureLength));
+        assertThrows(IllegalArgumentException.class, () -> ColumnConvention.validateExtendVarcharConvention(column, futureLength));
     }
 
     @Test
@@ -136,7 +133,7 @@ class ColumnConventionTest {
 
         // When & Then
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> columnConvention.validateColumnConvention(column));
+                () -> ColumnConvention.validateColumnConvention(column));
         assertEquals("user_email 의 코멘트가 존재하지 않습니다.", exception.getMessage());
     }
 

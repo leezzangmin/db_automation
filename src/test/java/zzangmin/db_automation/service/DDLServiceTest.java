@@ -7,7 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import zzangmin.db_automation.DatabaseConnectionInfoFactory;
+import zzangmin.db_automation.testfactory.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;

@@ -7,9 +7,9 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.response.QueriesInLongTransactionResponseDTO;
 import zzangmin.db_automation.entity.Query;
-import zzangmin.db_automation.info.DatabaseConnectionInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class LongTransactionDetector {
     private final MysqlClient mysqlClient;
     private final SlackClient slackClient;
 
-    @Scheduled(fixedDelay = TRANSACTION_SEARCH_DELAY)
+    //@Scheduled(fixedDelay = TRANSACTION_SEARCH_DELAY)
     public void findLongTransaction() {
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
         for (String databaseName : databases.keySet()) {

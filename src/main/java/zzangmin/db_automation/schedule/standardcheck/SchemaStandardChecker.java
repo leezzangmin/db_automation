@@ -20,7 +20,7 @@ public class SchemaStandardChecker {
     private final AwsService awsService;
     private final MysqlClient mysqlClient;
     private final DynamicDataSourceProperties dynamicDataSourceProperties;
-    private final TableConvention tableConvention;
+
 
     // 스키마, 계정 권한 등
     public String checkSchemaStandard() {
@@ -41,7 +41,7 @@ public class SchemaStandardChecker {
                 List<Table> tables = mysqlClient.findTables(databaseConnectionInfo, schemaName, tableNames);
                 for (Table table : tables) {
                     try {
-                        tableConvention.validateTableConvention(table);
+                        TableConvention.validateTableConvention(table);
                     } catch (Exception e) {
                         sb.append(String.format("Cluster Name: %s, 스키마명: %s, 테이블명: %s 오류: [", databaseConnectionInfo.getDatabaseName(), schemaName, table.getTableName()));
                         sb.append(e.getMessage());
