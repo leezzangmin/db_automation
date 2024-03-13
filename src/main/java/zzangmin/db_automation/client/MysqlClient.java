@@ -453,6 +453,75 @@ public class MysqlClient {
         }
     }
 
+    public List<String> findFunctionNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SELECT routine_name FROM information_schema.routines WHERE routine_type = 'FUNCTION' AND table_schema = ?";
+        List<String> functionNames = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            log.info("findFunctionNames: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    functionNames.add(resultSet.getString("routine_name"));
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return functionNames;
+    }
+
+    public List<Function> findFunctions(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> functionName) {
+        String SQL = "SELECT routine_name, " +
+                "date_type, " +
+                "character_set_name, " +
+                "collation_name, " +
+                "routine_definition, " +
+                "is_deterministic, " +
+                "definer, " +
+                "character_set_client, " +
+                "collation_connection, " +
+                "database_collation " +
+                "FROM information_schema.routines " +
+                "WHERE routine_type = 'FUNCTION' " +
+                "AND table_schema = ?";
+        List<Function> functions = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            log.info("findFunctionNames: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    functions.add(
+                    Function.builder()
+                            .functionName(resultSet.getString("routine_name"))
+                            .dataType(resultSet.getString("data_type"))
+                            .characterSetName(resultSet.getString("character_set_name"))
+                            .collationName(resultSet.getString("collation_name"))
+                            .routineDefinition(resultSet.getString("routine_definition"))
+                            .isDeterministic(resultSet.getString("routine_name") == "NO" ? false : true)
+                            .definer(Definer.splitDefiner(resultSet.getString("routine_definition")))
+                            .characterSetClient(resultSet.getString("character_set_client"))
+                            .collationConnection(resultSet.getString("collation_connection"))
+                            .collationConnection(resultSet.getString("database_connection"))
+                            .build()
+                    );
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return functions;
+    }
+
     public List<Table> findTables(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> tableNames) {
         String findTableAndColumnSQL = "SELECT t.TABLE_NAME, t.TABLE_SCHEMA, t.TABLE_TYPE, t.ENGINE, t.CREATE_TIME, t.UPDATE_TIME, t.TABLE_COLLATION, t.TABLE_COMMENT, " +
                 "c.COLUMN_NAME, c.DATA_TYPE, c.CHARACTER_MAXIMUM_LENGTH, c.IS_NULLABLE, c.COLUMN_KEY, " +
