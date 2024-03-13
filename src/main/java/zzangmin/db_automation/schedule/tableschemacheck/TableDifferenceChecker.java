@@ -35,7 +35,7 @@ public class TableDifferenceChecker {
                             table -> table.getTableName(),
                             table -> table));
 
-            for (String sourceTableName : sourceTables.keySet()) {
+            for (String sourceTableName : sourceTableNames) {
                 Table sourceTable = sourceTables.get(sourceTableName);
                 Table replicaTable = replicaTables.getOrDefault(sourceTableName, null);
                 differenceResult.append(sourceTable.reportDifference(replicaTable));
