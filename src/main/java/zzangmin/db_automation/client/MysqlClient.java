@@ -29,7 +29,7 @@ public class MysqlClient {
     }
 
     public List<String> findTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
-        String SQL = "SELECT table_name FROM information_schema.tables WHERE table_schema = ?";
+        String SQL = "SELECT table_name FROM information_schema.tables WHERE TABLE_TYPE !='VIEW' AND table_schema = ?";
         List<String> tableNames = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
@@ -459,7 +459,7 @@ public class MysqlClient {
                 "c.COLUMN_DEFAULT, c.Extra, c.COLUMN_COMMENT, c.CHARACTER_SET_NAME, c.COLLATION_NAME " +
                 "FROM INFORMATION_SCHEMA.TABLES t " +
                 "LEFT JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_SCHEMA = c.TABLE_SCHEMA AND t.TABLE_NAME = c.TABLE_NAME " +
-                "WHERE t.TABLE_SCHEMA = ? AND t.TABLE_NAME IN ";
+                "WHERE t.TABLE_SCHEMA = ? AND TABLE_TYPE != 'VIEW' AND t.TABLE_NAME IN ";
         String findIndexSQL = "SELECT INDEX_NAME, COLUMN_NAME, TABLE_NAME, NON_UNIQUE " +
                 "FROM INFORMATION_SCHEMA.STATISTICS " +
                 "WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN ";
