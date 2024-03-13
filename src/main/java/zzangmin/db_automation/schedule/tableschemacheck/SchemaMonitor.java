@@ -25,6 +25,7 @@ public class SchemaMonitor {
     private final ViewDifferenceChecker viewDifferenceChecker;
     private final ProcedureDifferenceChecker procedureDifferenceChecker;
     private final TriggerDifferenceChecker triggerDifferenceChecker;
+    private final FunctionDifferenceChecker functionDifferenceChecker;
 
 
     @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
@@ -33,6 +34,6 @@ public class SchemaMonitor {
         for (String databaseName : databases.keySet()) {
 
         }
-        //mysqlClient.
+
     }
 }
