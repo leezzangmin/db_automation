@@ -343,4 +343,13 @@ public class MysqlClientTest {
     }
 
 
+    @Test
+    void findFunctionNames() {
+        Assertions.fail();
+    }
+
+    @Test
+    void findFunctions() {
+        Assertions.fail();
+    }
 }
