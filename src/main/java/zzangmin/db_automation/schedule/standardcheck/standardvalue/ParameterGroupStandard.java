@@ -20,6 +20,7 @@ public class ParameterGroupStandard {
         standardParameters.put("time_zone", "UTC");
         standardParameters.put("transaction_isolation", "REPEATABLE-READ");
         standardParameters.put("performance_schema", "1");
+        standardParameters.put("log_bin_trust_function_creators", "1");
     }
 
     public static String findStandardValue(String parameterName) {
