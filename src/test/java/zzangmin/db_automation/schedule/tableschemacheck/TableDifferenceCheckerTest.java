@@ -47,7 +47,7 @@ class TableDifferenceCheckerTest {
         when(mysqlClient.findTables(eq(prod), eq("test"), any())).thenReturn(List.of(EntityFactory.generateBasicTable("test_table")));
         when(mysqlClient.findTables(eq(stage), eq("test"), any())).thenReturn(List.of(EntityFactory.generateBasicTable("test_table")));
         // when
-        String s = tableDifferenceChecker.compareTableSchema(prod, stage);
+        String s = tableDifferenceChecker.compareTableSchema(prod, stage, List.of("test"));
 
         // then
         Assertions.assertThat(s).isBlank();
@@ -66,7 +66,7 @@ class TableDifferenceCheckerTest {
         when(mysqlClient.findTables(eq(prod), eq("test"), any())).thenReturn(List.of(EntityFactory.generateBasicTable("test_table")));
         when(mysqlClient.findTables(eq(stage), eq("test"), any())).thenReturn(List.of(EntityFactory.generateBasicTable("test_tablee")));
         // when
-        String s = tableDifferenceChecker.compareTableSchema(prod, stage);
+        String s = tableDifferenceChecker.compareTableSchema(prod, stage, List.of("test"));
 
         // then
         Assertions.assertThat(s).contains("찾을 수 없습니다.");
@@ -89,7 +89,7 @@ class TableDifferenceCheckerTest {
         when(mysqlClient.findTables(eq(prod), eq("test"), any())).thenReturn(List.of(prodTable));
         when(mysqlClient.findTables(eq(stage), eq("test"), any())).thenReturn(List.of(stageTable));
         // when
-        String s = tableDifferenceChecker.compareTableSchema(prod, stage);
+        String s = tableDifferenceChecker.compareTableSchema(prod, stage, List.of("test"));
 
         // then
         Assertions.assertThat(s).contains("컬럼 개수가 다릅니다");
@@ -114,7 +114,7 @@ class TableDifferenceCheckerTest {
         when(mysqlClient.findTables(eq(prod), eq("test"), any())).thenReturn(List.of(prodTable));
         when(mysqlClient.findTables(eq(stage), eq("test"), any())).thenReturn(List.of(stageTable));
         // when
-        String s = tableDifferenceChecker.compareTableSchema(prod, stage);
+        String s = tableDifferenceChecker.compareTableSchema(prod, stage, List.of("test"));
 
         // then
         Assertions.assertThat(s).contains("타입이 다릅니다");
