@@ -44,6 +44,10 @@ public class MysqlClientTest {
                         "BEGIN " +
                         "   RETURN p_price * 1.11; " +
                         "END");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE PROCEDURE test_schema.p1(IN p_name VARCHAR(255), IN p_email VARCHAR(255))\n" +
+                "BEGIN " +
+                "    INSERT INTO customers (name, email) VALUES (p_name, p_email); " +
+                "END");
 
     }
 
@@ -51,6 +55,7 @@ public class MysqlClientTest {
     public void tearDown() {
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP FUNCTION test_schema.f1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP PROCEDURE test_schema.p1");
     }
 
     @DisplayName("executeSQL 을 통해 SQL 을 실행할 수 있다.")
@@ -359,5 +364,17 @@ public class MysqlClientTest {
         //then
         assertThat(functions).isNotEmpty();
         assertThat(functions.get(0).getFunctionName()).isEqualTo("f1");
+    }
+
+    @DisplayName("findFunctions 로 mysql procedure 를 조회할 수 있다.")
+    @Test
+    void findProcedures() {
+        // given & when
+
+        List<Procedure> procedures = mysqlClient.findProcedures(backOfficeDatabaseConnectionInfo, schemaName);
+
+        //then
+        assertThat(procedures).isNotEmpty();
+        assertThat(procedures.get(0).getProcedureName()).isEqualTo("p1");
     }
 }
