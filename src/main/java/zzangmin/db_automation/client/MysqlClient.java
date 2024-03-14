@@ -497,7 +497,7 @@ public class MysqlClient {
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             statement.setString(1, schemaName);
-            log.info("findFunctionNames: {}", statement);
+            log.info("findFunctions: {}", statement);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     functions.add(
@@ -547,7 +547,7 @@ public class MysqlClient {
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             statement.setString(1, schemaName);
-            log.info("findFunctionNames: {}", statement);
+            log.info("findProcedures: {}", statement);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     procedures.add(
@@ -573,6 +573,53 @@ public class MysqlClient {
         }
 
         return procedures;
+    }
+
+    public List<Trigger> findTriggers(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SELECT TRIGGERS.TRIGGER_NAME, " +
+                "TRIGGERS.EVENT_MANIPULATION, " +
+                "TRIGGERS.EVENT_OBJECT_TABLE, " +
+                "TRIGGERS.ACTION_ORDER, " +
+                "TRIGGERS.ACTION_STATEMENT, " +
+                "TRIGGERS.ACTION_ORIENTATION, " +
+                "TRIGGERS.DEFINER, " +
+                "TRIGGERS.CHARACTER_SET_CLIENT, " +
+                "TRIGGERS.COLLATION_CONNECTION, " +
+                "TRIGGERS.DATABASE_COLLATION " +
+                "FROM information_schema.TRIGGERS " +
+                "WHERE TRIGGERS.TRIGGER_SCHEMA = ?";
+        List<Trigger> triggers = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            log.info("findTriggers: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    triggers.add(
+                            Trigger.builder()
+                                    .triggerName(resultSet.getString("TRIGGER_NAME"))
+                                    .eventManipulation(resultSet.getString("EVENT_MANIPULATION"))
+                                    .eventObjectTable(resultSet.getString("EVENT_OBJECT_TABLE"))
+                                    .actionOrder(resultSet.getInt("ACTION_ORDER"))
+                                    .actionStatement(resultSet.getString("ACTION_STATEMENT"))
+                                    .actionOrientation(resultSet.getString("ACTION_ORIENTATION"))
+                                    .definer(Definer.splitDefiner(resultSet.getString("DEFINER")))
+                                    .characterSetClient(resultSet.getString("character_set_client"))
+                                    .collationConnection(resultSet.getString("collation_connection"))
+                                    .collationConnection(resultSet.getString("database_collation"))
+                                    .build()
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return triggers;
     }
 
     public List<Table> findTables(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> tableNames) {
