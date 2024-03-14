@@ -38,11 +38,19 @@ public class MysqlClientTest {
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TABLE test_schema.test_table (id INT NOT NULL AUTO_INCREMENT COMMENT 'asdf', name VARCHAR(45) NULL COMMENT 'name comment', PRIMARY KEY (id), KEY name(name)) COMMENT 'TABLE COMMENT'");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "INSERT INTO test_schema.test_table (name) VALUES ('test_name')");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP FUNCTION IF EXISTS test_schema.f1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE FUNCTION test_schema.f1(p_price DECIMAL(10,2)) " +
+                        "RETURNS DECIMAL(10,2) " +
+                        "BEGIN " +
+                        "   RETURN p_price * 1.11; " +
+                        "END");
+
     }
 
     @AfterEach
     public void tearDown() {
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP FUNCTION test_schema.f1");
     }
 
     @DisplayName("executeSQL 을 통해 SQL 을 실행할 수 있다.")
@@ -330,13 +338,26 @@ public class MysqlClientTest {
     }
 
 
+    @DisplayName("findFunctionNames로 mysql function 이름 목록을 조회할 수 있다.")
     @Test
     void findFunctionNames() {
-        Assertions.fail();
+        // given & when
+        List<String> functionNames = mysqlClient.findFunctionNames(backOfficeDatabaseConnectionInfo, schemaName);
+
+        // then
+        assertThat(functionNames.contains("f1")).isTrue();
+
     }
 
+    @DisplayName("findFunctions 로 mysql function을 조회할 수 있다.")
     @Test
     void findFunctions() {
-        Assertions.fail();
+        // given & when
+
+        List<Function> functions = mysqlClient.findFunctions(backOfficeDatabaseConnectionInfo, schemaName);
+
+        //then
+        assertThat(functions).isNotEmpty();
+        assertThat(functions.get(0).getFunctionName()).isEqualTo("f1");
     }
 }
