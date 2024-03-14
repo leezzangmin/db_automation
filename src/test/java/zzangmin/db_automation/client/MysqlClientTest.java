@@ -35,10 +35,15 @@ public class MysqlClientTest {
     @BeforeEach
     public void setUp() {
         backOfficeDatabaseConnectionInfo = databaseConnectionInfoFactory.createDatabaseConnectionInfo();
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TRIGGER IF EXISTS test_schema.t1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP VIEW IF EXISTS test_schema.v1");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP FUNCTION IF EXISTS test_schema.f1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP PROCEDURE IF EXISTS test_schema.p1");
+
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TABLE test_schema.test_table (id INT NOT NULL AUTO_INCREMENT COMMENT 'asdf', name VARCHAR(45) NULL COMMENT 'name comment', PRIMARY KEY (id), KEY name(name)) COMMENT 'TABLE COMMENT'");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "INSERT INTO test_schema.test_table (name) VALUES ('test_name')");
-        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP FUNCTION IF EXISTS test_schema.f1");
+
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE FUNCTION test_schema.f1(p_price DECIMAL(10,2)) " +
                         "RETURNS DECIMAL(10,2) " +
                         "BEGIN " +
@@ -51,17 +56,21 @@ public class MysqlClientTest {
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TRIGGER test_schema.t1 AFTER INSERT ON test_table " +
                 "    FOR EACH ROW " +
                 "BEGIN " +
-                "    UPDATE test_table SET name = '1' WHERE name = '1'; " +
+                "    UPDATE test_schema.test_table SET name = '1' WHERE name = '1'; " +
                 "END");
-
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE VIEW test_schema.v1 AS " +
+                "SELECT id " +
+                "FROM test_schema.test_table " +
+                "LIMIT 1;");
     }
 
     @AfterEach
     public void tearDown() {
-        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TRIGGER test_schema.t1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TRIGGER IF EXISTS test_schema.t1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP VIEW IF EXISTS test_schema.v1");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
-        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP FUNCTION test_schema.f1");
-        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP PROCEDURE test_schema.p1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP FUNCTION IF EXISTS test_schema.f1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP PROCEDURE IF EXISTS test_schema.p1");
     }
 
     @DisplayName("executeSQL 을 통해 SQL 을 실행할 수 있다.")
@@ -393,5 +402,16 @@ public class MysqlClientTest {
         //then
         assertThat(triggers).isNotEmpty();
         assertThat(triggers.get(0).getTriggerName()).isEqualTo("t1");
+    }
+
+    @DisplayName("findViews 로 mysql view 를 조회할 수 있다.")
+    @Test
+    void findViews() {
+        // given & when
+        List<View> views = mysqlClient.findViews(backOfficeDatabaseConnectionInfo, schemaName);
+
+        //then
+        assertThat(views).isNotEmpty();
+        assertThat(views.get(0).getViewName()).isEqualTo("v1");
     }
 }
