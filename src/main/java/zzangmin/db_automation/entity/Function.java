@@ -22,6 +22,7 @@ public class Function {
     private String characterSetClient;
     private String collationConnection;
     private String databaseCollation;
+    private String securityType;
 
     public String reportDifference(Function otherFunction) {
         StringBuilder difference = new StringBuilder();
@@ -59,6 +60,9 @@ public class Function {
         }
         if (!this.databaseCollation.equals(otherFunction.databaseCollation)) {
             difference.append(String.format("%s: function databaseCollation 이 다릅니다: %s <-> %s%n", this.functionName, this.databaseCollation, otherFunction.databaseCollation));
+        }
+        if (!this.securityType.equals(otherFunction.securityType)) {
+            difference.append(String.format("%s: function securityType 이 다릅니다: %s <-> %s%n", this.functionName, this.securityType, otherFunction.securityType));
         }
         return difference.toString();
     }
