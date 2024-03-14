@@ -23,27 +23,27 @@ public class FunctionDifferenceChecker {
         StringBuilder differenceResult = new StringBuilder();
 
         for (String schemaName : schemaNames) {
-            List<String> sourceFunctionNames = mysqlClient.findFunctionNames(sourceInfo, schemaName);
 
-            Map<String, Function> sourceFunctions = mysqlClient.findFunctions(sourceInfo, schemaName, sourceFunctionNames)
+            Map<String, Function> sourceFunctions = mysqlClient.findFunctions(sourceInfo, schemaName)
                     .stream()
                     .collect(Collectors.toMap(
                             function -> function.getFunctionName(),
                             function -> function
                     ));
 
-            Map<String, Function> replicaFunctions = mysqlClient.findFunctions(sourceInfo, schemaName, sourceFunctionNames)
+            Map<String, Function> replicaFunctions = mysqlClient.findFunctions(sourceInfo, schemaName)
                     .stream()
                     .collect(Collectors.toMap(
                             function -> function.getFunctionName(),
                             function -> function
                     ));
 
-            for (String sourceFunctionName : sourceFunctionNames) {
+            for (String sourceFunctionName : sourceFunctions.keySet()) {
                 Function sourceFunction = sourceFunctions.get(sourceFunctionName);
                 Function replicaFunction = replicaFunctions.getOrDefault(sourceFunctionName, null);
                 differenceResult.append(sourceFunction.reportDifference(replicaFunction));
             }
+
         }
 
         return differenceResult.toString();
