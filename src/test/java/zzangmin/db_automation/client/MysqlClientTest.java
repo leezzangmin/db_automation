@@ -48,11 +48,17 @@ public class MysqlClientTest {
                 "BEGIN " +
                 "    INSERT INTO customers (name, email) VALUES (p_name, p_email); " +
                 "END");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TRIGGER test_schema.t1 AFTER INSERT ON test_table " +
+                "    FOR EACH ROW " +
+                "BEGIN " +
+                "    UPDATE test_table SET name = '1' WHERE name = '1'; " +
+                "END");
 
     }
 
     @AfterEach
     public void tearDown() {
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TRIGGER test_schema.t1");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP FUNCTION test_schema.f1");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP PROCEDURE test_schema.p1");
@@ -376,5 +382,16 @@ public class MysqlClientTest {
         //then
         assertThat(procedures).isNotEmpty();
         assertThat(procedures.get(0).getProcedureName()).isEqualTo("p1");
+    }
+
+    @DisplayName("findFunctions 로 mysql trigger 를 조회할 수 있다.")
+    @Test
+    void findTriggers() {
+        // given & when
+        List<Trigger> triggers = mysqlClient.findTriggers(backOfficeDatabaseConnectionInfo, schemaName);
+
+        //then
+        assertThat(triggers).isNotEmpty();
+        assertThat(triggers.get(0).getTriggerName()).isEqualTo("t1");
     }
 }
