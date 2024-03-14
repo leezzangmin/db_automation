@@ -237,40 +237,27 @@ public class MysqlClientTest {
         assertEquals("utf8mb4_0900_ai_ci", column.getCollate());
     }
 
-    @DisplayName("findMetadataLockHolders로 Metadata Lock 유발 프로세스를 조회할 수 있다.")
+    @DisplayName("findMetadataLockHolders로 Metadata Lock 유발 프로세스를 조회할 수 있다. (performance_schema 활성화 필요)")
     @Test
     public void testFindMetadataLockHolders() throws Exception {
         // given
-        String metadataHolderSQL = "select * from test_schema.test_table where sleep(5)=0 limit 1";
+        String metadataHolderSQL = "select * from test_schema.test_table where sleep(5) = 0 limit 1";
+        String metadataWaitSQL = "ALTER TABLE test_schema.test_table ADD INDEX test_index(id, name)";
 
         ExecutorService executorService1 = Executors.newSingleThreadExecutor();
         ExecutorService executorService2 = Executors.newSingleThreadExecutor();
 
         Future<?> holderFuture = executorService1.submit(() -> {
-            try (Connection connection = DriverManager.getConnection(backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
-                 Statement statement = connection.createStatement()) {
-                statement.execute("start transaction");
-                statement.execute(metadataHolderSQL);
-                statement.execute("commit ");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, metadataHolderSQL);
         });
 
         Future<?> alterFuture = executorService2.submit(() -> {
-            try (Connection connection = DriverManager.getConnection(
-                    backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
-                 Statement statement = connection.createStatement()) {
-                statement.execute("ALTER TABLE test_schema.test_table ADD INDEX test_index(id, name)");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, metadataWaitSQL);
         });
         Thread.sleep(1000);
 
         // when
         List<MetadataLockHolder> metadataLockHolders = mysqlClient.findMetadataLockHolders(backOfficeDatabaseConnectionInfo);
-
         // then
         assertThat(metadataLockHolders.isEmpty()).isFalse();
         MetadataLockHolder metadataLockHolder = metadataLockHolders.get(0);
