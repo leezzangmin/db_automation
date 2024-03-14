@@ -31,7 +31,7 @@ public class FunctionDifferenceChecker {
                             function -> function
                     ));
 
-            Map<String, Function> replicaFunctions = mysqlClient.findFunctions(sourceInfo, schemaName)
+            Map<String, Function> replicaFunctions = mysqlClient.findFunctions(replicaInfo, schemaName)
                     .stream()
                     .collect(Collectors.toMap(
                             function -> function.getFunctionName(),
