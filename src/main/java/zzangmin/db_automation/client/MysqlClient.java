@@ -454,7 +454,7 @@ public class MysqlClient {
     }
 
     public List<String> findFunctionNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
-        String SQL = "SELECT routine_name FROM information_schema.routines WHERE routine_type = 'FUNCTION' AND table_schema = ?";
+        String SQL = "SELECT routine_name FROM information_schema.routines WHERE routine_type = 'FUNCTION' AND routine_schema = ?";
         List<String> functionNames = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
@@ -475,9 +475,9 @@ public class MysqlClient {
         return functionNames;
     }
 
-    public List<Function> findFunctions(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> functionName) {
+    public List<Function> findFunctions(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         String SQL = "SELECT routine_name, " +
-                "date_type, " +
+                "data_type, " +
                 "character_set_name, " +
                 "collation_name, " +
                 "routine_definition, " +
@@ -485,10 +485,11 @@ public class MysqlClient {
                 "definer, " +
                 "character_set_client, " +
                 "collation_connection, " +
-                "database_collation " +
+                "database_collation, " +
+                "security_type " +
                 "FROM information_schema.routines " +
                 "WHERE routine_type = 'FUNCTION' " +
-                "AND table_schema = ?";
+                "AND routine_schema = ?";
         List<Function> functions = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
@@ -507,15 +508,17 @@ public class MysqlClient {
                             .collationName(resultSet.getString("collation_name"))
                             .routineDefinition(resultSet.getString("routine_definition"))
                             .isDeterministic(resultSet.getString("routine_name") == "NO" ? false : true)
-                            .definer(Definer.splitDefiner(resultSet.getString("routine_definition")))
+                            .definer(Definer.splitDefiner(resultSet.getString("definer")))
                             .characterSetClient(resultSet.getString("character_set_client"))
                             .collationConnection(resultSet.getString("collation_connection"))
-                            .collationConnection(resultSet.getString("database_connection"))
+                            .collationConnection(resultSet.getString("database_collation"))
+                            .securityType(resultSet.getString("security_type"))
                             .build()
                     );
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
 
