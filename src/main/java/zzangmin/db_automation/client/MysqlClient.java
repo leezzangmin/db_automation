@@ -622,6 +622,46 @@ public class MysqlClient {
         return triggers;
     }
 
+    public List<View> findViews(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SELECT VIEWS.TABLE_NAME, " +
+                "VIEWS.VIEW_DEFINITION, " +
+                "VIEWS.DEFINER, " +
+                "VIEWS.SECURITY_TYPE, " +
+                "VIEWS.CHARACTER_SET_CLIENT, " +
+                "VIEWS.COLLATION_CONNECTION " +
+                "FROM information_schema.VIEWS " +
+                "WHERE VIEWS.TABLE_SCHEMA = ?";
+        List<View> views = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            log.info("findViews: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    views.add(
+                            View.builder()
+                                    .viewName(resultSet.getString("TABLE_NAME"))
+                                    .viewDefinition(resultSet.getString("VIEW_DEFINITION"))
+                                    .definer(Definer.splitDefiner(resultSet.getString("DEFINER")))
+                                    .securityType(resultSet.getString("SECURITY_TYPE"))
+                                    .characterSetClient(resultSet.getString("character_set_client"))
+                                    .collationConnection(resultSet.getString("collation_connection"))
+                                    .build()
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return views;
+    }
+
+
     public List<Table> findTables(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> tableNames) {
         String findTableAndColumnSQL = "SELECT t.TABLE_NAME, t.TABLE_SCHEMA, t.TABLE_TYPE, t.ENGINE, t.CREATE_TIME, t.UPDATE_TIME, t.TABLE_COLLATION, t.TABLE_COMMENT, " +
                 "c.COLUMN_NAME, c.DATA_TYPE, c.CHARACTER_MAXIMUM_LENGTH, c.IS_NULLABLE, c.COLUMN_KEY, " +
