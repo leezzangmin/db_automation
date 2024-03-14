@@ -525,6 +525,56 @@ public class MysqlClient {
         return functions;
     }
 
+    public List<Procedure> findProcedures(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SELECT routine_name, " +
+                "data_type, " +
+                "character_set_name, " +
+                "collation_name, " +
+                "routine_definition, " +
+                "is_deterministic, " +
+                "definer, " +
+                "character_set_client, " +
+                "collation_connection, " +
+                "database_collation, " +
+                "security_type " +
+                "FROM information_schema.routines " +
+                "WHERE routine_type = 'PROCEDURE' " +
+                "AND routine_schema = ?";
+        List<Procedure> procedures = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            log.info("findFunctionNames: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    procedures.add(
+                            Procedure.builder()
+                                    .procedureName(resultSet.getString("routine_name"))
+                                    .dataType(resultSet.getString("data_type"))
+                                    .characterSetName(resultSet.getString("character_set_name"))
+                                    .collationName(resultSet.getString("collation_name"))
+                                    .routineDefinition(resultSet.getString("routine_definition"))
+                                    .isDeterministic(resultSet.getString("routine_name") == "NO" ? false : true)
+                                    .definer(Definer.splitDefiner(resultSet.getString("definer")))
+                                    .characterSetClient(resultSet.getString("character_set_client"))
+                                    .collationConnection(resultSet.getString("collation_connection"))
+                                    .collationConnection(resultSet.getString("database_collation"))
+                                    .securityType(resultSet.getString("security_type"))
+                                    .build()
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return procedures;
+    }
+
     public List<Table> findTables(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> tableNames) {
         String findTableAndColumnSQL = "SELECT t.TABLE_NAME, t.TABLE_SCHEMA, t.TABLE_TYPE, t.ENGINE, t.CREATE_TIME, t.UPDATE_TIME, t.TABLE_COLLATION, t.TABLE_COMMENT, " +
                 "c.COLUMN_NAME, c.DATA_TYPE, c.CHARACTER_MAXIMUM_LENGTH, c.IS_NULLABLE, c.COLUMN_KEY, " +
