@@ -46,6 +46,7 @@ class TableDifferenceCheckerTest {
         when(mysqlClient.findTableNames(any(), eq("test"))).thenReturn(List.of("test_table"));
         when(mysqlClient.findTables(eq(prod), eq("test"), any())).thenReturn(List.of(EntityFactory.generateBasicTable("test_table")));
         when(mysqlClient.findTables(eq(stage), eq("test"), any())).thenReturn(List.of(EntityFactory.generateBasicTable("test_table")));
+
         // when
         String s = tableDifferenceChecker.compareTableSchema(prod, stage, List.of("test"));
 
@@ -65,6 +66,7 @@ class TableDifferenceCheckerTest {
         when(mysqlClient.findTableNames(any(), eq("test"))).thenReturn(List.of("test_table"));
         when(mysqlClient.findTables(eq(prod), eq("test"), any())).thenReturn(List.of(EntityFactory.generateBasicTable("test_table")));
         when(mysqlClient.findTables(eq(stage), eq("test"), any())).thenReturn(List.of(EntityFactory.generateBasicTable("test_tablee")));
+
         // when
         String s = tableDifferenceChecker.compareTableSchema(prod, stage, List.of("test"));
 
@@ -85,9 +87,10 @@ class TableDifferenceCheckerTest {
         stageTable.addColumns(List.of(EntityFactory.generateBasicColumn("extra_column")));
 
         when(mysqlClient.findSchemaNames(eq(prod))).thenReturn(List.of("test"));
-        when(mysqlClient.findTableNames(any(), eq("test"))).thenReturn(List.of("test_table"));
+        when(mysqlClient.findTableNames(any(), eq("test"))).thenReturn(List.of("basic_table"));
         when(mysqlClient.findTables(eq(prod), eq("test"), any())).thenReturn(List.of(prodTable));
         when(mysqlClient.findTables(eq(stage), eq("test"), any())).thenReturn(List.of(stageTable));
+
         // when
         String s = tableDifferenceChecker.compareTableSchema(prod, stage, List.of("test"));
 
@@ -108,11 +111,11 @@ class TableDifferenceCheckerTest {
         prodTable.addColumns(List.of(new Column("column_name", "varchar(123)", true, null, false, false, "comment", "utf8mb4", "utf8mb4_0900_ai_ci")));
         stageTable.addColumns(List.of(new Column("column_name", "varchar(124)", true, null, false, false, "asdfcomment", "utf8mb4", "utf8mb4_0900_ai_ci")));
 
-
         when(mysqlClient.findSchemaNames(eq(prod))).thenReturn(List.of("test"));
-        when(mysqlClient.findTableNames(any(), eq("test"))).thenReturn(List.of("test_table"));
+        when(mysqlClient.findTableNames(any(), eq("test"))).thenReturn(List.of("basic_table"));
         when(mysqlClient.findTables(eq(prod), eq("test"), any())).thenReturn(List.of(prodTable));
         when(mysqlClient.findTables(eq(stage), eq("test"), any())).thenReturn(List.of(stageTable));
+
         // when
         String s = tableDifferenceChecker.compareTableSchema(prod, stage, List.of("test"));
 
