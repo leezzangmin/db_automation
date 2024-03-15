@@ -19,8 +19,8 @@ public class PracticeTest {
 
     @Test
     public void tableDifferenceCheckerTest() {
-        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://prod.cluster-cpx3y0rpnqaj.ap-northeast-2.rds.amazonaws.com", "admin", "mysql5128*");
-        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://inhouse.cpx3y0rpnqaj.ap-northeast-2.rds.amazonaws.com", "admin", "mysql5128*");
+        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://prod.cluster-cpx3y0rpnqaj.ap-northeast-2.rds.amazonaws.com", "admin", "mysql5128*", null);
+        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://inhouse.cpx3y0rpnqaj.ap-northeast-2.rds.amazonaws.com", "admin", "mysql5128*", null);
         String s = tableDifferenceChecker.compareTableSchema(prod, stage, List.of("sample_schema"));
         System.out.println("s = " + s);
     }

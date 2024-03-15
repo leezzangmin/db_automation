@@ -39,8 +39,8 @@ class TableDifferenceCheckerTest {
     @Test
     void compareTableSchema() {
         // given
-        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*");
-        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*");
+        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
+        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
 
         when(mysqlClient.findSchemaNames(eq(prod))).thenReturn(List.of("test"));
         when(mysqlClient.findTableNames(any(), eq("test"))).thenReturn(List.of("test_table"));
@@ -59,8 +59,8 @@ class TableDifferenceCheckerTest {
     @Test
     void compareTableSchema_notable() {
         // given
-        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*");
-        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*");
+        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
+        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
 
         when(mysqlClient.findSchemaNames(eq(prod))).thenReturn(List.of("test"));
         when(mysqlClient.findTableNames(any(), eq("test"))).thenReturn(List.of("test_table"));
@@ -79,8 +79,8 @@ class TableDifferenceCheckerTest {
     @Test
     void compareTableSchema_different_differentcolumnsize() {
         // given
-        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*");
-        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*");
+        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
+        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
 
         Table prodTable = EntityFactory.generateBasicTable("basic_table");
         Table stageTable = EntityFactory.generateBasicTable("basic_table");
@@ -103,8 +103,8 @@ class TableDifferenceCheckerTest {
     @Test
     void compareTableSchema_different_differentcolumn() {
         // given
-        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*");
-        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*");
+        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
+        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
 
         Table prodTable = EntityFactory.generateBasicTable("basic_table");
         Table stageTable = EntityFactory.generateBasicTable("basic_table");
