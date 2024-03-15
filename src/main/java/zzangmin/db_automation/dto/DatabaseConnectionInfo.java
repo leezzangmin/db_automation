@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import org.springframework.beans.factory.annotation.Value;
+import software.amazon.awssdk.services.rds.model.Tag;
+
+import java.util.List;
 
 @ToString
 @Getter
@@ -17,6 +19,7 @@ public class DatabaseConnectionInfo {
     private String url;
     private String username;
     private String password;
+    private List<Tag> tags;
 
 
 
