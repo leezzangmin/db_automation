@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.ToString;
 import software.amazon.awssdk.services.rds.model.Tag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @ToString
@@ -19,7 +20,7 @@ public class DatabaseConnectionInfo {
     private String url;
     private String username;
     private String password;
-    private List<Tag> tags;
+    private List<Tag> tags = new ArrayList<>();
 
 
 
