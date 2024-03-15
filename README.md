@@ -175,6 +175,9 @@
   - 해당 롤에 rds, secret manager, cloudwatch 권한 필요
 - Database credential 은 aws Secret Manager에 등록 필요
   - postfix 는 `-db-credential` 로 지정
+- 클러스터 필수 설정 태그
+  - env: [prod, stage, dev] (환경 명)
+  - service: [user, shop, order] (서비스 명)
 - schema.sql 스크립트 미리 수행
 - performance_schema 활성화
 
