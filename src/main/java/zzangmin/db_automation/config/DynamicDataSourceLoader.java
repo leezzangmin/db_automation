@@ -31,12 +31,15 @@ public class DynamicDataSourceLoader {
             }
             String dbName = cluster.dbClusterIdentifier();
             String password = awsService.findRdsPassword(dbName);
+            List<Tag> tags = awsService.findRdsTagsByArn(cluster.dbClusterArn());
+
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
                     .url("jdbc:mysql://" + cluster.endpoint())
                     .username(cluster.masterUsername())
                     .password(password)
+                    .tags(tags)
                     .build();
 
             dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
@@ -48,12 +51,15 @@ public class DynamicDataSourceLoader {
             }
             String dbName = instance.dbInstanceIdentifier();
             String password = awsService.findRdsPassword(dbName);
+            List<Tag> tags = awsService.findRdsTagsByArn(instance.dbInstanceArn());
+
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
                     .url("jdbc:mysql://" + instance.endpoint().address())
                     .username(instance.masterUsername())
                     .password(password)
+                    .tags(tags)
                     .build();
             dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
         }
