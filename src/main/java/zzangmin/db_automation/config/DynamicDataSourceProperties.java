@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -31,12 +31,12 @@ public class DynamicDataSourceProperties {
 
     // prod <-> stage 간 Map 으로 짝지어주는 메서드
     public static Map<DatabaseConnectionInfo, DatabaseConnectionInfo> matchPairDatabase() {
-        List<DatabaseConnectionInfo> databases = (List<DatabaseConnectionInfo>) DynamicDataSourceProperties.databases.values();
+        Collection<DatabaseConnectionInfo> database = DynamicDataSourceProperties.databases.values();
         Map<String, DatabaseConnectionInfo> prodMap = new HashMap<>();
         Map<String, DatabaseConnectionInfo> stageMap = new HashMap<>();
 
         // 각 env에 따른 DatabaseConnectionInfo 분류
-        databases.forEach(dbInfo -> {
+        database.forEach(dbInfo -> {
             String serviceValue = dbInfo.getTags().stream()
                     .filter(tag -> tag.key().equals(TagStandard.getServiceTagKeyName()))
                     .findFirst()
