@@ -43,7 +43,7 @@ public class ProcedureDifferenceChecker {
                 differenceResult.append(sourceProcedure.reportDifference(replicaProcedure));
             }
         }
-
+        log.info("Procedure Result: {}", differenceResult.toString());
         return differenceResult.toString();
     }
 }
