@@ -37,11 +37,12 @@ public class Table {
     }
 
     public String reportDifference(Table otherTable) {
+        StringBuilder result = new StringBuilder();
         StringBuilder differences = new StringBuilder();
 
         if (otherTable == null) {
-            differences.append(String.format("%s 테이블을 stage에서 찾을 수 없습니다.", this.tableName));
-            return differences.toString();
+            result.append(String.format("%s 테이블을 stage에서 찾을 수 없습니다.", this.tableName));
+            return result.toString();
         }
 
         if (!this.tableName.equals(otherTable.tableName)) {
@@ -100,6 +101,13 @@ public class Table {
             }
         }
 
-        return differences.toString();
+        if (differences.toString().isBlank()) {
+            return result.toString();
+        }
+
+        result.append(String.format("테이블[%s] 검사 결과: \n", this.getTableName()));
+        result.append(differences);
+        result.append("\n");
+        return result.toString();
     }
 }
