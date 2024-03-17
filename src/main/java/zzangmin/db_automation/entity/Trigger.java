@@ -29,34 +29,34 @@ public class Trigger {
             difference.append(String.format("%s trigger를 stage에서 찾을 수 없습니다.", this.triggerName));
         }
 
-        if (!this.triggerName.equals(otherTrigger.triggerName)) {
+        if (this.triggerName != null && !this.triggerName.equals(otherTrigger.triggerName)) {
             difference.append(String.format("trigger 이름이 다릅니다: %s <-> %s%n", this.triggerName, otherTrigger.triggerName));
         }
-        if (!this.eventManipulation.equals(otherTrigger.eventManipulation)) {
+        if (this.eventManipulation != null && !this.eventManipulation.equals(otherTrigger.eventManipulation)) {
             difference.append(String.format("%s: trigger eventManipulation 이 다릅니다: %s <-> %s%n", this.triggerName, this.eventManipulation, otherTrigger.eventManipulation));
         }
-        if (!this.eventObjectTable.equals(otherTrigger.eventObjectTable)) {
+        if (this.eventObjectTable != null && !this.eventObjectTable.equals(otherTrigger.eventObjectTable)) {
             difference.append(String.format("%s: trigger eventObjectTable 이 다릅니다: %s <-> %s%n", this.triggerName, this.eventObjectTable, otherTrigger.eventObjectTable));
         }
         if (this.actionOrder != otherTrigger.actionOrder) {
             difference.append(String.format("%s: trigger actionOrder 이 다릅니다: %s <-> %s%n", this.triggerName, this.actionOrder, otherTrigger.actionOrder));
         }
-        if (!this.actionStatement.equals(otherTrigger.actionStatement)) {
+        if (this.actionStatement != null && !this.actionStatement.equals(otherTrigger.actionStatement)) {
             difference.append(String.format("%s: trigger actionStatement 이 다릅니다: %s <-> %s%n", this.triggerName, this.actionStatement, otherTrigger.actionStatement));
         }
-        if (!this.actionOrientation.equals(otherTrigger.actionOrientation)) {
-            difference.append(String.format("%s: trigger isDeterministic 이 다릅니다: %s <-> %s%n", this.triggerName, this.actionOrientation, otherTrigger.actionOrientation));
+        if (this.actionOrientation != null && !this.actionOrientation.equals(otherTrigger.actionOrientation)) {
+            difference.append(String.format("%s: trigger actionOrientation 이 다릅니다: %s <-> %s%n", this.triggerName, this.actionOrientation, otherTrigger.actionOrientation));
         }
-        if (!this.definer.isEqualDefinerName(otherTrigger.definer)) {
+        if (this.definer != null && !this.definer.isEqualDefinerName(otherTrigger.definer)) {
             difference.append(String.format("%s: trigger definerName 이 다릅니다: %s <-> %s%n", this.triggerName, this.definer.getUserName(), otherTrigger.getDefiner().getUserName()));
         }
-        if (!this.characterSetClient.equals(otherTrigger.characterSetClient)) {
+        if (this.characterSetClient != null && !this.characterSetClient.equals(otherTrigger.characterSetClient)) {
             difference.append(String.format("%s: trigger characterSetClient 이 다릅니다: %s <-> %s%n", this.triggerName, this.characterSetClient, otherTrigger.characterSetClient));
         }
-        if (!this.collationConnection.equals(otherTrigger.collationConnection)) {
+        if (this.collationConnection != null && !this.collationConnection.equals(otherTrigger.collationConnection)) {
             difference.append(String.format("%s: trigger collationConnection 이 다릅니다: %s <-> %s%n", this.triggerName, this.collationConnection, otherTrigger.collationConnection));
         }
-        if (!this.databaseCollation.equals(otherTrigger.databaseCollation)) {
+        if (this.databaseCollation != null && !this.databaseCollation.equals(otherTrigger.databaseCollation)) {
             difference.append(String.format("%s: trigger databaseCollation 이 다릅니다: %s <-> %s%n", this.triggerName, this.databaseCollation, otherTrigger.databaseCollation));
         }
         return difference.toString();

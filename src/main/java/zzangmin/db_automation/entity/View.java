@@ -23,22 +23,22 @@ public class View {
         if (otherTrigger == null) {
             difference.append(String.format("%s view 를 stage에서 찾을 수 없습니다.", this.viewName));
         }
-        if (!this.viewName.equals(otherTrigger.viewName)) {
+        if (this.viewName != null && !this.viewName.equals(otherTrigger.viewName)) {
             difference.append(String.format("view 이름이 다릅니다: %s <-> %s%n", this.viewName, otherTrigger.viewName));
         }
-        if (!this.viewDefinition.equals(otherTrigger.viewDefinition)) {
+        if (this.viewDefinition != null && !this.viewDefinition.equals(otherTrigger.viewDefinition)) {
             difference.append(String.format("%s: view viewDefinition 이 다릅니다: %s <-> %s%n", this.viewName, this.viewDefinition, otherTrigger.viewDefinition));
         }
-        if (!this.securityType.equals(otherTrigger.securityType)) {
+        if (this.securityType != null && !this.securityType.equals(otherTrigger.securityType)) {
             difference.append(String.format("%s: view securityType 이 다릅니다: %s <-> %s%n", this.viewName, this.securityType, otherTrigger.securityType));
         }
-        if (!this.definer.isEqualDefinerName(otherTrigger.definer)) {
+        if (this.definer != null && !this.definer.isEqualDefinerName(otherTrigger.definer)) {
             difference.append(String.format("%s: view definerName 이 다릅니다: %s <-> %s%n", this.viewName, this.definer.getUserName(), otherTrigger.getDefiner().getUserName()));
         }
-        if (!this.characterSetClient.equals(otherTrigger.characterSetClient)) {
+        if (this.characterSetClient != null && !this.characterSetClient.equals(otherTrigger.characterSetClient)) {
             difference.append(String.format("%s: view characterSetClient 이 다릅니다: %s <-> %s%n", this.viewName, this.characterSetClient, otherTrigger.characterSetClient));
         }
-        if (!this.collationConnection.equals(otherTrigger.collationConnection)) {
+        if (this.collationConnection != null && !this.collationConnection.equals(otherTrigger.collationConnection)) {
             difference.append(String.format("%s: view collationConnection 이 다릅니다: %s <-> %s%n", this.viewName, this.collationConnection, otherTrigger.collationConnection));
         }
 
