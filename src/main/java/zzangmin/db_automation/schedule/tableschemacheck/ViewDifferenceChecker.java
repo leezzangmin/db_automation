@@ -39,6 +39,8 @@ public class ViewDifferenceChecker {
                 differenceResult.append(sourceView.reportDifference(replicaView));
             }
         }
+
+        log.info("ViewDifferenceChecker Result: {}", differenceResult.toString());
         return differenceResult.toString();
     }
 
