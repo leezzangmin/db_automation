@@ -42,7 +42,7 @@ public class TableDifferenceChecker {
             }
         }
 
-
+        log.info("TableDifferenceChecker Result: {}", differenceResult.toString());
         return differenceResult.toString();
     }
 
