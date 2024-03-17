@@ -12,6 +12,9 @@ import software.amazon.awssdk.services.pi.model.GetResourceMetricsResponse;
 import software.amazon.awssdk.services.pi.model.MetricQuery;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.*;
+import software.amazon.awssdk.services.rds.model.ListTagsForResourceRequest;
+import software.amazon.awssdk.services.rds.model.ListTagsForResourceResponse;
+import software.amazon.awssdk.services.rds.model.Tag;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
@@ -48,6 +51,15 @@ public class AwsService {
             clusterParameterGroupNames.add(clusterParameterGroupName);
         }
         return clusterParameterGroupNames;
+    }
+
+    public List<Tag> findRdsTagsByArn(String arn) {
+        RdsClient rdsClient = awsClient.getRdsClient();
+
+        ListTagsForResourceResponse listTagsForResourceResponse = rdsClient.listTagsForResource(ListTagsForResourceRequest.builder()
+                .resourceName(arn)
+                .build());
+        return listTagsForResourceResponse.tagList();
     }
 
     public DescribeDbClusterParametersResponse findClusterParameterGroup(String parameterGroupName) {
@@ -152,14 +164,14 @@ public class AwsService {
 
     }
 
-    public Map<String, Long> findAllInstanceMetricsInfo(String databaseIdentifiers) {
+    public Map<String, Long> findAllInstanceMetricsInfo(String databaseIdentifier) {
         CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient();
         PiClient performanceInsightClient = awsClient.getPerformanceInsightClient();
         Instant endTime = Instant.now();
         Instant startTime = endTime.minus(Duration.ofMinutes(DURATION_MINUTE));
 
         // TODO: 프리티어에서는 performance insights 사용 불가능, (DbiResourceId 로 변경)
-        GetResourceMetricsRequest piRequest = generateAverageActiveSessionsRequest(findWriterInstanceDbiResourceId(databaseIdentifiers));
+        GetResourceMetricsRequest piRequest = generateAverageActiveSessionsRequest(findWriterInstanceDbiResourceId(databaseIdentifier));
         GetResourceMetricsResponse getResourceMetricsResponse = performanceInsightClient.getResourceMetrics(piRequest);
         Double averageActiveSession = getResourceMetricsResponse.metricList().get(0).dataPoints().get(0).value();
 
@@ -169,12 +181,12 @@ public class AwsService {
                 .endTime(endTime)
                 .scanBy(ScanBy.TIMESTAMP_ASCENDING)
                 .metricDataQueries(
-                        generateCpuUsageMetricQuery(databaseIdentifiers),
-                        generateMemoryUsageMetricQuery(databaseIdentifiers),
-                        generateReadQpsMetricQuery(databaseIdentifiers),
-                        generateWriteQpsMetricQuery(databaseIdentifiers),
-                        generateConnectionMetricQuery(databaseIdentifiers),
-                        generateDiskUsageMetricQuery(databaseIdentifiers))
+                        generateCpuUsageMetricQuery(databaseIdentifier),
+                        generateMemoryUsageMetricQuery(databaseIdentifier),
+                        generateReadQpsMetricQuery(databaseIdentifier),
+                        generateWriteQpsMetricQuery(databaseIdentifier),
+                        generateConnectionMetricQuery(databaseIdentifier),
+                        generateDiskUsageMetricQuery(databaseIdentifier))
                 .build();
 
         GetMetricDataResponse metricData = cloudWatchClient.getMetricData(cpuMemoryConnectionDiskRequest);

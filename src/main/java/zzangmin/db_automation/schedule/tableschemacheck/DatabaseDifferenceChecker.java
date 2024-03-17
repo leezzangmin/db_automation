@@ -46,6 +46,7 @@ public class DatabaseDifferenceChecker {
             }
         }
 
+        log.info("DatabaseDifferenceChecker Result: {}", differenceResult.toString());
         return differenceResult.toString();
     }
 

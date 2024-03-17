@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.Table;
-import zzangmin.db_automation.service.DescribeService;
+
 
 import java.util.List;
 import java.util.Map;
@@ -19,35 +19,30 @@ public class TableDifferenceChecker {
 
     private final MysqlClient mysqlClient;
 
-    public String compareTableSchema(DatabaseConnectionInfo sourceInfo, DatabaseConnectionInfo replicaInfo) {
+    public String compareTableSchema(DatabaseConnectionInfo sourceInfo, DatabaseConnectionInfo replicaInfo, List<String> schemaNames) {
         StringBuilder differenceResult = new StringBuilder();
 
-        List<String> sourceSchemaNames = mysqlClient.findSchemaNames(sourceInfo)
-                .stream()
-                .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
-                .collect(Collectors.toList());
-
-        for (String sourceSchemaName : sourceSchemaNames) {
-            List<String> sourceTableNames = mysqlClient.findTableNames(sourceInfo, sourceSchemaName);
-            Map<String, Table> sourceTables = mysqlClient.findTables(sourceInfo, sourceSchemaName, sourceTableNames)
+        for (String schemaName : schemaNames) {
+            List<String> sourceTableNames = mysqlClient.findTableNames(sourceInfo, schemaName);
+            Map<String, Table> sourceTables = mysqlClient.findTables(sourceInfo, schemaName, sourceTableNames)
                     .stream()
                     .collect(Collectors.toMap(
                             table -> table.getTableName(),
                             table -> table));
-            Map<String, Table> replicaTables = mysqlClient.findTables(replicaInfo, sourceSchemaName, sourceTableNames)
+            Map<String, Table> replicaTables = mysqlClient.findTables(replicaInfo, schemaName, sourceTableNames)
                     .stream()
                     .collect(Collectors.toMap(
                             table -> table.getTableName(),
                             table -> table));
 
-            for (String sourceTableName : sourceTables.keySet()) {
+            for (String sourceTableName : sourceTableNames) {
                 Table sourceTable = sourceTables.get(sourceTableName);
                 Table replicaTable = replicaTables.getOrDefault(sourceTableName, null);
                 differenceResult.append(sourceTable.reportDifference(replicaTable));
             }
         }
 
-
+        log.info("TableDifferenceChecker Result: {}", differenceResult.toString());
         return differenceResult.toString();
     }
 

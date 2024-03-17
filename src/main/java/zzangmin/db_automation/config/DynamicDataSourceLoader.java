@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
@@ -31,12 +32,17 @@ public class DynamicDataSourceLoader {
             }
             String dbName = cluster.dbClusterIdentifier();
             String password = awsService.findRdsPassword(dbName);
+            List<Tag> tags = awsService.findRdsTagsByArn(cluster.dbClusterArn());
+            if (tags.size() == 0) {
+                throw new IllegalStateException(dbName + " 에 태그가 존재하지 않습니다. 태그 표준: " + TagStandard.getStandardTagKeyNames());
+            }
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
                     .url("jdbc:mysql://" + cluster.endpoint())
                     .username(cluster.masterUsername())
                     .password(password)
+                    .tags(tags)
                     .build();
 
             dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
@@ -48,12 +54,17 @@ public class DynamicDataSourceLoader {
             }
             String dbName = instance.dbInstanceIdentifier();
             String password = awsService.findRdsPassword(dbName);
+            List<Tag> tags = awsService.findRdsTagsByArn(instance.dbInstanceArn());
+            if (tags.size() == 0) {
+                throw new IllegalStateException(dbName + " 에 태그가 존재하지 않습니다. 태그 표준: " + TagStandard.getStandardTagKeyNames());
+            }
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
                     .url("jdbc:mysql://" + instance.endpoint().address())
                     .username(instance.masterUsername())
                     .password(password)
+                    .tags(tags)
                     .build();
             dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
         }

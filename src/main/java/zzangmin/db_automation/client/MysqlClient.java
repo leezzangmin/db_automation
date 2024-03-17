@@ -29,7 +29,7 @@ public class MysqlClient {
     }
 
     public List<String> findTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
-        String SQL = "SELECT table_name FROM information_schema.tables WHERE table_schema = ?";
+        String SQL = "SELECT table_name FROM information_schema.tables WHERE TABLE_TYPE !='VIEW' AND table_schema = ?";
         List<String> tableNames = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
@@ -453,13 +453,222 @@ public class MysqlClient {
         }
     }
 
+    public List<String> findFunctionNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SELECT routine_name FROM information_schema.routines WHERE routine_type = 'FUNCTION' AND routine_schema = ?";
+        List<String> functionNames = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            log.info("findFunctionNames: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    functionNames.add(resultSet.getString("routine_name"));
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return functionNames;
+    }
+
+    public List<Function> findFunctions(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SELECT routine_name, " +
+                "data_type, " +
+                "character_set_name, " +
+                "collation_name, " +
+                "routine_definition, " +
+                "is_deterministic, " +
+                "definer, " +
+                "character_set_client, " +
+                "collation_connection, " +
+                "database_collation, " +
+                "security_type " +
+                "FROM information_schema.routines " +
+                "WHERE routine_type = 'FUNCTION' " +
+                "AND routine_schema = ?";
+        List<Function> functions = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            log.info("findFunctions: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    functions.add(
+                    Function.builder()
+                            .functionName(resultSet.getString("routine_name"))
+                            .dataType(resultSet.getString("data_type"))
+                            .characterSetName(resultSet.getString("character_set_name"))
+                            .collationName(resultSet.getString("collation_name"))
+                            .routineDefinition(resultSet.getString("routine_definition"))
+                            .isDeterministic(resultSet.getString("routine_name") == "NO" ? false : true)
+                            .definer(Definer.splitDefiner(resultSet.getString("definer")))
+                            .characterSetClient(resultSet.getString("character_set_client"))
+                            .collationConnection(resultSet.getString("collation_connection"))
+                            .collationConnection(resultSet.getString("database_collation"))
+                            .securityType(resultSet.getString("security_type"))
+                            .build()
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return functions;
+    }
+
+    public List<Procedure> findProcedures(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SELECT routine_name, " +
+                "data_type, " +
+                "character_set_name, " +
+                "collation_name, " +
+                "routine_definition, " +
+                "is_deterministic, " +
+                "definer, " +
+                "character_set_client, " +
+                "collation_connection, " +
+                "database_collation, " +
+                "security_type " +
+                "FROM information_schema.routines " +
+                "WHERE routine_type = 'PROCEDURE' " +
+                "AND routine_schema = ?";
+        List<Procedure> procedures = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            log.info("findProcedures: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    procedures.add(
+                            Procedure.builder()
+                                    .procedureName(resultSet.getString("routine_name"))
+                                    .dataType(resultSet.getString("data_type"))
+                                    .characterSetName(resultSet.getString("character_set_name"))
+                                    .collationName(resultSet.getString("collation_name"))
+                                    .routineDefinition(resultSet.getString("routine_definition"))
+                                    .isDeterministic(resultSet.getString("routine_name") == "NO" ? false : true)
+                                    .definer(Definer.splitDefiner(resultSet.getString("definer")))
+                                    .characterSetClient(resultSet.getString("character_set_client"))
+                                    .collationConnection(resultSet.getString("collation_connection"))
+                                    .collationConnection(resultSet.getString("database_collation"))
+                                    .securityType(resultSet.getString("security_type"))
+                                    .build()
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return procedures;
+    }
+
+    public List<Trigger> findTriggers(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SELECT TRIGGERS.TRIGGER_NAME, " +
+                "TRIGGERS.EVENT_MANIPULATION, " +
+                "TRIGGERS.EVENT_OBJECT_TABLE, " +
+                "TRIGGERS.ACTION_ORDER, " +
+                "TRIGGERS.ACTION_STATEMENT, " +
+                "TRIGGERS.ACTION_ORIENTATION, " +
+                "TRIGGERS.DEFINER, " +
+                "TRIGGERS.CHARACTER_SET_CLIENT, " +
+                "TRIGGERS.COLLATION_CONNECTION, " +
+                "TRIGGERS.DATABASE_COLLATION " +
+                "FROM information_schema.TRIGGERS " +
+                "WHERE TRIGGERS.TRIGGER_SCHEMA = ?";
+        List<Trigger> triggers = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            log.info("findTriggers: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    triggers.add(
+                            Trigger.builder()
+                                    .triggerName(resultSet.getString("TRIGGER_NAME"))
+                                    .eventManipulation(resultSet.getString("EVENT_MANIPULATION"))
+                                    .eventObjectTable(resultSet.getString("EVENT_OBJECT_TABLE"))
+                                    .actionOrder(resultSet.getInt("ACTION_ORDER"))
+                                    .actionStatement(resultSet.getString("ACTION_STATEMENT"))
+                                    .actionOrientation(resultSet.getString("ACTION_ORIENTATION"))
+                                    .definer(Definer.splitDefiner(resultSet.getString("DEFINER")))
+                                    .characterSetClient(resultSet.getString("character_set_client"))
+                                    .collationConnection(resultSet.getString("collation_connection"))
+                                    .collationConnection(resultSet.getString("database_collation"))
+                                    .build()
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return triggers;
+    }
+
+    public List<View> findViews(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        String SQL = "SELECT VIEWS.TABLE_NAME, " +
+                "VIEWS.VIEW_DEFINITION, " +
+                "VIEWS.DEFINER, " +
+                "VIEWS.SECURITY_TYPE, " +
+                "VIEWS.CHARACTER_SET_CLIENT, " +
+                "VIEWS.COLLATION_CONNECTION " +
+                "FROM information_schema.VIEWS " +
+                "WHERE VIEWS.TABLE_SCHEMA = ?";
+        List<View> views = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            statement.setString(1, schemaName);
+            log.info("findViews: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    views.add(
+                            View.builder()
+                                    .viewName(resultSet.getString("TABLE_NAME"))
+                                    .viewDefinition(resultSet.getString("VIEW_DEFINITION"))
+                                    .definer(Definer.splitDefiner(resultSet.getString("DEFINER")))
+                                    .securityType(resultSet.getString("SECURITY_TYPE"))
+                                    .characterSetClient(resultSet.getString("character_set_client"))
+                                    .collationConnection(resultSet.getString("collation_connection"))
+                                    .build()
+                    );
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return views;
+    }
+
+
     public List<Table> findTables(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> tableNames) {
         String findTableAndColumnSQL = "SELECT t.TABLE_NAME, t.TABLE_SCHEMA, t.TABLE_TYPE, t.ENGINE, t.CREATE_TIME, t.UPDATE_TIME, t.TABLE_COLLATION, t.TABLE_COMMENT, " +
                 "c.COLUMN_NAME, c.DATA_TYPE, c.CHARACTER_MAXIMUM_LENGTH, c.IS_NULLABLE, c.COLUMN_KEY, " +
                 "c.COLUMN_DEFAULT, c.Extra, c.COLUMN_COMMENT, c.CHARACTER_SET_NAME, c.COLLATION_NAME " +
                 "FROM INFORMATION_SCHEMA.TABLES t " +
                 "LEFT JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_SCHEMA = c.TABLE_SCHEMA AND t.TABLE_NAME = c.TABLE_NAME " +
-                "WHERE t.TABLE_SCHEMA = ? AND t.TABLE_NAME IN ";
+                "WHERE t.TABLE_SCHEMA = ? AND TABLE_TYPE != 'VIEW' AND t.TABLE_NAME IN ";
         String findIndexSQL = "SELECT INDEX_NAME, COLUMN_NAME, TABLE_NAME, NON_UNIQUE " +
                 "FROM INFORMATION_SCHEMA.STATISTICS " +
                 "WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN ";

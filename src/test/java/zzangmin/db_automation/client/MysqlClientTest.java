@@ -35,14 +35,42 @@ public class MysqlClientTest {
     @BeforeEach
     public void setUp() {
         backOfficeDatabaseConnectionInfo = databaseConnectionInfoFactory.createDatabaseConnectionInfo();
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TRIGGER IF EXISTS test_schema.t1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP VIEW IF EXISTS test_schema.v1");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP FUNCTION IF EXISTS test_schema.f1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP PROCEDURE IF EXISTS test_schema.p1");
+
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TABLE test_schema.test_table (id INT NOT NULL AUTO_INCREMENT COMMENT 'asdf', name VARCHAR(45) NULL COMMENT 'name comment', PRIMARY KEY (id), KEY name(name)) COMMENT 'TABLE COMMENT'");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "INSERT INTO test_schema.test_table (name) VALUES ('test_name')");
+
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE FUNCTION test_schema.f1(p_price DECIMAL(10,2)) " +
+                        "RETURNS DECIMAL(10,2) " +
+                        "BEGIN " +
+                        "   RETURN p_price * 1.11; " +
+                        "END");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE PROCEDURE test_schema.p1(IN p_name VARCHAR(255), IN p_email VARCHAR(255))\n" +
+                "BEGIN " +
+                "    INSERT INTO customers (name, email) VALUES (p_name, p_email); " +
+                "END");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TRIGGER test_schema.t1 AFTER INSERT ON test_table " +
+                "    FOR EACH ROW " +
+                "BEGIN " +
+                "    UPDATE test_schema.test_table SET name = '1' WHERE name = '1'; " +
+                "END");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE VIEW test_schema.v1 AS " +
+                "SELECT id " +
+                "FROM test_schema.test_table " +
+                "LIMIT 1;");
     }
 
     @AfterEach
     public void tearDown() {
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TRIGGER IF EXISTS test_schema.t1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP VIEW IF EXISTS test_schema.v1");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP FUNCTION IF EXISTS test_schema.f1");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP PROCEDURE IF EXISTS test_schema.p1");
     }
 
     @DisplayName("executeSQL 을 통해 SQL 을 실행할 수 있다.")
@@ -237,40 +265,27 @@ public class MysqlClientTest {
         assertEquals("utf8mb4_0900_ai_ci", column.getCollate());
     }
 
-    @DisplayName("findMetadataLockHolders로 Metadata Lock 유발 프로세스를 조회할 수 있다.")
+    @DisplayName("findMetadataLockHolders로 Metadata Lock 유발 프로세스를 조회할 수 있다. (performance_schema 활성화 필요)")
     @Test
     public void testFindMetadataLockHolders() throws Exception {
         // given
-        String metadataHolderSQL = "select * from test_schema.test_table where sleep(5)=0 limit 1";
+        String metadataHolderSQL = "select * from test_schema.test_table where sleep(5) = 0 limit 1";
+        String metadataWaitSQL = "ALTER TABLE test_schema.test_table ADD INDEX test_index(id, name)";
 
         ExecutorService executorService1 = Executors.newSingleThreadExecutor();
         ExecutorService executorService2 = Executors.newSingleThreadExecutor();
 
         Future<?> holderFuture = executorService1.submit(() -> {
-            try (Connection connection = DriverManager.getConnection(backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
-                 Statement statement = connection.createStatement()) {
-                statement.execute("start transaction");
-                statement.execute(metadataHolderSQL);
-                statement.execute("commit ");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, metadataHolderSQL);
         });
 
         Future<?> alterFuture = executorService2.submit(() -> {
-            try (Connection connection = DriverManager.getConnection(
-                    backOfficeDatabaseConnectionInfo.getUrl(), backOfficeDatabaseConnectionInfo.getUsername(), backOfficeDatabaseConnectionInfo.getPassword());
-                 Statement statement = connection.createStatement()) {
-                statement.execute("ALTER TABLE test_schema.test_table ADD INDEX test_index(id, name)");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, metadataWaitSQL);
         });
         Thread.sleep(1000);
 
         // when
         List<MetadataLockHolder> metadataLockHolders = mysqlClient.findMetadataLockHolders(backOfficeDatabaseConnectionInfo);
-
         // then
         assertThat(metadataLockHolders.isEmpty()).isFalse();
         MetadataLockHolder metadataLockHolder = metadataLockHolders.get(0);
@@ -343,4 +358,60 @@ public class MysqlClientTest {
     }
 
 
+    @DisplayName("findFunctionNames로 mysql function 이름 목록을 조회할 수 있다.")
+    @Test
+    void findFunctionNames() {
+        // given & when
+        List<String> functionNames = mysqlClient.findFunctionNames(backOfficeDatabaseConnectionInfo, schemaName);
+
+        // then
+        assertThat(functionNames.contains("f1")).isTrue();
+
+    }
+
+    @DisplayName("findFunctions 로 mysql function을 조회할 수 있다.")
+    @Test
+    void findFunctions() {
+        // given & when
+
+        List<Function> functions = mysqlClient.findFunctions(backOfficeDatabaseConnectionInfo, schemaName);
+
+        //then
+        assertThat(functions).isNotEmpty();
+        assertThat(functions.get(0).getFunctionName()).isEqualTo("f1");
+    }
+
+    @DisplayName("findFunctions 로 mysql procedure 를 조회할 수 있다.")
+    @Test
+    void findProcedures() {
+        // given & when
+
+        List<Procedure> procedures = mysqlClient.findProcedures(backOfficeDatabaseConnectionInfo, schemaName);
+
+        //then
+        assertThat(procedures).isNotEmpty();
+        assertThat(procedures.get(0).getProcedureName()).isEqualTo("p1");
+    }
+
+    @DisplayName("findFunctions 로 mysql trigger 를 조회할 수 있다.")
+    @Test
+    void findTriggers() {
+        // given & when
+        List<Trigger> triggers = mysqlClient.findTriggers(backOfficeDatabaseConnectionInfo, schemaName);
+
+        //then
+        assertThat(triggers).isNotEmpty();
+        assertThat(triggers.get(0).getTriggerName()).isEqualTo("t1");
+    }
+
+    @DisplayName("findViews 로 mysql view 를 조회할 수 있다.")
+    @Test
+    void findViews() {
+        // given & when
+        List<View> views = mysqlClient.findViews(backOfficeDatabaseConnectionInfo, schemaName);
+
+        //then
+        assertThat(views).isNotEmpty();
+        assertThat(views.get(0).getViewName()).isEqualTo("v1");
+    }
 }
