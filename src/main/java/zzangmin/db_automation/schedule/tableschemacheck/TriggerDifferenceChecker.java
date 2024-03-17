@@ -44,7 +44,7 @@ public class TriggerDifferenceChecker {
             }
 
         }
-
+        log.info("TriggerDifferenceChecker Result: {}", differenceResult.toString());
         return differenceResult.toString();
     }
 }
