@@ -30,7 +30,7 @@ public class DynamicDataSourceProperties {
     }
 
     // prod <-> stage 간 Map 으로 짝지어주는 메서드
-    public static Map<DatabaseConnectionInfo, DatabaseConnectionInfo> matchPa가irDatabase() {
+    public static Map<DatabaseConnectionInfo, DatabaseConnectionInfo> matchPairDatabase() {
         List<DatabaseConnectionInfo> databases = (List<DatabaseConnectionInfo>) DynamicDataSourceProperties.databases.values();
         Map<String, DatabaseConnectionInfo> prodMap = new HashMap<>();
         Map<String, DatabaseConnectionInfo> stageMap = new HashMap<>();
