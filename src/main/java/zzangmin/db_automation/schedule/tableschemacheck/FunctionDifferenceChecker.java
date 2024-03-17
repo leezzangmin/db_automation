@@ -46,6 +46,7 @@ public class FunctionDifferenceChecker {
 
         }
 
+        log.info("FunctionDifferenceChecker Result: {}", differenceResult.toString());
         return differenceResult.toString();
     }
 }
