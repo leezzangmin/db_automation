@@ -34,12 +34,11 @@ public class SchemaMonitor {
     private final FunctionDifferenceChecker functionDifferenceChecker;
 
 
-    @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
+    // @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() {
         log.info("Schema Monitor Start !");
         StringBuilder schemaCheckResult = new StringBuilder();
         Map<DatabaseConnectionInfo, DatabaseConnectionInfo> prodStageDBs = dynamicDataSourceProperties.matchPairDatabase();
-        System.out.println("prodStageDBs = " + prodStageDBs);
         for (DatabaseConnectionInfo prodDB : prodStageDBs.keySet()) {
             DatabaseConnectionInfo stageDB = prodStageDBs.get(prodDB);
 
