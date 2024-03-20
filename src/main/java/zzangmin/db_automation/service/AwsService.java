@@ -19,6 +19,7 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import zzangmin.db_automation.client.AwsClient;
+import zzangmin.db_automation.schedule.standardcheck.standardvalue.SecretManagerStandard;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.ParameterGroupStandard;
 
 import java.time.Duration;
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static zzangmin.db_automation.schedule.standardcheck.standardvalue.SecretManagerStandard.DB_CREDENTIAL_POSTPIX;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -38,7 +41,6 @@ public class AwsService {
     private static final int DURATION_MINUTE = 5;
     private static final int PERIOD_SECONDS = 60 * DURATION_MINUTE;
     private static final String RDS_SERVICE_TYPE = "RDS";
-    private static final String DB_CREDENTIAL_POSTPIX = "-db-credential";
 
     public List<String> findParameterGroupNames() {
         List<String> clusterParameterGroupNames = new ArrayList<>();
@@ -80,12 +82,19 @@ public class AwsService {
     }
 
     public String findRdsPassword(String databaseIdentifier) {
+        String secretName = databaseIdentifier + SecretManagerStandard.DB_CREDENTIAL_POSTPIX;
+        log.info("secretName: {}", secretName);
         String password;
+        GetSecretValueResponse valueResponse;
         SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient();
         GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
-                .secretId(databaseIdentifier + DB_CREDENTIAL_POSTPIX)
+                .secretId(secretName)
                 .build();
-        GetSecretValueResponse valueResponse = secretManagerClient.getSecretValue(valueRequest);
+        try {
+            valueResponse = secretManagerClient.getSecretValue(valueRequest);
+        } catch (Exception e) {
+            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [clusterName + " + DB_CREDENTIAL_POSTPIX);
+        }
 
         try {
             password = new JSONObject(valueResponse.secretString())
