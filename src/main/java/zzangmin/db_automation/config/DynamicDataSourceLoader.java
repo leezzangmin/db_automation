@@ -31,11 +31,13 @@ public class DynamicDataSourceLoader {
                 continue;
             }
             String dbName = cluster.dbClusterIdentifier();
-            String password = awsService.findRdsPassword(dbName);
             List<Tag> tags = awsService.findRdsTagsByArn(cluster.dbClusterArn());
             if (tags.size() == 0) {
-                throw new IllegalStateException(dbName + " 에 태그가 존재하지 않습니다. 태그 표준: " + TagStandard.getStandardTagKeyNames());
+                log.info("{} DB에 필수 태그가 존재하지 않습니다.", dbName);
+                continue;
             }
+            String password = awsService.findRdsPassword(dbName);
+
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
@@ -53,11 +55,13 @@ public class DynamicDataSourceLoader {
                 continue;
             }
             String dbName = instance.dbInstanceIdentifier();
-            String password = awsService.findRdsPassword(dbName);
             List<Tag> tags = awsService.findRdsTagsByArn(instance.dbInstanceArn());
             if (tags.size() == 0) {
-                throw new IllegalStateException(dbName + " 에 태그가 존재하지 않습니다. 태그 표준: " + TagStandard.getStandardTagKeyNames());
+                log.info("{} DB에 필수 태그가 존재하지 않습니다.", dbName);
+                continue;
             }
+            String password = awsService.findRdsPassword(dbName);
+
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
