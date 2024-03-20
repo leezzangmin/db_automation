@@ -19,8 +19,10 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import zzangmin.db_automation.client.AwsClient;
+import zzangmin.db_automation.schedule.standardcheck.TagStandardChecker;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.SecretManagerStandard;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.ParameterGroupStandard;
+import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -139,6 +141,8 @@ public class AwsService {
         List<String> clusterInstanceIdentifiers = response.dbInstances()
                 .stream()
                 .filter(dbInstance -> dbInstance.dbClusterIdentifier() != null)
+                .filter(cluster -> !cluster.tagList().contains(TagStandard.standardTagKeyNames))
+                .filter(cluster -> TagStandardChecker.isCurrentEnvHasValidTag(cluster.tagList()))
                 .map(DBInstance::dbInstanceIdentifier)
                 .collect(Collectors.toList());
 
@@ -156,6 +160,8 @@ public class AwsService {
         DescribeDbClustersResponse availableClustersResponse = DescribeDbClustersResponse.builder()
                 .dbClusters(describeDbClustersResponse.dbClusters().stream()
                         .filter(cluster -> cluster.status().equals("available"))
+                        .filter(cluster -> !cluster.tagList().contains(TagStandard.standardTagKeyNames))
+                        .filter(cluster -> TagStandardChecker.isCurrentEnvHasValidTag(cluster.tagList()))
                         .collect(Collectors.toList()))
                 .build();
 
