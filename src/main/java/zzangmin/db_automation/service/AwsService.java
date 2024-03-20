@@ -162,17 +162,6 @@ public class AwsService {
         return availableClustersResponse;
     }
 
-    public List<String> findAllClusterNames() {
-        RdsClient rdsClient = awsClient.getRdsClient();
-        DescribeDbClustersResponse describeDbClustersResponse = rdsClient.describeDBClusters();
-        return describeDbClustersResponse.dbClusters()
-                .stream()
-                .filter(cluster -> cluster.status().equals("available"))
-                .map(cluster -> cluster.dbClusterIdentifier())
-                .collect(Collectors.toList());
-
-    }
-
     public Map<String, Long> findAllInstanceMetricsInfo(String databaseIdentifier) {
         CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient();
         PiClient performanceInsightClient = awsClient.getPerformanceInsightClient();
