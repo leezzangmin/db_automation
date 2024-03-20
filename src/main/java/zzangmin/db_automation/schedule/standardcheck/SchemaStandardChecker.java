@@ -1,35 +1,31 @@
 package zzangmin.db_automation.schedule.standardcheck;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.convention.TableConvention;
 import zzangmin.db_automation.entity.Table;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.service.AwsService;
 import zzangmin.db_automation.service.DescribeService;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class SchemaStandardChecker {
 
-    private final AwsService awsService;
     private final MysqlClient mysqlClient;
-    private final DynamicDataSourceProperties dynamicDataSourceProperties;
 
 
     // 스키마, 계정 권한 등
     public String checkSchemaStandard() {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
-        List<DatabaseConnectionInfo> databaseConnectionInfos = awsService.findAllInstanceInfo().stream()
-                .map(cluster -> cluster.getValueForField("DBInstanceIdentifier", String.class).get())
-                .map(clusterName -> dynamicDataSourceProperties.findByDbName(clusterName))
-                .collect(Collectors.toList());
+        List<DatabaseConnectionInfo> databaseConnectionInfos = DynamicDataSourceProperties.getDatabases().values().stream().collect(Collectors.toList());
 
         for (DatabaseConnectionInfo databaseConnectionInfo : databaseConnectionInfos) {
             List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
