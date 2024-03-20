@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.schedule.standardcheck.TagStandardChecker;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
@@ -32,8 +33,7 @@ public class DynamicDataSourceLoader {
             }
             String dbName = cluster.dbClusterIdentifier();
             List<Tag> tags = awsService.findRdsTagsByArn(cluster.dbClusterArn());
-            if (tags.size() == 0) {
-                log.info("{} DB에 필수 태그가 존재하지 않습니다.", dbName);
+            if (!isValidTags(dbName, tags)) {
                 continue;
             }
             String password = awsService.findRdsPassword(dbName);
@@ -56,8 +56,7 @@ public class DynamicDataSourceLoader {
             }
             String dbName = instance.dbInstanceIdentifier();
             List<Tag> tags = awsService.findRdsTagsByArn(instance.dbInstanceArn());
-            if (tags.size() == 0) {
-                log.info("{} DB에 필수 태그가 존재하지 않습니다.", dbName);
+            if (!isValidTags(dbName, tags)) {
                 continue;
             }
             String password = awsService.findRdsPassword(dbName);
@@ -73,6 +72,16 @@ public class DynamicDataSourceLoader {
             dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
         }
         dynamicDataSourceProperties.logDatabases();
+    }
+
+    private boolean isValidTags(String dbName, List<Tag> tags) {
+        if (tags.size() == 0) {
+            log.info("{} DB에 필수 태그가 존재하지 않습니다.", dbName);
+            return false;
+        } else if (!TagStandardChecker.isCurrentEnvHasValidTag(tags)) {
+            return false;
+        }
+        return true;
     }
 
     private boolean isClusterStatusAvailable(DBCluster cluster) {
