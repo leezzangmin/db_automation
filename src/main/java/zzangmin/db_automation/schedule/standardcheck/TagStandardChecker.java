@@ -2,16 +2,17 @@ package zzangmin.db_automation.schedule.standardcheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.DBCluster;
 import software.amazon.awssdk.services.rds.model.DBInstance;
 import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
-import software.amazon.awssdk.services.rds.model.Tag;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,10 +20,6 @@ import java.util.stream.Collectors;
 public class TagStandardChecker {
 
     private final AwsService awsService;
-
-    // prod, stage, dev 등의 현재 환경
-    private final static String CURRENT_ENVIRONMENT = System.getenv("ENVIRONMENT");
-
 
     public String checkTagStandard() {
         StringBuilder tagStandardResult = new StringBuilder();
@@ -56,16 +53,4 @@ public class TagStandardChecker {
         return tagStandardResult.toString();
     }
 
-
-    // 환경변수가 prod인데 tag의 값이 stage면 false 반환
-    public static boolean isCurrentEnvHasValidTag(List<Tag> tags) {
-        for (Tag tag : tags) {
-            if (tag.key().equals(TagStandard.getEnvironmentTagKeyName())) {
-                if (tag.value().equals(CURRENT_ENVIRONMENT)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 }

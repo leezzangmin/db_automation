@@ -7,8 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.schedule.standardcheck.TagStandardChecker;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
@@ -28,11 +26,8 @@ public class DynamicDataSourceLoader {
         List<DBInstance> instances = awsService.findAllInstanceInfo();
 
         for (DBCluster cluster : dbClusters) {
-            if (!isClusterStatusAvailable(cluster)) {
-                continue;
-            }
             String dbName = cluster.dbClusterIdentifier();
-            List<Tag> tags = awsService.findRdsTagsByArn(cluster.dbClusterArn());
+            List<Tag> tags = cluster.tagList();
             if (!isValidTags(dbName, tags)) {
                 continue;
             }
@@ -51,11 +46,8 @@ public class DynamicDataSourceLoader {
         }
 
         for (DBInstance instance : instances) {
-            if (!isInstanceStatusAvailable(instance)) {
-                continue;
-            }
             String dbName = instance.dbInstanceIdentifier();
-            List<Tag> tags = awsService.findRdsTagsByArn(instance.dbInstanceArn());
+            List<Tag> tags = instance.tagList();
             if (!isValidTags(dbName, tags)) {
                 continue;
             }
@@ -79,24 +71,7 @@ public class DynamicDataSourceLoader {
         if (tags.size() == 0) {
             log.info("{} DB에 필수 태그가 존재하지 않습니다.", dbName);
             return false;
-        } else if (!TagStandardChecker.isCurrentEnvHasValidTag(tags)) {
-            return false;
         }
         return true;
     }
-
-    private boolean isClusterStatusAvailable(DBCluster cluster) {
-        if (cluster.status().equals("available")) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isInstanceStatusAvailable(DBInstance instance) {
-        if (instance.dbInstanceStatus().equals("available")) {
-            return true;
-        }
-        return false;
-    }
-
 }

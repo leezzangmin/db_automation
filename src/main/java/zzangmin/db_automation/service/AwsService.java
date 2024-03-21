@@ -2,6 +2,7 @@ package zzangmin.db_automation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
@@ -19,7 +20,6 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import zzangmin.db_automation.client.AwsClient;
-import zzangmin.db_automation.schedule.standardcheck.TagStandardChecker;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.SecretManagerStandard;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.ParameterGroupStandard;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
@@ -43,6 +43,8 @@ public class AwsService {
     private static final int DURATION_MINUTE = 5;
     private static final int PERIOD_SECONDS = 60 * DURATION_MINUTE;
     private static final String RDS_SERVICE_TYPE = "RDS";
+    @Value("${spring.profiles.active}")
+    public String CURRENT_ENVIRONMENT_PROFILE;
 
     public List<String> findParameterGroupNames() {
         List<String> clusterParameterGroupNames = new ArrayList<>();
@@ -55,15 +57,6 @@ public class AwsService {
             clusterParameterGroupNames.add(clusterParameterGroupName);
         }
         return clusterParameterGroupNames;
-    }
-
-    public List<Tag> findRdsTagsByArn(String arn) {
-        RdsClient rdsClient = awsClient.getRdsClient();
-
-        ListTagsForResourceResponse listTagsForResourceResponse = rdsClient.listTagsForResource(ListTagsForResourceRequest.builder()
-                .resourceName(arn)
-                .build());
-        return listTagsForResourceResponse.tagList();
     }
 
     public DescribeDbClusterParametersResponse findClusterParameterGroup(String parameterGroupName) {
@@ -146,8 +139,9 @@ public class AwsService {
 
         List<DBInstance> standaloneInstances = allInstances.stream()
                 .filter(dbInstance -> !clusterInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier()))
+                .filter(dbInstance -> dbInstance.dbInstanceStatus().equals("available"))
                 .filter(dbInstance -> dbInstance.tagList().contains(TagStandard.standardTagKeyNames))
-                .filter(dbInstance -> TagStandardChecker.isCurrentEnvHasValidTag(dbInstance.tagList()))
+                .filter(dbInstance -> isCurrentEnvHasValidTag(dbInstance.tagList()))
                 .collect(Collectors.toList());
         log.info("standaloneInstances: {}", standaloneInstances);
         return standaloneInstances;
@@ -161,10 +155,10 @@ public class AwsService {
                 .dbClusters(describeDbClustersResponse.dbClusters().stream()
                         .filter(cluster -> cluster.status().equals("available"))
                         .filter(cluster -> !cluster.tagList().contains(TagStandard.standardTagKeyNames))
-                        .filter(cluster -> TagStandardChecker.isCurrentEnvHasValidTag(cluster.tagList()))
+                        .filter(cluster -> !isCurrentEnvHasValidTag(cluster.tagList()))
                         .collect(Collectors.toList()))
                 .build();
-
+        log.info("clusters: {}", availableClustersResponse);
         return availableClustersResponse;
     }
 
@@ -351,8 +345,21 @@ public class AwsService {
                 return dbInstance.dbiResourceId();
             }
         }
-        // dbInstance.dbClusterIdentifier().equals(databaseIdentifier)
         throw new IllegalStateException("Writer DbiResourceId not found");
+    }
+
+    // 환경변수 프로파일이 prod인데 tag의 값이 stage면 false 반환
+    private boolean isCurrentEnvHasValidTag(List<Tag> tags) {
+        log.info("tags: {}, profile: {}", tags, CURRENT_ENVIRONMENT_PROFILE);
+
+        for (Tag tag : tags) {
+            if (tag.key().equals(TagStandard.getEnvironmentTagKeyName())) {
+                if (tag.value().equals(CURRENT_ENVIRONMENT_PROFILE)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 }
