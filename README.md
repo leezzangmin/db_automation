@@ -178,7 +178,7 @@
 - 클러스터 필수 설정 태그
   - env: [prod, stage, dev] (환경 명)
   - service: [user, shop, order] (서비스 명)
-- 환경변수에 `ENVIRONMENT` 설정 (dev, stage, prod 등)
+- profiles 설정 필요 (dev, stage, prod 등)
 - schema.sql 스크립트 미리 수행
 - performance_schema 활성화
 
