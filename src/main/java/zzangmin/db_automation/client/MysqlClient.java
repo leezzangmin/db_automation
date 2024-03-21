@@ -897,6 +897,7 @@ public class MysqlClient {
     }
 
     public void healthCheck(DatabaseConnectionInfo databaseConnectionInfo) {
+        log.info("health check start: {}", databaseConnectionInfo.getDatabaseName());
         String SQL = "SELECT 1 FROM DUAL";
         try (Connection connection = DriverManager.getConnection(
                 databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
@@ -906,8 +907,10 @@ public class MysqlClient {
             statement.execute();
         } catch (SQLException e) {
             e.printStackTrace();
+            log.info("health check failed: {}", databaseConnectionInfo.getDatabaseName());
             throw new IllegalStateException("헬스 체크에 실패했습니다. 연결을 재확인하세요.\nDatabase: " + databaseConnectionInfo);
         }
+        log.info("health check finish: {}", databaseConnectionInfo.getDatabaseName());
     }
 
 }
