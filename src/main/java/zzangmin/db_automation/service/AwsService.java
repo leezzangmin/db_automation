@@ -46,12 +46,26 @@ public class AwsService {
     @Value("${spring.profiles.active}")
     public String CURRENT_ENVIRONMENT_PROFILE;
 
-    public List<String> findParameterGroupNames() {
+    public List<String> findDbParameterGroupNames() {
+        List<String> dbParameterGroupNames = new ArrayList<>();
+
+        List<DBInstance> dbInstances = findAllInstanceInfo();
+
+        for (DBInstance dbInstance : dbInstances) {
+            List<DBParameterGroupStatus> dbParameterGroupStatuses = dbInstance.dbParameterGroups();
+            for (DBParameterGroupStatus dbParameterGroupStatus : dbParameterGroupStatuses) {
+                String dbParameterGroupName = dbParameterGroupStatus.dbParameterGroupName();
+                dbParameterGroupNames.add(dbParameterGroupName);
+            }
+        }
+        return dbParameterGroupNames;
+    }
+
+    public List<String> findClusterParameterGroupNames() {
         List<String> clusterParameterGroupNames = new ArrayList<>();
 
-        RdsClient rdsClient = awsClient.getRdsClient();
-        DescribeDbClustersResponse describeDbClustersResponse = rdsClient.describeDBClusters();
-        List<DBCluster> dbClusters = describeDbClustersResponse.dbClusters();
+        List<DBCluster> dbClusters = findAllClusterInfo();
+
         for (DBCluster dbCluster : dbClusters) {
             String clusterParameterGroupName = dbCluster.dbClusterParameterGroup();
             clusterParameterGroupNames.add(clusterParameterGroupName);
@@ -59,8 +73,11 @@ public class AwsService {
         return clusterParameterGroupNames;
     }
 
-    public DescribeDbClusterParametersResponse findClusterParameterGroup(String parameterGroupName) {
+    public Map<String, List<Parameter>> findParameterGroups(List<String> parameterGroupNames) {
+        Map<String, List<Parameter>> parameterGroups = new HashMap<>();
+
         RdsClient rdsClient = awsClient.getRdsClient();
+
         DescribeDbClusterParametersResponse describeDbClusterParametersResponse = rdsClient.describeDBClusterParameters(
                 DescribeDbClusterParametersRequest.builder()
                         .filters(ParameterGroupStandard.standardParameters.keySet()
@@ -73,6 +90,14 @@ public class AwsService {
                         .dbClusterParameterGroupName(parameterGroupName)
                         .build()
         );
+
+        DescribeDbParametersResponse describeDbParametersResponse = rdsClient.describeDBParameters();
+        List<Parameter> parameters = describeDbParametersResponse.parameters();
+
+        DescribeDbParameterGroupsResponse describeDbParameterGroupsResponse = (DescribeDbParameterGroupsResponse) describeDbParametersResponse;
+        List<DBParameterGroup> dbParameterGroups = describeDbParameterGroupsResponse.dbParameterGroups();
+        DBParameterGroup dbParameterGroup = dbParameterGroups.get(0);
+        dbParameterGroup.
         return describeDbClusterParametersResponse;
     }
 
@@ -127,39 +152,49 @@ public class AwsService {
 
     public List<DBInstance> findAllInstanceInfo() {
         RdsClient rdsClient = awsClient.getRdsClient();
+        DescribeDbInstancesResponse describeDbInstancesResponse = rdsClient.describeDBInstances();
 
-        // 클러스터에 속하지 않은 인스턴스만 필터링
-        DescribeDbInstancesResponse response = rdsClient.describeDBInstances();
-        List<DBInstance> allInstances = response.dbInstances();
-        List<String> clusterInstanceIdentifiers = response.dbInstances()
+        List<DBInstance> standaloneInstances = findValidInstances(describeDbInstancesResponse);
+        log.info("standaloneInstances: {}", standaloneInstances);
+        return standaloneInstances;
+    }
+
+    // 클러스터에 속하지 않은 인스턴스만 필터링
+    private List<DBInstance> findValidInstances(DescribeDbInstancesResponse describeDbInstancesResponse) {
+        List<String> clusterInstanceIdentifiers = describeDbInstancesResponse.dbInstances()
                 .stream()
                 .filter(dbInstance -> dbInstance.dbClusterIdentifier() != null)
                 .map(DBInstance::dbInstanceIdentifier)
                 .collect(Collectors.toList());
 
-        List<DBInstance> standaloneInstances = allInstances.stream()
+        List<DBInstance> standaloneInstances = describeDbInstancesResponse.dbInstances().stream()
                 .filter(dbInstance -> !clusterInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier()))
                 .filter(dbInstance -> dbInstance.dbInstanceStatus().equals("available"))
-                .filter(dbInstance -> dbInstance.tagList().contains(TagStandard.standardTagKeyNames))
+                .filter(dbInstance -> !dbInstance.tagList().contains(TagStandard.standardTagKeyNames))
                 .filter(dbInstance -> isCurrentEnvHasValidTag(dbInstance.tagList()))
                 .collect(Collectors.toList());
-        log.info("standaloneInstances: {}", standaloneInstances);
         return standaloneInstances;
     }
 
-    public DescribeDbClustersResponse findAllClusterInfo() {
+    public List<DBCluster> findAllClusterInfo() {
         DescribeDbClustersResponse describeDbClustersResponse = awsClient.getRdsClient()
                 .describeDBClusters();
+        DescribeDbClustersResponse clustersResponse = findValidClusters(describeDbClustersResponse);
 
-        DescribeDbClustersResponse availableClustersResponse = DescribeDbClustersResponse.builder()
+        List<DBCluster> dbClusters = clustersResponse.dbClusters();
+        log.info("clusters: {}", dbClusters);
+        return dbClusters;
+    }
+
+    private DescribeDbClustersResponse findValidClusters(DescribeDbClustersResponse describeDbClustersResponse) {
+        DescribeDbClustersResponse clustersResponse = DescribeDbClustersResponse.builder()
                 .dbClusters(describeDbClustersResponse.dbClusters().stream()
                         .filter(cluster -> cluster.status().equals("available"))
                         .filter(cluster -> !cluster.tagList().contains(TagStandard.standardTagKeyNames))
                         .filter(cluster -> isCurrentEnvHasValidTag(cluster.tagList()))
                         .collect(Collectors.toList()))
                 .build();
-        log.info("clusters: {}", availableClustersResponse);
-        return availableClustersResponse;
+        return clustersResponse;
     }
 
     public Map<String, Long> findAllInstanceMetricsInfo(String databaseIdentifier) {

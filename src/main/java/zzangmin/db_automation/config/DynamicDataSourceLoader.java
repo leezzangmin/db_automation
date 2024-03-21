@@ -21,8 +21,7 @@ public class DynamicDataSourceLoader {
 
     @PostConstruct
     public void loadDynamicDataSources() {
-        DescribeDbClustersResponse clusterResponse = awsService.findAllClusterInfo();
-        List<DBCluster> dbClusters = clusterResponse.dbClusters();
+        List<DBCluster> dbClusters = awsService.findAllClusterInfo();
         List<DBInstance> instances = awsService.findAllInstanceInfo();
 
         for (DBCluster cluster : dbClusters) {

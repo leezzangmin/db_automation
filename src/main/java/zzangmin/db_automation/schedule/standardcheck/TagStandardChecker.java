@@ -25,10 +25,10 @@ public class TagStandardChecker {
         StringBuilder tagStandardResult = new StringBuilder();
 
         List<String> standardTagKeyNames = TagStandard.standardTagKeyNames;
-        DescribeDbClustersResponse clustersResponse = awsService.findAllClusterInfo();
+        List<DBCluster> dbClusters = awsService.findAllClusterInfo();
         List<DBInstance> instancesResponse = awsService.findAllInstanceInfo();
 
-        for (DBCluster cluster : clustersResponse.dbClusters()) {
+        for (DBCluster cluster : dbClusters) {
             List<String> clusterTagKeys = cluster.tagList()
                     .stream()
                     .map(tag -> tag.key())

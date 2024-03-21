@@ -28,8 +28,7 @@ public class DescribeService {
     private final ChangeHistoryRepository changeHistoryRepository;
 
     public RdsClustersResponseDTO findClustersInfo() {
-        DescribeDbClustersResponse allClusterInfo = awsService.findAllClusterInfo();
-        List<DBCluster> dbClusters = allClusterInfo.dbClusters();
+        List<DBCluster> dbClusters = awsService.findAllClusterInfo();
         List<Map<String, Long>> rdsInfo = new ArrayList<>();
         dbClusters.stream()
                 .map(i -> i.getValueForField("DBClusterIdentifier", String.class).get())

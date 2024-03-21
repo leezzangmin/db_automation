@@ -3,7 +3,6 @@ package zzangmin.db_automation.schedule.standardcheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.DBCluster;
-import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.ClusterCreationStandard;
 import zzangmin.db_automation.service.AwsService;
 
@@ -18,8 +17,7 @@ public class ClusterCreationStandardChecker {
 
     public String checkClusterCreationStandard() {
         StringBuilder sb = new StringBuilder();
-        DescribeDbClustersResponse response = awsService.findAllClusterInfo();
-        List<DBCluster> dbClusters = response.dbClusters();
+        List<DBCluster> dbClusters = awsService.findAllClusterInfo();
         for (DBCluster dbCluster : dbClusters) {
             Set<String> creationStandardNames = ClusterCreationStandard.clusterCreationStandard.keySet();
             for (String creationStandardName : creationStandardNames) {
