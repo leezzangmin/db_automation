@@ -71,6 +71,7 @@ public class DynamicDataSourceLoader {
                     .build();
             dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
         }
+        dynamicDataSourceProperties.validateDatabases();
         dynamicDataSourceProperties.logDatabases();
     }
 
