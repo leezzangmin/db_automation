@@ -141,15 +141,15 @@ public class AwsService {
         List<String> clusterInstanceIdentifiers = response.dbInstances()
                 .stream()
                 .filter(dbInstance -> dbInstance.dbClusterIdentifier() != null)
-                .filter(cluster -> !cluster.tagList().contains(TagStandard.standardTagKeyNames))
-                .filter(cluster -> TagStandardChecker.isCurrentEnvHasValidTag(cluster.tagList()))
                 .map(DBInstance::dbInstanceIdentifier)
                 .collect(Collectors.toList());
 
         List<DBInstance> standaloneInstances = allInstances.stream()
                 .filter(dbInstance -> !clusterInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier()))
+                .filter(dbInstance -> dbInstance.tagList().contains(TagStandard.standardTagKeyNames))
+                .filter(dbInstance -> TagStandardChecker.isCurrentEnvHasValidTag(dbInstance.tagList()))
                 .collect(Collectors.toList());
-
+        log.info("standaloneInstances: {}", standaloneInstances);
         return standaloneInstances;
     }
 
