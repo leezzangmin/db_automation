@@ -155,7 +155,7 @@ public class AwsService {
                 .dbClusters(describeDbClustersResponse.dbClusters().stream()
                         .filter(cluster -> cluster.status().equals("available"))
                         .filter(cluster -> !cluster.tagList().contains(TagStandard.standardTagKeyNames))
-                        .filter(cluster -> !isCurrentEnvHasValidTag(cluster.tagList()))
+                        .filter(cluster -> isCurrentEnvHasValidTag(cluster.tagList()))
                         .collect(Collectors.toList()))
                 .build();
         log.info("clusters: {}", availableClustersResponse);
