@@ -1,7 +1,9 @@
 package zzangmin.db_automation.config;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 
@@ -11,8 +13,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
 public class DynamicDataSourceProperties {
+
+    private final MysqlClient mysqlClient;
 
     private static Map<String, DatabaseConnectionInfo> databases = new ConcurrentHashMap<>();
 
@@ -73,4 +78,15 @@ public class DynamicDataSourceProperties {
             log.info("databases: {}", databases.get(databaseName));
         }
     }
+
+    public void validateDatabases() {
+        if (databases.values().size() == 0) {
+            throw new IllegalStateException("로드한 대상 DB가 없습니다.");
+        }
+        for (DatabaseConnectionInfo databaseConnectionInfo : databases.values()) {
+            mysqlClient.healthCheck(databaseConnectionInfo);
+        }
+    }
+
+
 }
