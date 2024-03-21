@@ -59,16 +59,13 @@ public class TagStandardChecker {
 
     // 환경변수가 prod인데 tag의 값이 stage면 false 반환
     public static boolean isCurrentEnvHasValidTag(List<Tag> tags) {
-        String tagEnv = "";
         for (Tag tag : tags) {
             if (tag.key().equals(TagStandard.getEnvironmentTagKeyName())) {
-                tagEnv = tag.value();
                 if (tag.value().equals(CURRENT_ENVIRONMENT)) {
                     return true;
                 }
             }
         }
-        log.info("현재 ENVIRONMENT에 맞지 않는 tag입니다. 현재 환경: {}, 입력된 태그의 환경: {}", CURRENT_ENVIRONMENT, tagEnv);
         return false;
     }
 }
