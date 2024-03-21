@@ -14,6 +14,8 @@ import java.util.*;
 public class MysqlClient {
 
     private static final int COMMAND_TIMEOUT_SECONDS = 600;
+    private static final int HEALTHCHECK_TIMEOUT_SECONDS = 3;
+
 
     public void executeSQL(DatabaseConnectionInfo databaseConnectionInfo, String SQL) {
         try (Connection connection = DriverManager.getConnection(
@@ -892,6 +894,20 @@ public class MysqlClient {
             throw new IllegalStateException("historyListLength 를 불러오는 데 실패했습니다. " + databaseConnectionInfo);
         }
         return historyListLength;
+    }
+
+    public void healthCheck(DatabaseConnectionInfo databaseConnectionInfo) {
+        String SQL = "SELECT 1 FROM DUAL";
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+            log.info("healthCheck: {}", statement);
+            statement.setQueryTimeout(HEALTHCHECK_TIMEOUT_SECONDS);
+            statement.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new IllegalStateException("헬스 체크에 실패했습니다. 연결을 재확인하세요.\nDatabase: " + databaseConnectionInfo);
+        }
     }
 
 }
