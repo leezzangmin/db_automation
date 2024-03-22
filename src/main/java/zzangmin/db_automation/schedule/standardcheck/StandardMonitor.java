@@ -21,18 +21,17 @@ public class StandardMonitor {
         StringBuilder standardCheckResult = new StringBuilder();
 
         String parameterCheckResult = parameterStandardChecker.checkParameterStandard();
-        System.out.println("parameterCheckResult = " + parameterCheckResult);
-//        String clusterCreationStandardResult = clusterCreationStandardChecker.checkClusterCreationStandard();
-//        String instanceCreationStandardResult = instanceCreationStandardChecker.checkInstanceCreationStandard();
-//        String schemaStandardResult = schemaStandardChecker.checkSchemaStandard();
-//        String tagStandardResult = tagStandardChecker.checkTagStandard();
-//
-//        standardCheckResult.append(parameterCheckResult);
-//        standardCheckResult.append(clusterCreationStandardResult);
-//        standardCheckResult.append(instanceCreationStandardResult);
-//        standardCheckResult.append(schemaStandardResult);
-//        standardCheckResult.append(tagStandardResult);
+        String clusterCreationStandardResult = clusterCreationStandardChecker.checkClusterCreationStandard();
+        String instanceCreationStandardResult = instanceCreationStandardChecker.checkInstanceCreationStandard();
+        String schemaStandardResult = schemaStandardChecker.checkSchemaStandard();
+        String tagStandardResult = tagStandardChecker.checkTagStandard();
 
-        //        slackClient.sendMessage(standardCheckResult.toString());
+        standardCheckResult.append(parameterCheckResult);
+        standardCheckResult.append(clusterCreationStandardResult);
+        standardCheckResult.append(instanceCreationStandardResult);
+        standardCheckResult.append(schemaStandardResult);
+        standardCheckResult.append(tagStandardResult);
+
+        slackClient.sendMessage(standardCheckResult.toString());
     }
 }
