@@ -54,6 +54,23 @@ public class SchemaService {
         schemaRepository.saveAll(schemas);
     }
 
+
+    @Transactional(readOnly = true)
+    public List<Table> findTables(String serviceName, SchemaType schemaType) {
+        List<Schema> schemaTables = schemaRepository.findByServiceNameAndSchemaType(serviceName, schemaType);
+        List<Table> tables = schemaTables.stream()
+                .map(schema -> {
+                    try {
+                        return (Table) encryptedJsonStringToObject(schema.getEncryptedJsonString());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+        return tables;
+    }
+
+
     private String makeEncryptedJsonString(Object object) throws Exception {
         String jsonString = JsonUtil.toJson(object);
         String encryptedJsonString = EncryptionUtil.encrypt(jsonString);
