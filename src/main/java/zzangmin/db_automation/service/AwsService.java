@@ -13,8 +13,6 @@ import software.amazon.awssdk.services.pi.model.GetResourceMetricsResponse;
 import software.amazon.awssdk.services.pi.model.MetricQuery;
 import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.rds.model.*;
-import software.amazon.awssdk.services.rds.model.ListTagsForResourceRequest;
-import software.amazon.awssdk.services.rds.model.ListTagsForResourceResponse;
 import software.amazon.awssdk.services.rds.model.Tag;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
@@ -40,9 +38,12 @@ import static zzangmin.db_automation.schedule.standardcheck.standardvalue.Secret
 public class AwsService {
 
     private final AwsClient awsClient;
+
     private static final int DURATION_MINUTE = 5;
     private static final int PERIOD_SECONDS = 60 * DURATION_MINUTE;
     private static final String RDS_SERVICE_TYPE = "RDS";
+    private static final int MIN_RECORD_SIZE = 20;
+
     @Value("${spring.profiles.active}")
     public String CURRENT_ENVIRONMENT_PROFILE;
 
@@ -73,9 +74,7 @@ public class AwsService {
         return clusterParameterGroupNames;
     }
 
-    public Map<String, List<Parameter>> findParameterGroups(List<String> parameterGroupNames) {
-        Map<String, List<Parameter>> parameterGroups = new HashMap<>();
-
+    public List<Parameter> findClusterParameterGroupParameters(String parameterGroupName) {
         RdsClient rdsClient = awsClient.getRdsClient();
 
         DescribeDbClusterParametersResponse describeDbClusterParametersResponse = rdsClient.describeDBClusterParameters(
@@ -88,17 +87,33 @@ public class AwsService {
                                         .build())
                                 .collect(Collectors.toList()))
                         .dbClusterParameterGroupName(parameterGroupName)
+                        .maxRecords(Math.max(MIN_RECORD_SIZE, ParameterGroupStandard.standardParameters.size()))
                         .build()
         );
+        List<Parameter> dbParameters = describeDbClusterParametersResponse.parameters();
+        log.info("cluster parameters: {}", dbParameters);
+        return dbParameters;
+    }
 
-        DescribeDbParametersResponse describeDbParametersResponse = rdsClient.describeDBParameters();
-        List<Parameter> parameters = describeDbParametersResponse.parameters();
+    public List<Parameter> findDbParameterGroupParameters(String parameterGroupName) {
+        RdsClient rdsClient = awsClient.getRdsClient();
 
-        DescribeDbParameterGroupsResponse describeDbParameterGroupsResponse = (DescribeDbParameterGroupsResponse) describeDbParametersResponse;
-        List<DBParameterGroup> dbParameterGroups = describeDbParameterGroupsResponse.dbParameterGroups();
-        DBParameterGroup dbParameterGroup = dbParameterGroups.get(0);
-        dbParameterGroup.
-        return describeDbClusterParametersResponse;
+        DescribeDbParametersResponse describeDbParametersResponse = rdsClient.describeDBParameters(
+                DescribeDbParametersRequest.builder()
+                        .filters(ParameterGroupStandard.standardParameters.keySet()
+                                .stream()
+                                .map(parameterName -> Filter.builder()
+                                        .name("parameter-name")
+                                        .values(parameterName)
+                                        .build())
+                                .collect(Collectors.toList()))
+                        .dbParameterGroupName(parameterGroupName)
+                        .maxRecords(Math.max(MIN_RECORD_SIZE, ParameterGroupStandard.standardParameters.size()))
+                        .build()
+        );
+        List<Parameter> dbParameters = describeDbParametersResponse.parameters();
+        log.info("db parameters: {}", dbParameters);
+        return dbParameters;
     }
 
     public String findRdsPassword(String databaseIdentifier) {
