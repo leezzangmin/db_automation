@@ -181,7 +181,7 @@
 - profiles 설정 필요 (dev, stage, prod 등)
 - schema.sql 스크립트 미리 수행
 - performance_schema 활성화
-
+- `ENCRYPT_KEY` 환경변수 설정 필요 (16 byte)
 
 ## API 명세
 - 
