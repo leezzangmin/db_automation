@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zzangmin.db_automation.entity.SchemaObject;
-import zzangmin.db_automation.entity.SchemaType;
+import zzangmin.db_automation.entity.SchemaObjectType;
 import zzangmin.db_automation.entity.Table;
 import zzangmin.db_automation.repository.SchemaObjectRepository;
 import zzangmin.db_automation.util.EncryptionUtil;
@@ -19,45 +19,51 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SchemaService {
+public class SchemaObjectService {
 
     private final SchemaObjectRepository schemaObjectRepository;
 
     @Transactional
-    public void saveTable(String serviceName, Table table) throws Exception {
-        String encryptedJsonTable = makeEncryptedJsonString(table);
+    public void saveTables(String serviceName, String schemaName, List<Table> tables) throws Exception {
+        List<SchemaObject> schemaObjects = new ArrayList<>();
 
-        SchemaObject schema = SchemaObject.builder()
-                .schemaType(SchemaType.TABLE)
-                .schemaName(table.getTableName())
-                .serviceName(serviceName)
-                .encryptedJsonString(encryptedJsonTable)
-                .build();
+        for (Table table : tables) {
+            String encryptedJsonTable = makeEncryptedJsonString(table);
+            SchemaObject schemaObject = SchemaObject.builder()
+                    .schemaObjectType(SchemaObjectType.TABLE)
+                    .databaseName(schemaName)
+                    .schemaObjectName(table.getTableName())
+                    .serviceName(serviceName)
+                    .encryptedJsonString(encryptedJsonTable)
+                    .build();
+            schemaObjects.add(schemaObject);
+        }
 
-        schemaObjectRepository.save(schema);
+        schemaObjectRepository.saveAll(schemaObjects);
     }
 
     @Transactional
     public void saveDatabases(String serviceName, Map<String, String> schemaCreateStatements) throws Exception {
-        List<SchemaObject> schemas = new ArrayList<>();
+        List<SchemaObject> schemaObjects = new ArrayList<>();
         for (String schemaName : schemaCreateStatements.keySet()) {
             String encryptedJsonCreateDatabase = makeEncryptedJsonString(schemaCreateStatements.get(schemaName));
-            SchemaObject schema = SchemaObject.builder()
-                    .schemaType(SchemaType.DATABASE)
-                    .schemaName(schemaName)
+            SchemaObject schemaObject = SchemaObject.builder()
+                    .schemaObjectType(SchemaObjectType.DATABASE)
+                    .databaseName(schemaName)
+                    .schemaObjectName(schemaName)
                     .serviceName(serviceName)
                     .encryptedJsonString(encryptedJsonCreateDatabase)
                     .build();
-            schemas.add(schema);
+            schemaObjects.add(schemaObject);
         }
-        log.info("schemas: {}", schemas);
-        schemaObjectRepository.saveAll(schemas);
+        log.info("schemaObjects: {}", schemaObjects);
+        schemaObjectRepository.saveAll(schemaObjects);
     }
 
 
     @Transactional(readOnly = true)
-    public List<Table> findTables(String serviceName, SchemaType schemaType) {
-        List<SchemaObject> schemaTables = schemaObjectRepository.findByServiceNameAndSchemaType(serviceName, schemaType);
+    public List<Table> findTables(String serviceName, SchemaObjectType schemaObjectType) {
+        List<SchemaObject> schemaTables = schemaObjectRepository.findByServiceNameAndSchemaType(serviceName, schemaObjectType);
         List<Table> tables = schemaTables.stream()
                 .map(schema -> {
                     try {

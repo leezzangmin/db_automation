@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS back_office.change_history (
 CREATE TABLE IF NOT EXISTS back_office.schema_object (
     id bigint primary key auto_increment,
     schema_type varchar(64) not null,
-    schema_name varchar(64) not null,
+    schema_object_name varchar(64) not null,
+    database_name varchar(64) not null,
     service_name varchar(64) not null,
     encrypted_json_string mediumtext not null
 );

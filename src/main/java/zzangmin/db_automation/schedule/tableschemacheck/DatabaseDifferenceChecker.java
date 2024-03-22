@@ -3,7 +3,7 @@ package zzangmin.db_automation.schedule.tableschemacheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.service.SchemaService;
+import zzangmin.db_automation.service.SchemaObjectService;
 import zzangmin.db_automation.util.StringMessageUtil;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class DatabaseDifferenceChecker {
 
     private final MysqlClient mysqlClient;
-    private final SchemaService schemaService;
+    private final SchemaObjectService schemaObjectService;
 
     public String compareDatabase(DatabaseConnectionInfo sourceInfo, DatabaseConnectionInfo replicaInfo) {
         StringBuilder differenceResult = new StringBuilder();
@@ -62,7 +62,7 @@ public class DatabaseDifferenceChecker {
                         schemaName -> schemaName,
                         schemaName -> mysqlClient.findCreateDatabaseStatement(databaseConnectionInfo, schemaName).get()));
         log.info("schemaCreateStatements: {}", schemaCreateStatements);
-        schemaService.saveDatabases(serviceName, schemaCreateStatements);
+        schemaObjectService.saveDatabases(serviceName, schemaCreateStatements);
     }
 
 

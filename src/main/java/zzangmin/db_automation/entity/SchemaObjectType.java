@@ -1,6 +1,6 @@
 package zzangmin.db_automation.entity;
 
-public enum SchemaType {
+public enum SchemaObjectType {
     TABLE,
     FUNCTION,
     PROCEDURE,

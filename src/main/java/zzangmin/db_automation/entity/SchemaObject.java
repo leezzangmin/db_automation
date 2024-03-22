@@ -15,8 +15,9 @@ public class SchemaObject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
-    private SchemaType schemaType;
-    private String schemaName;
+    private SchemaObjectType schemaObjectType;
+    private String databaseName; // ex) aipers_hr
+    private String schemaObjectName;
     private String serviceName;
     private String encryptedJsonString;
 
