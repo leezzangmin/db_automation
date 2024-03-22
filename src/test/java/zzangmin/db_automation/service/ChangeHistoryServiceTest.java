@@ -41,7 +41,7 @@ class ChangeHistoryServiceTest {
     @BeforeEach
     public void setUp() {
         backOfficeDatabaseConnectionInfo = databaseConnectionInfoFactory.createDatabaseConnectionInfo();
-        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DELETE FROM automation_change_history.change_history where table_name = 'test_table'");
+        mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DELETE FROM back_office.change_history where table_name = 'test_table'");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "DROP TABLE IF EXISTS test_schema.test_table");
         mysqlClient.executeSQL(backOfficeDatabaseConnectionInfo, "CREATE TABLE test_schema.test_table (id INT NOT NULL AUTO_INCREMENT COMMENT 'asdf', name VARCHAR(45) NULL COMMENT 'name comment', PRIMARY KEY (id), KEY name(name)) COMMENT 'TABLE COMMENT'");
     }
