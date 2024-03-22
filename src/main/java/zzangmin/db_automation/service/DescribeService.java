@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Service
 public class DescribeService {
 
-    public static final List<String> schemaBlackList = List.of("information_schema", "mysql", "performance_schema", "sys", "dba");
+    public static final List<String> schemaBlackList = List.of("information_schema", "mysql", "performance_schema", "sys", "dba", "back_office", "test_schema");
 
     private final AwsService awsService;
     private final MysqlClient mysqlClient;
