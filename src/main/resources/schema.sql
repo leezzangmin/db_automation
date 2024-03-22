@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS back_office.change_history (
     change_content text not null
 );
 
-CREATE TABLE IF NOT EXISTS back_office.schema (
+CREATE TABLE IF NOT EXISTS back_office.schema_object (
     id bigint primary key auto_increment,
     schema_type varchar(64) not null,
     schema_name varchar(64) not null,

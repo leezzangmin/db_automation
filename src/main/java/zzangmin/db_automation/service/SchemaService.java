@@ -4,10 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zzangmin.db_automation.entity.Schema;
+import zzangmin.db_automation.entity.SchemaObject;
 import zzangmin.db_automation.entity.SchemaType;
 import zzangmin.db_automation.entity.Table;
-import zzangmin.db_automation.repository.SchemaRepository;
+import zzangmin.db_automation.repository.SchemaObjectRepository;
 import zzangmin.db_automation.util.EncryptionUtil;
 import zzangmin.db_automation.util.JsonUtil;
 
@@ -21,28 +21,28 @@ import java.util.stream.Collectors;
 @Service
 public class SchemaService {
 
-    private final SchemaRepository schemaRepository;
+    private final SchemaObjectRepository schemaObjectRepository;
 
     @Transactional
     public void saveTable(String serviceName, Table table) throws Exception {
         String encryptedJsonTable = makeEncryptedJsonString(table);
 
-        Schema schema = Schema.builder()
+        SchemaObject schema = SchemaObject.builder()
                 .schemaType(SchemaType.TABLE)
                 .schemaName(table.getTableName())
                 .serviceName(serviceName)
                 .encryptedJsonString(encryptedJsonTable)
                 .build();
 
-        schemaRepository.save(schema);
+        schemaObjectRepository.save(schema);
     }
 
     @Transactional
     public void saveDatabases(String serviceName, Map<String, String> schemaCreateStatements) throws Exception {
-        List<Schema> schemas = new ArrayList<>();
+        List<SchemaObject> schemas = new ArrayList<>();
         for (String schemaName : schemaCreateStatements.keySet()) {
             String encryptedJsonCreateDatabase = makeEncryptedJsonString(schemaCreateStatements.get(schemaName));
-            Schema schema = Schema.builder()
+            SchemaObject schema = SchemaObject.builder()
                     .schemaType(SchemaType.DATABASE)
                     .schemaName(schemaName)
                     .serviceName(serviceName)
@@ -50,14 +50,14 @@ public class SchemaService {
                     .build();
             schemas.add(schema);
         }
-
-        schemaRepository.saveAll(schemas);
+        log.info("schemas: {}", schemas);
+        schemaObjectRepository.saveAll(schemas);
     }
 
 
     @Transactional(readOnly = true)
     public List<Table> findTables(String serviceName, SchemaType schemaType) {
-        List<Schema> schemaTables = schemaRepository.findByServiceNameAndSchemaType(serviceName, schemaType);
+        List<SchemaObject> schemaTables = schemaObjectRepository.findByServiceNameAndSchemaType(serviceName, schemaType);
         List<Table> tables = schemaTables.stream()
                 .map(schema -> {
                     try {

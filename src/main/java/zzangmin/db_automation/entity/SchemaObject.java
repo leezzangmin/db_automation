@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class Schema {
+public class SchemaObject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
