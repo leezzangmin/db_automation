@@ -1,4 +1,4 @@
-package zzangmin.db_automation;
+package zzangmin.db_automation.util;
 
 public class StringMessageUtil {
 
