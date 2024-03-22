@@ -3,17 +3,15 @@ package zzangmin.db_automation.schedule.tableschemacheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static zzangmin.db_automation.service.DescribeService.schemaBlackList;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -21,9 +19,8 @@ import static zzangmin.db_automation.service.DescribeService.schemaBlackList;
 @Profile(value = "!dev | !stage | prod")
 public class ProdSchemaMonitorImpl {
 
-    private static final long SCHEMA_CHECK_DELAY = 500000l;
+    private static final long SCHEMA_CHECK_DELAY = 999999999999999999L;
 
-    private final DynamicDataSourceProperties dynamicDataSourceProperties;
     private final SlackClient slackClient;
     private final MysqlClient mysqlClient;
 
@@ -35,27 +32,17 @@ public class ProdSchemaMonitorImpl {
     private final FunctionDifferenceChecker functionDifferenceChecker;
 
 
-    // @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
-    public void checkSchema() {
-        log.info("Schema Monitor Start !");
-        StringBuilder schemaCheckResult = new StringBuilder();
-        Map<DatabaseConnectionInfo, DatabaseConnectionInfo> prodStageDBs = dynamicDataSourceProperties.matchPairDatabase();
-        for (DatabaseConnectionInfo prodDB : prodStageDBs.keySet()) {
-            DatabaseConnectionInfo stageDB = prodStageDBs.get(prodDB);
+    @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
+    public void checkSchema() throws Exception {
+        StringBuilder schemaSaveResult = new StringBuilder();
 
-            List<String> schemaNames = mysqlClient.findSchemaNames(prodDB)
-                    .stream()
-                    .filter(s -> !schemaBlackList.contains(s))
-                    .collect(Collectors.toList());
-
-            schemaCheckResult.append(databaseDifferenceChecker.compareDatabase(prodDB, stageDB));
-            schemaCheckResult.append(tableDifferenceChecker.compareTableSchema(prodDB, stageDB, schemaNames));
-            schemaCheckResult.append(viewDifferenceChecker.compareView(prodDB, stageDB, schemaNames));
-            schemaCheckResult.append(procedureDifferenceChecker.compareProcedure(prodDB, stageDB, schemaNames));
-            schemaCheckResult.append(triggerDifferenceChecker.compareTrigger(prodDB, stageDB, schemaNames));
-            schemaCheckResult.append(functionDifferenceChecker.compareFunction(prodDB, stageDB, schemaNames));
+        Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
+        for (String databaseName : databases.keySet()) {
+            DatabaseConnectionInfo databaseConnectionInfo = databases.get(databaseName);
+            databaseDifferenceChecker.saveDatabase(databaseConnectionInfo);
         }
-        slackClient.sendMessage(schemaCheckResult.toString());
+
+        // slackClient.sendMessage(schemaSaveResult.toString());
     }
 
 }
