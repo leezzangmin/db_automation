@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 import software.amazon.awssdk.services.rds.model.Tag;
+import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,5 +30,12 @@ public class DatabaseConnectionInfo {
         return this.databaseName + " (" + this.url + ")\n";
     }
 
-
+    public String findServiceName() {
+        for (Tag tag : tags) {
+            if (tag.key().equals(TagStandard.getServiceTagKeyName())) {
+                return tag.value();
+            }
+        }
+        throw new IllegalStateException(TagStandard.getStandardTagKeyNames() + "태그가 없습니다. DB명: " + databaseName);
+    }
 }
