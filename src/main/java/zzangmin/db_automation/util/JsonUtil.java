@@ -11,8 +11,7 @@ public class JsonUtil {
     }
 
     public static Object toObject(String jsonString) throws JsonProcessingException {
-        Object o = objectMapper.readValue(jsonString, Object.class);
-        return o;
+        return objectMapper.readValue(jsonString, Object.class);
     }
 
 }
