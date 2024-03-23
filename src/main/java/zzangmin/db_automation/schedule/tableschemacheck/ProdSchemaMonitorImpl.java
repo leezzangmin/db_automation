@@ -16,8 +16,8 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-@Profile(value = "!dev | !stage | prod")
-public class ProdSchemaMonitorImpl {
+@Profile(value = "prod")
+public class ProdSchemaMonitorImpl implements SchemaMonitor {
 
     private static final long SCHEMA_CHECK_DELAY = 999999999999999999L;
 

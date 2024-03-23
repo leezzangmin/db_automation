@@ -19,7 +19,7 @@ import static zzangmin.db_automation.service.DescribeService.schemaBlackList;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-@Profile(value = "dev | stage | !prod")
+@Profile(value = "!prod")
 public class StageDevSchemaMonitorImpl implements SchemaMonitor {
 
     private static final long SCHEMA_CHECK_DELAY = 500000l;
