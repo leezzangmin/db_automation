@@ -40,6 +40,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
         for (String databaseName : databases.keySet()) {
             DatabaseConnectionInfo databaseConnectionInfo = databases.get(databaseName);
             databaseDifferenceChecker.saveDatabase(databaseConnectionInfo);
+            tableDifferenceChecker.saveTable(databaseConnectionInfo);
         }
 
         // slackClient.sendMessage(schemaSaveResult.toString());
