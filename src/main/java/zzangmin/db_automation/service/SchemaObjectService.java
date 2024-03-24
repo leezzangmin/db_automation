@@ -60,6 +60,21 @@ public class SchemaObjectService {
         schemaObjectRepository.saveAll(schemaObjects);
     }
 
+    @Transactional(readOnly = true)
+    public Map<String, String> findDatabases(String serviceName) {
+        log.info("serviceName: {}", serviceName);
+        return schemaObjectRepository.findByServiceNameAndSchemaObjectType(serviceName, SchemaObjectType.DATABASE)
+                .stream()
+                .collect(Collectors.toMap(
+                        schemaObject -> schemaObject.getDatabaseName(),
+                        schemaObject -> {
+                            try {
+                                return (String) encryptedJsonStringToObject(schemaObject.getEncryptedJsonString());
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        }));
+    }
 
     @Transactional(readOnly = true)
     public List<Table> findTables(String serviceName, SchemaObjectType schemaObjectType) {
