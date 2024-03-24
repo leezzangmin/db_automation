@@ -38,22 +38,20 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
     @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() {
         StringBuilder schemaCheckResult = new StringBuilder();
-        Map<DatabaseConnectionInfo, DatabaseConnectionInfo> prodStageDBs = DynamicDataSourceProperties.matchPairDatabase();
-        for (DatabaseConnectionInfo prodDB : prodStageDBs.keySet()) {
-            DatabaseConnectionInfo stageDB = prodStageDBs.get(prodDB);
-
-            List<String> schemaNames = mysqlClient.findSchemaNames(prodDB)
-                    .stream()
-                    .filter(s -> !schemaBlackList.contains(s))
-                    .collect(Collectors.toList());
-
-            schemaCheckResult.append(databaseDifferenceChecker.compareDatabase(prodDB, stageDB));
-            schemaCheckResult.append(tableDifferenceChecker.compareTableSchema(prodDB, stageDB, schemaNames));
-            schemaCheckResult.append(viewDifferenceChecker.compareView(prodDB, stageDB, schemaNames));
-            schemaCheckResult.append(procedureDifferenceChecker.compareProcedure(prodDB, stageDB, schemaNames));
-            schemaCheckResult.append(triggerDifferenceChecker.compareTrigger(prodDB, stageDB, schemaNames));
-            schemaCheckResult.append(functionDifferenceChecker.compareFunction(prodDB, stageDB, schemaNames));
+        Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
+        for (String databaseName : databases.keySet()) {
+            DatabaseConnectionInfo databaseConnectionInfo = databases.get(databaseName);
+            schemaCheckResult.append(databaseDifferenceChecker.compareDatabaseCrossAccount(databaseConnectionInfo));
         }
+
+
+
+//            schemaCheckResult.append(tableDifferenceChecker.compareTableSchema(prodDB, stageDB, schemaNames));
+//            schemaCheckResult.append(viewDifferenceChecker.compareView(prodDB, stageDB, schemaNames));
+//            schemaCheckResult.append(procedureDifferenceChecker.compareProcedure(prodDB, stageDB, schemaNames));
+//            schemaCheckResult.append(triggerDifferenceChecker.compareTrigger(prodDB, stageDB, schemaNames));
+//            schemaCheckResult.append(functionDifferenceChecker.compareFunction(prodDB, stageDB, schemaNames));
+
         slackClient.sendMessage(schemaCheckResult.toString());
     }
 }
