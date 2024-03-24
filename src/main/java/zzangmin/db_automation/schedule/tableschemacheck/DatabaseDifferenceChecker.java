@@ -51,6 +51,34 @@ public class DatabaseDifferenceChecker {
         return differenceResult.toString();
     }
 
+    public String compareDatabaseCrossAccount(DatabaseConnectionInfo databaseConnectionInfo) {
+        StringBuilder differenceResult = new StringBuilder();
+        String serviceName = databaseConnectionInfo.findServiceName();
+        Map<String, String> prodDatabases = schemaObjectService.findDatabases(serviceName);
+        log.info("prodDatabases: {}, \nprodDatabaseKeys: {}", prodDatabases, prodDatabases.keySet());
+        Map<String, String> currentDatabases = mysqlClient.findSchemaNames(databaseConnectionInfo)
+                .stream()
+                .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
+                .collect(Collectors.toMap(
+                        schemaName -> schemaName,
+                        schemaName -> mysqlClient.findCreateDatabaseStatement(databaseConnectionInfo, schemaName).get()));
+        log.info("currentDatabases: {} \ncurrentDatabaseKeys: {}", currentDatabases, currentDatabases.keySet());
+        for (String prodSchemaName : prodDatabases.keySet()) {
+            String prodStatement = prodDatabases.get(prodSchemaName);
+            String currentStatement = currentDatabases.get(prodSchemaName);
+            if (currentStatement.equals(null)) {
+                differenceResult.append(prodSchemaName + " DB가 존재하지 않습니다.");
+                continue;
+            }
+            else if (!prodStatement.equals(currentStatement)) {
+                differenceResult.append(StringMessageUtil.convertCreateDatabaseDifferenceMessage(prodSchemaName, prodStatement, currentStatement));
+            }
+        }
+
+        log.info("DatabaseDifferenceChecker Result: {}", differenceResult.toString());
+        return differenceResult.toString();
+    }
+
     public void saveDatabase(DatabaseConnectionInfo databaseConnectionInfo) throws Exception {
         log.info("database: {}", databaseConnectionInfo);
         String serviceName = databaseConnectionInfo.findServiceName();
