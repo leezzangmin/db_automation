@@ -12,5 +12,8 @@ import java.util.List;
 public interface SchemaObjectRepository extends JpaRepository<SchemaObject, Long> {
 
     @Query
+    List<SchemaObject> findByServiceNameAndDatabaseNameAndSchemaObjectType(String serviceName, String databaseName, SchemaObjectType schemaObjectType);
+
+    @Query
     List<SchemaObject> findByServiceNameAndSchemaObjectType(String serviceName, SchemaObjectType schemaObjectType);
 }
