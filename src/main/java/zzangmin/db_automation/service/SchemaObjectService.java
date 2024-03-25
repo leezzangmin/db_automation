@@ -77,8 +77,8 @@ public class SchemaObjectService {
     }
 
     @Transactional(readOnly = true)
-    public List<Table> findTables(String serviceName, SchemaObjectType schemaObjectType) {
-        List<SchemaObject> schemaTables = schemaObjectRepository.findByServiceNameAndSchemaObjectType(serviceName, schemaObjectType);
+    public List<Table> findTables(String serviceName, String schemaName) {
+        List<SchemaObject> schemaTables = schemaObjectRepository.findByServiceNameAndDatabaseNameAndSchemaObjectType(serviceName, schemaName, SchemaObjectType.TABLE);
         List<Table> tables = schemaTables.stream()
                 .map(schema -> {
                     try {
