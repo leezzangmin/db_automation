@@ -17,7 +17,7 @@ public class Function {
     private String characterSetName;
     private String collationName;
     private String routineDefinition;
-    private boolean isDeterministic;
+    private Boolean isDeterministic;
     private Definer definer;
     private String characterSetClient;
     private String collationConnection;

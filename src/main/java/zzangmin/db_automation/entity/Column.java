@@ -21,14 +21,14 @@ public class Column {
     private String type; // varchar(123), bigint, datetime
     @NotBlank
     @JsonProperty("isNull")
-    private boolean isNull; // NOT NULL, DEFAULT NULL
+    private Boolean isNull; // NOT NULL, DEFAULT NULL
     private String defaultValue;
     @NotBlank
     @JsonProperty("isUnique")
-    private boolean isUnique;
+    private Boolean isUnique;
     @NotBlank
     @JsonProperty("isAutoIncrement")
-    private boolean isAutoIncrement;
+    private Boolean isAutoIncrement;
     @NotBlank
     private String comment;
     @NotBlank

@@ -175,7 +175,7 @@ public class DDLValidator {
     }
 
     private void validateAddColumnHasAutoIncrementOption(Column column) {
-        if (column.isAutoIncrement() == true) {
+        if (column.getIsAutoIncrement() == true) {
             throw new IllegalStateException("auto_increment 옵션이 있는 컬럼은 추가할 수 없습니다.");
         }
     }
