@@ -49,6 +49,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
 
             databaseDifferenceChecker.saveDatabase(databaseConnectionInfo, schemaNames);
             tableDifferenceChecker.saveTable(databaseConnectionInfo, schemaNames);
+            viewDifferenceChecker.saveViews(databaseConnectionInfo, schemaNames);
         }
 
         // slackClient.sendMessage(schemaSaveResult.toString());
