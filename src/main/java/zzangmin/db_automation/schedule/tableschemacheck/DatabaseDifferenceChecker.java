@@ -10,6 +10,7 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
 
 
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -79,12 +80,11 @@ public class DatabaseDifferenceChecker {
         return differenceResult.toString();
     }
 
-    public void saveDatabase(DatabaseConnectionInfo databaseConnectionInfo) throws Exception {
+    public void saveDatabase(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) throws Exception {
         log.info("database: {}", databaseConnectionInfo);
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("serviceName: {}", serviceName);
-        Map<String, String> schemaCreateStatements = mysqlClient.findSchemaNames(databaseConnectionInfo)
-                .stream()
+        Map<String, String> schemaCreateStatements = schemaNames.stream()
                 .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
                 .collect(Collectors.toMap(
                         schemaName -> schemaName,
