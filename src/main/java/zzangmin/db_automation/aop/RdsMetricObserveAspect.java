@@ -7,7 +7,6 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.schedule.RdsMetricDetector;
 
@@ -16,7 +15,6 @@ import zzangmin.db_automation.schedule.RdsMetricDetector;
 @Component
 public class RdsMetricObserveAspect {
 
-    private final DynamicDataSourceProperties dynamicDataSourceProperties;
     private final RdsMetricDetector rdsMetricDetector;
 
     @Pointcut("execution(* zzangmin.db_automation.service.DDLService.*(..))")
