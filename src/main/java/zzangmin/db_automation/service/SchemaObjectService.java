@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import zzangmin.db_automation.entity.SchemaObject;
 import zzangmin.db_automation.entity.SchemaObjectType;
 import zzangmin.db_automation.entity.Table;
+import zzangmin.db_automation.entity.View;
 import zzangmin.db_automation.repository.SchemaObjectRepository;
 import zzangmin.db_automation.util.EncryptionUtil;
 import zzangmin.db_automation.util.JsonUtil;
@@ -38,8 +39,9 @@ public class SchemaObjectService {
                     .encryptedJsonString(encryptedJsonTable)
                     .build();
             schemaObjects.add(schemaObject);
+            log.info("table: {}", table);
         }
-        log.info("schemaObjects: {}", schemaObjects);
+        log.info("table schemaObjects: {}", schemaObjects);
         upsert(schemaObjects);
     }
 
@@ -57,7 +59,26 @@ public class SchemaObjectService {
                     .build();
             schemaObjects.add(schemaObject);
         }
-        log.info("schemaObjects: {}", schemaObjects);
+        log.info("database schemaObjects: {}", schemaObjects);
+        upsert(schemaObjects);
+    }
+
+    @Transactional
+    public void saveViews(String serviceName, String schemaName, List<View> views) throws Exception {
+        List<SchemaObject> schemaObjects = new ArrayList<>();
+
+        for (View view : views) {
+            String encryptedJsonView = makeEncryptedJsonString(view);
+            SchemaObject schemaObject = SchemaObject.builder()
+                    .schemaObjectType(SchemaObjectType.VIEW)
+                    .databaseName(schemaName)
+                    .schemaObjectName(view.getViewName())
+                    .serviceName(serviceName)
+                    .encryptedJsonString(encryptedJsonView)
+                    .build();
+            schemaObjects.add(schemaObject);
+        }
+        log.info("view schemaObjects: {}", schemaObjects);
         upsert(schemaObjects);
     }
 
@@ -70,7 +91,7 @@ public class SchemaObjectService {
                         schemaObject -> schemaObject.getDatabaseName(),
                         schemaObject -> {
                             try {
-                                return (String) encryptedJsonStringToObject(schemaObject.getEncryptedJsonString());
+                                return encryptedJsonStringToObject(schemaObject.getEncryptedJsonString(), String.class);
                             } catch (Exception e) {
                                 throw new RuntimeException(e);
                             }
@@ -83,13 +104,28 @@ public class SchemaObjectService {
         List<Table> tables = schemaTables.stream()
                 .map(schema -> {
                     try {
-                        return (Table) encryptedJsonStringToObject(schema.getEncryptedJsonString());
+                        return encryptedJsonStringToObject(schema.getEncryptedJsonString(), Table.class);
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
                 })
                 .collect(Collectors.toList());
         return tables;
+    }
+
+    @Transactional(readOnly = true)
+    public List<View> findViews(String serviceName, String schemaName) {
+        List<SchemaObject> schemaViews = schemaObjectRepository.findByServiceNameAndDatabaseNameAndSchemaObjectType(serviceName, schemaName, SchemaObjectType.VIEW);
+        List<View> views = schemaViews.stream()
+                .map(schema -> {
+                    try {
+                        return encryptedJsonStringToObject(schema.getEncryptedJsonString(), View.class);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+        return views;
     }
 
 
@@ -114,10 +150,9 @@ public class SchemaObjectService {
         return encryptedJsonString;
     }
 
-    private Object encryptedJsonStringToObject(String encryptedJsonString) throws Exception {
+    private <T> T encryptedJsonStringToObject(String encryptedJsonString, Class<T> valueType) throws Exception {
         String jsonString = EncryptionUtil.decrypt(encryptedJsonString);
-        Object object = JsonUtil.toObject(jsonString);
+        return JsonUtil.toObject(jsonString, valueType);
 
-        return object;
     }
 }
