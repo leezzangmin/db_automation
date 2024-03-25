@@ -2,11 +2,9 @@ package zzangmin.db_automation.schedule.standardcheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.DBCluster;
 import software.amazon.awssdk.services.rds.model.DBInstance;
-import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
