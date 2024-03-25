@@ -21,4 +21,7 @@ public class SchemaObject {
     private String serviceName;
     private String encryptedJsonString;
 
+    public void update(SchemaObject newSchemaObject) {
+        this.encryptedJsonString = newSchemaObject.getEncryptedJsonString();
+    }
 }
