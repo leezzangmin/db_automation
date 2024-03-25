@@ -19,9 +19,11 @@ public class View {
 
     public String reportDifference(View otherTrigger) {
         StringBuilder difference = new StringBuilder();
+        StringBuilder result = new StringBuilder();
 
         if (otherTrigger == null) {
             difference.append(String.format("%s view 를 stage에서 찾을 수 없습니다.\n", this.viewName));
+            return difference.toString();
         }
         if (this.viewName != null && !this.viewName.equals(otherTrigger.viewName)) {
             difference.append(String.format("view 이름이 다릅니다: %s <-> %s\n", this.viewName, otherTrigger.viewName));
@@ -41,8 +43,14 @@ public class View {
         if (this.collationConnection != null && !this.collationConnection.equals(otherTrigger.collationConnection)) {
             difference.append(String.format("%s: view collationConnection 이 다릅니다: %s <-> %s\n", this.viewName, this.collationConnection, otherTrigger.collationConnection));
         }
+        if (difference.toString().isBlank()) {
+            return difference.toString();
+        }
 
-        return difference.toString();
+        result.append(String.format("\nVIEW [%s] 검사 결과: \n", this.getViewName()));
+        result.append(difference);
+        result.append("\n");
+        return result.toString();
     }
 
 }
