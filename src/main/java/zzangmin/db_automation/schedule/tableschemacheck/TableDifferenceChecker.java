@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.Table;
-import zzangmin.db_automation.service.DescribeService;
 import zzangmin.db_automation.service.SchemaObjectService;
 
 
@@ -49,20 +48,47 @@ public class TableDifferenceChecker {
         return differenceResult.toString();
     }
 
-    public void saveTable(DatabaseConnectionInfo databaseConnectionInfo) throws Exception {
+    public void saveTable(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) throws Exception {
         log.info("database: {}", databaseConnectionInfo);
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("serviceName: {}", serviceName);
-        List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
-                .stream()
-                .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
-                .collect(Collectors.toList());
+
         for (String schemaName : schemaNames) {
             List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
             List<Table> tables = mysqlClient.findTables(databaseConnectionInfo, schemaName, tableNames);
             log.info("save tables: {}", tables);
             schemaObjectService.saveTables(serviceName, schemaName, tables);
         }
+    }
+
+    public String compareTableCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) {
+        StringBuilder differenceResult = new StringBuilder();
+        log.info("compareTableCrossAccount database: {}", databaseConnectionInfo);
+        String serviceName = databaseConnectionInfo.findServiceName();
+        log.info("compareTableCrossAccount serviceName: {}", serviceName);
+        for (String schemaName : schemaNames) {
+            log.info("schemaName: {}", schemaName);
+            List<String> currentTableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
+
+            Map<String, Table> prodTables = schemaObjectService.findTables(serviceName, schemaName)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            table -> table.getTableName(),
+                            table -> table));
+            Map<String, Table> currentTables = mysqlClient.findTables(databaseConnectionInfo, schemaName, currentTableNames)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            table -> table.getTableName(),
+                            table -> table));
+            for (String prodTableName : prodTables.keySet()) {
+                Table sourceTable = prodTables.get(prodTableName);
+                Table replicaTable = currentTables.getOrDefault(prodTableName, null);
+                differenceResult.append(sourceTable.reportDifference(replicaTable));
+            }
+        }
+
+        log.info("TableDifferenceChecker Result: {}", differenceResult.toString());
+        return differenceResult.toString();
     }
 
 }
