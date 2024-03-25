@@ -21,6 +21,7 @@ import zzangmin.db_automation.client.AwsClient;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.SecretManagerStandard;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.ParameterGroupStandard;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
+import zzangmin.db_automation.util.ProfileUtil;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -38,14 +39,13 @@ import static zzangmin.db_automation.schedule.standardcheck.standardvalue.Secret
 public class AwsService {
 
     private final AwsClient awsClient;
-
+    private final ProfileUtil profileUtil;
     private static final int DURATION_MINUTE = 5;
     private static final int PERIOD_SECONDS = 60 * DURATION_MINUTE;
     private static final String RDS_SERVICE_TYPE = "RDS";
     private static final int MIN_RECORD_SIZE = 20;
 
-    @Value("${spring.profiles.active}")
-    public String CURRENT_ENVIRONMENT_PROFILE;
+
 
     public List<String> findDbParameterGroupNames() {
         List<String> dbParameterGroupNames = new ArrayList<>();
@@ -119,8 +119,10 @@ public class AwsService {
     public String findRdsPassword(String databaseIdentifier) {
         String secretName = databaseIdentifier + SecretManagerStandard.DB_CREDENTIAL_POSTPIX;
         log.info("secretName: {}", secretName);
+
         String password;
         GetSecretValueResponse valueResponse;
+
         SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient();
         GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
                 .secretId(secretName)
@@ -139,6 +141,33 @@ public class AwsService {
         }
 
         return password;
+    }
+
+    public String findRdsUsername(String databaseIdentifier) {
+        String secretName = databaseIdentifier + SecretManagerStandard.DB_CREDENTIAL_POSTPIX;
+        log.info("secretName: {}", secretName);
+        String username;
+        GetSecretValueResponse valueResponse;
+
+        SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient();
+        GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
+                .secretId(secretName)
+                .build();
+        try {
+            valueResponse = secretManagerClient.getSecretValue(valueRequest);
+        } catch (Exception e) {
+            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [clusterName + " + DB_CREDENTIAL_POSTPIX);
+        }
+
+        try {
+            username = new JSONObject(valueResponse.secretString())
+                    .getString("username");
+
+        } catch (Exception e) {
+            throw new IllegalStateException("rds username fetch failed");
+        }
+
+        return username;
     }
 
     public Map<String, Double> findRdsPeakCpuAndMemoryUsage(String databaseIdentifier) {
@@ -400,11 +429,11 @@ public class AwsService {
 
     // 환경변수 프로파일이 prod인데 tag의 값이 stage면 false 반환
     private boolean isCurrentEnvHasValidTag(List<Tag> tags) {
-        log.info("tags: {}, profile: {}", tags, CURRENT_ENVIRONMENT_PROFILE);
+        log.info("tags: {}, profile: {}", tags, profileUtil.CURRENT_ENVIRONMENT_PROFILE);
 
         for (Tag tag : tags) {
             if (tag.key().equals(TagStandard.getEnvironmentTagKeyName())) {
-                if (tag.value().equals(CURRENT_ENVIRONMENT_PROFILE)) {
+                if (tag.value().equals(profileUtil.CURRENT_ENVIRONMENT_PROFILE)) {
                     return true;
                 }
             }
