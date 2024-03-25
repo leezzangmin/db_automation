@@ -9,12 +9,12 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.service.DescribeService;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static zzangmin.db_automation.service.DescribeService.schemaBlackList;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -41,7 +41,12 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
         for (String databaseName : databases.keySet()) {
             DatabaseConnectionInfo databaseConnectionInfo = databases.get(databaseName);
+            List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
+                    .stream()
+                    .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
+                    .collect(Collectors.toList());
             schemaCheckResult.append(databaseDifferenceChecker.compareDatabaseCrossAccount(databaseConnectionInfo));
+            schemaCheckResult.append(tableDifferenceChecker.compareTableCrossAccount(databaseConnectionInfo, schemaNames));
         }
 
 
