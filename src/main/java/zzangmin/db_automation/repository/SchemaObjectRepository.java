@@ -7,12 +7,16 @@ import zzangmin.db_automation.entity.SchemaObject;
 import zzangmin.db_automation.entity.SchemaObjectType;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SchemaObjectRepository extends JpaRepository<SchemaObject, Long> {
 
     @Query
     List<SchemaObject> findByServiceNameAndDatabaseNameAndSchemaObjectType(String serviceName, String databaseName, SchemaObjectType schemaObjectType);
+
+    @Query
+    Optional<SchemaObject> findByServiceNameAndDatabaseNameAndSchemaObjectTypeAndSchemaObjectName(String serviceName, String databaseName, SchemaObjectType schemaObjectType, String schemaObjectName);
 
     @Query
     List<SchemaObject> findByServiceNameAndSchemaObjectType(String serviceName, SchemaObjectType schemaObjectType);
