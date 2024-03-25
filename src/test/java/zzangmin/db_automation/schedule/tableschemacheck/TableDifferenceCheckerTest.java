@@ -6,12 +6,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Table;
+import zzangmin.db_automation.service.SchemaObjectService;
 import zzangmin.db_automation.testfactory.EntityFactory;
 
 import java.util.List;
@@ -26,13 +26,15 @@ class TableDifferenceCheckerTest {
 
     @Mock
     private MysqlClient mysqlClient;
+    @Mock
+    private SchemaObjectService schemaObjectService;
 
     private TableDifferenceChecker tableDifferenceChecker;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        tableDifferenceChecker = new TableDifferenceChecker(mysqlClient);
+        tableDifferenceChecker = new TableDifferenceChecker(mysqlClient, schemaObjectService);
     }
 
     @DisplayName("테이블 조회 결과가 같으면 문자열을 반환하지 않아야 한다.")
