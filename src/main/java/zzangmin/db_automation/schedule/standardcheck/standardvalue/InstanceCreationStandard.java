@@ -12,6 +12,7 @@ public class InstanceCreationStandard {
         instanceCreationStandard.put("DeletionProtection", "true");
         instanceCreationStandard.put("PerformanceInsightsEnabled", "true");
         instanceCreationStandard.put("EnabledCloudwatchLogsExports", "[slowquery]");
+        instanceCreationStandard.put("PubliclyAccessible", "false");
     }
 
     public static String findStandardValue(String parameterName) {
