@@ -64,12 +64,12 @@ public class DatabaseDifferenceChecker {
                         schemaName -> schemaName,
                         schemaName -> mysqlClient.findCreateDatabaseStatement(databaseConnectionInfo, schemaName).get()));
         log.info("currentDatabases: {} \ncurrentDatabaseKeys: {}", currentDatabases, currentDatabases.keySet());
+
         for (String prodSchemaName : prodDatabases.keySet()) {
             String prodStatement = prodDatabases.get(prodSchemaName);
             String currentStatement = currentDatabases.get(prodSchemaName);
-            if (currentStatement.equals(null)) {
+            if (currentStatement == null) {
                 differenceResult.append(prodSchemaName + " DB가 존재하지 않습니다.");
-                continue;
             }
             else if (!prodStatement.equals(currentStatement)) {
                 differenceResult.append(StringMessageUtil.convertCreateDatabaseDifferenceMessage(prodSchemaName, prodStatement, currentStatement));
