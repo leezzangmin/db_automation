@@ -30,13 +30,14 @@ public class DynamicDataSourceLoader {
             if (!isValidTags(dbName, tags)) {
                 continue;
             }
+            String rdsUsername = awsService.findRdsUsername(dbName);
             String password = awsService.findRdsPassword(dbName);
 
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
                     .url("jdbc:mysql://" + cluster.endpoint())
-                    .username(cluster.masterUsername())
+                    .username(rdsUsername)
                     .password(password)
                     .tags(tags)
                     .build();
@@ -50,13 +51,14 @@ public class DynamicDataSourceLoader {
             if (!isValidTags(dbName, tags)) {
                 continue;
             }
+            String rdsUsername = awsService.findRdsUsername(dbName);
             String password = awsService.findRdsPassword(dbName);
 
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)
                     .driverClassName("com.mysql.cj.jdbc.Driver")
                     .url("jdbc:mysql://" + instance.endpoint().address())
-                    .username(instance.masterUsername())
+                    .username(rdsUsername)
                     .password(password)
                     .tags(tags)
                     .build();
