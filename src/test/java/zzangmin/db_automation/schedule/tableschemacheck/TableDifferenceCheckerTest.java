@@ -123,7 +123,7 @@ class TableDifferenceCheckerTest {
 
         // then
         Assertions.assertThat(s).contains("타입이 다릅니다");
-        Assertions.assertThat(s).contains("설명이 다릅니다");
+        Assertions.assertThat(s).contains("코멘트가 다릅니다");
 
     }
 }

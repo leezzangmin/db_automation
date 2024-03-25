@@ -102,7 +102,7 @@ public class Column {
             differences.append(String.format("자동 증가 여부가 다릅니다: %s <-> %s. ", this.isAutoIncrement, other.isAutoIncrement));
         }
         if (!this.comment.equals(other.comment)) {
-            differences.append(String.format("설명이 다릅니다: %s <-> %s. ", this.comment, other.comment));
+            differences.append(String.format("코멘트가 다릅니다: %s <-> %s. ", this.comment, other.comment));
         }
         if (!this.charset.equals(other.charset)) {
             differences.append(String.format("문자셋이 다릅니다: %s <-> %s. ", this.charset, other.charset));
