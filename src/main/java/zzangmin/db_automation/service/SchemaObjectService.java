@@ -14,6 +14,7 @@ import zzangmin.db_automation.util.JsonUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,8 +39,8 @@ public class SchemaObjectService {
                     .build();
             schemaObjects.add(schemaObject);
         }
-
-        schemaObjectRepository.saveAll(schemaObjects);
+        log.info("schemaObjects: {}", schemaObjects);
+        upsert(schemaObjects);
     }
 
     @Transactional
@@ -57,7 +58,7 @@ public class SchemaObjectService {
             schemaObjects.add(schemaObject);
         }
         log.info("schemaObjects: {}", schemaObjects);
-        schemaObjectRepository.saveAll(schemaObjects);
+        upsert(schemaObjects);
     }
 
     @Transactional(readOnly = true)
@@ -91,6 +92,21 @@ public class SchemaObjectService {
         return tables;
     }
 
+
+    // 이미 값이 있으면 update(더티체킹), 없으면 insert
+    private void upsert(List<SchemaObject> schemaObjects) {
+        for (SchemaObject schemaObject : schemaObjects) {
+            Optional<SchemaObject> findSchemaObject = schemaObjectRepository.findByServiceNameAndDatabaseNameAndSchemaObjectTypeAndSchemaObjectName(schemaObject.getServiceName(),
+                    schemaObject.getDatabaseName(),
+                    schemaObject.getSchemaObjectType(),
+                    schemaObject.getSchemaObjectName());
+            if (findSchemaObject.isPresent()) {
+                findSchemaObject.get().update(schemaObject);
+                continue;
+            }
+            schemaObjectRepository.save(schemaObject);
+        }
+    }
 
     private String makeEncryptedJsonString(Object object) throws Exception {
         String jsonString = JsonUtil.toJson(object);
