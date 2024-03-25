@@ -283,7 +283,7 @@ public class MysqlClient {
                 while (resultSet.next()) {
                     String findColumnName = resultSet.getString("COLUMN_NAME");
                     String type = resultSet.getString("DATA_TYPE");
-                    int characterMaxLength = resultSet.getInt("CHARACTER_MAXIMUM_LENGTH");
+                    long characterMaxLength = resultSet.getLong("CHARACTER_MAXIMUM_LENGTH");
                     String isNull = resultSet.getString("IS_NULLABLE");
                     String key = resultSet.getString("COLUMN_KEY");
                         String defaultValue = resultSet.getString("COLUMN_DEFAULT");
@@ -701,7 +701,7 @@ public class MysqlClient {
 
                     String columnName = resultSet.getString("COLUMN_NAME");
                     String type = resultSet.getString("DATA_TYPE");
-                    int characterMaxLength = resultSet.getInt("CHARACTER_MAXIMUM_LENGTH");
+                    long characterMaxLength = resultSet.getLong("CHARACTER_MAXIMUM_LENGTH");
                     String isNull = resultSet.getString("IS_NULLABLE");
                     String key = resultSet.getString("COLUMN_KEY");
                     String defaultValue = resultSet.getString("COLUMN_DEFAULT");
@@ -802,6 +802,7 @@ public class MysqlClient {
             }
 
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
         return tables.values()
