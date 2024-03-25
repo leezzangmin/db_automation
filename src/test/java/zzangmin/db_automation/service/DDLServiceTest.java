@@ -81,9 +81,9 @@ class DDLServiceTest {
         Assertions.assertThat(findTable.getTableComment()).isEqualTo("table comment");
         Assertions.assertThat(findTable.getColumns().get(0).getName()).isEqualTo("id");
         Assertions.assertThat(findTable.getColumns().get(0).getType()).startsWithIgnoringCase("int");
-        Assertions.assertThat(findTable.getColumns().get(0).isNull()).isEqualTo(false);
+        Assertions.assertThat(findTable.getColumns().get(0).getIsNull()).isEqualTo(false);
         Assertions.assertThat(findTable.getColumns().get(0).getDefaultValue()).isEqualTo(null);
-        Assertions.assertThat(findTable.getColumns().get(0).isAutoIncrement()).isEqualTo(true);
+        Assertions.assertThat(findTable.getColumns().get(0).getIsAutoIncrement()).isEqualTo(true);
         Assertions.assertThat(findTable.getColumns().get(0).getComment()).isEqualTo("column1 comment");
         Assertions.assertThat(findTable.getColumns().get(0).getCharset()).isEqualTo("utf8mb4");
         Assertions.assertThat(findTable.getColumns().get(0).getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
@@ -121,9 +121,9 @@ class DDLServiceTest {
         Column findColumn = mysqlClient.findColumn(backOfficeDatabaseConnectionInfo, schemaName, "test_table", "add").get();
         Assertions.assertThat(findColumn.getName()).isEqualTo("add");
         Assertions.assertThat(findColumn.getType()).startsWithIgnoringCase("int");
-        Assertions.assertThat(findColumn.isNull()).isEqualTo(false);
+        Assertions.assertThat(findColumn.getIsNull()).isEqualTo(false);
         Assertions.assertThat(findColumn.getDefaultValue()).isEqualTo(null);
-        Assertions.assertThat(findColumn.isAutoIncrement()).isEqualTo(false);
+        Assertions.assertThat(findColumn.getIsAutoIncrement()).isEqualTo(false);
         Assertions.assertThat(findColumn.getComment()).isEqualTo("add column comment");
         Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
         Assertions.assertThat(findColumn.getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
@@ -155,9 +155,9 @@ class DDLServiceTest {
         Column findColumn = mysqlClient.findColumn(backOfficeDatabaseConnectionInfo, schemaName, "test_table", "name").get();
         Assertions.assertThat(findColumn.getName()).isEqualTo("name");
         Assertions.assertThat(findColumn.getType()).isEqualTo("varchar(255)");
-        Assertions.assertThat(findColumn.isNull()).isEqualTo(false);
+        Assertions.assertThat(findColumn.getIsNull()).isEqualTo(false);
         Assertions.assertThat(findColumn.getDefaultValue()).isEqualTo(null);
-        Assertions.assertThat(findColumn.isAutoIncrement()).isEqualTo(false);
+        Assertions.assertThat(findColumn.getIsAutoIncrement()).isEqualTo(false);
         Assertions.assertThat(findColumn.getComment()).isEqualTo("alter column comment");
         Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
         Assertions.assertThat(findColumn.getCollate()).isEqualTo("utf8mb4_0900_ai_ci");

@@ -256,9 +256,9 @@ public class MysqlClientTest {
         Column column = columnOptional.get();
         assertEquals(columnName, column.getName());
         assertEquals("varchar(45)", column.getType());
-        assertTrue(column.isNull());
-        assertFalse(column.isUnique());
-        assertFalse(column.isAutoIncrement());
+        assertTrue(column.getIsNull());
+        assertFalse(column.getIsUnique());
+        assertFalse(column.getIsAutoIncrement());
         assertNull(column.getDefaultValue());
         assertEquals("name comment", column.getComment());
         assertEquals("utf8mb4", column.getCharset());
