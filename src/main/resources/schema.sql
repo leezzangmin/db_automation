@@ -19,5 +19,6 @@ CREATE TABLE IF NOT EXISTS back_office.schema_object (
     schema_object_name varchar(64) not null,
     database_name varchar(64) not null,
     service_name varchar(64) not null,
-    encrypted_json_string mediumtext not null
+    encrypted_json_string mediumtext not null,
+    unique key (schema_object_type, schema_object_name, database_name, service_name)
 );
