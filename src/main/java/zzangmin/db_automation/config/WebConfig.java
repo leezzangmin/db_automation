@@ -30,9 +30,4 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(executableTimeInterceptor);
     }
 
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
-    }
-
 }
