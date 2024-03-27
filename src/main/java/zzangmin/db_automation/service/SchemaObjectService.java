@@ -80,6 +80,26 @@ public class SchemaObjectService {
     }
 
     @Transactional
+    public void saveTriggers(String serviceName, String schemaName, List<Trigger> triggers) throws Exception {
+        List<SchemaObject> schemaObjects = new ArrayList<>();
+
+        for (Trigger trigger : triggers) {
+            String encryptedJsonView = makeEncryptedJsonString(trigger);
+            SchemaObject schemaObject = SchemaObject.builder()
+                    .schemaObjectType(SchemaObjectType.TRIGGER)
+                    .databaseName(schemaName)
+                    .schemaObjectName(trigger.getTriggerName())
+                    .serviceName(serviceName)
+                    .encryptedJsonString(encryptedJsonView)
+                    .build();
+            schemaObjects.add(schemaObject);
+        }
+        log.info("trigger schemaObjects: {}", schemaObjects);
+        upsert(schemaObjects);
+    }
+
+
+    @Transactional
     public void saveProcedures(String serviceName, String schemaName, List<Procedure> procedures) throws Exception {
         List<SchemaObject> schemaObjects = new ArrayList<>();
 
@@ -112,6 +132,23 @@ public class SchemaObjectService {
                 .collect(Collectors.toList());
         return procedures;
     }
+
+    @Transactional(readOnly = true)
+    public List<Trigger> findTriggers(String serviceName, String schemaName) {
+        List<SchemaObject> schemaViews = schemaObjectRepository.findByServiceNameAndDatabaseNameAndSchemaObjectType(serviceName, schemaName,
+                SchemaObjectType.TRIGGER);
+        List<Trigger> triggers = schemaViews.stream()
+                .map(schema -> {
+                    try {
+                        return encryptedJsonStringToObject(schema.getEncryptedJsonString(), Trigger.class);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+        return triggers;
+    }
+
 
 
     @Transactional(readOnly = true)
