@@ -43,7 +43,7 @@ public class Procedure {
             difference.append(String.format("%s: procedure collationName 이 다릅니다: %s <-> %s%n", this.procedureName, this.collationName, otherProcedure.collationName));
         }
         if (this.routineDefinition != null && !this.routineDefinition.equals(otherProcedure.routineDefinition)) {
-            difference.append(String.format("%s: procedure routineDefinition 이 다릅니다: %s <-> %s%n", this.procedureName, this.routineDefinition, otherProcedure.routineDefinition));
+            difference.append(String.format("%s: procedure routineDefinition 이 다릅니다: %n", this.procedureName));
         }
         if (!this.isDeterministic == otherProcedure.isDeterministic) {
             difference.append(String.format("%s: procedure isDeterministic 이 다릅니다: %s <-> %s%n", this.procedureName, this.isDeterministic, otherProcedure.isDeterministic));

@@ -17,31 +17,31 @@ public class View {
     private String characterSetClient;
     private String collationConnection;
 
-    public String reportDifference(View otherTrigger) {
+    public String reportDifference(View otherView) {
         StringBuilder difference = new StringBuilder();
         StringBuilder result = new StringBuilder();
 
-        if (otherTrigger == null) {
+        if (otherView == null) {
             difference.append(String.format("%s view 를 stage에서 찾을 수 없습니다.\n", this.viewName));
             return difference.toString();
         }
-        if (this.viewName != null && !this.viewName.equals(otherTrigger.viewName)) {
-            difference.append(String.format("view 이름이 다릅니다: %s <-> %s\n", this.viewName, otherTrigger.viewName));
+        if (this.viewName != null && !this.viewName.equals(otherView.viewName)) {
+            difference.append(String.format("view 이름이 다릅니다: %s <-> %s\n", this.viewName, otherView.viewName));
         }
-        if (this.viewDefinition != null && !this.viewDefinition.equals(otherTrigger.viewDefinition)) {
-            difference.append(String.format("%s: view viewDefinition 이 다릅니다: \n%s \n\n%s\n", this.viewName, this.viewDefinition, otherTrigger.viewDefinition));
+        if (this.viewDefinition != null && !this.viewDefinition.equals(otherView.viewDefinition)) {
+            difference.append(String.format("%s: view viewDefinition 이 다릅니다\n", this.viewName));
         }
-        if (this.securityType != null && !this.securityType.equals(otherTrigger.securityType)) {
-            difference.append(String.format("%s: view securityType 이 다릅니다: %s <-> %s\n", this.viewName, this.securityType, otherTrigger.securityType));
+        if (this.securityType != null && !this.securityType.equals(otherView.securityType)) {
+            difference.append(String.format("%s: view securityType 이 다릅니다: %s <-> %s\n", this.viewName, this.securityType, otherView.securityType));
         }
-        if (this.definer != null && !this.definer.isEqualDefinerName(otherTrigger.definer)) {
-            difference.append(String.format("%s: view definerName 이 다릅니다: %s <-> %s\n", this.viewName, this.definer.getUserName(), otherTrigger.getDefiner().getUserName()));
+        if (this.definer != null && !this.definer.isEqualDefinerName(otherView.definer)) {
+            difference.append(String.format("%s: view definerName 이 다릅니다: %s <-> %s\n", this.viewName, this.definer.getUserName(), otherView.getDefiner().getUserName()));
         }
-        if (this.characterSetClient != null && !this.characterSetClient.equals(otherTrigger.characterSetClient)) {
-            difference.append(String.format("%s: view characterSetClient 이 다릅니다: %s <-> %s\n", this.viewName, this.characterSetClient, otherTrigger.characterSetClient));
+        if (this.characterSetClient != null && !this.characterSetClient.equals(otherView.characterSetClient)) {
+            difference.append(String.format("%s: view characterSetClient 이 다릅니다: %s <-> %s\n", this.viewName, this.characterSetClient, otherView.characterSetClient));
         }
-        if (this.collationConnection != null && !this.collationConnection.equals(otherTrigger.collationConnection)) {
-            difference.append(String.format("%s: view collationConnection 이 다릅니다: %s <-> %s\n", this.viewName, this.collationConnection, otherTrigger.collationConnection));
+        if (this.collationConnection != null && !this.collationConnection.equals(otherView.collationConnection)) {
+            difference.append(String.format("%s: view collationConnection 이 다릅니다: %s <-> %s\n", this.viewName, this.collationConnection, otherView.collationConnection));
         }
         if (difference.toString().isBlank()) {
             return difference.toString();
