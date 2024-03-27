@@ -32,37 +32,37 @@ public class Function {
         }
 
         if (this.functionName != null && !this.functionName.equals(otherFunction.functionName)) {
-            difference.append(String.format("function 이름이 다릅니다: %s <-> %s%n", this.functionName, otherFunction.functionName));
+            difference.append(String.format("function 이름이 다릅니다: %s <-> %s\n", this.functionName, otherFunction.functionName));
         }
         if (this.dataType != null && !this.dataType.equals(otherFunction.dataType)) {
-            difference.append(String.format("%s: function dataType 이 다릅니다: %s <-> %s%n", this.functionName, this.dataType, otherFunction.dataType));
+            difference.append(String.format("%s: function dataType 이 다릅니다: %s <-> %s\n", this.functionName, this.dataType, otherFunction.dataType));
         }
         if (this.characterSetName != null && !this.characterSetName.equals(otherFunction.characterSetName)) {
-            difference.append(String.format("%s: function characterSetName 이 다릅니다: %s <-> %s%n", this.functionName, this.characterSetName, otherFunction.characterSetName));
+            difference.append(String.format("%s: function characterSetName 이 다릅니다: %s <-> %s\n", this.functionName, this.characterSetName, otherFunction.characterSetName));
         }
         if (this.collationName != null && !this.collationName.equals(otherFunction.collationName)) {
-            difference.append(String.format("%s: function collationName 이 다릅니다: %s <-> %s%n", this.functionName, this.collationName, otherFunction.collationName));
+            difference.append(String.format("%s: function collationName 이 다릅니다: %s <-> %s\n", this.functionName, this.collationName, otherFunction.collationName));
         }
         if (this.routineDefinition != null && !this.routineDefinition.equals(otherFunction.routineDefinition)) {
-            difference.append(String.format("%s: function routineDefinition 이 다릅니다: %s <-> %s%n", this.functionName, this.routineDefinition, otherFunction.routineDefinition));
+            difference.append(String.format("%s: function routineDefinition 이 다릅니다\n", this.functionName));
         }
         if (!this.isDeterministic == otherFunction.isDeterministic) {
-            difference.append(String.format("%s: function isDeterministic 이 다릅니다: %s <-> %s%n", this.functionName, this.isDeterministic, otherFunction.isDeterministic));
+            difference.append(String.format("%s: function isDeterministic 이 다릅니다: %s <-> %s\n", this.functionName, this.isDeterministic, otherFunction.isDeterministic));
         }
         if (this.definer != null && !this.definer.isEqualDefinerName(otherFunction.definer)) {
-            difference.append(String.format("%s: function definerName 이 다릅니다: %s <-> %s%n", this.functionName, this.definer.getUserName(), otherFunction.getDefiner().getUserName()));
+            difference.append(String.format("%s: function definerName 이 다릅니다: %s <-> %s\n", this.functionName, this.definer.getUserName(), otherFunction.getDefiner().getUserName()));
         }
         if (this.characterSetClient != null && !this.characterSetClient.equals(otherFunction.characterSetClient)) {
-            difference.append(String.format("%s: function characterSetClient 이 다릅니다: %s <-> %s%n", this.functionName, this.characterSetClient, otherFunction.characterSetClient));
+            difference.append(String.format("%s: function characterSetClient 이 다릅니다: %s <-> %s\n", this.functionName, this.characterSetClient, otherFunction.characterSetClient));
         }
         if (this.collationConnection != null && !this.collationConnection.equals(otherFunction.collationConnection)) {
             difference.append(String.format("%s: function collationConnection 이 다릅니다: %s <-> %s%n", this.functionName, this.collationConnection, otherFunction.collationConnection));
         }
         if (this.databaseCollation != null && !this.databaseCollation.equals(otherFunction.databaseCollation)) {
-            difference.append(String.format("%s: function databaseCollation 이 다릅니다: %s <-> %s%n", this.functionName, this.databaseCollation, otherFunction.databaseCollation));
+            difference.append(String.format("%s: function databaseCollation 이 다릅니다: %s <-> %s\n", this.functionName, this.databaseCollation, otherFunction.databaseCollation));
         }
         if (this.securityType != null && !this.securityType.equals(otherFunction.securityType)) {
-            difference.append(String.format("%s: function securityType 이 다릅니다: %s <-> %s%n", this.functionName, this.securityType, otherFunction.securityType));
+            difference.append(String.format("%s: function securityType 이 다릅니다: %s <-> %s\n", this.functionName, this.securityType, otherFunction.securityType));
         }
         return difference.toString();
     }
