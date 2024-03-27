@@ -85,7 +85,7 @@ public class ViewDifferenceChecker {
             }
         }
 
-        log.info("ViewDifferenceChecker Result: {}", differenceResult.toString());
+        log.info("compareViewCrossAccount Result: {}", differenceResult.toString());
         return differenceResult.toString();
     }
 
