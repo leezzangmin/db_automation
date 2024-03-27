@@ -50,11 +50,8 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
             schemaCheckResult.append(viewDifferenceChecker.compareViewCrossAccount(databaseConnectionInfo, schemaNames));
             schemaCheckResult.append(procedureDifferenceChecker.compareProcedureCrossAccount(databaseConnectionInfo, schemaNames));
             schemaCheckResult.append(triggerDifferenceChecker.compareTriggerCrossAccount(databaseConnectionInfo, schemaNames));
+            schemaCheckResult.append(functionDifferenceChecker.compareFunctionCrossAccount(databaseConnectionInfo, schemaNames));
         }
-
-
-
-//            schemaCheckResult.append(functionDifferenceChecker.compareFunction(prodDB, stageDB, schemaNames));
 
         slackClient.sendMessage(schemaCheckResult.toString());
     }

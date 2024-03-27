@@ -80,6 +80,25 @@ public class SchemaObjectService {
     }
 
     @Transactional
+    public void saveFunctions(String serviceName, String schemaName, List<Function> functions) throws Exception {
+        List<SchemaObject> schemaObjects = new ArrayList<>();
+
+        for (Function function : functions) {
+            String encryptedJsonView = makeEncryptedJsonString(function);
+            SchemaObject schemaObject = SchemaObject.builder()
+                    .schemaObjectType(SchemaObjectType.FUNCTION)
+                    .databaseName(schemaName)
+                    .schemaObjectName(function.getFunctionName())
+                    .serviceName(serviceName)
+                    .encryptedJsonString(encryptedJsonView)
+                    .build();
+            schemaObjects.add(schemaObject);
+        }
+        log.info("function schemaObjects: {}", schemaObjects);
+        upsert(schemaObjects);
+    }
+
+    @Transactional
     public void saveTriggers(String serviceName, String schemaName, List<Trigger> triggers) throws Exception {
         List<SchemaObject> schemaObjects = new ArrayList<>();
 
@@ -120,8 +139,8 @@ public class SchemaObjectService {
 
     @Transactional(readOnly = true)
     public List<Procedure> findProcedures(String serviceName, String schemaName) {
-        List<SchemaObject> schemaViews = schemaObjectRepository.findByServiceNameAndDatabaseNameAndSchemaObjectType(serviceName, schemaName, SchemaObjectType.PROCEDURE);
-        List<Procedure> procedures = schemaViews.stream()
+        List<SchemaObject> schemaProcedures = schemaObjectRepository.findByServiceNameAndDatabaseNameAndSchemaObjectType(serviceName, schemaName, SchemaObjectType.PROCEDURE);
+        List<Procedure> procedures = schemaProcedures.stream()
                 .map(schema -> {
                     try {
                         return encryptedJsonStringToObject(schema.getEncryptedJsonString(), Procedure.class);
@@ -135,9 +154,9 @@ public class SchemaObjectService {
 
     @Transactional(readOnly = true)
     public List<Trigger> findTriggers(String serviceName, String schemaName) {
-        List<SchemaObject> schemaViews = schemaObjectRepository.findByServiceNameAndDatabaseNameAndSchemaObjectType(serviceName, schemaName,
+        List<SchemaObject> schemaTriggers = schemaObjectRepository.findByServiceNameAndDatabaseNameAndSchemaObjectType(serviceName, schemaName,
                 SchemaObjectType.TRIGGER);
-        List<Trigger> triggers = schemaViews.stream()
+        List<Trigger> triggers = schemaTriggers.stream()
                 .map(schema -> {
                     try {
                         return encryptedJsonStringToObject(schema.getEncryptedJsonString(), Trigger.class);
@@ -149,6 +168,21 @@ public class SchemaObjectService {
         return triggers;
     }
 
+    @Transactional(readOnly = true)
+    public List<Function> findFunctions(String serviceName, String schemaName) {
+        List<SchemaObject> schemaFunctions = schemaObjectRepository.findByServiceNameAndDatabaseNameAndSchemaObjectType(serviceName, schemaName,
+                SchemaObjectType.FUNCTION);
+        List<Function> functions = schemaFunctions.stream()
+                .map(schema -> {
+                    try {
+                        return encryptedJsonStringToObject(schema.getEncryptedJsonString(), Function.class);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+        return functions;
+    }
 
 
     @Transactional(readOnly = true)

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.Function;
+import zzangmin.db_automation.service.SchemaObjectService;
 
 
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class FunctionDifferenceChecker {
 
     private final MysqlClient mysqlClient;
+    private final SchemaObjectService schemaObjectService;
 
     public String compareFunction(DatabaseConnectionInfo sourceInfo, DatabaseConnectionInfo replicaInfo, List<String> schemaNames) {
         StringBuilder differenceResult = new StringBuilder();
@@ -47,6 +49,49 @@ public class FunctionDifferenceChecker {
         }
 
         log.info("FunctionDifferenceChecker Result: {}", differenceResult.toString());
+        return differenceResult.toString();
+    }
+
+    public void saveFunctions(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) throws Exception {
+        log.info("database: {}", databaseConnectionInfo);
+        String serviceName = databaseConnectionInfo.findServiceName();
+        log.info("serviceName: {}", serviceName);
+
+        for (String schemaName : schemaNames) {
+            List<Function> functions = mysqlClient.findFunctions(databaseConnectionInfo, schemaName);
+
+            log.info("save functions: {}", functions);
+            schemaObjectService.saveFunctions(serviceName, schemaName, functions);
+        }
+    }
+
+    public String compareFunctionCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) {
+        StringBuilder differenceResult = new StringBuilder();
+        log.info("compareFunctionCrossAccount database: {}", databaseConnectionInfo);
+        String serviceName = databaseConnectionInfo.findServiceName();
+        log.info("compareFunctionCrossAccount serviceName: {}", serviceName);
+        for (String schemaName : schemaNames) {
+            log.info("schemaName: {}", schemaName);
+
+            Map<String, Function> prodFunctions = schemaObjectService.findFunctions(serviceName, schemaName)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            function -> function.getFunctionName(),
+                            function -> function));
+            Map<String, Function> currentFunctions = mysqlClient.findFunctions(databaseConnectionInfo, schemaName)
+                    .stream()
+                    .collect(Collectors.toMap(
+                            function -> function.getFunctionName(),
+                            function -> function));
+
+            for (String prodFunctionName : prodFunctions.keySet()) {
+                Function prodFunction = prodFunctions.get(prodFunctionName);
+                Function currentFunction = currentFunctions.getOrDefault(prodFunctionName, null);
+                differenceResult.append(prodFunction.reportDifference(currentFunction));
+            }
+        }
+
+        log.info("compareFunctionCrossAccount Result: {}", differenceResult.toString());
         return differenceResult.toString();
     }
 }
