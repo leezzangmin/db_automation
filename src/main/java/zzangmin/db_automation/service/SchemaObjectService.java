@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zzangmin.db_automation.entity.SchemaObject;
-import zzangmin.db_automation.entity.SchemaObjectType;
-import zzangmin.db_automation.entity.Table;
-import zzangmin.db_automation.entity.View;
+import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.repository.SchemaObjectRepository;
 import zzangmin.db_automation.util.EncryptionUtil;
 import zzangmin.db_automation.util.JsonUtil;
@@ -81,6 +78,41 @@ public class SchemaObjectService {
         log.info("view schemaObjects: {}", schemaObjects);
         upsert(schemaObjects);
     }
+
+    @Transactional
+    public void saveProcedures(String serviceName, String schemaName, List<Procedure> procedures) throws Exception {
+        List<SchemaObject> schemaObjects = new ArrayList<>();
+
+        for (Procedure procedure : procedures) {
+            String encryptedJsonView = makeEncryptedJsonString(procedure);
+            SchemaObject schemaObject = SchemaObject.builder()
+                    .schemaObjectType(SchemaObjectType.PROCEDURE)
+                    .databaseName(schemaName)
+                    .schemaObjectName(procedure.getProcedureName())
+                    .serviceName(serviceName)
+                    .encryptedJsonString(encryptedJsonView)
+                    .build();
+            schemaObjects.add(schemaObject);
+        }
+        log.info("procedure schemaObjects: {}", schemaObjects);
+        upsert(schemaObjects);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Procedure> findProcedures(String serviceName, String schemaName) {
+        List<SchemaObject> schemaViews = schemaObjectRepository.findByServiceNameAndDatabaseNameAndSchemaObjectType(serviceName, schemaName, SchemaObjectType.PROCEDURE);
+        List<Procedure> procedures = schemaViews.stream()
+                .map(schema -> {
+                    try {
+                        return encryptedJsonStringToObject(schema.getEncryptedJsonString(), Procedure.class);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+        return procedures;
+    }
+
 
     @Transactional(readOnly = true)
     public Map<String, String> findDatabases(String serviceName) {
