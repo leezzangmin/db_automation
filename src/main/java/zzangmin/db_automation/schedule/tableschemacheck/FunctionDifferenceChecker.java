@@ -71,6 +71,7 @@ public class FunctionDifferenceChecker {
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("compareFunctionCrossAccount serviceName: {}", serviceName);
         for (String schemaName : schemaNames) {
+            StringBuilder schemaResult = new StringBuilder();
             log.info("schemaName: {}", schemaName);
 
             Map<String, Function> prodFunctions = schemaObjectService.findFunctions(serviceName, schemaName)
@@ -87,7 +88,13 @@ public class FunctionDifferenceChecker {
             for (String prodFunctionName : prodFunctions.keySet()) {
                 Function prodFunction = prodFunctions.get(prodFunctionName);
                 Function currentFunction = currentFunctions.getOrDefault(prodFunctionName, null);
-                differenceResult.append(prodFunction.reportDifference(currentFunction));
+                schemaResult.append(prodFunction.reportDifference(currentFunction));
+            }
+            if (!schemaResult.isEmpty()) {
+                differenceResult.append("\n==========");
+                differenceResult.append(schemaName);
+                differenceResult.append(" FUNCTION 검사결과==========\n");
+                differenceResult.append(schemaResult);
             }
         }
 

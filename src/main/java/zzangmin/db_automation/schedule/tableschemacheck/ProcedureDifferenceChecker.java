@@ -68,6 +68,7 @@ public class ProcedureDifferenceChecker {
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("compareProcedureCrossAccount serviceName: {}", serviceName);
         for (String schemaName : schemaNames) {
+            StringBuilder schemaResult = new StringBuilder();
             log.info("schemaName: {}", schemaName);
 
             Map<String, Procedure> prodProcedures = schemaObjectService.findProcedures(serviceName, schemaName)
@@ -84,7 +85,13 @@ public class ProcedureDifferenceChecker {
             for (String prodProcedureName : prodProcedures.keySet()) {
                 Procedure prodProcedure = prodProcedures.get(prodProcedureName);
                 Procedure currentProcedure = currentProcedures.getOrDefault(prodProcedureName, null);
-                differenceResult.append(prodProcedure.reportDifference(currentProcedure));
+                schemaResult.append(prodProcedure.reportDifference(currentProcedure));
+            }
+            if (!schemaResult.isEmpty()) {
+                differenceResult.append("\n==========");
+                differenceResult.append(schemaName);
+                differenceResult.append(" PROCEDURE 검사결과==========\n");
+                differenceResult.append(schemaResult);
             }
         }
 

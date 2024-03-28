@@ -70,6 +70,7 @@ public class TriggerDifferenceChecker {
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("compareTriggerCrossAccount serviceName: {}", serviceName);
         for (String schemaName : schemaNames) {
+            StringBuilder schemaResult = new StringBuilder();
             log.info("schemaName: {}", schemaName);
 
             Map<String, Trigger> prodTriggers = schemaObjectService.findTriggers(serviceName, schemaName)
@@ -86,7 +87,13 @@ public class TriggerDifferenceChecker {
             for (String prodTriggerName : prodTriggers.keySet()) {
                 Trigger prodTrigger = prodTriggers.get(prodTriggerName);
                 Trigger currentTrigger = currentTriggers.getOrDefault(prodTriggerName, null);
-                differenceResult.append(prodTrigger.reportDifference(currentTrigger));
+                schemaResult.append(prodTrigger.reportDifference(currentTrigger));
+            }
+            if (!schemaResult.isEmpty()) {
+                differenceResult.append("\n==========");
+                differenceResult.append(schemaName);
+                differenceResult.append(" TRIGGER 검사결과==========\n");
+                differenceResult.append(schemaResult);
             }
         }
 

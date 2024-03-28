@@ -67,6 +67,7 @@ public class TableDifferenceChecker {
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("compareTableCrossAccount serviceName: {}", serviceName);
         for (String schemaName : schemaNames) {
+            StringBuilder schemaResult = new StringBuilder();
             log.info("schemaName: {}", schemaName);
             List<String> currentTableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
 
@@ -83,7 +84,13 @@ public class TableDifferenceChecker {
             for (String prodTableName : prodTables.keySet()) {
                 Table sourceTable = prodTables.get(prodTableName);
                 Table replicaTable = currentTables.getOrDefault(prodTableName, null);
-                differenceResult.append(sourceTable.reportDifference(replicaTable));
+                schemaResult.append(sourceTable.reportDifference(replicaTable));
+            }
+            if (!schemaResult.isEmpty()) {
+                differenceResult.append("\n==========");
+                differenceResult.append(schemaName);
+                differenceResult.append(" TABLE 검사결과==========\n");
+                differenceResult.append(schemaResult);
             }
         }
 

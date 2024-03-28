@@ -65,6 +65,7 @@ public class ViewDifferenceChecker {
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("compareViewCrossAccount serviceName: {}", serviceName);
         for (String schemaName : schemaNames) {
+            StringBuilder schemaResult = new StringBuilder();
             log.info("schemaName: {}", schemaName);
 
             Map<String, View> prodViews = schemaObjectService.findViews(serviceName, schemaName)
@@ -81,7 +82,13 @@ public class ViewDifferenceChecker {
             for (String prodViewName : prodViews.keySet()) {
                 View prodView = prodViews.get(prodViewName);
                 View currentView = currentViews.getOrDefault(prodViewName, null);
-                differenceResult.append(prodView.reportDifference(currentView));
+                schemaResult.append(prodView.reportDifference(currentView));
+            }
+            if (!schemaResult.isEmpty()) {
+                differenceResult.append("\n==========");
+                differenceResult.append(schemaName);
+                differenceResult.append(" VIEW 검사결과==========\n");
+                differenceResult.append(schemaResult);
             }
         }
 
