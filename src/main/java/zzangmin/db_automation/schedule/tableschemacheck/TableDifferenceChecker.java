@@ -61,37 +61,27 @@ public class TableDifferenceChecker {
         }
     }
 
-    public String compareTableCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) {
+    public String compareTableCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         StringBuilder differenceResult = new StringBuilder();
         log.info("compareTableCrossAccount database: {}", databaseConnectionInfo);
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("compareTableCrossAccount serviceName: {}", serviceName);
-        for (String schemaName : schemaNames) {
-            StringBuilder schemaResult = new StringBuilder();
-            log.info("schemaName: {}", schemaName);
-            List<String> currentTableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
+        List<String> currentTableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
 
-            Map<String, Table> prodTables = schemaObjectService.findTables(serviceName, schemaName)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            table -> table.getTableName(),
-                            table -> table));
-            Map<String, Table> currentTables = mysqlClient.findTables(databaseConnectionInfo, schemaName, currentTableNames)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            table -> table.getTableName(),
-                            table -> table));
-            for (String prodTableName : prodTables.keySet()) {
-                Table sourceTable = prodTables.get(prodTableName);
-                Table replicaTable = currentTables.getOrDefault(prodTableName, null);
-                schemaResult.append(sourceTable.reportDifference(replicaTable));
-            }
-            if (!schemaResult.isEmpty()) {
-                differenceResult.append("\n==========");
-                differenceResult.append(schemaName);
-                differenceResult.append(" TABLE 검사결과==========\n");
-                differenceResult.append(schemaResult);
-            }
+        Map<String, Table> prodTables = schemaObjectService.findTables(serviceName, schemaName)
+                .stream()
+                .collect(Collectors.toMap(
+                        table -> table.getTableName(),
+                        table -> table));
+        Map<String, Table> currentTables = mysqlClient.findTables(databaseConnectionInfo, schemaName, currentTableNames)
+                .stream()
+                .collect(Collectors.toMap(
+                        table -> table.getTableName(),
+                        table -> table));
+        for (String prodTableName : prodTables.keySet()) {
+            Table sourceTable = prodTables.get(prodTableName);
+            Table replicaTable = currentTables.getOrDefault(prodTableName, null);
+            differenceResult.append(sourceTable.reportDifference(replicaTable));
         }
 
         log.info("TableDifferenceChecker Result: {}", differenceResult.toString());

@@ -84,34 +84,39 @@ public class Column {
     }
 
     public String reportDifference(Column other) {
+        StringBuilder differenceResult = new StringBuilder();
         StringBuilder differences = new StringBuilder();
-
         if (!this.type.equals(other.type)) {
-            differences.append(String.format("타입이 다릅니다: %s <-> %s. ", this.type, other.type));
+            differences.append(String.format("타입이 다릅니다: `%s` <-> `%s`\n", this.type, other.type));
         }
         if (this.isNull != other.isNull) {
-            differences.append(String.format("NULL 가능 여부가 다릅니다: %s <-> %s. ", this.isNull, other.isNull));
+            differences.append(String.format("NULL 가능 여부가 다릅니다: `%s` <-> `%s`\n", this.isNull, other.isNull));
         }
         if (!Objects.equals(this.defaultValue, other.defaultValue)) { // Objects.equals는 null-safe 비교를 제공합니다.
-            differences.append(String.format("기본값이 다릅니다: %s <-> %s. ", this.defaultValue, other.defaultValue));
+            differences.append(String.format("기본값이 다릅니다: `%s` <-> `%s`\n", this.defaultValue, other.defaultValue));
         }
         if (this.isUnique != other.isUnique) {
-            differences.append(String.format("고유 여부가 다릅니다: %s <-> %s. ", this.isUnique, other.isUnique));
+            differences.append(String.format("고유 여부가 다릅니다: `%s` <-> `%s`\n", this.isUnique, other.isUnique));
         }
         if (this.isAutoIncrement != other.isAutoIncrement) {
-            differences.append(String.format("자동 증가 여부가 다릅니다: %s <-> %s. ", this.isAutoIncrement, other.isAutoIncrement));
+            differences.append(String.format("자동 증가 여부가 다릅니다: `%s` <-> `%s`\n", this.isAutoIncrement, other.isAutoIncrement));
         }
         if (!this.comment.equals(other.comment)) {
-            differences.append(String.format("코멘트가 다릅니다: %s <-> %s. ", this.comment, other.comment));
+            differences.append(String.format("코멘트가 다릅니다: `%s` <-> `%s`\n", this.comment, other.comment));
         }
         if (!this.charset.equals(other.charset)) {
-            differences.append(String.format("문자셋이 다릅니다: %s <-> %s. ", this.charset, other.charset));
+            differences.append(String.format("문자셋이 다릅니다: `%s` <-> `%s`\n", this.charset, other.charset));
         }
         if (!this.collate.equals(other.collate)) {
-            differences.append(String.format("콜레이션이 다릅니다: %s <-> %s. ", this.collate, other.collate));
+            differences.append(String.format("콜레이션이 다릅니다: `%s` <-> `%s`\n", this.collate, other.collate));
         }
 
-        return differences.toString();
+        if (!differences.isEmpty()) {
+            differenceResult.append(String.format("\n컬럼 [`%s`] 차이점:\n", this.name));
+            differenceResult.append(differences);
+        }
+
+        return differenceResult.toString();
     }
 
 }

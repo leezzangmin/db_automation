@@ -59,37 +59,27 @@ public class ViewDifferenceChecker {
         }
     }
 
-    public String compareViewCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) {
+    public String compareViewCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         StringBuilder differenceResult = new StringBuilder();
         log.info("compareViewCrossAccount database: {}", databaseConnectionInfo);
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("compareViewCrossAccount serviceName: {}", serviceName);
-        for (String schemaName : schemaNames) {
-            StringBuilder schemaResult = new StringBuilder();
-            log.info("schemaName: {}", schemaName);
 
-            Map<String, View> prodViews = schemaObjectService.findViews(serviceName, schemaName)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            view -> view.getViewName(),
-                            view -> view));
-            Map<String, View> currentViews = mysqlClient.findViews(databaseConnectionInfo, schemaName)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            view -> view.getViewName(),
-                            view -> view));
+        Map<String, View> prodViews = schemaObjectService.findViews(serviceName, schemaName)
+                .stream()
+                .collect(Collectors.toMap(
+                        view -> view.getViewName(),
+                        view -> view));
+        Map<String, View> currentViews = mysqlClient.findViews(databaseConnectionInfo, schemaName)
+                .stream()
+                .collect(Collectors.toMap(
+                        view -> view.getViewName(),
+                        view -> view));
 
-            for (String prodViewName : prodViews.keySet()) {
-                View prodView = prodViews.get(prodViewName);
-                View currentView = currentViews.getOrDefault(prodViewName, null);
-                schemaResult.append(prodView.reportDifference(currentView));
-            }
-            if (!schemaResult.isEmpty()) {
-                differenceResult.append("\n==========");
-                differenceResult.append(schemaName);
-                differenceResult.append(" VIEW 검사결과==========\n");
-                differenceResult.append(schemaResult);
-            }
+        for (String prodViewName : prodViews.keySet()) {
+            View prodView = prodViews.get(prodViewName);
+            View currentView = currentViews.getOrDefault(prodViewName, null);
+            differenceResult.append(prodView.reportDifference(currentView));
         }
 
         log.info("compareViewCrossAccount Result: {}", differenceResult.toString());

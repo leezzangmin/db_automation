@@ -64,37 +64,27 @@ public class TriggerDifferenceChecker {
         }
     }
 
-    public String compareTriggerCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) {
+    public String compareTriggerCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         StringBuilder differenceResult = new StringBuilder();
         log.info("compareTriggerCrossAccount database: {}", databaseConnectionInfo);
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("compareTriggerCrossAccount serviceName: {}", serviceName);
-        for (String schemaName : schemaNames) {
-            StringBuilder schemaResult = new StringBuilder();
-            log.info("schemaName: {}", schemaName);
 
-            Map<String, Trigger> prodTriggers = schemaObjectService.findTriggers(serviceName, schemaName)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            trigger -> trigger.getTriggerName(),
-                            trigger -> trigger));
-            Map<String, Trigger> currentTriggers = mysqlClient.findTriggers(databaseConnectionInfo, schemaName)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            trigger -> trigger.getTriggerName(),
-                            trigger -> trigger));
+        Map<String, Trigger> prodTriggers = schemaObjectService.findTriggers(serviceName, schemaName)
+                .stream()
+                .collect(Collectors.toMap(
+                        trigger -> trigger.getTriggerName(),
+                        trigger -> trigger));
+        Map<String, Trigger> currentTriggers = mysqlClient.findTriggers(databaseConnectionInfo, schemaName)
+                .stream()
+                .collect(Collectors.toMap(
+                        trigger -> trigger.getTriggerName(),
+                        trigger -> trigger));
 
-            for (String prodTriggerName : prodTriggers.keySet()) {
-                Trigger prodTrigger = prodTriggers.get(prodTriggerName);
-                Trigger currentTrigger = currentTriggers.getOrDefault(prodTriggerName, null);
-                schemaResult.append(prodTrigger.reportDifference(currentTrigger));
-            }
-            if (!schemaResult.isEmpty()) {
-                differenceResult.append("\n==========");
-                differenceResult.append(schemaName);
-                differenceResult.append(" TRIGGER 검사결과==========\n");
-                differenceResult.append(schemaResult);
-            }
+        for (String prodTriggerName : prodTriggers.keySet()) {
+            Trigger prodTrigger = prodTriggers.get(prodTriggerName);
+            Trigger currentTrigger = currentTriggers.getOrDefault(prodTriggerName, null);
+            differenceResult.append(prodTrigger.reportDifference(currentTrigger));
         }
 
         log.info("compareTriggerCrossAccount Result: {}", differenceResult.toString());

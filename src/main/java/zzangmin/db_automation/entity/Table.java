@@ -41,30 +41,32 @@ public class Table {
         StringBuilder differences = new StringBuilder();
 
         if (otherTable == null) {
-            result.append(String.format("%s 테이블을 stage에서 찾을 수 없습니다.\n", this.tableName));
+            result.append(String.format("`%s` 테이블을 stage에서 찾을 수 없습니다.\n", this.tableName));
             return result.toString();
         }
 
         if (!this.tableName.equals(otherTable.tableName)) {
-            differences.append(String.format("테이블 이름이 다릅니다: %s <-> %s\n", this.tableName, otherTable.tableName));
+            differences.append(String.format("테이블 이름이 다릅니다: `%s` <-> `%s`\n", this.tableName, otherTable.tableName));
         }
         if (!this.tableEngine.equals(otherTable.tableEngine)) {
-            differences.append(String.format("테이블 엔진이 다릅니다: %s <-> %s\n", this.tableEngine, otherTable.tableEngine));
+            differences.append(String.format("테이블 엔진이 다릅니다: `%s` <-> `%s`\n", this.tableEngine, otherTable.tableEngine));
         }
         if (!this.tableCharset.equals(otherTable.tableCharset)) {
-            differences.append(String.format("테이블 문자셋이 다릅니다: %s <-> %s\n", this.tableCharset, otherTable.tableCharset));
+            differences.append(String.format("테이블 문자셋이 다릅니다: `%s` <-> `%s`\n", this.tableCharset, otherTable.tableCharset));
         }
         if (!this.tableCollate.equals(otherTable.tableCollate)) {
-            differences.append(String.format("테이블 콜레이션 다릅니다: %s <-> %s\n", this.tableCollate, otherTable.tableCollate));
+            differences.append(String.format("테이블 콜레이션 다릅니다: `%s` <-> `%s`\n", this.tableCollate, otherTable.tableCollate));
         }
         if (!this.tableComment.equals(otherTable.tableComment)) {
-            differences.append(String.format("테이블 코멘트가 다릅니다: %s <-> %s\n", this.tableComment, otherTable.tableComment));
+            differences.append(String.format("테이블 코멘트가 다릅니다: `%s` <-> `%s`\n", this.tableComment, otherTable.tableComment));
         }
         if (this.columns.size() != (otherTable.columns.size())) {
-            differences.append(String.format("컬럼 개수가 다릅니다: %s <-> %s\n", this.columns.size(), otherTable.columns.size()));
+            System.out.println("this.columns = " + this.columns);
+            System.out.println("otherTable = " + otherTable.columns);
+            differences.append(String.format("컬럼 개수가 다릅니다: `%s` <-> `%s`\n", this.columns.size(), otherTable.columns.size()));
         }
         if (this.constraints.size() != (otherTable.constraints.size())) {
-            differences.append(String.format("제약조건 개수가 다릅니다: %s <-> %s\n", this.constraints.size(), otherTable.constraints.size()));
+            differences.append(String.format("제약조건 개수가 다릅니다: `%s` <-> `%s`\n", this.constraints.size(), otherTable.constraints.size()));
         }
 
         for (Column column : this.columns) {
@@ -72,15 +74,12 @@ public class Table {
             for (Column otherColumn : otherTable.columns) {
                 if (column.getName().equals(otherColumn.getName())) {
                     found = true;
-                    String columnDifferences = column.reportDifference(otherColumn);
-                    if (!columnDifferences.isEmpty()) {
-                        differences.append(String.format("컬럼 [%s] 차이점: %s\n", column.getName(), columnDifferences));
-                    }
+                    differences.append(column.reportDifference(otherColumn));
                     break;
                 }
             }
             if (!found) {
-                differences.append(String.format("컬럼 [%s]이/가 다른 테이블에 존재하지 않습니다.\n", column.getName()));
+                differences.append(String.format("컬럼 [`%s`]이/가 다른 테이블에 존재하지 않습니다.\n", column.getName()));
             }
         }
 
@@ -91,13 +90,13 @@ public class Table {
                     found = true;
                     String constraintDifferences = constraint.reportDifference(otherConstraint);
                     if (!constraintDifferences.isEmpty()) {
-                        differences.append(String.format("제약조건 [%s] 차이점: %s\n", constraint.getKeyName(), constraintDifferences));
+                        differences.append(String.format("\n제약조건 [`%s`] 차이점: %s\n", constraint.getKeyName(), constraintDifferences));
                     }
                     break;
                 }
             }
             if (!found) {
-                differences.append(String.format("제약조건 [%s]이/가 다른 테이블에 존재하지 않습니다.\n", constraint.getKeyName()));
+                differences.append(String.format("제약조건 [`%s`]이/가 다른 테이블에 존재하지 않습니다.\n", constraint.getKeyName()));
             }
         }
 
@@ -105,7 +104,7 @@ public class Table {
             return result.toString();
         }
 
-        result.append(String.format("\n테이블[%s] 검사 결과: \n", this.getTableName()));
+        result.append(String.format("\n테이블[`%s`] 검사 결과: \n", this.getTableName()));
         result.append(differences);
         result.append("\n");
         return result.toString();

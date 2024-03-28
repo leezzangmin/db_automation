@@ -41,16 +41,28 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
         for (String databaseName : databases.keySet()) {
             DatabaseConnectionInfo databaseConnectionInfo = databases.get(databaseName);
+
             List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
                     .stream()
                     .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
                     .collect(Collectors.toList());
-            schemaCheckResult.append(databaseDifferenceChecker.compareDatabaseCrossAccount(databaseConnectionInfo));
-            schemaCheckResult.append(tableDifferenceChecker.compareTableCrossAccount(databaseConnectionInfo, schemaNames));
-            schemaCheckResult.append(viewDifferenceChecker.compareViewCrossAccount(databaseConnectionInfo, schemaNames));
-            schemaCheckResult.append(procedureDifferenceChecker.compareProcedureCrossAccount(databaseConnectionInfo, schemaNames));
-            schemaCheckResult.append(triggerDifferenceChecker.compareTriggerCrossAccount(databaseConnectionInfo, schemaNames));
-            schemaCheckResult.append(functionDifferenceChecker.compareFunctionCrossAccount(databaseConnectionInfo, schemaNames));
+
+            for (String schemaName : schemaNames) {
+                StringBuilder schemaResult = new StringBuilder();
+                schemaResult.append(databaseDifferenceChecker.compareDatabaseCrossAccount(databaseConnectionInfo));
+                schemaResult.append(tableDifferenceChecker.compareTableCrossAccount(databaseConnectionInfo, schemaName));
+                schemaResult.append(viewDifferenceChecker.compareViewCrossAccount(databaseConnectionInfo, schemaName));
+                schemaResult.append(procedureDifferenceChecker.compareProcedureCrossAccount(databaseConnectionInfo, schemaName));
+                schemaResult.append(triggerDifferenceChecker.compareTriggerCrossAccount(databaseConnectionInfo, schemaName));
+                schemaResult.append(functionDifferenceChecker.compareFunctionCrossAccount(databaseConnectionInfo, schemaName));
+
+                if (!schemaResult.isEmpty()) {
+                    schemaCheckResult.append("\n==========");
+                    schemaCheckResult.append(schemaName);
+                    schemaCheckResult.append(" 검사결과==========\n");
+                    schemaCheckResult.append(schemaResult);
+                }
+            }
         }
 
         slackClient.sendMessage(schemaCheckResult.toString());

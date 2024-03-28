@@ -28,23 +28,23 @@ public class Function {
         StringBuilder difference = new StringBuilder();
 
         if (otherFunction == null) {
-            difference.append(String.format("%s function을 stage에서 찾을 수 없습니다.", this.functionName));
+            difference.append(String.format("`%s` function을 stage에서 찾을 수 없습니다.", this.functionName));
         }
 
         if (this.functionName != null && !this.functionName.equals(otherFunction.functionName)) {
-            difference.append(String.format("function 이름이 다릅니다: %s <-> %s\n", this.functionName, otherFunction.functionName));
+            difference.append(String.format("function 이름이 다릅니다: `%s` <-> `%s`\n", this.functionName, otherFunction.functionName));
         }
         if (this.dataType != null && !this.dataType.equals(otherFunction.dataType)) {
-            difference.append(String.format("%s: function dataType 이 다릅니다: %s <-> %s\n", this.functionName, this.dataType, otherFunction.dataType));
+            difference.append(String.format("`%s`: function dataType 이 다릅니다: `%s` <-> `%s`\n", this.functionName, this.dataType, otherFunction.dataType));
         }
         if (this.characterSetName != null && !this.characterSetName.equals(otherFunction.characterSetName)) {
-            difference.append(String.format("%s: function characterSetName 이 다릅니다: %s <-> %s\n", this.functionName, this.characterSetName, otherFunction.characterSetName));
+            difference.append(String.format("`%s`: function characterSetName 이 다릅니다: `%s` <-> %s\n", this.functionName, this.characterSetName, otherFunction.characterSetName));
         }
         if (this.collationName != null && !this.collationName.equals(otherFunction.collationName)) {
-            difference.append(String.format("%s: function collationName 이 다릅니다: %s <-> %s\n", this.functionName, this.collationName, otherFunction.collationName));
+            difference.append(String.format("`%s`: function collationName 이 다릅니다: %s <-> %s\n", this.functionName, this.collationName, otherFunction.collationName));
         }
         if (this.routineDefinition != null && !this.routineDefinition.equals(otherFunction.routineDefinition)) {
-            difference.append(String.format("%s: function routineDefinition 이 다릅니다\n", this.functionName));
+            difference.append(String.format("`%s`: function routineDefinition 이 다릅니다\n", this.functionName));
         }
         if (!this.isDeterministic == otherFunction.isDeterministic) {
             difference.append(String.format("%s: function isDeterministic 이 다릅니다: %s <-> %s\n", this.functionName, this.isDeterministic, otherFunction.isDeterministic));

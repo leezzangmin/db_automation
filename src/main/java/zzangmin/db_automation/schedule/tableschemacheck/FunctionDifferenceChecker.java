@@ -65,37 +65,27 @@ public class FunctionDifferenceChecker {
         }
     }
 
-    public String compareFunctionCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) {
+    public String compareFunctionCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         StringBuilder differenceResult = new StringBuilder();
         log.info("compareFunctionCrossAccount database: {}", databaseConnectionInfo);
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("compareFunctionCrossAccount serviceName: {}", serviceName);
-        for (String schemaName : schemaNames) {
-            StringBuilder schemaResult = new StringBuilder();
-            log.info("schemaName: {}", schemaName);
 
-            Map<String, Function> prodFunctions = schemaObjectService.findFunctions(serviceName, schemaName)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            function -> function.getFunctionName(),
-                            function -> function));
-            Map<String, Function> currentFunctions = mysqlClient.findFunctions(databaseConnectionInfo, schemaName)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            function -> function.getFunctionName(),
-                            function -> function));
+        Map<String, Function> prodFunctions = schemaObjectService.findFunctions(serviceName, schemaName)
+                .stream()
+                .collect(Collectors.toMap(
+                        function -> function.getFunctionName(),
+                        function -> function));
+        Map<String, Function> currentFunctions = mysqlClient.findFunctions(databaseConnectionInfo, schemaName)
+                .stream()
+                .collect(Collectors.toMap(
+                        function -> function.getFunctionName(),
+                        function -> function));
 
-            for (String prodFunctionName : prodFunctions.keySet()) {
-                Function prodFunction = prodFunctions.get(prodFunctionName);
-                Function currentFunction = currentFunctions.getOrDefault(prodFunctionName, null);
-                schemaResult.append(prodFunction.reportDifference(currentFunction));
-            }
-            if (!schemaResult.isEmpty()) {
-                differenceResult.append("\n==========");
-                differenceResult.append(schemaName);
-                differenceResult.append(" FUNCTION 검사결과==========\n");
-                differenceResult.append(schemaResult);
-            }
+        for (String prodFunctionName : prodFunctions.keySet()) {
+            Function prodFunction = prodFunctions.get(prodFunctionName);
+            Function currentFunction = currentFunctions.getOrDefault(prodFunctionName, null);
+            differenceResult.append(prodFunction.reportDifference(currentFunction));
         }
 
         log.info("compareFunctionCrossAccount Result: {}", differenceResult.toString());

@@ -62,37 +62,27 @@ public class ProcedureDifferenceChecker {
         }
     }
 
-    public String compareProcedureCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) {
+    public String compareProcedureCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         StringBuilder differenceResult = new StringBuilder();
         log.info("compareProcedureCrossAccount database: {}", databaseConnectionInfo);
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("compareProcedureCrossAccount serviceName: {}", serviceName);
-        for (String schemaName : schemaNames) {
-            StringBuilder schemaResult = new StringBuilder();
-            log.info("schemaName: {}", schemaName);
 
-            Map<String, Procedure> prodProcedures = schemaObjectService.findProcedures(serviceName, schemaName)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            procedure -> procedure.getProcedureName(),
-                            procedure -> procedure));
-            Map<String, Procedure> currentProcedures = mysqlClient.findProcedures(databaseConnectionInfo, schemaName)
-                    .stream()
-                    .collect(Collectors.toMap(
-                            procedure -> procedure.getProcedureName(),
-                            procedure -> procedure));
+        Map<String, Procedure> prodProcedures = schemaObjectService.findProcedures(serviceName, schemaName)
+                .stream()
+                .collect(Collectors.toMap(
+                        procedure -> procedure.getProcedureName(),
+                        procedure -> procedure));
+        Map<String, Procedure> currentProcedures = mysqlClient.findProcedures(databaseConnectionInfo, schemaName)
+                .stream()
+                .collect(Collectors.toMap(
+                        procedure -> procedure.getProcedureName(),
+                        procedure -> procedure));
 
-            for (String prodProcedureName : prodProcedures.keySet()) {
-                Procedure prodProcedure = prodProcedures.get(prodProcedureName);
-                Procedure currentProcedure = currentProcedures.getOrDefault(prodProcedureName, null);
-                schemaResult.append(prodProcedure.reportDifference(currentProcedure));
-            }
-            if (!schemaResult.isEmpty()) {
-                differenceResult.append("\n==========");
-                differenceResult.append(schemaName);
-                differenceResult.append(" PROCEDURE 검사결과==========\n");
-                differenceResult.append(schemaResult);
-            }
+        for (String prodProcedureName : prodProcedures.keySet()) {
+            Procedure prodProcedure = prodProcedures.get(prodProcedureName);
+            Procedure currentProcedure = currentProcedures.getOrDefault(prodProcedureName, null);
+            differenceResult.append(prodProcedure.reportDifference(currentProcedure));
         }
 
         log.info("compareProcedureCrossAccount Result: {}", differenceResult.toString());
