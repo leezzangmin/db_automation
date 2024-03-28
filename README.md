@@ -32,7 +32,8 @@
 ### 4. PROD <-> STAGE 간 스키마 차이점을 자동으로 검사합니다. (table, view, function, procedure, trigger 등)
     사람의 손으로 운영하는 DB라서 이슈 대응 등의 긴급한 상황에서는 수동으로 스키마를 조작하게 됨
     이런 히스토리는 추적하기 어려워서 prod와 stage, dev 간의 스키마가 불일치한 상태로 서비스가 지속됨
-    미리 파악하기 힘든 장애를 방지하기 위해 각 환경의 스키마를 검사
+    미리 파악하기 힘든 장애를 방지하기 위해 각 환경의 스키마 차이점을 검사
+    object_name, 컬럼 및 제약조건 개수, charset, collation, comment, routine_definition, security_type, definer 등
     검사한 결과는 슬랙으로 전달되어 히스토리 관리가 가능
 
 
