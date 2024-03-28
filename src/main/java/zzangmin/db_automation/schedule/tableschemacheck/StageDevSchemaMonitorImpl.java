@@ -46,10 +46,10 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
                     .stream()
                     .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
                     .collect(Collectors.toList());
+            schemaCheckResult.append(databaseDifferenceChecker.compareDatabaseCrossAccount(databaseConnectionInfo));
 
             for (String schemaName : schemaNames) {
                 StringBuilder schemaResult = new StringBuilder();
-                schemaResult.append(databaseDifferenceChecker.compareDatabaseCrossAccount(databaseConnectionInfo));
                 schemaResult.append(tableDifferenceChecker.compareTableCrossAccount(databaseConnectionInfo, schemaName));
                 schemaResult.append(viewDifferenceChecker.compareViewCrossAccount(databaseConnectionInfo, schemaName));
                 schemaResult.append(procedureDifferenceChecker.compareProcedureCrossAccount(databaseConnectionInfo, schemaName));
