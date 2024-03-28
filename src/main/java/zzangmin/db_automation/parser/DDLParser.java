@@ -6,7 +6,7 @@ import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
 
-import java.util.List;
+import java.util.Set;
 
 @Component
 public class DDLParser {
@@ -135,8 +135,8 @@ public class DDLParser {
     private String createTableCommandToSql(CreateTableRequestDTO dto) {
         StringBuilder sb = new StringBuilder();
 
-        List<Column> columns = dto.getColumns();
-        List<Constraint> constraints = dto.getConstraints();
+        Set<Column> columns = dto.getColumns();
+        Set<Constraint> constraints = dto.getConstraints();
         sb.append(generateCreateTableStatement(dto.getSchemaName(), dto.getTableName()));
         sb.append(generateColumnStatement(columns));
         sb.append(generateConstraintStatement(constraints));
@@ -154,7 +154,7 @@ public class DDLParser {
         return sb.toString();
     }
 
-    private String generateColumnStatement(List<Column> columns) {
+    private String generateColumnStatement(Set<Column> columns) {
         StringBuilder sb = new StringBuilder();
         for (Column column : columns) {
             sb.append("`");
@@ -172,7 +172,7 @@ public class DDLParser {
         return sb.toString();
     }
 
-    private String generateConstraintStatement(List<Constraint> constraints) {
+    private String generateConstraintStatement(Set<Constraint> constraints) {
         StringBuilder sb = new StringBuilder();
         for (Constraint constraint : constraints) {
             sb.append(constraint.getType());

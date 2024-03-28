@@ -3,8 +3,9 @@ package zzangmin.db_automation.entity;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @ToString
 @Getter
@@ -16,9 +17,9 @@ public class Table {
     @NotBlank
     private String tableName;
     @NotBlank
-    private List<Column> columns = new ArrayList<>();
+    private Set<Column> columns = new HashSet<>();
     @NotBlank
-    private List<Constraint> constraints = new ArrayList<>();
+    private Set<Constraint> constraints = new HashSet<>();
     @NotBlank
     private String tableEngine;
     @NotBlank

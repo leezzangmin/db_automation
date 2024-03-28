@@ -1,13 +1,10 @@
 package zzangmin.db_automation.convention;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.Table;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -34,7 +31,7 @@ public class TableConvention {
         }
     }
 
-    private static void checkNamingConvention(List<Column> columns, List<Constraint> constraints, String tableName) {
+    private static void checkNamingConvention(Set<Column> columns, Set<Constraint> constraints, String tableName) {
         CommonConvention.validateSnakeCase(tableName);
         CommonConvention.validateLowerCaseString(tableName);
         for (Column column : columns) {
@@ -50,7 +47,7 @@ public class TableConvention {
         }
     }
 
-    private static void checkDuplicateColumnAndConstraintConvention(List<Column> columns, List<Constraint> constraints) {
+    private static void checkDuplicateColumnAndConstraintConvention(Set<Column> columns, Set<Constraint> constraints) {
         Set<String> columnNames = new HashSet<>();
         for (Column column : columns) {
             String columnName = column.getName();

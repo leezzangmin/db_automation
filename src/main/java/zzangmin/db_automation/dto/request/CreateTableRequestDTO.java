@@ -8,7 +8,7 @@ import lombok.ToString;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
 
-import java.util.List;
+import java.util.Set;
 
 @ToString
 @Getter
@@ -21,9 +21,9 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
     @NotBlank
     private String tableName;
     @NotBlank
-    private List<Column> columns;
+    private Set<Column> columns;
     @NotBlank
-    private List<Constraint> constraints;
+    private Set<Constraint> constraints;
     @NotBlank
     private String engine;
     @NotBlank
