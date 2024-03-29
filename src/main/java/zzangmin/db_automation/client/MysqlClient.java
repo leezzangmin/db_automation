@@ -667,9 +667,10 @@ public class MysqlClient {
     public List<Table> findTables(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> tableNames) {
         String findTableAndColumnSQL = "SELECT t.TABLE_NAME, t.TABLE_SCHEMA, t.TABLE_TYPE, t.ENGINE, t.CREATE_TIME, t.UPDATE_TIME, t.TABLE_COLLATION, t.TABLE_COMMENT, " +
                 "c.COLUMN_NAME, c.DATA_TYPE, c.CHARACTER_MAXIMUM_LENGTH, c.IS_NULLABLE, c.COLUMN_KEY, " +
-                "c.COLUMN_DEFAULT, c.Extra, c.COLUMN_COMMENT, c.CHARACTER_SET_NAME, c.COLLATION_NAME " +
+                "c.COLUMN_DEFAULT, c.Extra, c.COLUMN_COMMENT, c.CHARACTER_SET_NAME as column_charset, c.COLLATION_NAME, ccsa.CHARACTER_SET_NAME as table_charset " +
                 "FROM INFORMATION_SCHEMA.TABLES t " +
-                "LEFT JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_SCHEMA = c.TABLE_SCHEMA AND t.TABLE_NAME = c.TABLE_NAME " +
+                "INNER JOIN INFORMATION_SCHEMA.COLLATION_CHARACTER_SET_APPLICABILITY CCSA ON CCSA.COLLATION_NAME = t.TABLE_COLLATION " +
+                "JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_SCHEMA = c.TABLE_SCHEMA AND t.TABLE_NAME = c.TABLE_NAME " +
                 "WHERE t.TABLE_SCHEMA = ? AND TABLE_TYPE != 'VIEW' AND t.TABLE_NAME IN ";
         String findIndexSQL = "SELECT INDEX_NAME, COLUMN_NAME, TABLE_NAME, NON_UNIQUE " +
                 "FROM INFORMATION_SCHEMA.STATISTICS " +
@@ -695,35 +696,35 @@ public class MysqlClient {
                 while (resultSet.next()) {
                     String tableName = resultSet.getString("TABLE_NAME");
                     String tableEngine = resultSet.getString("ENGINE");
-                    String tableCharset = "utf8mb4"; // TODO
+                    String tableCharset = resultSet.getString("table_charset");
                     String tableCollate = resultSet.getString("TABLE_COLLATION");
                     String tableComment = resultSet.getString("TABLE_COMMENT");
 
                     String columnName = resultSet.getString("COLUMN_NAME");
-                    String type = resultSet.getString("DATA_TYPE");
+                    String columnType = resultSet.getString("DATA_TYPE");
                     long characterMaxLength = resultSet.getLong("CHARACTER_MAXIMUM_LENGTH");
                     String isNull = resultSet.getString("IS_NULLABLE");
                     String key = resultSet.getString("COLUMN_KEY");
                     String defaultValue = resultSet.getString("COLUMN_DEFAULT");
                     String extra = resultSet.getString("Extra");
                     String columnComment = resultSet.getString("COLUMN_COMMENT");
-                    String charset = resultSet.getString("CHARACTER_SET_NAME");
-                    String collate = resultSet.getString("COLLATION_NAME");
+                    String columnCharset = resultSet.getString("column_charset");
+                    String columnCollate = resultSet.getString("COLLATION_NAME");
 
                     boolean isNullValue = isNull.equals("YES");
                     boolean isUniqueKey = key.equals("UNI");
                     boolean isAutoIncrement = extra.equals("auto_increment");
-                    type = Objects.isNull(characterMaxLength) ? type : type + "(" + characterMaxLength + ")";
+                    columnType = Objects.isNull(characterMaxLength) ? columnType : columnType + "(" + characterMaxLength + ")";
                     Column column = new Column(
                             columnName,
-                            type,
+                            columnType,
                             isNullValue,
                             defaultValue,
                             isUniqueKey,
                             isAutoIncrement,
                             columnComment,
-                            Objects.isNull(charset) ? CommonConvention.CHARSET : charset,
-                            Objects.isNull(collate) ? CommonConvention.COLLATE : collate);
+                            Objects.isNull(columnCharset) ? CommonConvention.CHARSET : columnCharset,
+                            Objects.isNull(columnCollate) ? CommonConvention.COLLATE : columnCollate);
                     Table table = Table.builder()
                             .tableName(tableName)
                             .tableEngine(tableEngine)

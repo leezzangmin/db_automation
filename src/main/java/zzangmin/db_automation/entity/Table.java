@@ -92,7 +92,7 @@ public class Table {
                 }
             }
             if (!found) {
-                differences.append(String.format("컬럼 [`%s`]이/가 %s에 존재하지 않습니다.\n", otherColumn.getName(), ProfileUtil.CURRENT_ENVIRONMENT_PROFILE));
+                differences.append(String.format("컬럼 [`%s`]이/가 prod에 존재하지 않습니다.\n", otherColumn.getName(), ProfileUtil.CURRENT_ENVIRONMENT_PROFILE));
             }
         }
 
@@ -122,7 +122,7 @@ public class Table {
                 }
             }
             if (!found) {
-                differences.append(String.format("제약조건 [`%s`]이/가 %s에 존재하지 않습니다.\n", otherConstraint.getKeyName(), ProfileUtil.CURRENT_ENVIRONMENT_PROFILE));
+                differences.append(String.format("제약조건 [`%s`]이/가 prod에 존재하지 않습니다.\n", otherConstraint.getKeyName(), ProfileUtil.CURRENT_ENVIRONMENT_PROFILE));
             }
         }
 
