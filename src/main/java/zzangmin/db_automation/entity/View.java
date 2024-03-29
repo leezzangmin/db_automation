@@ -22,7 +22,7 @@ public class View {
         StringBuilder result = new StringBuilder();
 
         if (otherView == null) {
-            difference.append(String.format("`%s` view 를 stage에서 찾을 수 없습니다.\n", this.viewName));
+            difference.append(String.format("`%s` view를 찾을 수 없습니다.\n", this.viewName));
             return difference.toString();
         }
         if (this.viewName != null && !this.viewName.equals(otherView.viewName)) {

@@ -2,6 +2,7 @@ package zzangmin.db_automation.entity;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import zzangmin.db_automation.util.ProfileUtil;
 
 @ToString
 @Getter
@@ -28,7 +29,7 @@ public class Function {
         StringBuilder difference = new StringBuilder();
 
         if (otherFunction == null) {
-            difference.append(String.format("`%s` function을 stage에서 찾을 수 없습니다.", this.functionName));
+            difference.append(String.format("`%s` function을 %s에서 찾을 수 없습니다.", this.functionName, ProfileUtil.CURRENT_ENVIRONMENT_PROFILE));
         }
 
         if (this.functionName != null && !this.functionName.equals(otherFunction.functionName)) {

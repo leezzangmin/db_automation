@@ -10,6 +10,7 @@ import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
+import zzangmin.db_automation.util.ProfileUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -57,9 +58,11 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
                 schemaResult.append(functionDifferenceChecker.compareFunctionCrossAccount(databaseConnectionInfo, schemaName));
 
                 if (!schemaResult.isEmpty()) {
-                    schemaCheckResult.append("\n==========");
+                    schemaCheckResult.append("\n====================");
                     schemaCheckResult.append(schemaName);
-                    schemaCheckResult.append(" 검사결과==========\n");
+                    schemaCheckResult.append(" 검사결과 [prod] <-> [");
+                    schemaCheckResult.append(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE);
+                    schemaCheckResult.append("]====================\n");
                     schemaCheckResult.append(schemaResult);
                 }
             }

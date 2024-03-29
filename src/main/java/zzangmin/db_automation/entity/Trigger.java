@@ -26,7 +26,7 @@ public class Trigger {
         StringBuilder difference = new StringBuilder();
 
         if (otherTrigger == null) {
-            difference.append(String.format("`%s` trigger를 stage에서 찾을 수 없습니다.", this.triggerName));
+            difference.append(String.format("`%s` trigger를 찾을 수 없습니다.", this.triggerName));
         }
 
         if (this.triggerName != null && !this.triggerName.equals(otherTrigger.triggerName)) {

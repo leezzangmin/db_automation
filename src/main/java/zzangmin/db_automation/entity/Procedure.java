@@ -2,6 +2,7 @@ package zzangmin.db_automation.entity;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import zzangmin.db_automation.util.ProfileUtil;
 
 @ToString
 @Getter
@@ -27,7 +28,7 @@ public class Procedure {
         StringBuilder difference = new StringBuilder();
 
         if (otherProcedure == null) {
-            difference.append(String.format("`%s` procedure을 stage에서 찾을 수 없습니다.", this.procedureName));
+            difference.append(String.format("`%s` procedure을 %s에서 찾을 수 없습니다.", this.procedureName, ProfileUtil.CURRENT_ENVIRONMENT_PROFILE));
         }
 
         if (this.procedureName != null && !this.procedureName.equals(otherProcedure.procedureName)) {
