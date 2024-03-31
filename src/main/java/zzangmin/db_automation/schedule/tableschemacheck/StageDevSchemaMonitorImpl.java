@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Profile(value = "!prod")
 public class StageDevSchemaMonitorImpl implements SchemaMonitor {
 
-    private static final long SCHEMA_CHECK_DELAY = 500000l;
+    private static final long SCHEMA_CHECK_DELAY = 9999999999l;
 
     private final SlackClient slackClient;
     private final MysqlClient mysqlClient;
