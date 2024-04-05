@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -146,7 +147,7 @@ class DDLValidatorTest {
 
         Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
         Constraint constraint2 = new Constraint("UNIQUE KEY", "name", List.of("name"));
-        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", List.of(column1), List.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", Set.of(column1), Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         createTableRequestDTO.setCommandType(CommandType.CREATE_TABLE);
         //when & then
         Assertions.assertDoesNotThrow(() -> ddlValidator.validateCreateTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO));

@@ -8,6 +8,7 @@ import zzangmin.db_automation.entity.CommandType;
 import zzangmin.db_automation.entity.Constraint;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -119,7 +120,7 @@ class DDLParserTest {
                 .keyColumnNames(List.of("test_column_two"))
                 .build();
 
-        DDLRequestDTO dto = new CreateTableRequestDTO("test_schema", "test_table", List.of(column1, column2), List.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "test table comment");
+        DDLRequestDTO dto = new CreateTableRequestDTO("test_schema", "test_table", Set.of(column1, column2), Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "test table comment");
 
         dto.setCommandType(CommandType.CREATE_TABLE);
         // when

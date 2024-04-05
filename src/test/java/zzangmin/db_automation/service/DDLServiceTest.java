@@ -18,6 +18,8 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @SpringBootTest
 class DDLServiceTest {
@@ -71,26 +73,33 @@ class DDLServiceTest {
         Column column1 = new Column("id", "INT", false, "0", false, true, "column1 comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
         Constraint constraint2 = new Constraint("UNIQUE KEY", "id", List.of("id"));
-        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", List.of(column1), List.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", Set.of(column1), Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         createTableRequestDTO.setCommandType(CommandType.CREATE_TABLE);
         //when
         ddlService.createTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO);
         //then
         Table findTable = mysqlClient.findTables(backOfficeDatabaseConnectionInfo, schemaName, List.of("create_table_test")).get(0);
+        Column findColumn = findTable.getColumns().stream().collect(Collectors.toList()).get(0);
+        Constraint findConstraint0 = findTable.getConstraints().stream().collect(Collectors.toList()).get(0);
+        Constraint findConstraint1 = findTable.getConstraints().stream().collect(Collectors.toList()).get(1);
+
         Assertions.assertThat(findTable.getTableName()).isEqualTo("create_table_test");
         Assertions.assertThat(findTable.getTableComment()).isEqualTo("table comment");
-        Assertions.assertThat(findTable.getColumns().get(0).getName()).isEqualTo("id");
-        Assertions.assertThat(findTable.getColumns().get(0).getType()).startsWithIgnoringCase("int");
-        Assertions.assertThat(findTable.getColumns().get(0).getIsNull()).isEqualTo(false);
-        Assertions.assertThat(findTable.getColumns().get(0).getDefaultValue()).isEqualTo(null);
-        Assertions.assertThat(findTable.getColumns().get(0).getIsAutoIncrement()).isEqualTo(true);
-        Assertions.assertThat(findTable.getColumns().get(0).getComment()).isEqualTo("column1 comment");
-        Assertions.assertThat(findTable.getColumns().get(0).getCharset()).isEqualTo("utf8mb4");
-        Assertions.assertThat(findTable.getColumns().get(0).getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
-        Assertions.assertThat(findTable.getConstraints().get(0).getKeyName()).startsWith("PRIMARY");
-        Assertions.assertThat(findTable.getConstraints().get(1).getKeyName()).isEqualTo("id");
-        Assertions.assertThat(findTable.getConstraints().get(0).getKeyColumnNames()).isEqualTo(List.of("id"));
         Assertions.assertThat(findTable.getTableEngine()).isEqualTo("InnoDB");
+
+        Assertions.assertThat(findColumn.getName()).isEqualTo("id");
+        Assertions.assertThat(findColumn.getType()).startsWithIgnoringCase("int");
+        Assertions.assertThat(findColumn.getIsNull()).isEqualTo(false);
+        Assertions.assertThat(findColumn.getDefaultValue()).isEqualTo(null);
+        Assertions.assertThat(findColumn.getIsAutoIncrement()).isEqualTo(true);
+        Assertions.assertThat(findColumn.getComment()).isEqualTo("column1 comment");
+        Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
+        Assertions.assertThat(findColumn.getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
+
+        Assertions.assertThat(findConstraint0.getKeyName()).startsWith("PRIMARY");
+        Assertions.assertThat(findConstraint1.getKeyName()).isEqualTo("id");
+        Assertions.assertThat(findConstraint0.getKeyColumnNames()).isEqualTo(List.of("id"));
+
 
 
     }

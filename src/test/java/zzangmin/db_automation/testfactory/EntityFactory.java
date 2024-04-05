@@ -6,7 +6,9 @@ import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.Table;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class EntityFactory {
 
@@ -37,8 +39,8 @@ public class EntityFactory {
     public static Table generateBasicTable(String tableName) {
         Table table = Table.builder()
                 .tableName(tableName)
-                .columns(new ArrayList<>(List.of(generateBasicColumn("column_name"))))
-                .constraints(new ArrayList<>(List.of(generateBasicConstraint())))
+                .columns(new HashSet<>(Set.of(generateBasicColumn("column_name"))))
+                .constraints(new HashSet<>(Set.of(generateBasicConstraint())))
                 .tableEngine("innoDB")
                 .tableCharset("utf8mb4")
                 .tableCollate("utf8mb4_0900_ai_ci")
