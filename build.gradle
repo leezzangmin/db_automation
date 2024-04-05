@@ -40,6 +40,13 @@ dependencies {
 
 	implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
 
+	// slack
+	implementation 'com.google.code.gson:gson:2.8.6'
+	implementation 'com.squareup.okhttp3:okhttp:4.2.0'
+	implementation 'com.slack.api:slack-app-backend:1.6.2'
+	implementation 'com.slack.api:slack-api-model:1.6.2'
+	implementation 'com.slack.api:slack-api-client:1.6.2'
+
 
 
 }
