@@ -667,7 +667,7 @@ public class MysqlClient {
     public List<Table> findTables(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, List<String> tableNames) {
         String findTableAndColumnSQL = "SELECT t.TABLE_NAME, t.TABLE_SCHEMA, t.TABLE_TYPE, t.ENGINE, t.CREATE_TIME, t.UPDATE_TIME, t.TABLE_COLLATION, t.TABLE_COMMENT, " +
                 "c.COLUMN_NAME, c.DATA_TYPE, c.CHARACTER_MAXIMUM_LENGTH, c.IS_NULLABLE, c.COLUMN_KEY, " +
-                "c.COLUMN_DEFAULT, c.Extra, c.COLUMN_COMMENT, c.CHARACTER_SET_NAME as column_charset, c.COLLATION_NAME, ccsa.CHARACTER_SET_NAME as table_charset " +
+                "c.COLUMN_DEFAULT, c.Extra, c.COLUMN_COMMENT, c.CHARACTER_SET_NAME as column_charset, c.COLLATION_NAME, CCSA.CHARACTER_SET_NAME as table_charset " +
                 "FROM INFORMATION_SCHEMA.TABLES t " +
                 "INNER JOIN INFORMATION_SCHEMA.COLLATION_CHARACTER_SET_APPLICABILITY CCSA ON CCSA.COLLATION_NAME = t.TABLE_COLLATION " +
                 "JOIN INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_SCHEMA = c.TABLE_SCHEMA AND t.TABLE_NAME = c.TABLE_NAME " +
