@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import zzangmin.db_automation.service.SlackService;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,6 +33,8 @@ public class SlackController {
 
     @Value("${slack.token}")
     private String slackToken;
+
+    private final SlackService slackService;
 
     @PostMapping("/slack/callback")
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) {
@@ -57,7 +60,7 @@ public class SlackController {
                                         .value("deliveryTip.getSeq().toString()")
                                         .style("primary")
                                         .text(plainText("ddd"))
-                                        .actionId("shortcut-test1")
+                                        .actionId("shortcut-test")
                                 )
                         ))
                 )
