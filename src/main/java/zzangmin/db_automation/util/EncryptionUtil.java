@@ -5,12 +5,13 @@ import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
 public class EncryptionUtil {
+    private static String MEATDATA_ENCRYPT_KEY = System.getenv("ENCRYPT_KEY");;
+
     private static final String ALGORITHM = "AES";
 
-    public static String encrypt(String value) throws Exception {
-        String secretKey = System.getenv("ENCRYPT_KEY");
 
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), ALGORITHM);
+    public static String encrypt(String value) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(MEATDATA_ENCRYPT_KEY.getBytes(), ALGORITHM);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
         byte[] encryptedValue = cipher.doFinal(value.getBytes());
@@ -18,9 +19,7 @@ public class EncryptionUtil {
     }
 
     public static String decrypt(String encryptedValue) throws Exception {
-        String secretKey = System.getenv("ENCRYPT_KEY");
-
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), ALGORITHM);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(MEATDATA_ENCRYPT_KEY.getBytes(), ALGORITHM);
         Cipher cipher = Cipher.getInstance(ALGORITHM);
         cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
         byte[] decodedValue = Base64.getDecoder().decode(encryptedValue);
