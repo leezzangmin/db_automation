@@ -4,17 +4,17 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.dto.request.DDLRequestDTO;
 import zzangmin.db_automation.dto.response.DDLResponseDTO;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.service.SlackService;
 
 @RequiredArgsConstructor
 @Aspect
 @Component
 public class SlackSendAspect {
 
-    private final SlackClient slackClient;
+    private final SlackService slackService;
 
 
     @Pointcut("@annotation(org.springframework.web.bind.annotation.PostMapping) " +
@@ -39,7 +39,7 @@ public class SlackSendAspect {
                 sb.append(((DatabaseConnectionInfo) arg).databaseSummary());
             }
         }
-        slackClient.sendMessage(sb.toString());
+        slackService.sendMessage(sb.toString());
     }
 
     @AfterReturning(pointcut = "requestMappingMethods()", returning = "dto")
@@ -59,7 +59,7 @@ public class SlackSendAspect {
         }
         sb.append("\n");
         sb.append(((DDLResponseDTO) dto).toString());
-        slackClient.sendMessage(sb.toString());
+        slackService.sendMessage(sb.toString());
     }
 
     @AfterThrowing(pointcut = "requestMappingMethods()", throwing = "error")
@@ -80,7 +80,7 @@ public class SlackSendAspect {
         sb.append("\nError Message: ");
         sb.append(error.getMessage());
 
-        slackClient.sendMessage(sb.toString());
+        slackService.sendMessage(sb.toString());
     }
 
 }

@@ -6,10 +6,10 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
-import zzangmin.db_automation.client.SlackClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
+import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.util.ProfileUtil;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
 
     private static final long SCHEMA_CHECK_DELAY = 9999999999l;
 
-    private final SlackClient slackClient;
+    private final SlackService slackService;
     private final MysqlClient mysqlClient;
 
     private final DatabaseDifferenceChecker databaseDifferenceChecker;
@@ -68,6 +68,6 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
             }
         }
 
-        slackClient.sendMessage(schemaCheckResult.toString());
+        slackService.sendMessage(schemaCheckResult.toString());
     }
 }
