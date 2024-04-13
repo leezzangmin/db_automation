@@ -18,6 +18,7 @@ public class MetadataLockDetector {
 
     private Map<String, DatabaseConnectionInfo> targetDatabases = new ConcurrentHashMap<>();
     private static final int METADATA_LOCK_THRESHOLD_SECONDS = 3;
+    private static final int METADATA_LOCK_CHECK_DELAY_MS = 1000;
     private final MysqlClient mysqlClient;
 
     public void startCheck(DatabaseConnectionInfo databaseConnectionInfo) {
@@ -28,7 +29,7 @@ public class MetadataLockDetector {
         targetDatabases.remove(databaseConnectionInfo.getDatabaseName());
     }
 
-    @Scheduled(fixedDelay = 100)
+    @Scheduled(fixedDelay = METADATA_LOCK_CHECK_DELAY_MS)
     public void checkMetadataLock() {
         if (targetDatabases.isEmpty()) {
             return;
