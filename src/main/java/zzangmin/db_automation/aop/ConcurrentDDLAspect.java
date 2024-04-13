@@ -17,14 +17,17 @@ public class ConcurrentDDLAspect {
 
     private Map<String, Boolean> ddlRunningDatabases = new ConcurrentHashMap<>();
 
-    @Pointcut("@annotation(org.springframework.web.bind.annotation.PostMapping) " +
+    @Pointcut("(@annotation(org.springframework.web.bind.annotation.PostMapping) " +
             "|| @annotation(org.springframework.web.bind.annotation.PutMapping) " +
-            "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)" +
-            "|| @annotation(org.springframework.web.bind.annotation.PatchMapping)")
+            "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping) " +
+            "|| @annotation(org.springframework.web.bind.annotation.PatchMapping)) ")
     private void requestMappingMethods() {}
 
+    @Pointcut("execution(* zzangmin.db_automation.controller.DDLController.*(..))")
+    private void ddlControllerMethods() {}
 
-    @Before("requestMappingMethods()")
+
+    @Before("requestMappingMethods() && ddlControllerMethods()")
     public void beforeRequest(JoinPoint joinPoint) {
         String databaseName = findDatabaseNameFromHttpRequest();
         if (isDatabaseRunningDDL(databaseName)) {
@@ -33,7 +36,7 @@ public class ConcurrentDDLAspect {
         addRunningDatabase(databaseName);
     }
 
-    @After("requestMappingMethods()")
+    @After("requestMappingMethods() && ddlControllerMethods()")
     public void afterReturningRequest(JoinPoint joinPoint) {
         String databaseName = findDatabaseNameFromHttpRequest();
         removeRunningDatabase(databaseName);

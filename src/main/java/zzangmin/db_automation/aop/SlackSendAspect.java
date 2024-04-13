@@ -23,7 +23,10 @@ public class SlackSendAspect {
             "|| @annotation(org.springframework.web.bind.annotation.PatchMapping)")
     private void requestMappingMethods() {}
 
-    @Before("requestMappingMethods()")
+    @Pointcut("execution(* zzangmin.db_automation.controller.DDLController.*(..))")
+    private void ddlControllerMethods() {}
+
+    @Before("requestMappingMethods() && ddlControllerMethods()")
     public void sendStartMessageToSlack(JoinPoint joinPoint) {
         StringBuilder sb = new StringBuilder();
         sb.append("<DDL Execution Start!>\n");
@@ -42,7 +45,7 @@ public class SlackSendAspect {
         slackService.sendMessage(sb.toString());
     }
 
-    @AfterReturning(pointcut = "requestMappingMethods()", returning = "dto")
+    @AfterReturning(pointcut = "requestMappingMethods() && ddlControllerMethods()", returning = "dto")
     public void afterReturningSendDTO(JoinPoint joinPoint, Object dto) {
         StringBuilder sb = new StringBuilder();
         sb.append("<DDL Execution Finished!>\n");
@@ -62,7 +65,7 @@ public class SlackSendAspect {
         slackService.sendMessage(sb.toString());
     }
 
-    @AfterThrowing(pointcut = "requestMappingMethods()", throwing = "error")
+    @AfterThrowing(pointcut = "requestMappingMethods() && ddlControllerMethods()", throwing = "error")
     public void sendErrorMessageToSlack(JoinPoint joinPoint, Throwable error) {
         StringBuilder sb = new StringBuilder();
         sb.append("<DDL Execution Failed!>\n");
