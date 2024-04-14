@@ -29,7 +29,7 @@ public class MetadataLockDetector {
         targetDatabases.remove(databaseConnectionInfo.getDatabaseName());
     }
 
-    @Scheduled(fixedDelay = METADATA_LOCK_CHECK_DELAY_MS)
+    //@Scheduled(fixedDelay = METADATA_LOCK_CHECK_DELAY_MS)
     public void checkMetadataLock() {
         if (targetDatabases.isEmpty()) {
             return;

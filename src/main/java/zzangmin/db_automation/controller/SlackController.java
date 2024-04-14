@@ -11,20 +11,19 @@ import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.request.chat.ChatUpdateRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.methods.response.chat.ChatUpdateResponse;
+import com.slack.api.model.admin.App;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.element.ExternalSelectElement;
 import com.slack.api.util.json.GsonFactory;
 import com.slack.api.webhook.WebhookResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import zzangmin.db_automation.service.SlackService;
 
@@ -50,7 +49,7 @@ public class SlackController {
     @PostMapping("/slack/callback")
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) {
 
-
+        log.info("callbaack");
         return ResponseEntity.ok(true);
     }
 
@@ -114,6 +113,10 @@ public class SlackController {
 
     }
 
+    @RequestMapping(value = "/.well-known/acme-challenge/Tw3VP1zrN6oKFej-VuPfy7T0__RFu4pj8siOzSX3QMM.m1i5fTvCNv1ZzJq40C9WZFf8I4Eemo-brzMP7uPGrW0")
+    public String applyHttps(HttpServletResponse response) {
+        return "Tw3VP1zrN6oKFej-VuPfy7T0__RFu4pj8siOzSX3QMM.m1i5fTvCNv1ZzJq40C9WZFf8I4Eemo-brzMP7uPGrW0";
+    }
 //    public void updateChat() throws IOException, SlackApiException {
 //        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase().fromJson("asdf", BlockActionPayload.class);
 //        List<BlockActionPayload.Action> actions = blockActionPayload.getActions();

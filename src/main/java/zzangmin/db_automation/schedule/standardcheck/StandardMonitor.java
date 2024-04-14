@@ -16,7 +16,7 @@ public class StandardMonitor {
     private final TagStandardChecker tagStandardChecker;
     private final SlackService slackService;
 
-    @Scheduled(fixedDelay = 1000000)
+    //@Scheduled(fixedDelay = 1000000)
     public void checkStandard() {
         StringBuilder standardCheckResult = new StringBuilder();
 

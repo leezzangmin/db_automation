@@ -35,7 +35,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
     private final FunctionDifferenceChecker functionDifferenceChecker;
 
 
-    @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
+    //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() throws Exception {
         StringBuilder schemaSaveResult = new StringBuilder();
 

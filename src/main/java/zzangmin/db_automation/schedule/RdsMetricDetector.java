@@ -29,7 +29,7 @@ public class RdsMetricDetector {
         targetDatabases.remove(databaseConnectionInfo.getDatabaseName());
     }
 
-    @Scheduled(fixedDelay = CHECK_DELAY)
+    //@Scheduled(fixedDelay = CHECK_DELAY)
     public void checkRdsMetric() {
         if (targetDatabases.isEmpty()) {
             return;

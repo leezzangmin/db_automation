@@ -36,7 +36,7 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
     private final FunctionDifferenceChecker functionDifferenceChecker;
 
 
-    @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
+    //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() {
         StringBuilder schemaCheckResult = new StringBuilder();
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
