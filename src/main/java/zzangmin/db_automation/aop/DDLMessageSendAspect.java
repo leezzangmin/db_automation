@@ -12,7 +12,7 @@ import zzangmin.db_automation.service.SlackService;
 @RequiredArgsConstructor
 @Aspect
 @Component
-public class SlackSendAspect {
+public class DDLMessageSendAspect {
 
     private final SlackService slackService;
 
@@ -27,7 +27,7 @@ public class SlackSendAspect {
     private void ddlControllerMethods() {}
 
     @Before("requestMappingMethods() && ddlControllerMethods()")
-    public void sendStartMessageToSlack(JoinPoint joinPoint) {
+    public void sendStartMessage(JoinPoint joinPoint) {
         StringBuilder sb = new StringBuilder();
         sb.append("<DDL Execution Start!>\n");
         Object[] args = joinPoint.getArgs();
@@ -66,7 +66,7 @@ public class SlackSendAspect {
     }
 
     @AfterThrowing(pointcut = "requestMappingMethods() && ddlControllerMethods()", throwing = "error")
-    public void sendErrorMessageToSlack(JoinPoint joinPoint, Throwable error) {
+    public void sendErrorMessag(JoinPoint joinPoint, Throwable error) {
         StringBuilder sb = new StringBuilder();
         sb.append("<DDL Execution Failed!>\n");
         Object[] args = joinPoint.getArgs();
