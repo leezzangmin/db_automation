@@ -20,12 +20,12 @@ import java.util.Map;
 public class LongTransactionDetector {
 
     private final long HISTORY_LIST_LENGTH_THRESHOLD = 100L;
-    private final long TRANSACTION_SEARCH_DELAY = 15000L;
+    private final long TRANSACTION_SEARCH_DELAY_MS = 15000L;
 
     private final MysqlClient mysqlClient;
     private final SlackService slackService;
 
-    @Scheduled(fixedDelay = TRANSACTION_SEARCH_DELAY)
+    @Scheduled(fixedDelay = TRANSACTION_SEARCH_DELAY_MS)
     public void findLongTransaction() {
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
         for (String databaseName : databases.keySet()) {
