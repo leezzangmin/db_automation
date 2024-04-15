@@ -117,6 +117,11 @@ public class SlackController {
     public String applyHttps(HttpServletResponse response) {
         return "Tw3VP1zrN6oKFej-VuPfy7T0__RFu4pj8siOzSX3QMM.m1i5fTvCNv1ZzJq40C9WZFf8I4Eemo-brzMP7uPGrW0";
     }
+
+    @GetMapping("/healthcheck")
+    public String healthCheck() {
+        return "ok";`
+    }
 //    public void updateChat() throws IOException, SlackApiException {
 //        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase().fromJson("asdf", BlockActionPayload.class);
 //        List<BlockActionPayload.Action> actions = blockActionPayload.getActions();
