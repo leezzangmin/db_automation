@@ -120,7 +120,7 @@ public class SlackController {
 
     @GetMapping("/healthcheck")
     public String healthCheck() {
-        return "ok";`
+        return "ok";
     }
 //    public void updateChat() throws IOException, SlackApiException {
 //        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase().fromJson("asdf", BlockActionPayload.class);
