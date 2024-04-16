@@ -94,6 +94,10 @@ public class SlackController {
                 )
         );
 
+        for (LayoutBlock layoutBlock : layoutBlocks) {
+            log.info("layoutBlock: {}", layoutBlock);
+        }
+
         try{
             ChatPostMessageRequest request = ChatPostMessageRequest.builder()
                     .channel(channelAddress)

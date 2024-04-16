@@ -54,7 +54,10 @@ public class SlackService {
     public StaticSelectElement findSchemaSelects(String DBMSName) {
         if (DBMSName == null) {
             return StaticSelectElement.builder()
-                    .options(List.of(OptionObject.builder().build()))
+                    .options(List.of(OptionObject.builder()
+                                    .text(plainText("sdfsdfsdfsdf"))
+                                    .value("vawervzxcvzw")
+                            .build()))
                     .placeholder(plainText("select schema"))
                     .actionId("selectedSchemaName")
                     .build();
