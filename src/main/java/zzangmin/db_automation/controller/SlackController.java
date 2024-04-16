@@ -12,6 +12,7 @@ import com.slack.api.methods.request.chat.ChatUpdateRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.methods.response.chat.ChatUpdateResponse;
 import com.slack.api.model.admin.App;
+import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.SectionBlock;
 import com.slack.api.model.block.element.ExternalSelectElement;
@@ -71,35 +72,25 @@ public class SlackController {
         return ResponseEntity.ok(true);
     }
 
-    @PostMapping(value= "/slack/callback2", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ActionResponse slackCallBack2(@RequestParam String payload) throws IOException {
-        System.out.println("payload = " + payload);
-        BlockActionPayload blockActionPayload =
-                GsonFactory.createSnakeCase()
-                        .fromJson(payload, BlockActionPayload.class);
-        log.info("asdfasdf callback2 ");
 
-        ActionResponse response =
-                ActionResponse.builder()
-                        .replaceOriginal(true)
-                        .blocks(blockActionPayload.getMessage().getBlocks())
-                        .build();
-
-        Slack slack = Slack.getInstance();
-        ActionResponseSender sender = new ActionResponseSender(slack);
-        sender.send(blockActionPayload.getResponseUrl(), response);
-        return response;
-    }
-
-    @GetMapping("/message/dbselect")
+    @GetMapping("/slack/command/dbselect")
     public void sendSlackMessage(String message, String channelID) {
         String channelAddress = channelID;
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
         // 텍스트를 남길 SectionBlock 입니다.
-        layoutBlocks.add(section(section -> section.text(markdownText("새로운 배송팁이 등록되었습니다."))));
-        // Action과 텍스트를 구분하기 위한 Divider 입니다.
+        layoutBlocks.add(section(section -> section.text(markdownText("august bot slack message test"))));
         layoutBlocks.add(divider());
         // ActionBlock에 승인 버튼과 거부 버튼을 추가 하였습니다.
+
+        layoutBlocks.add(
+                actions(actions -> actions
+                        .elements(asElements(slackService.findClusterSelects()))
+                )
+        );
+//        ActionsBlock clusterSelects = ActionsBlock.builder()
+//                .elements(asElements(slackService.findClusterSelects()))
+//                .build();
+
         layoutBlocks.add(
                 actions(actions -> actions
                         .elements(asElements(
@@ -108,9 +99,7 @@ public class SlackController {
                                         .style("primary")
                                         .text(plainText("ddd"))
                                         .actionId("aaa")
-                                ),
-                                slackService.findClusterSelects()
-                        ))
+                                )))
                 )
         );
 
@@ -127,42 +116,11 @@ public class SlackController {
         } catch (SlackApiException | IOException e) {
             log.error(e.getMessage());
         }
-
-
     }
 
     @RequestMapping(value = "/.well-known/acme-challenge/Tw3VP1zrN6oKFej-VuPfy7T0__RFu4pj8siOzSX3QMM.m1i5fTvCNv1ZzJq40C9WZFf8I4Eemo-brzMP7uPGrW0")
     public String applyHttps(HttpServletResponse response) {
         return "Tw3VP1zrN6oKFej-VuPfy7T0__RFu4pj8siOzSX3QMM.m1i5fTvCNv1ZzJq40C9WZFf8I4Eemo-brzMP7uPGrW0";
     }
-
-    @GetMapping("/healthcheck")
-    public String healthCheck() {
-        return "ok";
-    }
-//    public void updateChat() throws IOException, SlackApiException {
-//        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase().fromJson("asdf", BlockActionPayload.class);
-//        List<BlockActionPayload.Action> actions = blockActionPayload.getActions();
-//        ActionResponse actionResponse = ActionResponse.builder()
-//                .replaceOriginal(true)
-//                .blocks(List.of())
-//                .build();
-//        MethodsClient methods = Slack.getInstance().methods(slackToken);
-//        SlackConfig slackConfig = new SlackConfig();
-//        slackConfig.
-//        // https://api.slack.com/methods/chat.update
-//        ChatUpdateRequest chatUpdateRequest = ChatUpdateRequest.builder()
-//                .blocks()
-//                .channel()
-//                .text()
-//                .ts(Timestamp.from(Instant.now()))
-//                .build();
-//        ChatUpdateResponse chatUpdateResponse = methods.chatUpdate(chatUpdateRequest);
-//
-//        ActionResponseSender actionResponseSender = new ActionResponseSender(Slack.getInstance().methods(slackToken));
-//        WebhookResponse send = actionResponseSender.send(blockActionPayload.getResponseUrl(), actionResponse);
-//
-//    }
-
 
 }
