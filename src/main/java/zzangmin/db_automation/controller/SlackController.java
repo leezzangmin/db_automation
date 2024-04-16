@@ -13,6 +13,7 @@ import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.methods.response.chat.ChatUpdateResponse;
 import com.slack.api.model.admin.App;
 import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.block.SectionBlock;
 import com.slack.api.model.block.element.ExternalSelectElement;
 import com.slack.api.util.json.GsonFactory;
 import com.slack.api.webhook.WebhookResponse;
@@ -47,9 +48,26 @@ public class SlackController {
     private final MethodsClient slackClient;
 
     @PostMapping("/slack/callback")
-    public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) {
+    public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) throws IOException {
+        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
+                .fromJson(payload, BlockActionPayload.class);
+        List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
+        LayoutBlock layoutBlock0 = blocks.get(0);
+        blocks.remove(0);
+        SectionBlock sblock = SectionBlock.builder()
+                .text(plainText("asdfasdf"))
+                .build();
+        blocks.add(sblock);
 
-        log.info("callbaack");
+        log.info("callback blockActionPayload: {}", blockActionPayload);
+        ActionResponse response =
+                ActionResponse.builder()
+                        .replaceOriginal(true)
+                        .blocks(blocks)
+                        .build();
+        log.info("callback response: {}", response);
+        ActionResponseSender sender = new ActionResponseSender(Slack.getInstance());
+        sender.send(blockActionPayload.getResponseUrl(), response);
         return ResponseEntity.ok(true);
     }
 
@@ -73,7 +91,7 @@ public class SlackController {
         return response;
     }
 
-    @GetMapping("/slacktest")
+    @GetMapping("/message/dbselect")
     public void sendSlackMessage(String message, String channelID) {
         String channelAddress = channelID;
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
