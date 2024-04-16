@@ -118,9 +118,4 @@ public class SlackController {
         }
     }
 
-    @RequestMapping(value = "/.well-known/acme-challenge/Tw3VP1zrN6oKFej-VuPfy7T0__RFu4pj8siOzSX3QMM.m1i5fTvCNv1ZzJq40C9WZFf8I4Eemo-brzMP7uPGrW0")
-    public String applyHttps(HttpServletResponse response) {
-        return "Tw3VP1zrN6oKFej-VuPfy7T0__RFu4pj8siOzSX3QMM.m1i5fTvCNv1ZzJq40C9WZFf8I4Eemo-brzMP7uPGrW0";
-    }
-
 }
