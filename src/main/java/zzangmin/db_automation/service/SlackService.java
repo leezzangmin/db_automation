@@ -3,8 +3,10 @@ package zzangmin.db_automation.service;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
+
 import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.block.SectionBlock;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.StaticSelectElement;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import static com.slack.api.model.block.element.BlockElements.asElements;
 import static com.slack.api.model.block.element.BlockElements.button;
 import static zzangmin.db_automation.config.SlackConfig.DEFAULT_CHANNEL_ID;
 import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
+import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -55,7 +58,7 @@ public class SlackService {
                 .placeholder(plainText(findClusterSelectsElementActionId))
                 .actionId(findClusterSelectsElementPlaceholder)
                 .build()))
-                .blockId(findSubmitButtonActionId));
+                .blockId(findClusterSelectsElementActionId));
     }
 
     public LayoutBlock findSchemaSelects(String DBMSName) {
@@ -94,7 +97,7 @@ public class SlackService {
                                 .style("primary")
                                 .text(plainText("submit"))
                                 .actionId(findSubmitButtonActionId)
-                        )))
+                        ))).blockId(findSubmitButtonActionId)
         );
     }
 
@@ -129,7 +132,8 @@ public class SlackService {
     }
 
     public LayoutBlock getTextSection(String text) {
-        return section(section -> section.text(plainText(text)));
+        SectionBlock section1 = section(section -> section.text(plainText(text)));
+        return section1;
     }
 
     private List<OptionObject> generateEmptyOptionObjects() {
@@ -139,11 +143,18 @@ public class SlackService {
                 .build());
     }
 
-//    public int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blokcId) {
-//        ActionsBlock
-//        for (int i = 0; i < blocks.size(); i++) {
-//            if (blocks.get(i).getType().equals(blockType) && blocks.get(i).)
-//        }
-//    }
+    public int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blockId) {
+
+        for (int i = 0; i < blocks.size(); i++) {
+            Class<? extends LayoutBlock> aClass = blocks.get(0).getClass();
+            log.info("aclass: {}", aClass);
+            System.out.println("aClass = " + aClass);
+//            if (blocks.get(i).getType().equals(blockType) && blocks.get(i).getBlockId().equals(blockId)) {
+//                return i;
+//            }
+        }
+        return 1;
+        //throw new IllegalArgumentException("해당 block 이 존재하지 않습니다.");
+    }
 
 }

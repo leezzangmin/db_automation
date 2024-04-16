@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
 import static com.slack.api.model.block.Blocks.*;
 
 @Slf4j
@@ -35,11 +36,11 @@ public class SlackController {
         log.info("payload: {}", payload);
         BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
                 .fromJson(payload, BlockActionPayload.class);
-        List<BlockActionPayload.Action> actions = blockActionPayload.getActions();
+        List<Action> actions = blockActionPayload.getActions();
         List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
         String username = blockActionPayload.getUser().getUsername();
-
-        for (BlockActionPayload.Action action : actions) {
+        slackService.findBlockIndex(blocks,"asdf","asdf");
+        for (Action action : actions) {
             if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
                 String DBMSName = action.getSelectedOption().getValue();
                  //       StaticSelectElement clusterSelects = (StaticSelectElement) ((ActionsBlock) block).getElements().get(0);
