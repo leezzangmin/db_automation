@@ -63,7 +63,9 @@ public class SlackController {
                 // String DBMSName = action.getSelectedOption().getValue();
 
                 String DBMSName = findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId);
+                log.info("DBMSName: {}", DBMSName);
                 ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
+                log.info("schemaSelects: {}", schemaSelects);
 
                 blocks.remove(SELECT_SCHEMA_ORDER_INDEX);
                 blocks.add(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
@@ -89,7 +91,9 @@ public class SlackController {
                 break;
             }
         }
-
+        for (LayoutBlock block : blocks) {
+            log.info("block: {}", block);
+        }
         log.info("callback blockActionPayload: {}", blockActionPayload);
         ActionResponse response =
                 ActionResponse.builder()

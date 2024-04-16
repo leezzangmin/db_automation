@@ -35,8 +35,8 @@ public class SlackService {
     private final MethodsClient slackClient;
     private final DynamicDataSourceProperties dataSourceProperties;
 
-    public String findClusterSelectsElementActionId = "selecteClusterName";
-    public String findSchemaSelectsElementActionId = "selecteSchemaName";
+    public String findClusterSelectsElementActionId = "selectClusterName";
+    public String findSchemaSelectsElementActionId = "selectSchemaName";
 
     public String findSubmitButtonActionId = "submitButton";
     public String textSectionBlockId = "TextSectionId";
@@ -56,13 +56,15 @@ public class SlackService {
                 .collect(Collectors.toList());
         return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
                 .options(selectOptions)
-                .placeholder(plainText(findClusterSelectsElementActionId))
-                .actionId(findClusterSelectsElementPlaceholder)
+                .placeholder(plainText(findClusterSelectsElementPlaceholder))
+                .actionId(findClusterSelectsElementActionId)
                 .build()))
                 .blockId(findClusterSelectsElementActionId));
     }
 
     public ActionsBlock findSchemaSelects(String DBMSName) {
+        String findSchemaSelectsElementPlaceholder = "select schema";
+
         if (DBMSName == null) {
             return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
                             .options(generateEmptyOptionObjects())
@@ -84,7 +86,7 @@ public class SlackService {
                 .collect(Collectors.toList());
         return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
                 .options(selectOptions)
-                .placeholder(plainText("select schema"))
+                .placeholder(plainText(findSchemaSelectsElementPlaceholder))
                 .actionId(findSchemaSelectsElementActionId)
                 .build()))
                 .blockId(findSchemaSelectsElementActionId));
