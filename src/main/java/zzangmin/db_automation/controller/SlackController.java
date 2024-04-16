@@ -8,7 +8,12 @@ import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
+import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.block.element.BlockElement;
+import com.slack.api.model.block.element.StaticSelectElement;
+import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +22,11 @@ import org.springframework.web.bind.annotation.*;
 import zzangmin.db_automation.service.SlackService;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
 import static com.slack.api.model.block.Blocks.*;
+import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,6 +36,15 @@ public class SlackController {
     private final SlackService slackService;
     private final MethodsClient slackClient;
 
+
+    private static final int NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX = 0;
+    private static final int DIVIDER_BLOCK_ORDER_INDEX = 1;
+    private static final int SELECT_CLUSTER_ORDER_INDEX = 2;
+    private static final int SELECT_SCHEMA_ORDER_INDEX = 3;
+    private static final int SUBMIT_BUTTON_ORDER_INDEX = 4;
+
+
+
     @PostMapping("/slack/callback")
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) throws IOException {
         log.info("payload: {}", payload);
@@ -38,12 +52,35 @@ public class SlackController {
                 .fromJson(payload, BlockActionPayload.class);
         List<Action> actions = blockActionPayload.getActions();
         List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
+
+        ViewState state = blockActionPayload.getState();
+        Map<String, Map<String, ViewState.Value>> values = state.getValues();
+
         String username = blockActionPayload.getUser().getUsername();
-        slackService.findBlockIndex(blocks,"asdf","asdf");
+
         for (Action action : actions) {
             if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
-                String DBMSName = action.getSelectedOption().getValue();
-                 //       StaticSelectElement clusterSelects = (StaticSelectElement) ((ActionsBlock) block).getElements().get(0);
+                // String DBMSName = action.getSelectedOption().getValue();
+
+                String DBMSName = findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId);
+                ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
+
+                blocks.remove(SELECT_SCHEMA_ORDER_INDEX);
+                blocks.add(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
+//                ActionsBlock clusterSelectsBlock = slackService.findClusterSelectsBlock();
+//                StaticSelectElement selectCluster = (StaticSelectElement) clusterSelectsBlock.getElements().get(0);
+//                selectCluster.setInitialOption(OptionObject.builder()
+//                        .text(plainText(findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId)))
+//                        .value(findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId))
+//                        .build());
+//
+//                blocks.add(SELECT_CLUSTER_ORDER_INDEX, )
+//
+//
+//
+//                StaticSelectElement selectClusterElement = (StaticSelectElement) ((ActionsBlock) blocks.get(slackService.findBlockIndex(blocks, "static_select", slackService.findClusterSelectsElementActionId))).getElements().get(0);
+//                selectClusterElement.setInitialOption();
+//                //       StaticSelectElement clusterSelects = (StaticSelectElement) ((ActionsBlock) block).getElements().get(0);
 
                 break;
             }
@@ -60,22 +97,30 @@ public class SlackController {
                         .blocks(blocks)
                         .build();
         log.info("callback response: {}", response);
+
         ActionResponseSender sender = new ActionResponseSender(Slack.getInstance());
         sender.send(blockActionPayload.getResponseUrl(), response);
         return ResponseEntity.ok(true);
     }
 
+    private String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
+        for (String componentId : values.keySet()) {
+            Map<String, ViewState.Value> stringValueMap = values.get(componentId);
+            return stringValueMap.get(targetValueKey).getValue();
+        }
+        throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
+    }
 
     @GetMapping("/slack/command/dbselect")
     public void sendSlackMessage(String message, String channelID) {
         String channelAddress = channelID;
 
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
-        layoutBlocks.add(slackService.getTextSection("august bot slack message test"));
-        layoutBlocks.add(divider());
-        layoutBlocks.add(slackService.findClusterSelectsBlock());
-        layoutBlocks.add(slackService.findSchemaSelects(null));
-        layoutBlocks.add(slackService.findSubmitButton());
+        layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection("august bot slack message test"));
+        layoutBlocks.add(DIVIDER_BLOCK_ORDER_INDEX, slackService.getDivider());
+        layoutBlocks.add(SELECT_CLUSTER_ORDER_INDEX, slackService.findClusterSelectsBlock());
+        layoutBlocks.add(SELECT_SCHEMA_ORDER_INDEX, slackService.findSchemaSelects(null));
+        layoutBlocks.add(SUBMIT_BUTTON_ORDER_INDEX, slackService.findSubmitButton());
 
         for (LayoutBlock layoutBlock : layoutBlocks) {
             log.info("layoutBlock: {}", layoutBlock);

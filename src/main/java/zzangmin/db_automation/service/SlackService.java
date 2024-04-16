@@ -5,6 +5,7 @@ import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
 import com.slack.api.model.block.ActionsBlock;
+import com.slack.api.model.block.DividerBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.SectionBlock;
 import com.slack.api.model.block.composition.OptionObject;
@@ -18,14 +19,12 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.slack.api.model.block.Blocks.actions;
-import static com.slack.api.model.block.Blocks.section;
+import static com.slack.api.model.block.Blocks.*;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.asElements;
 import static com.slack.api.model.block.element.BlockElements.button;
 import static zzangmin.db_automation.config.SlackConfig.DEFAULT_CHANNEL_ID;
 import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
-import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,12 +35,14 @@ public class SlackService {
     private final MethodsClient slackClient;
     private final DynamicDataSourceProperties dataSourceProperties;
 
-    public String findClusterSelectsElementActionId = "selectedClusterName";
-    public String findSchemaSelectsElementActionId = "selectedSchemaName";
+    public String findClusterSelectsElementActionId = "selecteClusterName";
+    public String findSchemaSelectsElementActionId = "selecteSchemaName";
 
     public String findSubmitButtonActionId = "submitButton";
+    public String textSectionBlockId = "TextSectionId";
+    public String dividerBlockId = "dividerId";
 
-    public LayoutBlock findClusterSelectsBlock() {
+    public ActionsBlock findClusterSelectsBlock() {
         String findClusterSelectsElementPlaceholder = "select cluster";
 
         List<OptionObject> selectOptions = describeService.findDBMSNames()
@@ -61,7 +62,7 @@ public class SlackService {
                 .blockId(findClusterSelectsElementActionId));
     }
 
-    public LayoutBlock findSchemaSelects(String DBMSName) {
+    public ActionsBlock findSchemaSelects(String DBMSName) {
         if (DBMSName == null) {
             return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
                             .options(generateEmptyOptionObjects())
@@ -131,9 +132,15 @@ public class SlackService {
         return null;
     }
 
-    public LayoutBlock getTextSection(String text) {
-        SectionBlock section1 = section(section -> section.text(plainText(text)));
+    public SectionBlock getTextSection(String text) {
+        SectionBlock section1 = section(section -> section.text(plainText(text)).blockId(textSectionBlockId));
         return section1;
+    }
+
+    public DividerBlock getDivider() {
+        DividerBlock divider = divider();
+        divider.setBlockId(dividerBlockId);
+        return divider;
     }
 
     private List<OptionObject> generateEmptyOptionObjects() {
@@ -146,15 +153,29 @@ public class SlackService {
     public int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blockId) {
 
         for (int i = 0; i < blocks.size(); i++) {
-            Class<? extends LayoutBlock> aClass = blocks.get(0).getClass();
-            log.info("aclass: {}", aClass);
-            System.out.println("aClass = " + aClass);
-//            if (blocks.get(i).getType().equals(blockType) && blocks.get(i).getBlockId().equals(blockId)) {
-//                return i;
-//            }
+            LayoutBlock block = blocks.get(i);
+
+            if (block instanceof ActionsBlock) {
+                ActionsBlock childBlock = (ActionsBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
+            } else if (block instanceof SectionBlock) {
+                SectionBlock childBlock = (SectionBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
+            } else if (block instanceof DividerBlock) {
+                DividerBlock childBlock = (DividerBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
+            } else {
+                throw new IllegalArgumentException("지원하지 않는 LayoutBlock 하위 클래스 입니다.");
+            }
+
         }
-        return 1;
-        //throw new IllegalArgumentException("해당 block 이 존재하지 않습니다.");
+        throw new IllegalArgumentException("해당 block 이 존재하지 않습니다.");
     }
 
 }
