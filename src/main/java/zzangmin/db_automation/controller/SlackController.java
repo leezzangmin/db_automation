@@ -1,37 +1,23 @@
 package zzangmin.db_automation.controller;
 
 import com.slack.api.Slack;
-import com.slack.api.SlackConfig;
 import com.slack.api.app_backend.interactive_components.ActionResponseSender;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
 import com.slack.api.app_backend.interactive_components.response.ActionResponse;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
-import com.slack.api.methods.request.chat.ChatUpdateRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
-import com.slack.api.methods.response.chat.ChatUpdateResponse;
-import com.slack.api.model.admin.App;
-import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.SectionBlock;
-import com.slack.api.model.block.element.ExternalSelectElement;
 import com.slack.api.util.json.GsonFactory;
-import com.slack.api.webhook.WebhookResponse;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.Response;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import zzangmin.db_automation.service.SlackService;
 
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -85,6 +71,11 @@ public class SlackController {
         layoutBlocks.add(
                 actions(actions -> actions
                         .elements(asElements(slackService.findClusterSelects()))
+                )
+        );
+        layoutBlocks.add(
+                actions(actions -> actions
+                        .elements(asElements(slackService.findSchemaSelects(null)))
                 )
         );
 //        ActionsBlock clusterSelects = ActionsBlock.builder()

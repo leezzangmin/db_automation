@@ -1,14 +1,16 @@
 package zzangmin.db_automation.service;
 
-import com.slack.api.Slack;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
+import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.StaticSelectElement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import zzangmin.db_automation.config.DynamicDataSourceProperties;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,9 +27,11 @@ public class SlackService {
 
     private final DescribeService describeService;
     private final MethodsClient slackClient;
+    private final DynamicDataSourceProperties dataSourceProperties;
 
     public StaticSelectElement findClusterSelects() {
-
+        String elementActionId = "selectedClusterName";
+        String elementPlaceholder = "select cluster";
 
         List<OptionObject> selectOptions = describeService.findDBMSNames()
                 .getDbmsNames()
@@ -40,11 +44,39 @@ public class SlackService {
                 .collect(Collectors.toList());
         StaticSelectElement clusterSelects = StaticSelectElement.builder()
                 .options(selectOptions)
-                .placeholder(plainText("select cluster"))
-                .actionId("selectedClusterName")
+                .placeholder(plainText(elementPlaceholder))
+                .actionId(elementActionId)
                 .build();
 
         return clusterSelects;
+    }
+
+    public StaticSelectElement findSchemaSelects(String DBMSName) {
+        if (DBMSName == null) {
+            return StaticSelectElement.builder()
+                    .options(List.of(OptionObject.builder().build()))
+                    .placeholder(plainText("select schema"))
+                    .actionId("selectedSchemaName")
+                    .build();
+        }
+        DatabaseConnectionInfo databaseConnectionInfo = dataSourceProperties.findByDbName(DBMSName);
+
+        List<OptionObject> selectOptions = describeService.findSchemaNames(databaseConnectionInfo)
+                .getSchemaNames()
+                .stream()
+                .map(schemaName -> OptionObject.builder()
+                        .text(plainText(schemaName))
+                        .value(schemaName)
+                        .build()
+                )
+                .collect(Collectors.toList());
+        StaticSelectElement schemaSelects = StaticSelectElement.builder()
+                .options(selectOptions)
+                .placeholder(plainText("select schema"))
+                .actionId("selectedSchemaName")
+                .build();
+
+        return schemaSelects;
     }
 
     public StaticSelectElement findSchemaSelects() {
@@ -74,6 +106,12 @@ public class SlackService {
             }
             log.info("chatPostMessageResponse: {]", chatPostMessageResponse);
         }
+    }
+
+    private List<LayoutBlock> updateBlock(String blockType, String actionId) {
+        // ex) blockType=static_select, actionId=selectedClusterName
+
+        return null;
     }
 
 }
