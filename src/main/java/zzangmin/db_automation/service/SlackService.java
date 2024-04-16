@@ -3,6 +3,7 @@ package zzangmin.db_automation.service;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
+import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.StaticSelectElement;
@@ -12,11 +13,14 @@ import org.springframework.stereotype.Service;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.slack.api.model.block.Blocks.actions;
+import static com.slack.api.model.block.Blocks.section;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
+import static com.slack.api.model.block.element.BlockElements.asElements;
+import static com.slack.api.model.block.element.BlockElements.button;
 import static zzangmin.db_automation.config.SlackConfig.DEFAULT_CHANNEL_ID;
 import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
 
@@ -29,9 +33,13 @@ public class SlackService {
     private final MethodsClient slackClient;
     private final DynamicDataSourceProperties dataSourceProperties;
 
-    public StaticSelectElement findClusterSelects() {
-        String elementActionId = "selectedClusterName";
-        String elementPlaceholder = "select cluster";
+    public String findClusterSelectsElementActionId = "selectedClusterName";
+    public String findSchemaSelectsElementActionId = "selectedSchemaName";
+
+    public String findSubmitButtonActionId = "submitButton";
+
+    public LayoutBlock findClusterSelectsBlock() {
+        String findClusterSelectsElementPlaceholder = "select cluster";
 
         List<OptionObject> selectOptions = describeService.findDBMSNames()
                 .getDbmsNames()
@@ -42,25 +50,22 @@ public class SlackService {
                         .build()
                 )
                 .collect(Collectors.toList());
-        StaticSelectElement clusterSelects = StaticSelectElement.builder()
+        return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
                 .options(selectOptions)
-                .placeholder(plainText(elementPlaceholder))
-                .actionId(elementActionId)
-                .build();
-
-        return clusterSelects;
+                .placeholder(plainText(findClusterSelectsElementActionId))
+                .actionId(findClusterSelectsElementPlaceholder)
+                .build()))
+                .blockId(findSubmitButtonActionId));
     }
 
-    public StaticSelectElement findSchemaSelects(String DBMSName) {
+    public LayoutBlock findSchemaSelects(String DBMSName) {
         if (DBMSName == null) {
-            return StaticSelectElement.builder()
-                    .options(List.of(OptionObject.builder()
-                                    .text(plainText("sdfsdfsdfsdf"))
-                                    .value("vawervzxcvzw")
+            return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
+                            .options(generateEmptyOptionObjects())
+                            .placeholder(plainText("select schema"))
+                            .actionId(findSchemaSelectsElementActionId)
                             .build()))
-                    .placeholder(plainText("select schema"))
-                    .actionId("selectedSchemaName")
-                    .build();
+                    .blockId(findSchemaSelectsElementActionId));
         }
         DatabaseConnectionInfo databaseConnectionInfo = dataSourceProperties.findByDbName(DBMSName);
 
@@ -73,20 +78,26 @@ public class SlackService {
                         .build()
                 )
                 .collect(Collectors.toList());
-        StaticSelectElement schemaSelects = StaticSelectElement.builder()
+        return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
                 .options(selectOptions)
                 .placeholder(plainText("select schema"))
-                .actionId("selectedSchemaName")
-                .build();
-
-        return schemaSelects;
+                .actionId(findSchemaSelectsElementActionId)
+                .build()))
+                .blockId(findSchemaSelectsElementActionId));
     }
 
-    public StaticSelectElement findSchemaSelects() {
-        List<StaticSelectElement> schemaSelects = new ArrayList<>();
-
-        return null;
+    public ActionsBlock findSubmitButton() {
+        return actions(actions -> actions
+                .elements(asElements(
+                        button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
+                                .value("sadfsdfsdf")
+                                .style("primary")
+                                .text(plainText("submit"))
+                                .actionId(findSubmitButtonActionId)
+                        )))
+        );
     }
+
 
     public void sendMessage(String message) {
         if (message.isBlank()) {
@@ -116,5 +127,23 @@ public class SlackService {
 
         return null;
     }
+
+    public LayoutBlock getTextSection(String text) {
+        return section(section -> section.text(plainText(text)));
+    }
+
+    private List<OptionObject> generateEmptyOptionObjects() {
+        return List.of(OptionObject.builder()
+                .text(plainText("empty option objects"))
+                .value("dropdown option empty...")
+                .build());
+    }
+
+//    public int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blokcId) {
+//        ActionsBlock
+//        for (int i = 0; i < blocks.size(); i++) {
+//            if (blocks.get(i).getType().equals(blockType) && blocks.get(i).)
+//        }
+//    }
 
 }

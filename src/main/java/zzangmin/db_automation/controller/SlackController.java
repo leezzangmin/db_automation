@@ -9,7 +9,6 @@ import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.model.block.LayoutBlock;
-import com.slack.api.model.block.SectionBlock;
 import com.slack.api.util.json.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.slack.api.model.block.Blocks.*;
-import static com.slack.api.model.block.composition.BlockCompositions.markdownText;
-import static com.slack.api.model.block.composition.BlockCompositions.plainText;
-import static com.slack.api.model.block.element.BlockElements.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -36,15 +32,25 @@ public class SlackController {
 
     @PostMapping("/slack/callback")
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) throws IOException {
+        log.info("payload: {}", payload);
         BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
                 .fromJson(payload, BlockActionPayload.class);
+        List<BlockActionPayload.Action> actions = blockActionPayload.getActions();
         List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
-        LayoutBlock layoutBlock0 = blocks.get(0);
-        blocks.remove(0);
-        SectionBlock sblock = SectionBlock.builder()
-                .text(plainText("asdfasdf"))
-                .build();
-        blocks.add(sblock);
+        String username = blockActionPayload.getUser().getUsername();
+
+        for (BlockActionPayload.Action action : actions) {
+            if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
+                String DBMSName = action.getSelectedOption().getValue();
+                 //       StaticSelectElement clusterSelects = (StaticSelectElement) ((ActionsBlock) block).getElements().get(0);
+
+                break;
+            }
+            else if (action.getActionId().equals(slackService.findSubmitButton())) {
+
+                break;
+            }
+        }
 
         log.info("callback blockActionPayload: {}", blockActionPayload);
         ActionResponse response =
@@ -62,43 +68,19 @@ public class SlackController {
     @GetMapping("/slack/command/dbselect")
     public void sendSlackMessage(String message, String channelID) {
         String channelAddress = channelID;
+
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
-        // 텍스트를 남길 SectionBlock 입니다.
-        layoutBlocks.add(section(section -> section.text(markdownText("august bot slack message test"))));
+        layoutBlocks.add(slackService.getTextSection("august bot slack message test"));
         layoutBlocks.add(divider());
-        // ActionBlock에 승인 버튼과 거부 버튼을 추가 하였습니다.
-
-        layoutBlocks.add(
-                actions(actions -> actions
-                        .elements(asElements(slackService.findClusterSelects()))
-                )
-        );
-        layoutBlocks.add(
-                actions(actions -> actions
-                        .elements(asElements(slackService.findSchemaSelects(null)))
-                )
-        );
-//        ActionsBlock clusterSelects = ActionsBlock.builder()
-//                .elements(asElements(slackService.findClusterSelects()))
-//                .build();
-
-        layoutBlocks.add(
-                actions(actions -> actions
-                        .elements(asElements(
-                                button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
-                                        .value("deliveryTip.getSeq().toString()")
-                                        .style("primary")
-                                        .text(plainText("ddd"))
-                                        .actionId("aaa")
-                                )))
-                )
-        );
+        layoutBlocks.add(slackService.findClusterSelectsBlock());
+        layoutBlocks.add(slackService.findSchemaSelects(null));
+        layoutBlocks.add(slackService.findSubmitButton());
 
         for (LayoutBlock layoutBlock : layoutBlocks) {
             log.info("layoutBlock: {}", layoutBlock);
         }
 
-        try{
+        try {
             ChatPostMessageRequest request = ChatPostMessageRequest.builder()
                     .channel(channelAddress)
                     .text(message)
