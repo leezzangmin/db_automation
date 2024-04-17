@@ -7,8 +7,8 @@ public class TagStandard {
 
     public final static List<String> standardTagKeyNames = new ArrayList<>();
 
-    private final static String ENVIRONMENT_TAG_KEY_NAME = "env";
-    private final static String SERVICE_TAG_KEY_NAME = "service";
+    public final static String ENVIRONMENT_TAG_KEY_NAME = "env";
+    public final static String SERVICE_TAG_KEY_NAME = "ServiceName";
 
     static {
         standardTagKeyNames.add(ENVIRONMENT_TAG_KEY_NAME);

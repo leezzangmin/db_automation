@@ -10,6 +10,7 @@ import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.util.ProfileUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -35,10 +36,8 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
     private final FunctionDifferenceChecker functionDifferenceChecker;
 
 
-    //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
+    @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() throws Exception {
-        StringBuilder schemaSaveResult = new StringBuilder();
-
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
         for (String databaseName : databases.keySet()) {
             DatabaseConnectionInfo databaseConnectionInfo = databases.get(databaseName);
@@ -55,7 +54,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
             functionDifferenceChecker.saveFunctions(databaseConnectionInfo, schemaNames);
         }
 
-        slackService.sendMessage(schemaSaveResult.toString());
+        slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 저장 완료 !\n");
     }
 
 }

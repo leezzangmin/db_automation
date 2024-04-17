@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
@@ -30,8 +31,12 @@ public class DynamicDataSourceLoader {
             if (!isValidTags(dbName, tags)) {
                 continue;
             }
-            String rdsUsername = awsService.findRdsUsername(dbName);
-            String password = awsService.findRdsPassword(dbName);
+            Tag serviceNameTag = tags.stream()
+                    .filter(tag -> tag.key().equals(TagStandard.SERVICE_TAG_KEY_NAME))
+                    .findFirst()
+                    .orElseThrow(IllegalStateException::new);
+            String rdsUsername = awsService.findRdsUsername(serviceNameTag.value());
+            String password = awsService.findRdsPassword(serviceNameTag.value());
 
             DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                     .databaseName(dbName)

@@ -116,8 +116,8 @@ public class AwsService {
         return dbParameters;
     }
 
-    public String findRdsPassword(String databaseIdentifier) {
-        String secretName = databaseIdentifier + SecretManagerStandard.DB_CREDENTIAL_POSTPIX;
+    public String findRdsPassword(String serviceNameTagValue) {
+        String secretName = SecretManagerStandard.generateStandardSecretManagerName(serviceNameTagValue, ProfileUtil.CURRENT_ENVIRONMENT_PROFILE);
         log.info("secretName: {}", secretName);
 
         String password;
@@ -130,7 +130,7 @@ public class AwsService {
         try {
             valueResponse = secretManagerClient.getSecretValue(valueRequest);
         } catch (Exception e) {
-            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [clusterName + " + DB_CREDENTIAL_POSTPIX);
+            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName + " + DB_CREDENTIAL_POSTPIX + "]");
         }
 
         try {
@@ -143,8 +143,8 @@ public class AwsService {
         return password;
     }
 
-    public String findRdsUsername(String databaseIdentifier) {
-        String secretName = databaseIdentifier + SecretManagerStandard.DB_CREDENTIAL_POSTPIX;
+    public String findRdsUsername(String serviceNameTagValue) {
+        String secretName = SecretManagerStandard.generateStandardSecretManagerName(serviceNameTagValue, ProfileUtil.CURRENT_ENVIRONMENT_PROFILE);
         log.info("secretName: {}", secretName);
         String username;
         GetSecretValueResponse valueResponse;
@@ -156,7 +156,7 @@ public class AwsService {
         try {
             valueResponse = secretManagerClient.getSecretValue(valueRequest);
         } catch (Exception e) {
-            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [clusterName + " + DB_CREDENTIAL_POSTPIX);
+            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName + " + DB_CREDENTIAL_POSTPIX + "]");
         }
 
         try {

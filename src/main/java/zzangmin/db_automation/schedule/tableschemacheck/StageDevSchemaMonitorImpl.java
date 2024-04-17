@@ -36,8 +36,10 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
     private final FunctionDifferenceChecker functionDifferenceChecker;
 
 
-    //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
+    @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() {
+        slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 시작 !");
+
         StringBuilder schemaCheckResult = new StringBuilder();
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
         for (String databaseName : databases.keySet()) {
@@ -67,7 +69,10 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
                 }
             }
         }
-
+        if (schemaCheckResult.isEmpty()) {
+            slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 종료 !");
+            return;
+        }
         slackService.sendMessage(schemaCheckResult.toString());
     }
 }
