@@ -47,7 +47,7 @@ public class SlackController {
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) throws IOException {
         log.info("slackCallBack payload: {}", payload);
         ObjectMapper objectMapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-        BlockActionPayload blockActionPayload2 = objectMapper.readValue(payload, BlockActionPayload.class);
+//        BlockActionPayload blockActionPayload2 = objectMapper.readValue(payload, BlockActionPayload.class);
         BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
                 .fromJson(payload, BlockActionPayload.class);
         log.info("blockActionPayload: {}", blockActionPayload);
