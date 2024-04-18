@@ -36,7 +36,7 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
     private final FunctionDifferenceChecker functionDifferenceChecker;
 
 
-    @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
+    //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() {
         slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 시작 !");
 

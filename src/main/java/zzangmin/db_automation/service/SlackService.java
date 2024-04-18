@@ -4,11 +4,10 @@ import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
-import com.slack.api.model.block.ActionsBlock;
-import com.slack.api.model.block.DividerBlock;
-import com.slack.api.model.block.LayoutBlock;
-import com.slack.api.model.block.SectionBlock;
+import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.block.composition.PlainTextObject;
+import com.slack.api.model.block.composition.TextObject;
 import com.slack.api.model.block.element.StaticSelectElement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +20,7 @@ import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.*;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
-import static com.slack.api.model.block.element.BlockElements.asElements;
-import static com.slack.api.model.block.element.BlockElements.button;
+import static com.slack.api.model.block.element.BlockElements.*;
 import static zzangmin.db_automation.config.SlackConfig.DEFAULT_CHANNEL_ID;
 import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
 
@@ -39,6 +37,7 @@ public class SlackService {
     public String findSchemaSelectsElementActionId = "selectSchemaName";
 
     public String findSubmitButtonActionId = "submitButton";
+    public String findPlainTextInputActionId = "plainTextInput";
     public String textSectionBlockId = "TextSectionId";
     public String dividerBlockId = "dividerId";
 
@@ -104,7 +103,15 @@ public class SlackService {
         );
     }
 
-
+    public InputBlock findMultilinePlainTextInput() {
+        return input(input -> input
+                .element(plainTextInput(pti -> pti.actionId(findPlainTextInputActionId)
+                                .multiline(true)
+                                .placeholder(plainText("plaintexttexttextxetextxettexttextxet"))
+                        ))
+                .label(plainText("label123123"))
+                .blockId(findPlainTextInputActionId));
+    }
     public void sendMessage(String message) {
         if (message.isBlank()) {
             return;
@@ -128,15 +135,9 @@ public class SlackService {
         }
     }
 
-    private List<LayoutBlock> updateBlock(String blockType, String actionId) {
-        // ex) blockType=static_select, actionId=selectedClusterName
-
-        return null;
-    }
-
     public SectionBlock getTextSection(String text) {
-        SectionBlock section1 = section(section -> section.text(plainText(text)).blockId(textSectionBlockId));
-        return section1;
+        SectionBlock sectionBlock = section(section -> section.text(plainText(text)).blockId(textSectionBlockId));
+        return sectionBlock;
     }
 
     public DividerBlock getDivider() {
@@ -153,7 +154,6 @@ public class SlackService {
     }
 
     public int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blockId) {
-
         for (int i = 0; i < blocks.size(); i++) {
             LayoutBlock block = blocks.get(i);
 
@@ -169,6 +169,11 @@ public class SlackService {
                 }
             } else if (block instanceof DividerBlock) {
                 DividerBlock childBlock = (DividerBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
+            } else if (block instanceof InputBlock) {
+                InputBlock childBlock = (InputBlock) block;
                 if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
                     return i;
                 }
