@@ -123,7 +123,7 @@ public class SlackController {
         log.info("responseUrl: {}", responseUrl);
 
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
-        layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection("<@" + userName + "> bot slack message test"));
+        layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection(generateSlackTagUserString(userName) + " bot slack message test"));
         layoutBlocks.add(DIVIDER_BLOCK_ORDER_INDEX, slackService.getDivider());
         layoutBlocks.add(SELECT_CLUSTER_ORDER_INDEX, slackService.findClusterSelectsBlock());
         layoutBlocks.add(SELECT_SCHEMA_ORDER_INDEX, slackService.findSchemaSelects(null));
@@ -148,4 +148,7 @@ public class SlackController {
         }
     }
 
+    private String generateSlackTagUserString(String userName) {
+        return "<@" + userName + ">";
+    }
 }
