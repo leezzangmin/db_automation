@@ -133,7 +133,7 @@ public class SlackController {
     }
 
     private String generateSlackTagUserString(String userName) {
-        return "\u000b&lt;@" + userName + "\u000b&gt;";
+        return "\u200a&lt;<@" + userName + "\u200a&gt;>";
     }
 
     private String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
