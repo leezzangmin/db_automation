@@ -4,10 +4,7 @@ import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
-import com.slack.api.model.block.ActionsBlock;
-import com.slack.api.model.block.DividerBlock;
-import com.slack.api.model.block.LayoutBlock;
-import com.slack.api.model.block.SectionBlock;
+import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.StaticSelectElement;
 import lombok.RequiredArgsConstructor;
@@ -104,14 +101,12 @@ public class SlackService {
         );
     }
 
-    public ActionsBlock findMultilinePlainTextInput() {
-        return actions(actions -> actions
-                .elements(asElements(
-                        plainTextInput(pti -> pti.actionId(findPlainTextInputActionId)
+    public InputBlock findMultilinePlainTextInput() {
+        return input(input -> input
+                .element(plainTextInput(pti -> pti.actionId(findPlainTextInputActionId)
                                 .multiline(true)
                                 .placeholder(plainText("plaintexttexttextxetextxettexttextxet"))
-                        )
-        )));
+                        )).label(plainText("label123123")));
     }
     public void sendMessage(String message) {
         if (message.isBlank()) {
@@ -161,7 +156,6 @@ public class SlackService {
     }
 
     public int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blockId) {
-
         for (int i = 0; i < blocks.size(); i++) {
             LayoutBlock block = blocks.get(i);
 
@@ -177,6 +171,11 @@ public class SlackService {
                 }
             } else if (block instanceof DividerBlock) {
                 DividerBlock childBlock = (DividerBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
+            } else if (block instanceof InputBlock) {
+                InputBlock childBlock = (InputBlock) block;
                 if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
                     return i;
                 }
