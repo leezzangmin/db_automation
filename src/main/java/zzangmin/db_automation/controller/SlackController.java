@@ -111,6 +111,16 @@ public class SlackController {
                                   @RequestParam("command") String command,
                                   @RequestParam("text") String text,
                                   @RequestParam("response_url") String responseUrl) {
+        log.info("token: {}", token);
+        log.info("teamId: {}", teamId);
+        log.info("teamDomain: {}", teamDomain);
+        log.info("channelId: {}", channelId);
+        log.info("channelName: {}", channelName);
+        log.info("userId: {}", userId);
+        log.info("userName: {}", userName);
+        log.info("command: {}", command);
+        log.info("text: {}", text);
+        log.info("responseUrl: {}", responseUrl);
 
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
         layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection("<@" + userName + "> bot slack message test"));
