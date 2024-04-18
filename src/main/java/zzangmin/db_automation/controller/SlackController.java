@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.HtmlUtils;
 import zzangmin.db_automation.service.SlackService;
 
 import java.io.IOException;
@@ -45,11 +46,10 @@ public class SlackController {
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) throws IOException {
+        String decodedPayload = HtmlUtils.htmlEscape(payload);
         log.info("slackCallBack payload: {}", payload);
-        ObjectMapper objectMapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
-//        BlockActionPayload blockActionPayload2 = objectMapper.readValue(payload, BlockActionPayload.class);
         BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
-                .fromJson(payload, BlockActionPayload.class);
+                .fromJson(decodedPayload, BlockActionPayload.class);
         log.info("blockActionPayload: {}", blockActionPayload);
         List<Action> actions = blockActionPayload.getActions();
         List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
