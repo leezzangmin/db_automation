@@ -106,7 +106,9 @@ public class SlackService {
                 .element(plainTextInput(pti -> pti.actionId(findPlainTextInputActionId)
                                 .multiline(true)
                                 .placeholder(plainText("plaintexttexttextxetextxettexttextxet"))
-                        )).label(plainText("label123123")));
+                        ))
+                .label(plainText("label123123"))
+                .blockId(findPlainTextInputActionId));
     }
     public void sendMessage(String message) {
         if (message.isBlank()) {
