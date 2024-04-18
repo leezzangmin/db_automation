@@ -67,10 +67,9 @@ public class SlackController {
                 ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
                 log.info("schemaSelects: {}", schemaSelects);
 
-
-                blocks.remove(SELECT_SCHEMA_ORDER_INDEX);
-                blocks.add(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
+                blocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
                 blocks.add(TEXT_INPUT_ORDER_INDEX, slackService.findMultilinePlainTextInput());
+
 
                 break;
             }
