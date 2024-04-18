@@ -41,7 +41,7 @@ public class SlackController {
     private static final int TEXT_INPUT_ORDER_INDEX = 5;
 
 
-    @PostMapping("/slack/callback")
+    @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) throws IOException {
         log.info("slackCallBack payload: {}", payload);
         BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
