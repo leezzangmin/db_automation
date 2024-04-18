@@ -100,6 +100,10 @@ public class SlackController {
 
     @PostMapping("/slack/command/dbselect")
     public void sendSlackMessage(String payload) {
+        log.info("sendSlackMessage payload: {}", payload);
+        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
+                .fromJson(payload, BlockActionPayload.class);
+
         String channelAddress = "futurewiz_db_monitor";
 
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
