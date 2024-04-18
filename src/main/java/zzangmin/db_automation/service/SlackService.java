@@ -133,12 +133,6 @@ public class SlackService {
         }
     }
 
-    private List<LayoutBlock> updateBlock(String blockType, String actionId) {
-        // ex) blockType=static_select, actionId=selectedClusterName
-
-        return null;
-    }
-
     public SectionBlock getTextSection(String text) {
         SectionBlock section1 = section(section -> section.text(plainText(text)).blockId(textSectionBlockId));
         return section1;

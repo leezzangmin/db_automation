@@ -113,7 +113,7 @@ public class SlackController {
                                   @RequestParam("response_url") String responseUrl) {
 
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
-        layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection("august bot slack message test"));
+        layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection("august bot slack message test <@" + userId +">"));
         layoutBlocks.add(DIVIDER_BLOCK_ORDER_INDEX, slackService.getDivider());
         layoutBlocks.add(SELECT_CLUSTER_ORDER_INDEX, slackService.findClusterSelectsBlock());
         layoutBlocks.add(SELECT_SCHEMA_ORDER_INDEX, slackService.findSchemaSelects(null));
@@ -126,9 +126,8 @@ public class SlackController {
         try {
             ChatPostMessageRequest request = ChatPostMessageRequest.builder()
                     .channel(channelId)
-                    .text("message!!!!!!!!!!!")
+                    .text("database request message")
                     .blocks(layoutBlocks)
-                    .username(userName)
                     .build();
 
             ChatPostMessageResponse chatPostMessageResponse = slackClient.chatPostMessage(request);
