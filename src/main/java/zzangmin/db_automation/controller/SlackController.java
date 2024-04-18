@@ -42,6 +42,7 @@ public class SlackController {
     private static final int SELECT_CLUSTER_ORDER_INDEX = 2;
     private static final int SELECT_SCHEMA_ORDER_INDEX = 3;
     private static final int SUBMIT_BUTTON_ORDER_INDEX = 4;
+    private static final int TEXT_INPUT_ORDER_INDEX = 5;
 
 
 
@@ -65,26 +66,10 @@ public class SlackController {
                 ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
                 log.info("schemaSelects: {}", schemaSelects);
 
-                log.info("blocks before: {}", blocks);
 
                 blocks.remove(SELECT_SCHEMA_ORDER_INDEX);
                 blocks.add(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
-
-                log.info("blocks after: {}", blocks);
-//                ActionsBlock clusterSelectsBlock = slackService.findClusterSelectsBlock();
-//                StaticSelectElement selectCluster = (StaticSelectElement) clusterSelectsBlock.getElements().get(0);
-//                selectCluster.setInitialOption(OptionObject.builder()
-//                        .text(plainText(findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId)))
-//                        .value(findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId))
-//                        .build());
-//
-//                blocks.add(SELECT_CLUSTER_ORDER_INDEX, )
-//
-//
-//
-//                StaticSelectElement selectClusterElement = (StaticSelectElement) ((ActionsBlock) blocks.get(slackService.findBlockIndex(blocks, "static_select", slackService.findClusterSelectsElementActionId))).getElements().get(0);
-//                selectClusterElement.setInitialOption();
-//                //       StaticSelectElement clusterSelects = (StaticSelectElement) ((ActionsBlock) block).getElements().get(0);
+                blocks.add(TEXT_INPUT_ORDER_INDEX, slackService.findMultilinePlainTextInput());
 
                 break;
             }

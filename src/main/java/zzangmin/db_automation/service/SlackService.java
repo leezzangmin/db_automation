@@ -21,8 +21,7 @@ import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.*;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
-import static com.slack.api.model.block.element.BlockElements.asElements;
-import static com.slack.api.model.block.element.BlockElements.button;
+import static com.slack.api.model.block.element.BlockElements.*;
 import static zzangmin.db_automation.config.SlackConfig.DEFAULT_CHANNEL_ID;
 import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
 
@@ -39,6 +38,7 @@ public class SlackService {
     public String findSchemaSelectsElementActionId = "selectSchemaName";
 
     public String findSubmitButtonActionId = "submitButton";
+    public String findPlainTextInputActionId = "plainTextInput";
     public String textSectionBlockId = "TextSectionId";
     public String dividerBlockId = "dividerId";
 
@@ -104,7 +104,15 @@ public class SlackService {
         );
     }
 
-
+    public ActionsBlock findMultilinePlainTextInput() {
+        return actions(actions -> actions
+                .elements(asElements(
+                        plainTextInput(pti -> pti.actionId(findPlainTextInputActionId)
+                                .multiline(true)
+                                .placeholder(plainText("plaintexttexttextxetextxettexttextxet"))
+                        )
+        )));
+    }
     public void sendMessage(String message) {
         if (message.isBlank()) {
             return;
