@@ -130,7 +130,7 @@ public class AwsService {
         try {
             valueResponse = secretManagerClient.getSecretValue(valueRequest);
         } catch (Exception e) {
-            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName + " + DB_CREDENTIAL_POSTPIX + "]");
+            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName]-[PROFILE]" + DB_CREDENTIAL_POSTPIX);
         }
 
         try {
@@ -156,8 +156,7 @@ public class AwsService {
         try {
             valueResponse = secretManagerClient.getSecretValue(valueRequest);
         } catch (Exception e) {
-            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName + " + DB_CREDENTIAL_POSTPIX + "]");
-        }
+            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName]-[PROFILE]" + DB_CREDENTIAL_POSTPIX);        }
 
         try {
             username = new JSONObject(valueResponse.secretString())
