@@ -16,6 +16,7 @@ import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
 import com.slack.api.webhook.WebhookResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -99,10 +100,11 @@ public class SlackController {
     }
 
     @PostMapping("/slack/command/dbselect")
-    public void sendSlackMessage(@RequestParam String payload) {
-        log.info("sendSlackMessage payload: {}", payload);
-        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
-                .fromJson(payload, BlockActionPayload.class);
+    public void sendSlackMessage(HttpServletRequest httpServletRequest) {
+        log.info("httpServletRequest: {}", httpServletRequest);
+//        log.info("sendSlackMessage payload: {}", payload);
+//        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
+//                .fromJson(payload, BlockActionPayload.class);
 
         String channelAddress = "futurewiz_db_monitor";
 
