@@ -60,6 +60,7 @@ public class SlackController {
         String username = blockActionPayload.getUser().getUsername();
 
         for (Action action : actions) {
+            log.info("action: {}", action);
             if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
                 String DBMSName = findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId);
                 log.info("DBMSName: {}", DBMSName);
@@ -81,7 +82,7 @@ public class SlackController {
         for (LayoutBlock block : blocks) {
             log.info("block: {}", block);
         }
-        log.info("callback blockActionPayload: {}", blockActionPayload);
+
         ActionResponse response =
                 ActionResponse.builder()
                         .replaceOriginal(true)
