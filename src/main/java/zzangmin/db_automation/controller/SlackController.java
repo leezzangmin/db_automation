@@ -26,8 +26,6 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
-import static com.slack.api.model.block.Blocks.*;
-import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -54,11 +52,11 @@ public class SlackController {
                 .fromJson(payload, BlockActionPayload.class);
         List<Action> actions = blockActionPayload.getActions();
         List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
-
         ViewState state = blockActionPayload.getState();
         Map<String, Map<String, ViewState.Value>> values = state.getValues();
 
-        String username = blockActionPayload.getUser().getUsername();
+        String userId = blockActionPayload.getUser().getId();
+        log.info("userId: {}", userId);
 
         for (Action action : actions) {
             log.info("action: {}", action);
@@ -67,27 +65,20 @@ public class SlackController {
                 log.info("DBMSName: {}", DBMSName);
                 ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
                 log.info("schemaSelects: {}", schemaSelects);
-
                 blocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
                 blocks.add(TEXT_INPUT_ORDER_INDEX, slackService.findMultilinePlainTextInput());
-
-
                 break;
             }
             else if (action.getActionId().equals(slackService.findSubmitButton())) {
-
+                log.info("submit clicked");
                 break;
             }
         }
-        for (LayoutBlock block : blocks) {
-            log.info("block: {}", block);
-        }
 
-        ActionResponse response =
-                ActionResponse.builder()
-                        .replaceOriginal(true)
-                        .blocks(blocks)
-                        .build();
+        ActionResponse response = ActionResponse.builder()
+                .replaceOriginal(true)
+                .blocks(blocks)
+                .build();
         log.info("callback response: {}", response);
 
         ActionResponseSender sender = new ActionResponseSender(Slack.getInstance());
@@ -107,7 +98,7 @@ public class SlackController {
         throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
     }
 
-    @GetMapping("/slack/command/dbselect")
+    @PostMapping("/slack/command/dbselect")
     public void sendSlackMessage(String message, String channelID) {
         String channelAddress = channelID;
 
