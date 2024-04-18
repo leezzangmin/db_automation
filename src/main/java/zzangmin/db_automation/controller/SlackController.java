@@ -15,6 +15,7 @@ import com.slack.api.model.block.element.BlockElement;
 import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
+import com.slack.api.webhook.WebhookResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -90,7 +91,8 @@ public class SlackController {
         log.info("callback response: {}", response);
 
         ActionResponseSender sender = new ActionResponseSender(Slack.getInstance());
-        sender.send(blockActionPayload.getResponseUrl(), response);
+        WebhookResponse webhookResponse = sender.send(blockActionPayload.getResponseUrl(), response);
+        log.info("webhookResponse: {]", webhookResponse);
         return ResponseEntity.ok(true);
     }
 
