@@ -6,6 +6,8 @@ import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.block.composition.PlainTextObject;
+import com.slack.api.model.block.composition.TextObject;
 import com.slack.api.model.block.element.StaticSelectElement;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -134,8 +136,8 @@ public class SlackService {
     }
 
     public SectionBlock getTextSection(String text) {
-        SectionBlock section1 = section(section -> section.text(plainText(text)).blockId(textSectionBlockId));
-        return section1;
+        SectionBlock sectionBlock = section(section -> section.text(plainText(text)).blockId(textSectionBlockId));
+        return sectionBlock;
     }
 
     public DividerBlock getDivider() {
