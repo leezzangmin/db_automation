@@ -124,7 +124,7 @@ public class SlackService {
             } catch (Exception e) {
                 log.info(e.getMessage());
             }
-            log.info("chatPostMessageResponse: {]", chatPostMessageResponse);
+            log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
         }
     }
 
