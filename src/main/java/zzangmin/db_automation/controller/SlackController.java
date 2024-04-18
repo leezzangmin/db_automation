@@ -65,10 +65,12 @@ public class SlackController {
                 ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
                 log.info("schemaSelects: {}", schemaSelects);
 
+                log.info("blocks before: {}", blocks);
+
                 blocks.remove(SELECT_SCHEMA_ORDER_INDEX);
                 blocks.add(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
 
-                log.info("blocks: {}", blocks);
+                log.info("blocks after: {}", blocks);
 //                ActionsBlock clusterSelectsBlock = slackService.findClusterSelectsBlock();
 //                StaticSelectElement selectCluster = (StaticSelectElement) clusterSelectsBlock.getElements().get(0);
 //                selectCluster.setInitialOption(OptionObject.builder()
