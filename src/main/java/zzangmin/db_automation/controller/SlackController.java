@@ -92,7 +92,7 @@ public class SlackController {
 
         ActionResponseSender sender = new ActionResponseSender(Slack.getInstance());
         WebhookResponse webhookResponse = sender.send(blockActionPayload.getResponseUrl(), response);
-        log.info("webhookResponse: {]", webhookResponse);
+        log.info("webhookResponse: {}", webhookResponse);
         return ResponseEntity.ok(true);
     }
 
