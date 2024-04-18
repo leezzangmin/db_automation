@@ -19,6 +19,7 @@ import com.slack.api.webhook.WebhookResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import zzangmin.db_automation.service.SlackService;
@@ -99,15 +100,17 @@ public class SlackController {
         throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
     }
 
-    @PostMapping("/slack/command/dbselect")
-    public void sendSlackMessage(HttpServletRequest httpServletRequest) {
-        printRequest(httpServletRequest);
-
-//        log.info("sendSlackMessage payload: {}", payload);
-//        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
-//                .fromJson(payload, BlockActionPayload.class);
-
-        String channelAddress = "futurewiz_db_monitor";
+    @PostMapping(value = "/slack/command/dbselect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public void databaseRequestCommand(@RequestParam("token") String token,
+                                  @RequestParam("team_id") String teamId,
+                                  @RequestParam("team_domain") String teamDomain,
+                                  @RequestParam("channel_id") String channelId,
+                                  @RequestParam("channel_name") String channelName,
+                                  @RequestParam("user_id") String userId,
+                                  @RequestParam("user_name") String userName,
+                                  @RequestParam("command") String command,
+                                  @RequestParam("text") String text,
+                                  @RequestParam("response_url") String responseUrl) {
 
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
         layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection("august bot slack message test"));
@@ -122,9 +125,10 @@ public class SlackController {
 
         try {
             ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                    .channel(channelAddress)
+                    .channel(channelId)
                     .text("message!!!!!!!!!!!")
                     .blocks(layoutBlocks)
+                    .username(userName)
                     .build();
 
             ChatPostMessageResponse chatPostMessageResponse = slackClient.chatPostMessage(request);
@@ -134,91 +138,5 @@ public class SlackController {
             log.error(e.getMessage());
         }
     }
-
-    private void printRequest(HttpServletRequest request) {
-
-        StringBuffer logBuff = new StringBuffer();
-
-        logBuff.append("\n============== REQUEST 기본정보 출력 ================\n");
-
-        logBuff.append("request.getProtocol() :: \t" + request.getProtocol() + "\n");
-
-        logBuff.append("request.getServerPort() :: \t" + request.getServerPort() + "\n");
-
-        logBuff.append("request.getRequestURL() :: \t" + request.getRequestURL() + "\n");
-
-        logBuff.append("request.getMethod() :: \t" + request.getMethod() + "\n");
-
-        logBuff.append("request.getRequestURI() URI :: \t" + request.getRequestURI() + "\n");
-
-        logBuff.append("request.getContextPath() :: \t" + request.getContextPath() + "\n");
-
-        logBuff.append("request.getServletPath() :: \t" + request.getServletPath() + "\n");
-
-        logBuff.append("request.getPathInfo() :: \t" + request.getPathInfo() + "\n");
-
-        logBuff.append("request.getCharacterEncoding() :: \t" + request.getCharacterEncoding() + "\n");
-
-        logBuff.append("request.getQueryString() :: \t" + request.getQueryString() + "\n");
-
-        logBuff.append("request.getContentLength() :: \t" + request.getContentLength() + "\n");
-
-        logBuff.append("request.getContentType() :: \t" + request.getContentType() + "\n");
-
-        logBuff.append("request.getRemoteUser() :: \t" + request.getRemoteUser() + "\n");
-
-        logBuff.append("request.getRemoteAddr() :: \t" + request.getRemoteAddr() + "\n");
-
-        logBuff.append("request.getRemoteHost() :: \t" + request.getRemoteHost() + "\n");
-
-        logBuff.append("request.getAuthType() :: \t" + request.getAuthType() + "\n");
-
-        logBuff.append("========== HEADER 정보 출력 ==========================\n");
-
-        Enumeration enumer = request.getHeaderNames();
-
-
-
-        logBuff.append("=================================================\n");
-
-
-
-        logBuff.append("========== REQUEST PARAMETER 정보 출력 ==============\n");
-
-        enumer = request.getParameterNames();
-
-        while(enumer != null && enumer.hasMoreElements()){
-
-            String paramNm = (String) enumer.nextElement();
-
-            String paramVal = request.getParameter(paramNm);
-
-            String[] paramVals = request.getParameterValues(paramNm);
-
-            logBuff.append(paramNm + " :: \t" + paramVal + "\n");
-
-            for(int i=1; paramVals != null && i < paramVals.length; i++){
-
-                logBuff.append(paramNm + " :: \t" + paramVals[i] + "\n");
-
-            }
-
-        }
-
-        logBuff.append("=====================================================");
-
-        printLogger(logBuff.toString());
-
-    }
-
-
-
-    private void printLogger(String msg) {
-
-        log.info(msg);
-
-    }
-
-
 
 }
