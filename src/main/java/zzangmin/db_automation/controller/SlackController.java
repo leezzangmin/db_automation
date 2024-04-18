@@ -10,13 +10,9 @@ import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
-import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.element.BlockElement;
-import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
 import com.slack.api.webhook.WebhookResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -37,7 +33,6 @@ public class SlackController {
     private final SlackService slackService;
     private final MethodsClient slackClient;
 
-
     private static final int NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX = 0;
     private static final int DIVIDER_BLOCK_ORDER_INDEX = 1;
     private static final int SELECT_CLUSTER_ORDER_INDEX = 2;
@@ -46,10 +41,9 @@ public class SlackController {
     private static final int TEXT_INPUT_ORDER_INDEX = 5;
 
 
-
     @PostMapping("/slack/callback")
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) throws IOException {
-        log.info("payload: {}", payload);
+        log.info("slackCallBack payload: {}", payload);
         BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
                 .fromJson(payload, BlockActionPayload.class);
         List<Action> actions = blockActionPayload.getActions();
@@ -71,7 +65,7 @@ public class SlackController {
                 blocks.add(TEXT_INPUT_ORDER_INDEX, slackService.findMultilinePlainTextInput());
                 break;
             }
-            else if (action.getActionId().equals(slackService.findSubmitButton())) {
+            else if (action.getActionId().equals(slackService.findSubmitButtonActionId)) {
                 log.info("submit clicked");
                 break;
             }
@@ -88,16 +82,6 @@ public class SlackController {
 
         log.info("webhookResponse: {}", webhookResponse);
         return ResponseEntity.ok(true);
-    }
-
-    private String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
-        log.info("values: {}", values);
-        log.info("targetValueKey: {}", targetValueKey);
-        for (String componentId : values.keySet()) {
-            Map<String, ViewState.Value> stringValueMap = values.get(componentId);
-            return stringValueMap.get(targetValueKey).getSelectedOption().getValue();
-        }
-        throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
     }
 
     @PostMapping(value = "/slack/command/dbselect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -151,4 +135,15 @@ public class SlackController {
     private String generateSlackTagUserString(String userName) {
         return "<@" + userName + ">";
     }
+
+    private String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
+        log.info("values: {}", values);
+        log.info("targetValueKey: {}", targetValueKey);
+        for (String componentId : values.keySet()) {
+            Map<String, ViewState.Value> stringValueMap = values.get(componentId);
+            return stringValueMap.get(targetValueKey).getSelectedOption().getValue();
+        }
+        throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
+    }
+
 }
