@@ -110,8 +110,10 @@ public class SlackController {
     }
 
     private String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
+        log.info("values: {}", values);
         for (String componentId : values.keySet()) {
             Map<String, ViewState.Value> stringValueMap = values.get(componentId);
+            log.info("stringvalueMap: {}", stringValueMap);
             return stringValueMap.get(targetValueKey).getValue();
         }
         throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
