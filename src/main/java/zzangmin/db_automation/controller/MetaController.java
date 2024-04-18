@@ -1,4 +1,4 @@
-package zzangmin.db_automation.aop;
+package zzangmin.db_automation.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
