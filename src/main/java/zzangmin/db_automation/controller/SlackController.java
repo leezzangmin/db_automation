@@ -99,8 +99,8 @@ public class SlackController {
     }
 
     @PostMapping("/slack/command/dbselect")
-    public void sendSlackMessage(String message, String channelID) {
-        String channelAddress = channelID;
+    public void sendSlackMessage(String payload) {
+        String channelAddress = "futurewiz_db_monitor";
 
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
         layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection("august bot slack message test"));
@@ -116,7 +116,7 @@ public class SlackController {
         try {
             ChatPostMessageRequest request = ChatPostMessageRequest.builder()
                     .channel(channelAddress)
-                    .text(message)
+                    .text("message!!!!!!!!!!!")
                     .blocks(layoutBlocks)
                     .build();
 
