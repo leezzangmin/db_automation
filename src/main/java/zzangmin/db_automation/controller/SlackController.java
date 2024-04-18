@@ -1,6 +1,7 @@
 package zzangmin.db_automation.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.slack.api.Slack;
 import com.slack.api.app_backend.interactive_components.ActionResponseSender;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
@@ -45,7 +46,7 @@ public class SlackController {
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) throws IOException {
         log.info("slackCallBack payload: {}", payload);
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper().setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
         BlockActionPayload blockActionPayload = objectMapper.readValue(payload, BlockActionPayload.class);
         BlockActionPayload blockActionPayload2 = GsonFactory.createSnakeCase()
                 .fromJson(payload, BlockActionPayload.class);
