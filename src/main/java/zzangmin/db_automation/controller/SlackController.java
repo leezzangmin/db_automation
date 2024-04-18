@@ -46,7 +46,7 @@ public class SlackController {
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) throws IOException {
-        String decodedPayload = HtmlUtils.htmlEscape(payload);
+        String decodedPayload = HtmlUtils.htmlUnescape(payload);
         log.info("slackCallBack payload: {}", payload);
         BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
                 .fromJson(decodedPayload, BlockActionPayload.class);
