@@ -8,6 +8,7 @@ import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
+import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
@@ -123,6 +124,7 @@ public class SlackController {
         log.info("command: {}", command);
         log.info("text: {}", text);
         log.info("responseUrl: {}", responseUrl);
+        log.info("triggerId: {}", triggerId);
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
@@ -140,9 +142,11 @@ public class SlackController {
             log.info("layoutBlock: {}", layoutBlock);
         }
 
-        slackClient.viewsOpen(r -> r.triggerId(triggerId)
+        ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
                 .view(slackService.buildCreateTableModal())
         );
+        log.info("viewsOpenResponse: {}", viewsOpenResponse);
+
         try {
             ChatPostMessageRequest request = ChatPostMessageRequest.builder()
                     .channel(channelId)
