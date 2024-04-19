@@ -17,6 +17,9 @@ public class SlackConfig {
     @Value("${slack.webbhook-url}")
     private String SLACK_WEBHOOK_URL;
 
+    @Value("${SLACK_APP_SIGNING_SECRET}")
+    public String slackAppSigningSecret;
+
     public static String DEFAULT_CHANNEL_ID = "C04282D342D"; // TODO: env
 
     public static final int MAX_MESSAGE_SIZE = 10000;
