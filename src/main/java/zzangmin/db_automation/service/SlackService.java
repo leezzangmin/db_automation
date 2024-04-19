@@ -12,6 +12,8 @@ import com.slack.api.model.block.composition.TextObject;
 import com.slack.api.model.block.element.PlainTextInputElement;
 import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
+import com.slack.api.model.view.ViewSubmit;
+import com.slack.api.model.view.ViewTitle;
 import com.slack.api.model.view.Views;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -119,29 +121,46 @@ public class SlackService {
     }
 
     public View buildCreateTableModal() {
-        return Views.view(view -> view
+        return View.builder()
                 .type("modal")
                 .callbackId("create-table-modal")
-                .title(Views.viewTitle(title -> title.type("plain_text").text("Create MySQL Table")))
+                .title(ViewTitle.builder().type("plain_text").text("Create MySQL Table").emoji(true).build())
+                .submit(ViewSubmit.builder().type("plain_text").text("Submit").emoji(true).build())
                 .blocks(Arrays.asList(
-                        Blocks.input(input -> input
+                        InputBlock.builder()
                                 .blockId("table_name_block")
-                                .element(plainTextInput(pti -> pti.actionId("table_name_action").multiline(false)))
-                                .label(BlockCompositions.plainText(pt -> pt.text("Table Name").emoji(true)))),
-        Blocks.input(input -> input
-                .blockId("columns_block")
-                .element(plainTextInput(pti -> pti.actionId("columns_action").multiline(true)))
-                .label(BlockCompositions.plainText(pt -> pt.text("Columns (name type isNull isUnique isAutoIncrement comment charset collate)").emoji(true)))),
-                Blocks.input(input -> input
-                        .blockId("constraints_block")
-                        .element(plainTextInput(pti -> pti.actionId("constraints_action").multiline(true)))
-                        .label(BlockCompositions.plainText(pt -> pt.text("Constraints (type keyName)").emoji(true)))),
-                Blocks.input(input -> input
-                        .blockId("additional_settings_block")
-                        .element(plainTextInput(pti -> pti.actionId("additional_settings_action").multiline(true)))
-                        .label(BlockCompositions.plainText(pt -> pt.text("Additional Settings (engine charset collate tableComment)").emoji(true))))
+                                .element(PlainTextInputElement.builder()
+                                        .actionId("table_name_action")
+                                        .multiline(false)
+                                        .build())
+                                .label(PlainTextObject.builder().text("Table Name").emoji(true).build())
+                                .build(),
+                        InputBlock.builder()
+                                .blockId("columns_block")
+                                .element(PlainTextInputElement.builder()
+                                        .actionId("columns_action")
+                                        .multiline(true)
+                                        .build())
+                                .label(PlainTextObject.builder().text("Columns (name type isNull isUnique isAutoIncrement comment charset collate)").emoji(true).build())
+                                .build(),
+                        InputBlock.builder()
+                                .blockId("constraints_block")
+                                .element(PlainTextInputElement.builder()
+                                        .actionId("constraints_action")
+                                        .multiline(true)
+                                        .build())
+                                .label(PlainTextObject.builder().text("Constraints (type keyName)").emoji(true).build())
+                                .build(),
+                        InputBlock.builder()
+                                .blockId("additional_settings_block")
+                                .element(PlainTextInputElement.builder()
+                                        .actionId("additional_settings_action")
+                                        .multiline(true)
+                                        .build())
+                                .label(PlainTextObject.builder().text("Additional Settings (engine charset collate tableComment)").emoji(true).build())
+                                .build()
                 ))
-        );
+                .build();
     }
 
     public void sendMessage(String message) {
