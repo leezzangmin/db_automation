@@ -5,16 +5,21 @@ import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
 import com.slack.api.model.block.*;
+import com.slack.api.model.block.composition.BlockCompositions;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.composition.PlainTextObject;
 import com.slack.api.model.block.composition.TextObject;
+import com.slack.api.model.block.element.PlainTextInputElement;
 import com.slack.api.model.block.element.StaticSelectElement;
+import com.slack.api.model.view.View;
+import com.slack.api.model.view.Views;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -112,6 +117,33 @@ public class SlackService {
                 .label(plainText("label123123"))
                 .blockId(findPlainTextInputActionId));
     }
+
+    public View buildCreateTableModal() {
+        return Views.view(view -> view
+                .type("modal")
+                .callbackId("create-table-modal")
+                .title(Views.viewTitle(title -> title.type("plain_text").text("Create MySQL Table")))
+                .blocks(Arrays.asList(
+                        Blocks.input(input -> input
+                                .blockId("table_name_block")
+                                .element(plainTextInput(pti -> pti.actionId("table_name_action").multiline(false)))
+                                .label(BlockCompositions.plainText(pt -> pt.text("Table Name").emoji(true)))),
+        Blocks.input(input -> input
+                .blockId("columns_block")
+                .element(plainTextInput(pti -> pti.actionId("columns_action").multiline(true)))
+                .label(BlockCompositions.plainText(pt -> pt.text("Columns (name type isNull isUnique isAutoIncrement comment charset collate)").emoji(true)))),
+                Blocks.input(input -> input
+                        .blockId("constraints_block")
+                        .element(plainTextInput(pti -> pti.actionId("constraints_action").multiline(true)))
+                        .label(BlockCompositions.plainText(pt -> pt.text("Constraints (type keyName)").emoji(true)))),
+                Blocks.input(input -> input
+                        .blockId("additional_settings_block")
+                        .element(plainTextInput(pti -> pti.actionId("additional_settings_action").multiline(true)))
+                        .label(BlockCompositions.plainText(pt -> pt.text("Additional Settings (engine charset collate tableComment)").emoji(true))))
+                ))
+        );
+    }
+
     public void sendMessage(String message) {
         if (message.isBlank()) {
             return;
@@ -184,5 +216,6 @@ public class SlackService {
         }
         throw new IllegalArgumentException("해당 block 이 존재하지 않습니다.");
     }
+
 
 }

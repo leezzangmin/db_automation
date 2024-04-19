@@ -109,9 +109,10 @@ public class SlackController {
                                   @RequestParam("command") String command,
                                   @RequestParam("text") String text,
                                   @RequestParam("response_url") String responseUrl,
+                                  @RequestParam("trigger_id") String triggerId,
                                   @RequestBody String requestBody,
                                   @RequestHeader("X-Slack-Signature") String slackSignature,
-                                  @RequestHeader("X-Slack-Request-Timestamp") String timestamp) {
+                                  @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws SlackApiException, IOException {
         log.info("token: {}", token);
         log.info("teamId: {}", teamId);
         log.info("teamDomain: {}", teamDomain);
@@ -139,6 +140,9 @@ public class SlackController {
             log.info("layoutBlock: {}", layoutBlock);
         }
 
+        slackClient.viewsOpen(r -> r.triggerId(triggerId)
+                .view(slackService.buildCreateTableModal())
+        );
         try {
             ChatPostMessageRequest request = ChatPostMessageRequest.builder()
                     .channel(channelId)
