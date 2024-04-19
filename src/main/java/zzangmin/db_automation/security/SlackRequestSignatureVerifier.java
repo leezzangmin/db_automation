@@ -16,7 +16,7 @@ public class SlackRequestSignatureVerifier {
 
     private final SlackConfig slackConfig;
 
-    public boolean validateRequest(String slackSignature, String timestamp, String requestBody) {
+    public void validateRequest(String slackSignature, String timestamp, String requestBody) {
         try {
             String secret = slackConfig.slackAppSigningSecret;
             String baseString = "v0:" + timestamp + ":" + requestBody;
@@ -30,10 +30,12 @@ public class SlackRequestSignatureVerifier {
 
             log.info("mySignature: {}", mySignature);
             log.info("slackSignature: {}", slackSignature);
-            return mySignature.equals(slackSignature);
+            if (!mySignature.equals(slackSignature)) {
+                throw new IllegalArgumentException("http 요청 검증 실패");
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            throw new IllegalArgumentException("http 요청 검증 실패");
         }
     }
 

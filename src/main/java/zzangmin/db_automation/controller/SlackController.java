@@ -53,9 +53,8 @@ public class SlackController {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
-        if (!slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody)) {
-            throw new IllegalArgumentException("http 요청 검증 실패");
-        }
+        slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
+
 
         String decodedPayload = HtmlUtils.htmlUnescape(payload);
         log.info("slackCallBack payload: {}", payload);
@@ -126,9 +125,7 @@ public class SlackController {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
-        if (!slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody)) {
-            throw new IllegalArgumentException("http 요청 검증 실패");
-        }
+        slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
 
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
         layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection(generateSlackTagUserString(userName) + " bot slack message test"));
