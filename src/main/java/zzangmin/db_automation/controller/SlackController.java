@@ -53,9 +53,8 @@ public class SlackController {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
-        // 요청 유효성 검증
         if (!slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody)) {
-            return ResponseEntity.ok(false);
+            throw new IllegalArgumentException("http 요청 검증 실패");
         }
 
         String decodedPayload = HtmlUtils.htmlUnescape(payload);
@@ -110,7 +109,10 @@ public class SlackController {
                                   @RequestParam("user_name") String userName,
                                   @RequestParam("command") String command,
                                   @RequestParam("text") String text,
-                                  @RequestParam("response_url") String responseUrl) {
+                                  @RequestParam("response_url") String responseUrl,
+                                  @RequestBody String requestBody,
+                                  @RequestHeader("X-Slack-Signature") String slackSignature,
+                                  @RequestHeader("X-Slack-Request-Timestamp") String timestamp) {
         log.info("token: {}", token);
         log.info("teamId: {}", teamId);
         log.info("teamDomain: {}", teamDomain);
@@ -121,6 +123,12 @@ public class SlackController {
         log.info("command: {}", command);
         log.info("text: {}", text);
         log.info("responseUrl: {}", responseUrl);
+        log.info("requestBody: {}", requestBody);
+        log.info("slackSignature: {}", slackSignature);
+        log.info("timestamp: {}", timestamp);
+        if (!slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody)) {
+            throw new IllegalArgumentException("http 요청 검증 실패");
+        }
 
         List<LayoutBlock> layoutBlocks = new ArrayList<>();
         layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection(generateSlackTagUserString(userName) + " bot slack message test"));
