@@ -15,10 +15,12 @@ import com.slack.api.util.json.GsonFactory;
 import com.slack.api.webhook.WebhookResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
+import zzangmin.db_automation.security.SlackRequestSignatureVerifier;
 import zzangmin.db_automation.service.SlackService;
 
 import java.io.IOException;
@@ -33,6 +35,7 @@ public class SlackController {
 
     private final SlackService slackService;
     private final MethodsClient slackClient;
+    private final SlackRequestSignatureVerifier slackRequestSignatureVerifier;
 
     private static final int NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX = 0;
     private static final int DIVIDER_BLOCK_ORDER_INDEX = 1;
@@ -43,7 +46,18 @@ public class SlackController {
 
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload) throws IOException {
+    public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload,
+                                                 @RequestBody String requestBody,
+                                                 @RequestHeader("X-Slack-Signature") String slackSignature,
+                                                 @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException {
+        log.info("requestBody: {}", requestBody);
+        log.info("slackSignature: {}", slackSignature);
+        log.info("timestamp: {}", timestamp);
+        // 요청 유효성 검증
+        if (!slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody)) {
+            return ResponseEntity.ok(false);
+        }
+
         String decodedPayload = HtmlUtils.htmlUnescape(payload);
         log.info("slackCallBack payload: {}", payload);
         BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
