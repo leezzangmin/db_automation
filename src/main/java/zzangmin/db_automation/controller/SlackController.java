@@ -1,7 +1,5 @@
 package zzangmin.db_automation.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.slack.api.Slack;
 import com.slack.api.app_backend.interactive_components.ActionResponseSender;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
@@ -67,7 +65,6 @@ public class SlackController {
                 ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
                 log.info("schemaSelects: {}", schemaSelects);
                 blocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
-                blocks.add(TEXT_INPUT_ORDER_INDEX, slackService.findMultilinePlainTextInput());
                 break;
             }
             else if (action.getActionId().equals(slackService.findSubmitButtonActionId)) {
@@ -117,6 +114,7 @@ public class SlackController {
         layoutBlocks.add(SELECT_CLUSTER_ORDER_INDEX, slackService.findClusterSelectsBlock());
         layoutBlocks.add(SELECT_SCHEMA_ORDER_INDEX, slackService.findSchemaSelects(null));
         layoutBlocks.add(SUBMIT_BUTTON_ORDER_INDEX, slackService.findSubmitButton());
+        layoutBlocks.add(TEXT_INPUT_ORDER_INDEX, slackService.findMultilinePlainTextInput());
 
         for (LayoutBlock layoutBlock : layoutBlocks) {
             log.info("layoutBlock: {}", layoutBlock);
