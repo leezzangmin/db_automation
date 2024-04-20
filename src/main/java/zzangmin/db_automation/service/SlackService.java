@@ -42,7 +42,6 @@ public class SlackService {
 
     public String findClusterSelectsElementActionId = "selectClusterName";
     public String findSchemaSelectsElementActionId = "selectSchemaName";
-
     public String findSubmitButtonActionId = "submitButton";
     public String findPlainTextInputActionId = "plainTextInput";
     public String textSectionBlockId = "TextSectionId";
@@ -61,10 +60,10 @@ public class SlackService {
                 )
                 .collect(Collectors.toList());
         return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
-                .options(selectOptions)
-                .placeholder(plainText(findClusterSelectsElementPlaceholder))
-                .actionId(findClusterSelectsElementActionId)
-                .build()))
+                        .options(selectOptions)
+                        .placeholder(plainText(findClusterSelectsElementPlaceholder))
+                        .actionId(findClusterSelectsElementActionId)
+                        .build()))
                 .blockId(findClusterSelectsElementActionId));
     }
 
@@ -91,10 +90,10 @@ public class SlackService {
                 )
                 .collect(Collectors.toList());
         return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
-                .options(selectOptions)
-                .placeholder(plainText(findSchemaSelectsElementPlaceholder))
-                .actionId(findSchemaSelectsElementActionId)
-                .build()))
+                        .options(selectOptions)
+                        .placeholder(plainText(findSchemaSelectsElementPlaceholder))
+                        .actionId(findSchemaSelectsElementActionId)
+                        .build()))
                 .blockId(findSchemaSelectsElementActionId));
     }
 
@@ -113,11 +112,43 @@ public class SlackService {
     public InputBlock findMultilinePlainTextInput() {
         return input(input -> input
                 .element(plainTextInput(pti -> pti.actionId(findPlainTextInputActionId)
-                                .multiline(true)
-                                .placeholder(plainText("plaintexttexttextxetextxettexttextxet"))
-                        ))
+                        .multiline(true)
+                        .placeholder(plainText("plaintexttexttextxetextxettexttextxet"))
+                ))
                 .label(plainText("label123123"))
                 .blockId(findPlainTextInputActionId));
+    }
+
+    /**
+     * DDL - CREATE TABLE, ALTER, DROP, MODIFY COLUMN ...
+     * DML - INSERT, UPDATE, DELETE
+     * SELECT - 단순 조회
+     * MIGRATION - table mig, database mig
+     * STANDARD - parameter, schema, configs
+     * METRIC - cpu, memory, hll
+      */
+    public ActionsBlock findDatabaseRequestSelects() {
+
+    }
+
+    public View globalRequestModal() {
+        // generate code below - that user choose 'commandType' static_select element
+
+        return View.builder()
+                .type("modal")
+                .callbackId("global-request-modal")
+                .title(ViewTitle.builder().type("plain_text").text("Database Request").emoji(true).build())
+
+                .blocks(Arrays.asList(
+                        findClusterSelectsBlock(),
+                        findSchemaSelects(null),
+                        findSubmitButton(),
+                        findMultilinePlainTextInput()
+                ))
+                .submit(ViewSubmit.builder().type("plain_text").text("Database Request submit").emoji(true).build())
+                .build();
+
+
     }
 
     public View buildCreateTableModal() {
