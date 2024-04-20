@@ -1,8 +1,10 @@
 package zzangmin.db_automation.entity;
 
 
+import java.util.Arrays;
+
 // https://jojoldu.tistory.com/137
-public enum DatabaseRequestCommandType {
+public enum DatabaseRequestCommandGroup {
     DDL("ddl", new CommandType[] {
             CommandType.CREATE_INDEX,
             CommandType.CREATE_TABLE,
@@ -32,13 +34,14 @@ public enum DatabaseRequestCommandType {
             CommandType.CPU_METRIC,
             CommandType.MEMORY_METRIC,
             CommandType.HLL_METRIC
-    });
+    }),
+    EMPTY("없음", new CommandType[]{});
 
-    private String name;
+    private String groupName;
     private CommandType[] commandTypes;
 
-    DatabaseRequestCommandType(String name, CommandType[] CommandType) {
-        this.name = name;
+    DatabaseRequestCommandGroup(String groupName, CommandType[] CommandType) {
+        this.groupName = groupName;
         this.commandTypes = CommandType;
     }
 
@@ -61,6 +64,18 @@ public enum DatabaseRequestCommandType {
         CPU_METRIC,
         MEMORY_METRIC,
         HLL_METRIC
+    }
+
+    public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroup(CommandType searchTarget) {
+        return Arrays.stream(DatabaseRequestCommandGroup.values())
+                .filter(group -> hasDatabaseRequestCommandOption(group, searchTarget))
+                .findAny()
+                .orElse(DatabaseRequestCommandGroup.EMPTY);
+    }
+
+    private static boolean hasDatabaseRequestCommandOption(DatabaseRequestCommandGroup from, CommandType searchTarget) {
+        return Arrays.stream(from.commandTypes)
+                .anyMatch(commandType -> commandType == searchTarget);
     }
 }
 
