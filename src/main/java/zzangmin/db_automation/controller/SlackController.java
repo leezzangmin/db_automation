@@ -142,23 +142,23 @@ public class SlackController {
         }
 
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
-                .view(slackService.buildCreateTableModal())
+                .view(slackService.globalRequestModal())
         );
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
 
-        try {
-            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                    .channel(channelId)
-                    .text("database request message")
-                    .blocks(layoutBlocks)
-                    .build();
-
-            ChatPostMessageResponse chatPostMessageResponse = slackClient.chatPostMessage(request);
-            log.info("ChatPostMessageResponse: {}", chatPostMessageResponse);
-
-        } catch (SlackApiException | IOException e) {
-            log.error(e.getMessage());
-        }
+//        try {
+//            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+//                    .channel(channelId)
+//                    .text("database request message")
+//                    .blocks(layoutBlocks)
+//                    .build();
+//
+//            ChatPostMessageResponse chatPostMessageResponse = slackClient.chatPostMessage(request);
+//            log.info("ChatPostMessageResponse: {}", chatPostMessageResponse);
+//
+//        } catch (SlackApiException | IOException e) {
+//            log.error(e.getMessage());
+//        }
     }
 
     private String generateSlackTagUserString(String userName) {

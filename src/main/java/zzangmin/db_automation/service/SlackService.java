@@ -151,7 +151,6 @@ public class SlackService {
                 .type("modal")
                 .callbackId("global-request-modal")
                 .title(ViewTitle.builder().type("plain_text").text("Database Request").emoji(true).build())
-
                 .blocks(Arrays.asList(
                         findClusterSelectsBlock(),
                         findSchemaSelects(null),
