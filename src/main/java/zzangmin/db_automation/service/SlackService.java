@@ -173,7 +173,7 @@ public class SlackService {
                 .title(ViewTitle.builder().type("plain_text").text("Database Request").emoji(true).build())
                 .blocks(Arrays.asList(
                         findDatabaseRequestCommandGroupSelects(),
-                        findDatabaseRequestCommandTypeSelects()
+                        findDatabaseRequestCommandTypeSelects(DatabaseRequestCommandGroup.DML)
                 ))
                 .submit(ViewSubmit.builder().type("plain_text").text("Database Request submit").emoji(true).build())
                 .build();
