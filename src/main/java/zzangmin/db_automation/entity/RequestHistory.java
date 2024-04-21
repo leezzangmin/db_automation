@@ -15,7 +15,7 @@ public class RequestHistory {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
-    private CommandType commandType;
+    private DatabaseRequestCommandGroup.CommandType commandType;
     private String command;
     private String requestDoer;
     private String databaseIdentifier;
