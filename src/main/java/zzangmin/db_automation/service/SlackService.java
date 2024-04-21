@@ -144,14 +144,15 @@ public class SlackService {
                 .blockId(findDatabaseRequestCommandGroupSelectsElementActionId));
     }
 
-    public ActionsBlock findDatabaseRequestCommandTypeSelects() {
+    public ActionsBlock findDatabaseRequestCommandTypeSelects(DatabaseRequestCommandGroup group) {
         String findCommandTypePlaceholder = "select database command type";
         String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
 
-        List<OptionObject> selectOptions = Arrays.stream(DatabaseRequestCommandGroup.CommandType.values())
-                .map(group -> OptionObject.builder()
-                        .text(plainText(group.name()))
-                        .value(group.name())
+        List<OptionObject> selectOptions = DatabaseRequestCommandGroup.findDatabaseRequestCommandTypes(group)
+                .stream()
+                .map(commandType -> OptionObject.builder()
+                        .text(plainText(commandType.name()))
+                        .value(commandType.name())
                         .build()
                 )
                 .collect(Collectors.toList());

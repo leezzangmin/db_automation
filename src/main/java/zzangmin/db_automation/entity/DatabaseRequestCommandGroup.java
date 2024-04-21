@@ -2,6 +2,8 @@ package zzangmin.db_automation.entity;
 
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 // https://jojoldu.tistory.com/137
 public enum DatabaseRequestCommandGroup {
@@ -71,6 +73,13 @@ public enum DatabaseRequestCommandGroup {
                 .filter(group -> hasDatabaseRequestCommandOption(group, searchTarget))
                 .findAny()
                 .orElse(DatabaseRequestCommandGroup.EMPTY);
+    }
+
+    public static List<CommandType> findDatabaseRequestCommandTypes(DatabaseRequestCommandGroup targetGroup) {
+        return Arrays.stream(Arrays.stream(DatabaseRequestCommandGroup.values())
+                .filter(group -> group.groupName.equals(targetGroup.groupName))
+                .findAny().get()
+                .commandTypes).toList();
     }
 
     private static boolean hasDatabaseRequestCommandOption(DatabaseRequestCommandGroup from, CommandType searchTarget) {
