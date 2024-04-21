@@ -11,6 +11,7 @@ import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
 import com.slack.api.webhook.WebhookResponse;
@@ -61,29 +62,37 @@ public class SlackController {
         BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
                 .fromJson(decodedPayload, BlockActionPayload.class);
         log.info("blockActionPayload: {}", blockActionPayload);
+
+        View view = blockActionPayload.getView();
         List<Action> actions = blockActionPayload.getActions();
-        List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
+        List<LayoutBlock> viewBlocks = view.getBlocks();
         ViewState state = blockActionPayload.getState();
         Map<String, Map<String, ViewState.Value>> values = state.getValues();
-
         String userId = blockActionPayload.getUser().getId();
         log.info("userId: {}", userId);
 
-//        for (Action action : actions) {
-//            log.info("action: {}", action);
-//            if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
-//                String DBMSName = findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId);
-//                log.info("DBMSName: {}", DBMSName);
-//                ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
-//                log.info("schemaSelects: {}", schemaSelects);
-//                blocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
-//                break;
-//            }
-//            else if (action.getActionId().equals(slackService.findSubmitButtonActionId)) {
-//                log.info("submit clicked");
-//                break;
-//            }
-//        }
+        view.
+
+
+
+
+        for (Action action : actions) {
+            log.info("action: {}", action);
+            if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
+                String DBMSName = findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId);
+                log.info("DBMSName: {}", DBMSName);
+                ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
+                log.info("schemaSelects: {}", schemaSelects);
+                blocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
+                break;
+            }
+            else if (action.getActionId().equals(slackService.findSubmitButtonActionId)) {
+                log.info("submit clicked");
+                break;
+            } else if (action.getActionId().equals(slackService.findDatabaseRequestCommandGroupSelectsElementActionId)) {
+
+            }
+        }
 
         ActionResponse response = ActionResponse.builder()
                 .replaceOriginal(true)
@@ -129,23 +138,13 @@ public class SlackController {
         log.info("timestamp: {}", timestamp);
         slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
 
-        List<LayoutBlock> layoutBlocks = new ArrayList<>();
-        layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection(generateSlackTagUserString(userName) + " bot slack message test"));
-        layoutBlocks.add(DIVIDER_BLOCK_ORDER_INDEX, slackService.getDivider());
-        layoutBlocks.add(SELECT_CLUSTER_ORDER_INDEX, slackService.findClusterSelectsBlock());
-        layoutBlocks.add(SELECT_SCHEMA_ORDER_INDEX, slackService.findSchemaSelects(null));
-        layoutBlocks.add(SUBMIT_BUTTON_ORDER_INDEX, slackService.findSubmitButton());
-        layoutBlocks.add(TEXT_INPUT_ORDER_INDEX, slackService.findMultilinePlainTextInput());
-
-        for (LayoutBlock layoutBlock : layoutBlocks) {
-            log.info("layoutBlock: {}", layoutBlock);
-        }
-
-        ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
-                .view(slackService.globalRequestModal())
-        );
-        log.info("viewsOpenResponse: {}", viewsOpenResponse);
-
+//        List<LayoutBlock> layoutBlocks = new ArrayList<>();
+//        layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection(generateSlackTagUserString(userName) + " bot slack message test"));
+//        layoutBlocks.add(DIVIDER_BLOCK_ORDER_INDEX, slackService.getDivider());
+//        layoutBlocks.add(SELECT_CLUSTER_ORDER_INDEX, slackService.findClusterSelectsBlock());
+//        layoutBlocks.add(SELECT_SCHEMA_ORDER_INDEX, slackService.findSchemaSelects(null));
+//        layoutBlocks.add(SUBMIT_BUTTON_ORDER_INDEX, slackService.findSubmitButton());
+//        layoutBlocks.add(TEXT_INPUT_ORDER_INDEX, slackService.findMultilinePlainTextInput());
 //        try {
 //            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
 //                    .channel(channelId)
@@ -159,6 +158,12 @@ public class SlackController {
 //        } catch (SlackApiException | IOException e) {
 //            log.error(e.getMessage());
 //        }
+
+
+        ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
+                .view(slackService.findGlobalRequestModalView()));
+        log.info("viewsOpenResponse: {}", viewsOpenResponse);
+
     }
 
     private String generateSlackTagUserString(String userName) {
