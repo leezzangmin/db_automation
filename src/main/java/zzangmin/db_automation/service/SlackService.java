@@ -38,16 +38,10 @@ public class SlackService {
     private final MethodsClient slackClient;
     private final DynamicDataSourceProperties dataSourceProperties;
 
-    public String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
-    public String findClusterSelectsElementActionId = "selectClusterName";
-    public String findSchemaSelectsElementActionId = "selectSchemaName";
-    public String findSubmitButtonActionId = "submitButton";
-    public String findPlainTextInputActionId = "plainTextInput";
-    public String textSectionBlockId = "TextSectionId";
-    public String dividerBlockId = "dividerId";
 
     public ActionsBlock findClusterSelectsBlock() {
         String findClusterSelectsElementPlaceholder = "select cluster";
+        String findClusterSelectsElementActionId = "selectClusterName";
 
         List<OptionObject> selectOptions = describeService.findDBMSNames()
                 .getDbmsNames()
@@ -68,6 +62,7 @@ public class SlackService {
 
     public ActionsBlock findSchemaSelects(String DBMSName) {
         String findSchemaSelectsElementPlaceholder = "select schema";
+        String findSchemaSelectsElementActionId = "selectSchemaName";
 
         if (DBMSName == null) {
             return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
@@ -97,6 +92,8 @@ public class SlackService {
     }
 
     public ActionsBlock findSubmitButton() {
+        String findSubmitButtonActionId = "submitButton";
+
         return actions(actions -> actions
                 .elements(asElements(
                         button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
@@ -109,6 +106,8 @@ public class SlackService {
     }
 
     public InputBlock findMultilinePlainTextInput() {
+        String findPlainTextInputActionId = "plainTextInput";
+
         return input(input -> input
                 .element(plainTextInput(pti -> pti.actionId(findPlainTextInputActionId)
                         .multiline(true)
@@ -127,7 +126,8 @@ public class SlackService {
      * METRIC - cpu, memory, hll
       */
     public ActionsBlock findDatabaseRequestCommandGroupSelects() {
-        String findClusterSelectsElementPlaceholder = "select database command group";
+        String findCommandGroupPlaceholder = "select database command group";
+        String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
 
         List<OptionObject> selectOptions = Arrays.stream(DatabaseRequestCommandGroup.values())
                 .map(group -> OptionObject.builder()
@@ -138,10 +138,29 @@ public class SlackService {
                 .collect(Collectors.toList());
         return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
                         .options(selectOptions)
-                        .placeholder(plainText(findClusterSelectsElementPlaceholder))
+                        .placeholder(plainText(findCommandGroupPlaceholder))
                         .actionId(findDatabaseRequestCommandGroupSelectsElementActionId)
                         .build()))
                 .blockId(findDatabaseRequestCommandGroupSelectsElementActionId));
+    }
+
+    public ActionsBlock findDatabaseRequestCommandTypeSelects() {
+        String findCommandTypePlaceholder = "select database command type";
+        String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandGroup";
+
+        List<OptionObject> selectOptions = Arrays.stream(DatabaseRequestCommandGroup.CommandType.values())
+                .map(group -> OptionObject.builder()
+                        .text(plainText(group.name()))
+                        .value(group.name())
+                        .build()
+                )
+                .collect(Collectors.toList());
+        return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
+                        .options(selectOptions)
+                        .placeholder(plainText(findCommandTypePlaceholder))
+                        .actionId(findCommandTypeSelectsElementActionId)
+                        .build()))
+                .blockId(findCommandTypeSelectsElementActionId));
     }
 
     public View globalRequestModal() {
@@ -152,10 +171,8 @@ public class SlackService {
                 .callbackId("global-request-modal")
                 .title(ViewTitle.builder().type("plain_text").text("Database Request").emoji(true).build())
                 .blocks(Arrays.asList(
-                        findClusterSelectsBlock(),
-                        findSchemaSelects(null),
-                        findSubmitButton(),
-                        findMultilinePlainTextInput()
+                        findDatabaseRequestCommandGroupSelects(),
+                        findDatabaseRequestCommandTypeSelects()
                 ))
                 .submit(ViewSubmit.builder().type("plain_text").text("Database Request submit").emoji(true).build())
                 .build();
@@ -230,11 +247,15 @@ public class SlackService {
     }
 
     public SectionBlock getTextSection(String text) {
+        String textSectionBlockId = "TextSectionId";
+
         SectionBlock sectionBlock = section(section -> section.text(plainText(text)).blockId(textSectionBlockId));
         return sectionBlock;
     }
 
     public DividerBlock getDivider() {
+        String dividerBlockId = "dividerId";
+
         DividerBlock divider = divider();
         divider.setBlockId(dividerBlockId);
         return divider;

@@ -69,21 +69,21 @@ public class SlackController {
         String userId = blockActionPayload.getUser().getId();
         log.info("userId: {}", userId);
 
-        for (Action action : actions) {
-            log.info("action: {}", action);
-            if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
-                String DBMSName = findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId);
-                log.info("DBMSName: {}", DBMSName);
-                ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
-                log.info("schemaSelects: {}", schemaSelects);
-                blocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
-                break;
-            }
-            else if (action.getActionId().equals(slackService.findSubmitButtonActionId)) {
-                log.info("submit clicked");
-                break;
-            }
-        }
+//        for (Action action : actions) {
+//            log.info("action: {}", action);
+//            if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
+//                String DBMSName = findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId);
+//                log.info("DBMSName: {}", DBMSName);
+//                ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
+//                log.info("schemaSelects: {}", schemaSelects);
+//                blocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
+//                break;
+//            }
+//            else if (action.getActionId().equals(slackService.findSubmitButtonActionId)) {
+//                log.info("submit clicked");
+//                break;
+//            }
+//        }
 
         ActionResponse response = ActionResponse.builder()
                 .replaceOriginal(true)
