@@ -5,21 +5,19 @@ import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
 import com.slack.api.model.block.*;
-import com.slack.api.model.block.composition.BlockCompositions;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.composition.PlainTextObject;
-import com.slack.api.model.block.composition.TextObject;
 import com.slack.api.model.block.element.PlainTextInputElement;
 import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewSubmit;
 import com.slack.api.model.view.ViewTitle;
-import com.slack.api.model.view.Views;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,6 +38,7 @@ public class SlackService {
     private final MethodsClient slackClient;
     private final DynamicDataSourceProperties dataSourceProperties;
 
+    public String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
     public String findClusterSelectsElementActionId = "selectClusterName";
     public String findSchemaSelectsElementActionId = "selectSchemaName";
     public String findSubmitButtonActionId = "submitButton";
@@ -127,8 +126,22 @@ public class SlackService {
      * STANDARD - parameter, schema, configs
      * METRIC - cpu, memory, hll
       */
-    public ActionsBlock findDatabaseRequestSelects() {
+    public ActionsBlock findDatabaseRequestCommandGroupSelects() {
+        String findClusterSelectsElementPlaceholder = "select database command group";
 
+        List<OptionObject> selectOptions = Arrays.stream(DatabaseRequestCommandGroup.values())
+                .map(group -> OptionObject.builder()
+                        .text(plainText(group.name()))
+                        .value(group.name())
+                        .build()
+                )
+                .collect(Collectors.toList());
+        return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
+                        .options(selectOptions)
+                        .placeholder(plainText(findClusterSelectsElementPlaceholder))
+                        .actionId(findDatabaseRequestCommandGroupSelectsElementActionId)
+                        .build()))
+                .blockId(findDatabaseRequestCommandGroupSelectsElementActionId));
     }
 
     public View globalRequestModal() {
