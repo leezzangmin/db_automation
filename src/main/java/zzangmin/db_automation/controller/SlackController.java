@@ -67,9 +67,9 @@ public class SlackController {
         log.info("blockActionPayload: {}", blockActionPayload);
 
         View view = blockActionPayload.getView();
+        ViewState state = view.getState();
         List<Action> actions = blockActionPayload.getActions();
         List<LayoutBlock> viewBlocks = view.getBlocks();
-        ViewState state = blockActionPayload.getState();
 //        String userId = blockActionPayload.getUser().getId();
 //        log.info("userId: {}", userId);
 
