@@ -96,6 +96,10 @@ public class SlackController {
             }
         }
 
+        for (LayoutBlock viewBlock : viewBlocks) {
+            log.info("viewBlock: {}", viewBlock);
+        }
+
         ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
                 .view(slackService.findGlobalRequestModalView(viewBlocks))
                 .viewId(view.getId())
