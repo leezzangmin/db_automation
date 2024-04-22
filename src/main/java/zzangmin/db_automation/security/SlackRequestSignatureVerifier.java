@@ -28,8 +28,6 @@ public class SlackRequestSignatureVerifier {
             byte[] hash = mac.doFinal(baseString.getBytes());
             String mySignature = "v0=" + Hex.encodeHexString(hash);
 
-            log.info("mySignature: {}", mySignature);
-            log.info("slackSignature: {}", slackSignature);
             if (!mySignature.equals(slackSignature)) {
                 throw new IllegalArgumentException("http 요청 검증 실패");
             }
