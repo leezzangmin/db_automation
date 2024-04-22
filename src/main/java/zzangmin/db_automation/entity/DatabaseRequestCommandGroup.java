@@ -3,6 +3,7 @@ package zzangmin.db_automation.entity;
 
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -11,46 +12,40 @@ import java.util.stream.Collectors;
 // https://jojoldu.tistory.com/137
 @Slf4j
 public enum DatabaseRequestCommandGroup {
-    DDL("ddl", new CommandType[] {
-            CommandType.CREATE_INDEX,
-            CommandType.CREATE_TABLE,
-            CommandType.ADD_COLUMN,
-            CommandType.ALTER_COLUMN,
-            CommandType.DELETE_COLUMN,
-            CommandType.EXTEND_VARCHAR_COLUMN,
-            CommandType.RENAME_COLUMN,
-    }),
-    DML("dml", new CommandType[] {
-            CommandType.INSERT,
-            CommandType.UPDATE,
-            CommandType.DELETE,
-    }),
-    SELECT("select", new CommandType[] {
-            CommandType.SELECT
-    }),
-    MIGRATION("migration", new CommandType[] {
-            CommandType.TABLE_MIGRATION,
-            CommandType.DATABASE_MIGRATION,
-    }),
-    PARAMETER("parameter", new CommandType[] {
-            CommandType.PARAMETER_STANDARD,
-            CommandType.SCHEMA_STANDARD,
-    }),
-    METRIC("metric", new CommandType[] {
-            CommandType.CPU_METRIC,
-            CommandType.MEMORY_METRIC,
-            CommandType.HLL_METRIC
-    }),
-    EMPTY("없음", new CommandType[]{
-            CommandType.EMPTY
-    });
+    DDL("ddl",
+            List.of(
+                    CommandType.CREATE_INDEX,
+                    CommandType.CREATE_TABLE,
+                    CommandType.ADD_COLUMN,
+                    CommandType.ALTER_COLUMN,
+                    CommandType.DELETE_COLUMN,
+                    CommandType.EXTEND_VARCHAR_COLUMN,
+                    CommandType.RENAME_COLUMN)),
+    DML("dml",
+            List.of(CommandType.INSERT,
+                    CommandType.UPDATE,
+                    CommandType.DELETE)),
+    SELECT("select",
+            List.of(CommandType.SELECT)),
+    MIGRATION("migration",
+            List.of(CommandType.TABLE_MIGRATION,
+                    CommandType.DATABASE_MIGRATION)),
+    PARAMETER("parameter",
+            List.of(CommandType.PARAMETER_STANDARD,
+                    CommandType.SCHEMA_STANDARD)),
+    METRIC("metric",
+            List.of(CommandType.CPU_METRIC,
+                    CommandType.MEMORY_METRIC,
+                    CommandType.HLL_METRIC)),
+    EMPTY("없음",
+            List.of(CommandType.EMPTY));
 
     private String groupName;
-    private CommandType[] commandTypes;
+    private List<CommandType> commandTypes = new ArrayList<>();
 
-    DatabaseRequestCommandGroup(String groupName, CommandType[] CommandType) {
+    DatabaseRequestCommandGroup(String groupName, List<CommandType> CommandTypes) {
         this.groupName = groupName;
-        this.commandTypes = CommandType;
+        this.commandTypes = CommandTypes;
     }
 
     public enum CommandType {
@@ -84,13 +79,13 @@ public enum DatabaseRequestCommandGroup {
 
     public static List<CommandType> findDatabaseRequestCommandTypes(DatabaseRequestCommandGroup targetGroup) {
         if (targetGroup == null) {
-            return List.of(DatabaseRequestCommandGroup.EMPTY.commandTypes);
+            return DatabaseRequestCommandGroup.EMPTY.commandTypes;
         }
-        return Arrays.stream(Arrays.stream(DatabaseRequestCommandGroup.values())
+        return Arrays.stream(DatabaseRequestCommandGroup.values())
                 .filter(group -> Objects.equals(group.name(),targetGroup.name()))
                 .findAny()
                 .orElse(DatabaseRequestCommandGroup.EMPTY)
-                .commandTypes).toList();
+                .commandTypes;
     }
 
     public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroupByName(String targetGroupName) {
@@ -104,7 +99,8 @@ public enum DatabaseRequestCommandGroup {
     }
 
     private static boolean hasDatabaseRequestCommandOption(DatabaseRequestCommandGroup from, CommandType searchTarget) {
-        return Arrays.stream(from.commandTypes)
+        return from.commandTypes
+                .stream()
                 .anyMatch(commandType -> commandType == searchTarget);
     }
 }
