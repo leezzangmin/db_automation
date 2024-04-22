@@ -70,8 +70,6 @@ public class SlackController {
         ViewState state = view.getState();
         List<Action> actions = blockActionPayload.getActions();
         List<LayoutBlock> viewBlocks = view.getBlocks();
-//        String userId = blockActionPayload.getUser().getId();
-//        log.info("userId: {}", userId);
 
         for (Action action : actions) {
             log.info("action: {}", action);
@@ -108,16 +106,6 @@ public class SlackController {
         ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
         log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
 
-//        ActionResponse response = ActionResponse.builder()
-//                .replaceOriginal(true)
-//                .blocks(viewBlocks)
-//                .build();
-//        log.info("callback response: {}", response);
-//
-//        ActionResponseSender sender = new ActionResponseSender(Slack.getInstance());
-//        WebhookResponse webhookResponse = sender.send(blockActionPayload.getResponseUrl(), response);
-//
-//        log.info("webhookResponse: {}", webhookResponse);
         return ResponseEntity.ok(true);
     }
 
@@ -151,28 +139,6 @@ public class SlackController {
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
         slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
-
-//        List<LayoutBlock> layoutBlocks = new ArrayList<>();
-//        layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection(generateSlackTagUserString(userName) + " bot slack message test"));
-//        layoutBlocks.add(DIVIDER_BLOCK_ORDER_INDEX, slackService.getDivider());
-//        layoutBlocks.add(SELECT_CLUSTER_ORDER_INDEX, slackService.findClusterSelectsBlock());
-//        layoutBlocks.add(SELECT_SCHEMA_ORDER_INDEX, slackService.findSchemaSelects(null));
-//        layoutBlocks.add(SUBMIT_BUTTON_ORDER_INDEX, slackService.findSubmitButton());
-//        layoutBlocks.add(TEXT_INPUT_ORDER_INDEX, slackService.findMultilinePlainTextInput());
-//        try {
-//            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-//                    .channel(channelId)
-//                    .text("database request message")
-//                    .blocks(layoutBlocks)
-//                    .build();
-//
-//            ChatPostMessageResponse chatPostMessageResponse = slackClient.chatPostMessage(request);
-//            log.info("ChatPostMessageResponse: {}", chatPostMessageResponse);
-//
-//        } catch (SlackApiException | IOException e) {
-//            log.error(e.getMessage());
-//        }
-
 
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
                 .view(slackService.findGlobalRequestModalView(List.of(slackService.findDatabaseRequestCommandGroupSelects(),
