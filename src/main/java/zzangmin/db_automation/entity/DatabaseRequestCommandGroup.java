@@ -87,7 +87,7 @@ public enum DatabaseRequestCommandGroup {
             return List.of(DatabaseRequestCommandGroup.EMPTY.commandTypes);
         }
         return Arrays.stream(Arrays.stream(DatabaseRequestCommandGroup.values())
-                .filter(group -> group.groupName.equals(targetGroup.groupName))
+                .filter(group -> Objects.equals(group.name(),targetGroup.name()))
                 .findAny()
                 .orElse(DatabaseRequestCommandGroup.EMPTY)
                 .commandTypes).toList();
@@ -96,7 +96,7 @@ public enum DatabaseRequestCommandGroup {
     public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroupByName(String targetGroupName) {
         log.info("targetGroupName: {}", targetGroupName);
         DatabaseRequestCommandGroup findGroup = Arrays.stream(DatabaseRequestCommandGroup.values())
-                .filter(group -> Objects.equals(group.groupName, targetGroupName))
+                .filter(group -> Objects.equals(group.name(), targetGroupName))
                 .findAny()
                 .orElse(DatabaseRequestCommandGroup.EMPTY);
         log.info("findGroup: {}", findGroup);
