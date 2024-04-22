@@ -37,7 +37,9 @@ public enum DatabaseRequestCommandGroup {
             CommandType.MEMORY_METRIC,
             CommandType.HLL_METRIC
     }),
-    EMPTY("없음", new CommandType[]{});
+    EMPTY("없음", new CommandType[]{
+            CommandType.EMPTY
+    });
 
     private String groupName;
     private CommandType[] commandTypes;
@@ -65,7 +67,8 @@ public enum DatabaseRequestCommandGroup {
         SCHEMA_STANDARD,
         CPU_METRIC,
         MEMORY_METRIC,
-        HLL_METRIC
+        HLL_METRIC,
+        EMPTY
     }
 
     public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroup(CommandType searchTarget) {
