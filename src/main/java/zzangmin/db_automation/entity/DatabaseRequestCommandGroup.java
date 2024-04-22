@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 // https://jojoldu.tistory.com/137
@@ -95,7 +96,7 @@ public enum DatabaseRequestCommandGroup {
     public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroupByName(String targetGroupName) {
         log.info("targetGroupName: {}", targetGroupName);
         DatabaseRequestCommandGroup findGroup = Arrays.stream(DatabaseRequestCommandGroup.values())
-                .filter(group -> group.groupName.equals(targetGroupName))
+                .filter(group -> Objects.equals(group.groupName, targetGroupName))
                 .findAny()
                 .orElse(DatabaseRequestCommandGroup.EMPTY);
         log.info("findGroup: {}", findGroup);
