@@ -95,7 +95,7 @@ public enum DatabaseRequestCommandGroup {
     public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroupByName(String targetGroupName) {
         log.info("targetGroupName: {}", targetGroupName);
         return Arrays.stream(DatabaseRequestCommandGroup.values())
-                .filter(group -> !group.groupName.equals(targetGroupName))
+                .filter(group -> group.groupName.equals(targetGroupName))
                 .findAny()
                 .orElse(DatabaseRequestCommandGroup.EMPTY);
     }
