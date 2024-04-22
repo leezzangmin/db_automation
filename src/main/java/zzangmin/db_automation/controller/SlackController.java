@@ -72,7 +72,7 @@ public class SlackController {
         List<LayoutBlock> viewBlocks = view.getBlocks();
 //        String userId = blockActionPayload.getUser().getId();
 //        log.info("userId: {}", userId);
-        blockActionPayload.ac
+
         for (Action action : actions) {
             log.info("action: {}", action);
             if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
