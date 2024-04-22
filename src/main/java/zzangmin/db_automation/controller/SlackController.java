@@ -190,7 +190,9 @@ public class SlackController {
         log.info("targetValueKey: {}", targetValueKey);
         for (String componentId : values.keySet()) {
             Map<String, ViewState.Value> stringValueMap = values.get(componentId);
-            return stringValueMap.get(targetValueKey).getSelectedOption().getValue();
+            String selectedValue = stringValueMap.get(targetValueKey).getSelectedOption().getValue();
+            log.info("selectedValue: {}", selectedValue);
+            return selectedValue;
         }
         throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
     }
