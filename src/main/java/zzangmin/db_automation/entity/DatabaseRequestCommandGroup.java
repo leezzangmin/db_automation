@@ -1,11 +1,14 @@
 package zzangmin.db_automation.entity;
 
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 // https://jojoldu.tistory.com/137
+@Slf4j
 public enum DatabaseRequestCommandGroup {
     DDL("ddl", new CommandType[] {
             CommandType.CREATE_INDEX,
@@ -90,8 +93,9 @@ public enum DatabaseRequestCommandGroup {
     }
 
     public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroupByName(String targetGroupName) {
+        log.info("targetGroupName: {}", targetGroupName);
         return Arrays.stream(DatabaseRequestCommandGroup.values())
-                .filter(group -> group.groupName.equals(targetGroupName))
+                .filter(group -> !group.groupName.equals(targetGroupName))
                 .findAny()
                 .orElse(DatabaseRequestCommandGroup.EMPTY);
     }
