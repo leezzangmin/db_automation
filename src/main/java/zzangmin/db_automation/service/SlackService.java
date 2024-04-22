@@ -146,6 +146,7 @@ public class SlackService {
     }
 
     public ActionsBlock findDatabaseRequestCommandTypeSelects(DatabaseRequestCommandGroup group) {
+        log.info("find commandType group: {}", group);
         String findCommandTypePlaceholder = "select database command type";
         List<OptionObject> selectOptions = DatabaseRequestCommandGroup.findDatabaseRequestCommandTypes(group)
                 .stream()
