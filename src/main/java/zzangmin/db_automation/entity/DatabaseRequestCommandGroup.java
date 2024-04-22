@@ -94,10 +94,12 @@ public enum DatabaseRequestCommandGroup {
 
     public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroupByName(String targetGroupName) {
         log.info("targetGroupName: {}", targetGroupName);
-        return Arrays.stream(DatabaseRequestCommandGroup.values())
+        DatabaseRequestCommandGroup findGroup = Arrays.stream(DatabaseRequestCommandGroup.values())
                 .filter(group -> group.groupName.equals(targetGroupName))
                 .findAny()
                 .orElse(DatabaseRequestCommandGroup.EMPTY);
+        log.info("findGroup: {}", findGroup);
+        return findGroup;
     }
 
     private static boolean hasDatabaseRequestCommandOption(DatabaseRequestCommandGroup from, CommandType searchTarget) {
