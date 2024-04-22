@@ -38,17 +38,18 @@ public class SlackService {
     private final MethodsClient slackClient;
     private final DynamicDataSourceProperties dataSourceProperties;
 
-    public String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
+    public String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
     public String findClusterSelectsElementActionId = "selectClusterName";
     public String findSchemaSelectsElementActionId = "selectSchemaName";
     public String findSubmitButtonActionId = "submitButton";
     public String findPlainTextInputActionId = "plainTextInput";
-    public String textSectionBlockId = "TextSectionId";
     public String dividerBlockId = "dividerId";
+    public String textSectionBlockId = "TextSectionId";
+    public String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
+    public String findGlobalRequestModalViewId = "globalRequestModalViewId";
 
     public ActionsBlock findClusterSelectsBlock() {
         String findClusterSelectsElementPlaceholder = "select cluster";
-
         List<OptionObject> selectOptions = describeService.findDBMSNames()
                 .getDbmsNames()
                 .stream()
@@ -68,7 +69,6 @@ public class SlackService {
 
     public ActionsBlock findSchemaSelects(String DBMSName) {
         String findSchemaSelectsElementPlaceholder = "select schema";
-
         if (DBMSName == null) {
             return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
                             .options(generateEmptyOptionObjects())
@@ -97,6 +97,7 @@ public class SlackService {
     }
 
     public ActionsBlock findSubmitButton() {
+
         return actions(actions -> actions
                 .elements(asElements(
                         button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
@@ -127,7 +128,7 @@ public class SlackService {
      * METRIC - cpu, memory, hll
       */
     public ActionsBlock findDatabaseRequestCommandGroupSelects() {
-        String findClusterSelectsElementPlaceholder = "select database command group";
+        String findCommandGroupPlaceholder = "select database command group";
 
         List<OptionObject> selectOptions = Arrays.stream(DatabaseRequestCommandGroup.values())
                 .map(group -> OptionObject.builder()
@@ -138,30 +139,43 @@ public class SlackService {
                 .collect(Collectors.toList());
         return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
                         .options(selectOptions)
-                        .placeholder(plainText(findClusterSelectsElementPlaceholder))
+                        .placeholder(plainText(findCommandGroupPlaceholder))
                         .actionId(findDatabaseRequestCommandGroupSelectsElementActionId)
                         .build()))
                 .blockId(findDatabaseRequestCommandGroupSelectsElementActionId));
     }
 
-    public View globalRequestModal() {
-        // generate code below - that user choose 'commandType' static_select element
+    public ActionsBlock findDatabaseRequestCommandTypeSelects(DatabaseRequestCommandGroup group) {
+        log.info("find commandType group: {}", group);
+        String findCommandTypePlaceholder = "select database command type";
+        List<OptionObject> selectOptions = DatabaseRequestCommandGroup.findDatabaseRequestCommandTypes(group)
+                .stream()
+                .map(commandType -> OptionObject.builder()
+                        .text(plainText(commandType.name()))
+                        .value(commandType.name())
+                        .build()
+                )
+                .collect(Collectors.toList());
+        return actions(actions -> actions.elements(asElements(StaticSelectElement.builder()
+                        .options(selectOptions)
+                        .placeholder(plainText(findCommandTypePlaceholder))
+                        .actionId(findCommandTypeSelectsElementActionId)
+                        .build()))
+                .blockId(findCommandTypeSelectsElementActionId));
+    }
 
+    public View findGlobalRequestModalView(List<LayoutBlock> blocks) {
         return View.builder()
                 .type("modal")
                 .callbackId("global-request-modal")
-                .title(ViewTitle.builder().type("plain_text").text("Database Request").emoji(true).build())
-
-                .blocks(Arrays.asList(
-                        findClusterSelectsBlock(),
-                        findSchemaSelects(null),
-                        findSubmitButton(),
-                        findMultilinePlainTextInput()
-                ))
+                .title(ViewTitle.builder()
+                        .type("plain_text")
+                        .text("Database Request")
+                        .emoji(true)
+                        .build())
+                .blocks(blocks)
                 .submit(ViewSubmit.builder().type("plain_text").text("Database Request submit").emoji(true).build())
                 .build();
-
-
     }
 
     public View buildCreateTableModal() {

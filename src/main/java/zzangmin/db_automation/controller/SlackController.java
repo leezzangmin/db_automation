@@ -7,10 +7,13 @@ import com.slack.api.app_backend.interactive_components.response.ActionResponse;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
+import com.slack.api.methods.request.views.ViewsUpdateRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
+import com.slack.api.methods.response.views.ViewsUpdateResponse;
 import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
 import com.slack.api.webhook.WebhookResponse;
@@ -20,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.security.SlackRequestSignatureVerifier;
 import zzangmin.db_automation.service.SlackService;
 
@@ -49,7 +53,7 @@ public class SlackController {
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload,
                                                  @RequestBody String requestBody,
                                                  @RequestHeader("X-Slack-Signature") String slackSignature,
-                                                 @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException {
+                                                 @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException, SlackApiException {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
@@ -61,40 +65,47 @@ public class SlackController {
         BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
                 .fromJson(decodedPayload, BlockActionPayload.class);
         log.info("blockActionPayload: {}", blockActionPayload);
-        List<Action> actions = blockActionPayload.getActions();
-        List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
-        ViewState state = blockActionPayload.getState();
-        Map<String, Map<String, ViewState.Value>> values = state.getValues();
 
-        String userId = blockActionPayload.getUser().getId();
-        log.info("userId: {}", userId);
+        View view = blockActionPayload.getView();
+        ViewState state = view.getState();
+        List<Action> actions = blockActionPayload.getActions();
+        List<LayoutBlock> viewBlocks = view.getBlocks();
 
         for (Action action : actions) {
             log.info("action: {}", action);
             if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
-                String DBMSName = findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId);
+                String DBMSName = findCurrentValueFromState(state, slackService.findClusterSelectsElementActionId);
                 log.info("DBMSName: {}", DBMSName);
                 ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
                 log.info("schemaSelects: {}", schemaSelects);
-                blocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
+                viewBlocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
                 break;
             }
             else if (action.getActionId().equals(slackService.findSubmitButtonActionId)) {
                 log.info("submit clicked");
                 break;
+
+            // https://api.slack.com/surfaces/modals#updating_views
+            } else if (action.getActionId().equals(slackService.findDatabaseRequestCommandGroupSelectsElementActionId)) {
+
+                int commandTypeBlockIndex = slackService.findBlockIndex(viewBlocks, "actions", slackService.findCommandTypeSelectsElementActionId);
+                String selectedDatabaseRequestGroupName = findCurrentValueFromState(state, slackService.findDatabaseRequestCommandGroupSelectsElementActionId);
+                DatabaseRequestCommandGroup selectedDatabaseRequestGroup = DatabaseRequestCommandGroup.findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
+                viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(selectedDatabaseRequestGroup));
             }
         }
 
-        ActionResponse response = ActionResponse.builder()
-                .replaceOriginal(true)
-                .blocks(blocks)
+        for (LayoutBlock viewBlock : viewBlocks) {
+            log.info("viewBlock: {}", viewBlock);
+        }
+
+        ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
+                .view(slackService.findGlobalRequestModalView(viewBlocks))
+                .viewId(view.getId())
                 .build();
-        log.info("callback response: {}", response);
+        ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
+        log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
 
-        ActionResponseSender sender = new ActionResponseSender(Slack.getInstance());
-        WebhookResponse webhookResponse = sender.send(blockActionPayload.getResponseUrl(), response);
-
-        log.info("webhookResponse: {}", webhookResponse);
         return ResponseEntity.ok(true);
     }
 
@@ -129,48 +140,26 @@ public class SlackController {
         log.info("timestamp: {}", timestamp);
         slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
 
-        List<LayoutBlock> layoutBlocks = new ArrayList<>();
-        layoutBlocks.add(NOTIFICATION_TEXT_MESSAGE_ORDER_INDEX, slackService.getTextSection(generateSlackTagUserString(userName) + " bot slack message test"));
-        layoutBlocks.add(DIVIDER_BLOCK_ORDER_INDEX, slackService.getDivider());
-        layoutBlocks.add(SELECT_CLUSTER_ORDER_INDEX, slackService.findClusterSelectsBlock());
-        layoutBlocks.add(SELECT_SCHEMA_ORDER_INDEX, slackService.findSchemaSelects(null));
-        layoutBlocks.add(SUBMIT_BUTTON_ORDER_INDEX, slackService.findSubmitButton());
-        layoutBlocks.add(TEXT_INPUT_ORDER_INDEX, slackService.findMultilinePlainTextInput());
-
-        for (LayoutBlock layoutBlock : layoutBlocks) {
-            log.info("layoutBlock: {}", layoutBlock);
-        }
-
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
-                .view(slackService.buildCreateTableModal())
-        );
+                .view(slackService.findGlobalRequestModalView(List.of(slackService.findDatabaseRequestCommandGroupSelects(),
+                        slackService.findDatabaseRequestCommandTypeSelects(null)))));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
 
-        try {
-            ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-                    .channel(channelId)
-                    .text("database request message")
-                    .blocks(layoutBlocks)
-                    .build();
-
-            ChatPostMessageResponse chatPostMessageResponse = slackClient.chatPostMessage(request);
-            log.info("ChatPostMessageResponse: {}", chatPostMessageResponse);
-
-        } catch (SlackApiException | IOException e) {
-            log.error(e.getMessage());
-        }
     }
 
     private String generateSlackTagUserString(String userName) {
         return "<@" + userName + ">";
     }
 
-    private String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
+    private String findCurrentValueFromState(ViewState viewState, String targetValueKey) {
+        Map<String, Map<String, ViewState.Value>> values = viewState.getValues();
         log.info("values: {}", values);
         log.info("targetValueKey: {}", targetValueKey);
         for (String componentId : values.keySet()) {
             Map<String, ViewState.Value> stringValueMap = values.get(componentId);
-            return stringValueMap.get(targetValueKey).getSelectedOption().getValue();
+            String selectedValue = stringValueMap.get(targetValueKey).getSelectedOption().getValue();
+            log.info("selectedValue: {}", selectedValue);
+            return selectedValue;
         }
         throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
     }

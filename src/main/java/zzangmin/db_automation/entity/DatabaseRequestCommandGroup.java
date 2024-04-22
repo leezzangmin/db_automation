@@ -1,9 +1,15 @@
 package zzangmin.db_automation.entity;
 
 
+import lombok.extern.slf4j.Slf4j;
+
 import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 // https://jojoldu.tistory.com/137
+@Slf4j
 public enum DatabaseRequestCommandGroup {
     DDL("ddl", new CommandType[] {
             CommandType.CREATE_INDEX,
@@ -35,7 +41,9 @@ public enum DatabaseRequestCommandGroup {
             CommandType.MEMORY_METRIC,
             CommandType.HLL_METRIC
     }),
-    EMPTY("없음", new CommandType[]{});
+    EMPTY("없음", new CommandType[]{
+            CommandType.EMPTY
+    });
 
     private String groupName;
     private CommandType[] commandTypes;
@@ -63,7 +71,8 @@ public enum DatabaseRequestCommandGroup {
         SCHEMA_STANDARD,
         CPU_METRIC,
         MEMORY_METRIC,
-        HLL_METRIC
+        HLL_METRIC,
+        EMPTY
     }
 
     public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroup(CommandType searchTarget) {
@@ -71,6 +80,27 @@ public enum DatabaseRequestCommandGroup {
                 .filter(group -> hasDatabaseRequestCommandOption(group, searchTarget))
                 .findAny()
                 .orElse(DatabaseRequestCommandGroup.EMPTY);
+    }
+
+    public static List<CommandType> findDatabaseRequestCommandTypes(DatabaseRequestCommandGroup targetGroup) {
+        if (targetGroup == null) {
+            return List.of(DatabaseRequestCommandGroup.EMPTY.commandTypes);
+        }
+        return Arrays.stream(Arrays.stream(DatabaseRequestCommandGroup.values())
+                .filter(group -> Objects.equals(group.name(),targetGroup.name()))
+                .findAny()
+                .orElse(DatabaseRequestCommandGroup.EMPTY)
+                .commandTypes).toList();
+    }
+
+    public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroupByName(String targetGroupName) {
+        log.info("targetGroupName: {}", targetGroupName);
+        DatabaseRequestCommandGroup findGroup = Arrays.stream(DatabaseRequestCommandGroup.values())
+                .filter(group -> Objects.equals(group.name(), targetGroupName))
+                .findAny()
+                .orElse(DatabaseRequestCommandGroup.EMPTY);
+        log.info("findGroup: {}", findGroup);
+        return findGroup;
     }
 
     private static boolean hasDatabaseRequestCommandOption(DatabaseRequestCommandGroup from, CommandType searchTarget) {
