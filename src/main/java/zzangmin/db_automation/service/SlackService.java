@@ -165,7 +165,6 @@ public class SlackService {
 
     public View findGlobalRequestModalView(List<LayoutBlock> blocks) {
         return View.builder()
-                .id(findGlobalRequestModalViewId)
                 .type("modal")
                 .callbackId("global-request-modal")
                 .title(ViewTitle.builder()

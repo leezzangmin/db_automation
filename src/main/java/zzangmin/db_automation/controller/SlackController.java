@@ -98,6 +98,7 @@ public class SlackController {
 
         ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
                 .view(slackService.findGlobalRequestModalView(viewBlocks))
+                .viewId(view.getId())
                 .build();
         ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
         log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
