@@ -78,8 +78,16 @@ public enum DatabaseRequestCommandGroup {
     public static List<CommandType> findDatabaseRequestCommandTypes(DatabaseRequestCommandGroup targetGroup) {
         return Arrays.stream(Arrays.stream(DatabaseRequestCommandGroup.values())
                 .filter(group -> group.groupName.equals(targetGroup.groupName))
-                .findAny().get()
+                .findAny()
+                .orElse(DatabaseRequestCommandGroup.EMPTY)
                 .commandTypes).toList();
+    }
+
+    public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroupByName(String targetGroupName) {
+        return Arrays.stream(DatabaseRequestCommandGroup.values())
+                .filter(group -> group.groupName.equals(targetGroupName))
+                .findAny()
+                .orElse(DatabaseRequestCommandGroup.EMPTY);
     }
 
     private static boolean hasDatabaseRequestCommandOption(DatabaseRequestCommandGroup from, CommandType searchTarget) {

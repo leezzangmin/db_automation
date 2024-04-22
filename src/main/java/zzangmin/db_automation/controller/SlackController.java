@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.security.SlackRequestSignatureVerifier;
 import zzangmin.db_automation.service.SlackService;
 
@@ -67,36 +68,33 @@ public class SlackController {
         List<Action> actions = blockActionPayload.getActions();
         List<LayoutBlock> viewBlocks = view.getBlocks();
         ViewState state = blockActionPayload.getState();
-        Map<String, Map<String, ViewState.Value>> values = state.getValues();
-        String userId = blockActionPayload.getUser().getId();
-        log.info("userId: {}", userId);
-
-        view.
-
-
-
+//        String userId = blockActionPayload.getUser().getId();
+//        log.info("userId: {}", userId);
 
         for (Action action : actions) {
             log.info("action: {}", action);
             if (action.getActionId().equals(slackService.findClusterSelectsElementActionId)) {
-                String DBMSName = findCurrentValueFromState(values, slackService.findClusterSelectsElementActionId);
+                String DBMSName = findCurrentValueFromState(state, slackService.findClusterSelectsElementActionId);
                 log.info("DBMSName: {}", DBMSName);
                 ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
                 log.info("schemaSelects: {}", schemaSelects);
-                blocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
+                viewBlocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
                 break;
             }
             else if (action.getActionId().equals(slackService.findSubmitButtonActionId)) {
                 log.info("submit clicked");
                 break;
             } else if (action.getActionId().equals(slackService.findDatabaseRequestCommandGroupSelectsElementActionId)) {
-
+                int commandTypeBlockIndex = slackService.findBlockIndex(viewBlocks, "actions", slackService.findCommandTypeSelectsElementActionId);
+                String selectedDatabaseRequestGroupName = findCurrentValueFromState(state, slackService.findDatabaseRequestCommandGroupSelectsElementActionId);
+                DatabaseRequestCommandGroup selectedDatabaseRequestGroup = DatabaseRequestCommandGroup.findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
+                viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(selectedDatabaseRequestGroup));
             }
         }
 
         ActionResponse response = ActionResponse.builder()
                 .replaceOriginal(true)
-                .blocks(blocks)
+                .blocks(viewBlocks)
                 .build();
         log.info("callback response: {}", response);
 
@@ -161,7 +159,8 @@ public class SlackController {
 
 
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
-                .view(slackService.findGlobalRequestModalView()));
+                .view(slackService.findGlobalRequestModalView(List.of(slackService.findDatabaseRequestCommandGroupSelects(),
+                        slackService.findDatabaseRequestCommandTypeSelects(null)))));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
 
     }
@@ -170,7 +169,8 @@ public class SlackController {
         return "<@" + userName + ">";
     }
 
-    private String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
+    private String findCurrentValueFromState(ViewState viewState, String targetValueKey) {
+        Map<String, Map<String, ViewState.Value>> values = viewState.getValues();
         log.info("values: {}", values);
         log.info("targetValueKey: {}", targetValueKey);
         for (String componentId : values.keySet()) {

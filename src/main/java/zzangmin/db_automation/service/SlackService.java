@@ -163,7 +163,7 @@ public class SlackService {
                 .blockId(findCommandTypeSelectsElementActionId));
     }
 
-    public View findGlobalRequestModalView() {
+    public View findGlobalRequestModalView(List<LayoutBlock> blocks) {
         return View.builder()
                 .rootViewId(findGlobalRequestModalViewId)
                 .type("modal")
@@ -173,14 +173,9 @@ public class SlackService {
                         .text("Database Request")
                         .emoji(true)
                         .build())
-                .blocks(Arrays.asList(
-                        findDatabaseRequestCommandGroupSelects(),
-                        findDatabaseRequestCommandTypeSelects(DatabaseRequestCommandGroup.DML)
-                ))
+                .blocks(blocks)
                 .submit(ViewSubmit.builder().type("plain_text").text("Database Request submit").emoji(true).build())
                 .build();
-
-
     }
 
     public View buildCreateTableModal() {
