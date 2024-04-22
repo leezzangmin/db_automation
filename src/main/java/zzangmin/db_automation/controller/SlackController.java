@@ -7,8 +7,10 @@ import com.slack.api.app_backend.interactive_components.response.ActionResponse;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
+import com.slack.api.methods.request.views.ViewsUpdateRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
+import com.slack.api.methods.response.views.ViewsUpdateResponse;
 import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.View;
@@ -51,7 +53,7 @@ public class SlackController {
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload,
                                                  @RequestBody String requestBody,
                                                  @RequestHeader("X-Slack-Signature") String slackSignature,
-                                                 @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException {
+                                                 @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException, SlackApiException {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
@@ -84,6 +86,8 @@ public class SlackController {
             else if (action.getActionId().equals(slackService.findSubmitButtonActionId)) {
                 log.info("submit clicked");
                 break;
+
+            // https://api.slack.com/surfaces/modals#updating_views
             } else if (action.getActionId().equals(slackService.findDatabaseRequestCommandGroupSelectsElementActionId)) {
                 int commandTypeBlockIndex = slackService.findBlockIndex(viewBlocks, "actions", slackService.findCommandTypeSelectsElementActionId);
                 String selectedDatabaseRequestGroupName = findCurrentValueFromState(state, slackService.findDatabaseRequestCommandGroupSelectsElementActionId);
@@ -92,16 +96,22 @@ public class SlackController {
             }
         }
 
-        ActionResponse response = ActionResponse.builder()
-                .replaceOriginal(true)
-                .blocks(viewBlocks)
+        ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
+                .view(slackService.findGlobalRequestModalView(viewBlocks))
                 .build();
-        log.info("callback response: {}", response);
+        ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
+        log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
 
-        ActionResponseSender sender = new ActionResponseSender(Slack.getInstance());
-        WebhookResponse webhookResponse = sender.send(blockActionPayload.getResponseUrl(), response);
-
-        log.info("webhookResponse: {}", webhookResponse);
+//        ActionResponse response = ActionResponse.builder()
+//                .replaceOriginal(true)
+//                .blocks(viewBlocks)
+//                .build();
+//        log.info("callback response: {}", response);
+//
+//        ActionResponseSender sender = new ActionResponseSender(Slack.getInstance());
+//        WebhookResponse webhookResponse = sender.send(blockActionPayload.getResponseUrl(), response);
+//
+//        log.info("webhookResponse: {}", webhookResponse);
         return ResponseEntity.ok(true);
     }
 
