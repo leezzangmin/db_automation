@@ -76,6 +76,9 @@ public enum DatabaseRequestCommandGroup {
     }
 
     public static List<CommandType> findDatabaseRequestCommandTypes(DatabaseRequestCommandGroup targetGroup) {
+        if (targetGroup == null) {
+            return List.of(DatabaseRequestCommandGroup.EMPTY.commandTypes);
+        }
         return Arrays.stream(Arrays.stream(DatabaseRequestCommandGroup.values())
                 .filter(group -> group.groupName.equals(targetGroup.groupName))
                 .findAny()
