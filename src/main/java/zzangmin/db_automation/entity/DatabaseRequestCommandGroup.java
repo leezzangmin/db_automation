@@ -3,10 +3,7 @@ package zzangmin.db_automation.entity;
 
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 // https://jojoldu.tistory.com/137
 @Slf4j
@@ -81,14 +78,14 @@ public enum DatabaseRequestCommandGroup {
         return Arrays.stream(DatabaseRequestCommandGroup.values())
                 .filter(group -> hasDatabaseRequestCommandOption(group, searchTarget))
                 .findAny()
-                .orElse(DatabaseRequestCommandGroup.EMPTY);
+                .orElseThrow(() -> new NoSuchElementException());
     }
 
     public static CommandType findCommandTypeByCommandTypeName(String searchTargetCommandTypeName) {
         CommandType findCommandType = Arrays.stream(CommandType.values())
                 .filter(commandType -> commandType.name().equals(searchTargetCommandTypeName))
                 .findAny()
-                .orElse(CommandType.EMPTY);
+                .orElseThrow(() -> new NoSuchElementException())
         log.info("findCommandType: {}", findCommandType);
         return findCommandType;
     }
@@ -100,7 +97,7 @@ public enum DatabaseRequestCommandGroup {
         return Arrays.stream(DatabaseRequestCommandGroup.values())
                 .filter(group -> Objects.equals(group.name(),targetGroup.name()))
                 .findAny()
-                .orElse(DatabaseRequestCommandGroup.EMPTY)
+                .orElseThrow(() -> new NoSuchElementException())
                 .commandTypes;
     }
 
@@ -109,7 +106,7 @@ public enum DatabaseRequestCommandGroup {
         DatabaseRequestCommandGroup findGroup = Arrays.stream(DatabaseRequestCommandGroup.values())
                 .filter(group -> Objects.equals(group.name(), targetGroupName))
                 .findAny()
-                .orElse(DatabaseRequestCommandGroup.EMPTY);
+                .orElseThrow(() -> new NoSuchElementException());
         log.info("findGroup: {}", findGroup);
         return findGroup;
     }
