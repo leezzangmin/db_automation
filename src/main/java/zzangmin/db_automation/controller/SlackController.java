@@ -1,6 +1,8 @@
 package zzangmin.db_automation.controller;
 
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
+import com.slack.api.app_backend.interactive_components.*;
+import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.views.ViewsUpdateRequest;
@@ -73,15 +75,28 @@ public class SlackController {
 
         String decodedPayload = HtmlUtils.htmlUnescape(payload);
         log.info("slackCallBack payload: {}", payload);
-        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
-                .fromJson(decodedPayload, BlockActionPayload.class);
+        BlockActionPayload blockActionPayload = null;
+        try {
+            blockActionPayload = GsonFactory.createSnakeCase()
+                    .fromJson(decodedPayload, BlockActionPayload.class);
+        } catch (Exception e) {
+            log.info("blockActionPayload parse Failed");
+        }
+
+        ViewSubmissionPayload viewSubmissionPayload = null;
+        try {
+            viewSubmissionPayload = GsonFactory.createSnakeCase()
+                    .fromJson(decodedPayload, ViewSubmissionPayload.class);
+        } catch (Exception e) {
+            log.info("viewSubmissionPayload parse Failed");
+        }
 
         View view = blockActionPayload.getView();
         ViewState state = view.getState();
         List<LayoutBlock> viewBlocks = view.getBlocks();
 
 
-        if (blockActionPayload.getType().equals("block_actions")) {
+        if (blockActionPayload != null) {
             List<Action> actions = blockActionPayload.getActions();
             for (Action action : actions) {
                 log.info("action: {}", action);
@@ -109,7 +124,7 @@ public class SlackController {
                     break;
                 }
             }
-        } else if (blockActionPayload.getType().equals("view_submission")) {
+        } else if (blockActionPayload != null) {
             if (view.getId().equals(findGlobalRequestModalViewId)) {
                 String selectedCommandTypeName = findCurrentValueFromState(state, findCommandTypeSelectsElementActionId);
                 CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
