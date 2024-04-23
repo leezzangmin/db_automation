@@ -91,6 +91,9 @@ public class SlackController {
             log.info("viewSubmissionPayload parse Failed");
         }
 
+        log.info("BlockActionPayload: {}", blockActionPayload);
+        log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
+
         View view = null;
         ViewState state;
         List<LayoutBlock> viewBlocks = null;
