@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 // https://jojoldu.tistory.com/137
 @Slf4j
@@ -83,6 +82,15 @@ public enum DatabaseRequestCommandGroup {
                 .filter(group -> hasDatabaseRequestCommandOption(group, searchTarget))
                 .findAny()
                 .orElse(DatabaseRequestCommandGroup.EMPTY);
+    }
+
+    public static CommandType findCommandTypeByCommandTypeName(String searchTargetCommandTypeName) {
+        CommandType findCommandType = Arrays.stream(CommandType.values())
+                .filter(commandType -> commandType.name().equals(searchTargetCommandTypeName))
+                .findAny()
+                .orElse(CommandType.EMPTY);
+        log.info("findCommandType: {}", findCommandType);
+        return findCommandType;
     }
 
     public static List<CommandType> findDatabaseRequestCommandTypes(DatabaseRequestCommandGroup targetGroup) {
