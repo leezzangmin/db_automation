@@ -112,6 +112,7 @@ public class SlackController {
                 } else if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
                     log.info("request Group Selected");
                     updateOnCommandGroupSelected(viewBlocks, state);
+                    log.info("viewBlocks2: {}", viewBlocks);
 //                    private void updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
 //                        int commandTypeBlockIndex = findBlockIndex(viewBlocks, "actions", slackService.findCommandTypeSelectsElementActionId);
 //                        String selectedDatabaseRequestGroupName = findCurrentValueFromState(state, slackService.findDatabaseRequestCommandGroupSelectsElementActionId);
@@ -187,6 +188,7 @@ public class SlackController {
                 )
                 .collect(Collectors.toList());
         viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(commandTypeOptions));
+        log.info("viewBlocks: {}", viewBlocks);
         return viewBlocks;
     }
 
