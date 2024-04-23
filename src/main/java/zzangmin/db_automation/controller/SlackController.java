@@ -91,12 +91,13 @@ public class SlackController {
             log.info("viewSubmissionPayload parse Failed");
         }
 
-        View view = blockActionPayload.getView();
-        ViewState state = view.getState();
-        List<LayoutBlock> viewBlocks = view.getBlocks();
-
-
+        View view = null;
+        ViewState state;
+        List<LayoutBlock> viewBlocks = null;
         if (blockActionPayload != null) {
+            view = blockActionPayload.getView();
+            state = view.getState();
+            viewBlocks = view.getBlocks();
             List<Action> actions = blockActionPayload.getActions();
             for (Action action : actions) {
                 log.info("action: {}", action);
@@ -125,6 +126,9 @@ public class SlackController {
                 }
             }
         } else if (viewSubmissionPayload != null) {
+            view = viewSubmissionPayload.getView();
+            state = view.getState();
+            viewBlocks = view.getBlocks();
             if (view.getId().equals(findGlobalRequestModalViewId)) {
                 String selectedCommandTypeName = findCurrentValueFromState(state, findCommandTypeSelectsElementActionId);
                 CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
@@ -136,9 +140,7 @@ public class SlackController {
             log.info("view submission");
         }
 
-        for (LayoutBlock viewBlock : viewBlocks) {
-            log.info("viewBlock: {}", viewBlock);
-        }
+
 
         ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
                 .view(slackService.findGlobalRequestModalView(viewBlocks))
@@ -175,7 +177,7 @@ public class SlackController {
                 findCommandTypeSelectsElementActionId);
         String selectedDatabaseRequestGroupName = findCurrentValueFromState(state, findDatabaseRequestCommandGroupSelectsElementActionId);
         DatabaseRequestCommandGroup selectedDatabaseRequestGroup = findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
-        List<OptionObject> commandTypeOptions = DatabaseRequestCommandGroup.findDatabaseRequestCommandTypes(selectedDatabaseRequestGroup)
+        List<OptionObject> commandTypeOptions = findDatabaseRequestCommandTypes(selectedDatabaseRequestGroup)
                 .stream()
                 .map(commandType -> OptionObject.builder()
                         .text(plainText(commandType.name()))
@@ -248,7 +250,7 @@ public class SlackController {
         slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
 
         List<LayoutBlock> blocks = new ArrayList<>();
-        List<OptionObject> databaseRequestGroupOptions = Arrays.stream(DatabaseRequestCommandGroup.values())
+        List<OptionObject> databaseRequestGroupOptions = Arrays.stream(values())
                 .map(group -> OptionObject.builder()
                         .text(plainText(group.name()))
                         .value(group.name())
@@ -256,7 +258,7 @@ public class SlackController {
                 )
                 .collect(Collectors.toList());
         blocks.add(slackService.findDatabaseRequestCommandGroupSelects(databaseRequestGroupOptions));
-        List<OptionObject> commandTypeOptions = DatabaseRequestCommandGroup.findDatabaseRequestCommandTypes(EMPTY)
+        List<OptionObject> commandTypeOptions = findDatabaseRequestCommandTypes(EMPTY)
                 .stream()
                 .map(commandType -> OptionObject.builder()
                         .text(plainText(commandType.name()))
