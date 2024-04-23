@@ -2,6 +2,8 @@ package zzangmin.db_automation.controller;
 
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
 import com.slack.api.app_backend.interactive_components.*;
+import com.slack.api.app_backend.util.JsonPayloadExtractor;
+import com.slack.api.app_backend.util.JsonPayloadTypeDetector;
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
@@ -71,33 +73,23 @@ public class SlackController {
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
         slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
-
-
         String decodedPayload = HtmlUtils.htmlUnescape(payload);
-        log.info("slackCallBack payload: {}", payload);
-        BlockActionPayload blockActionPayload = null;
-        try {
-            blockActionPayload = GsonFactory.createSnakeCase()
-                    .fromJson(decodedPayload, BlockActionPayload.class);
-        } catch (Exception e) {
-            log.info("blockActionPayload parse Failed");
-        }
+        log.info("slackCallBack decodedPayload: {}", decodedPayload);
 
-        ViewSubmissionPayload viewSubmissionPayload = null;
-        try {
-            viewSubmissionPayload = GsonFactory.createSnakeCase()
-                    .fromJson(decodedPayload, ViewSubmissionPayload.class);
-        } catch (Exception e) {
-            log.info("viewSubmissionPayload parse Failed");
-        }
-
-        log.info("BlockActionPayload: {}", blockActionPayload);
-        log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
+        // https://slack.dev/java-slack-sdk/guides/shortcuts under the hood
+        JsonPayloadExtractor payloadExtractor = new JsonPayloadExtractor();
+        JsonPayloadTypeDetector typeDetector = new JsonPayloadTypeDetector();
+        String payloadType = typeDetector.detectType(decodedPayload);
 
         View view = null;
         ViewState state;
         List<LayoutBlock> viewBlocks = null;
-        if (blockActionPayload != null) {
+
+        if (payloadType.equals("block_actions")) {
+            BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
+                    .fromJson(decodedPayload, BlockActionPayload.class);
+            log.info("BlockActionPayload: {}", blockActionPayload);
+
             view = blockActionPayload.getView();
             state = view.getState();
             viewBlocks = view.getBlocks();
@@ -128,10 +120,15 @@ public class SlackController {
                     break;
                 }
             }
-        } else if (viewSubmissionPayload != null) {
+        }
+
+        else if (payloadType.equals("view_submission")) {
+            ViewSubmissionPayload viewSubmissionPayload = GsonFactory.createSnakeCase()
+                    .fromJson(decodedPayload, ViewSubmissionPayload.class);
+            log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
+
             view = viewSubmissionPayload.getView();
             state = view.getState();
-            viewBlocks = view.getBlocks();
             if (view.getId().equals(findGlobalRequestModalViewId)) {
                 String selectedCommandTypeName = findCurrentValueFromState(state, findCommandTypeSelectsElementActionId);
                 CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
@@ -139,21 +136,21 @@ public class SlackController {
                 List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
                 viewBlocks = layoutBlocks;
             }
-            // process & close
-            log.info("view submission");
+
+            ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
+                    .view(slackService.findGlobalRequestModalView(viewBlocks))
+                    .viewId(view.getId())
+                    .build();
+            ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
+            log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
+
+
+        } else {
+            throw new IllegalArgumentException("미지원 payload");
         }
-
-
-
-        ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
-                .view(slackService.findGlobalRequestModalView(viewBlocks))
-                .viewId(view.getId())
-                .build();
-        ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
-        log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
-
         return ResponseEntity.ok(true);
     }
+
 
 //    private void handleBlockActionPayload(BlockActionPayload payload) {
 //        List<LayoutBlock> viewBlocks = payload.getView().getBlocks();
