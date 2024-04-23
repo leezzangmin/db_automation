@@ -110,6 +110,7 @@ public class SlackController {
                     break;
                     // https://api.slack.com/surfaces/modals#updating_views
                 } else if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
+                    log.info("request Group Selected");
                     updateOnCommandGroupSelected(viewBlocks, state);
 //                    private void updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
 //                        int commandTypeBlockIndex = findBlockIndex(viewBlocks, "actions", slackService.findCommandTypeSelectsElementActionId);
@@ -171,7 +172,7 @@ public class SlackController {
 //        }
 //    }
 
-    private void updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
+    private List<LayoutBlock> updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
         int commandTypeBlockIndex = findBlockIndex(viewBlocks,
                 "actions",
                 findCommandTypeSelectsElementActionId);
@@ -186,6 +187,7 @@ public class SlackController {
                 )
                 .collect(Collectors.toList());
         viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(commandTypeOptions));
+        return viewBlocks;
     }
 
     private List<LayoutBlock> generateCommandTypeBlocks(CommandType commandType) {

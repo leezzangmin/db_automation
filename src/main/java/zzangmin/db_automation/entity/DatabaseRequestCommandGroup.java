@@ -91,14 +91,17 @@ public enum DatabaseRequestCommandGroup {
     }
 
     public static List<CommandType> findDatabaseRequestCommandTypes(DatabaseRequestCommandGroup targetGroup) {
+        log.info("targetGroup: {}", targetGroup);
         if (targetGroup == null) {
             return DatabaseRequestCommandGroup.EMPTY.commandTypes;
         }
-        return Arrays.stream(DatabaseRequestCommandGroup.values())
-                .filter(group -> Objects.equals(group.name(),targetGroup.name()))
+        List<CommandType> findCommandTypes = Arrays.stream(DatabaseRequestCommandGroup.values())
+                .filter(group -> Objects.equals(group.name(), targetGroup.name()))
                 .findAny()
                 .orElseThrow(() -> new NoSuchElementException())
                 .commandTypes;
+        log.info("findCommandTypes: {}", findCommandTypes);
+        return findCommandTypes;
     }
 
     public static DatabaseRequestCommandGroup findDatabaseRequestCommandGroupByName(String targetGroupName) {
