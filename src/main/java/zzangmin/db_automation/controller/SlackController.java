@@ -124,7 +124,7 @@ public class SlackController {
                     break;
                 }
             }
-        } else if (blockActionPayload != null) {
+        } else if (viewSubmissionPayload != null) {
             if (view.getId().equals(findGlobalRequestModalViewId)) {
                 String selectedCommandTypeName = findCurrentValueFromState(state, findCommandTypeSelectsElementActionId);
                 CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
