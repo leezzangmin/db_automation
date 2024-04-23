@@ -13,8 +13,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public enum DatabaseRequestCommandGroup {
     DDL("ddl",
-            List.of(
-                    CommandType.CREATE_INDEX,
+            List.of(CommandType.CREATE_INDEX,
                     CommandType.CREATE_TABLE,
                     CommandType.ADD_COLUMN,
                     CommandType.ALTER_COLUMN,
@@ -37,6 +36,11 @@ public enum DatabaseRequestCommandGroup {
             List.of(CommandType.CPU_METRIC,
                     CommandType.MEMORY_METRIC,
                     CommandType.HLL_METRIC)),
+    SCHEMA_OBJECT("schema_object",
+            List.of(CommandType.PROCEDURE,
+                    CommandType.FUNCTION,
+                    CommandType.VIEW,
+                    CommandType.TRIGGER)),
     EMPTY("없음",
             List.of(CommandType.EMPTY));
 
@@ -67,6 +71,10 @@ public enum DatabaseRequestCommandGroup {
         CPU_METRIC,
         MEMORY_METRIC,
         HLL_METRIC,
+        PROCEDURE,
+        FUNCTION,
+        VIEW,
+        TRIGGER,
         EMPTY
     }
 
