@@ -288,6 +288,7 @@ public class SlackController {
         log.info("targetValueKey: {}", targetValueKey);
         for (String componentId : values.keySet()) {
             Map<String, ViewState.Value> stringValueMap = values.get(componentId);
+            log.info("stringValueMap: {}", stringValueMap);
             String selectedValue = stringValueMap.get(targetValueKey).getSelectedOption().getValue();
             log.info("selectedValue: {}", selectedValue);
             return selectedValue;
