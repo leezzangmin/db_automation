@@ -131,13 +131,12 @@ public class SlackController {
 
             view = viewSubmissionPayload.getView();
             state = view.getState();
-            if (view.getId().equals(findGlobalRequestModalViewId)) {
-                String selectedCommandTypeName = findCurrentValueFromState(state, findCommandTypeSelectsElementActionId);
-                CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
+            String selectedCommandTypeName = findCurrentValueFromState(state, findCommandTypeSelectsElementActionId);
+            CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
 
-                List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
-                viewBlocks = layoutBlocks;
-            }
+            List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
+            viewBlocks = layoutBlocks;
+
 
         } else {
             throw new IllegalArgumentException("미지원 payload");
