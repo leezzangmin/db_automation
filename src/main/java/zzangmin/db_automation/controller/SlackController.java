@@ -252,6 +252,7 @@ public class SlackController {
         blocks.add(slackService.findDatabaseRequestCommandTypeSelects(commandTypeOptions));
 
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
+
                 .view(slackService.findGlobalRequestModalView(blocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
 
