@@ -3,7 +3,7 @@ package zzangmin.db_automation.parser;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.CommandType;
+import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 
 import java.util.Set;
@@ -12,17 +12,17 @@ import java.util.Set;
 public class DDLParser {
 
     public String commandToSql(DDLRequestDTO ddlRequestDTO) {
-        if (ddlRequestDTO.getCommandType().equals(CommandType.ADD_COLUMN)) {
+        if (ddlRequestDTO.getCommandType().equals(CommandType_old.ADD_COLUMN)) {
             return addColumnCommandToSql((AddColumnRequestDTO) ddlRequestDTO);
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.ALTER_COLUMN)) {
             return alterColumnCommandToSql((AlterColumnRequestDTO) ddlRequestDTO);
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_INDEX)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.CREATE_INDEX)) {
             return createIndexCommandToSql((CreateIndexRequestDTO) ddlRequestDTO);
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_TABLE)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.CREATE_TABLE)) {
             return createTableCommandToSql((CreateTableRequestDTO) ddlRequestDTO);
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.DELETE_COLUMN)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.DELETE_COLUMN)) {
             return deleteColumnCommandToSql((DeleteColumnRequestDTO) ddlRequestDTO);
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.RENAME_COLUMN)) {
             return renameColumnCommandToSql((RenameColumnRequestDTO) ddlRequestDTO);
         }
         throw new IllegalArgumentException("존재하지 않는 명령입니다.");

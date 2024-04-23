@@ -85,7 +85,7 @@ public enum DatabaseRequestCommandGroup {
         CommandType findCommandType = Arrays.stream(CommandType.values())
                 .filter(commandType -> commandType.name().equals(searchTargetCommandTypeName))
                 .findAny()
-                .orElseThrow(() -> new NoSuchElementException())
+                .orElseThrow(() -> new NoSuchElementException());
         log.info("findCommandType: {}", findCommandType);
         return findCommandType;
     }

@@ -25,28 +25,28 @@ public class DDLValidator {
 
 
     public void validateDDLRequest(DatabaseConnectionInfo databaseConnectionInfo, DDLRequestDTO ddlRequestDTO) {
-        if (ddlRequestDTO.getCommandType().equals(CommandType.ADD_COLUMN)) {
+        if (ddlRequestDTO.getCommandType().equals(CommandType_old.ADD_COLUMN)) {
             validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
             return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ALTER_COLUMN)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.ALTER_COLUMN)) {
             validateAlterColumn(databaseConnectionInfo, (AlterColumnRequestDTO) ddlRequestDTO);
             return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_INDEX)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.CREATE_INDEX)) {
             validateCreateIndex(databaseConnectionInfo, (CreateIndexRequestDTO) ddlRequestDTO);
             return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.CREATE_TABLE)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.CREATE_TABLE)) {
             validateCreateTable(databaseConnectionInfo, (CreateTableRequestDTO) ddlRequestDTO);
             return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.ADD_COLUMN)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.ADD_COLUMN)) {
             validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
             return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.DELETE_COLUMN)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.DELETE_COLUMN)) {
             validateDeleteColumn(databaseConnectionInfo, (DeleteColumnRequestDTO) ddlRequestDTO);
             return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.EXTEND_VARCHAR_COLUMN)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.EXTEND_VARCHAR_COLUMN)) {
             validateExtendVarchar(databaseConnectionInfo, (ExtendVarcharColumnRequestDTO) ddlRequestDTO);
             return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType.RENAME_COLUMN)) {
+        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.RENAME_COLUMN)) {
             validateRenameColumn(databaseConnectionInfo, (RenameColumnRequestDTO) ddlRequestDTO);
             return ;
         }

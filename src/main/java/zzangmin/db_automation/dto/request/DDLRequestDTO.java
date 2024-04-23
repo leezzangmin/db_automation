@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import zzangmin.db_automation.entity.CommandType;
+import zzangmin.db_automation.entity.CommandType_old;
 
 
 @ToString
@@ -31,5 +31,5 @@ import zzangmin.db_automation.entity.CommandType;
 })
 public abstract class DDLRequestDTO {
     @NotBlank
-    private CommandType commandType;
+    private CommandType_old commandType;
 }

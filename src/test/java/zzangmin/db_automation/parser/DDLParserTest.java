@@ -4,7 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.CommandType;
+import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 
 import java.util.List;
@@ -21,7 +21,7 @@ class DDLParserTest {
     void testRenameColumnCommandToSql() {
         // given
         DDLRequestDTO dto = new RenameColumnRequestDTO("test_schema", "test_table", "old_column", "new_column");
-        dto.setCommandType(CommandType.RENAME_COLUMN);
+        dto.setCommandType(CommandType_old.RENAME_COLUMN);
         // when
         String sql = ddlParser.commandToSql(dto);
 
@@ -57,9 +57,9 @@ class DDLParserTest {
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
         DDLRequestDTO dto1 = new AddColumnRequestDTO("test_schema", "test_table", column1);
-        dto1.setCommandType(CommandType.ADD_COLUMN);
+        dto1.setCommandType(CommandType_old.ADD_COLUMN);
         DDLRequestDTO dto2 = new AddColumnRequestDTO("test_schema", "test_table", column2);
-        dto2.setCommandType(CommandType.ADD_COLUMN);
+        dto2.setCommandType(CommandType_old.ADD_COLUMN);
         // when
         String sql1 = ddlParser.commandToSql(dto1);
         String sql2 = ddlParser.commandToSql(dto2);
@@ -76,7 +76,7 @@ class DDLParserTest {
     void testCreateIndexCommandToSql() {
         // given
         DDLRequestDTO dto = new CreateIndexRequestDTO("test_schema", "test_table", "test_index", "KEY", List.of("test","index"));
-        dto.setCommandType(CommandType.CREATE_INDEX);
+        dto.setCommandType(CommandType_old.CREATE_INDEX);
         // when
         String sql = ddlParser.commandToSql(dto);
         // then
@@ -122,7 +122,7 @@ class DDLParserTest {
 
         DDLRequestDTO dto = new CreateTableRequestDTO("test_schema", "test_table", Set.of(column1, column2), Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "test table comment");
 
-        dto.setCommandType(CommandType.CREATE_TABLE);
+        dto.setCommandType(CommandType_old.CREATE_TABLE);
         // when
         String sql = ddlParser.commandToSql(dto);
         // then

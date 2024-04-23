@@ -1,6 +1,6 @@
 package zzangmin.db_automation.entity;
 
-public enum CommandType {
+public enum CommandType_old {
     CREATE_INDEX,
     CREATE_TABLE,
     ADD_COLUMN,

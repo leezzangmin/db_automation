@@ -16,7 +16,7 @@ public class ChangeHistory {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
-    private CommandType commandType;
+    private CommandType_old commandType;
     private String databaseIdentifier;
     private String schemaName;
     private String tableName;

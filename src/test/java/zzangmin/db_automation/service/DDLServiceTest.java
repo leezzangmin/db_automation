@@ -11,7 +11,7 @@ import zzangmin.db_automation.testfactory.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.CommandType;
+import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.Table;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
@@ -57,7 +57,7 @@ class DDLServiceTest {
     void extendVarcharColumn() {
         //given
         ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO = new ExtendVarcharColumnRequestDTO("test_schema", "test_table", "name", 50);
-        extendVarcharColumnRequestDTO.setCommandType(CommandType.EXTEND_VARCHAR_COLUMN);
+        extendVarcharColumnRequestDTO.setCommandType(CommandType_old.EXTEND_VARCHAR_COLUMN);
         //when
         ddlService.extendVarcharColumn(backOfficeDatabaseConnectionInfo, extendVarcharColumnRequestDTO);
         //then
@@ -74,7 +74,7 @@ class DDLServiceTest {
         Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
         Constraint constraint2 = new Constraint("UNIQUE KEY", "id", List.of("id"));
         CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", Set.of(column1), Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
-        createTableRequestDTO.setCommandType(CommandType.CREATE_TABLE);
+        createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
         //when
         ddlService.createTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO);
         //then
@@ -109,7 +109,7 @@ class DDLServiceTest {
     void createIndex() {
         //given
         CreateIndexRequestDTO createIndexRequestDTO = new CreateIndexRequestDTO(schemaName, "test_table", "id_name", "KEY", List.of("id", "name"));
-        createIndexRequestDTO.setCommandType(CommandType.CREATE_INDEX);
+        createIndexRequestDTO.setCommandType(CommandType_old.CREATE_INDEX);
         //when
         ddlService.createIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO);
         //then
@@ -123,7 +123,7 @@ class DDLServiceTest {
         //given
         Column column = new Column("add", "INT", false, null, false, false, "add column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
-        addColumnRequestDTO.setCommandType(CommandType.ADD_COLUMN);
+        addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
         //when
         ddlService.addColumn(backOfficeDatabaseConnectionInfo, addColumnRequestDTO);
         //then
@@ -143,7 +143,7 @@ class DDLServiceTest {
     void deleteColumn() {
         //given
         DeleteColumnRequestDTO deleteColumnRequestDTO = new DeleteColumnRequestDTO(schemaName, "test_table", "name");
-        deleteColumnRequestDTO.setCommandType(CommandType.DELETE_COLUMN);
+        deleteColumnRequestDTO.setCommandType(CommandType_old.DELETE_COLUMN);
         //when
         ddlService.deleteColumn(backOfficeDatabaseConnectionInfo, deleteColumnRequestDTO);
         //then
@@ -157,7 +157,7 @@ class DDLServiceTest {
         //given
         Column column = new Column("name", "VARCHAR(255)", false, null, false, false, "alter column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         AlterColumnRequestDTO alterColumnRequestDTO = new AlterColumnRequestDTO(schemaName, "test_table", "name", column);
-        alterColumnRequestDTO.setCommandType(CommandType.ALTER_COLUMN);
+        alterColumnRequestDTO.setCommandType(CommandType_old.ALTER_COLUMN);
         //when
         ddlService.alterColumn(backOfficeDatabaseConnectionInfo, alterColumnRequestDTO);
         //then
@@ -177,7 +177,7 @@ class DDLServiceTest {
     void renameColumn() {
         //given
         RenameColumnRequestDTO renameColumnRequestDTO = new RenameColumnRequestDTO(schemaName, "test_table", "name", "rename");
-        renameColumnRequestDTO.setCommandType(CommandType.RENAME_COLUMN);
+        renameColumnRequestDTO.setCommandType(CommandType_old.RENAME_COLUMN);
         //when
         ddlService.renameColumn(backOfficeDatabaseConnectionInfo, renameColumnRequestDTO);
         //then

@@ -3,9 +3,6 @@ package zzangmin.db_automation.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Getter
 @Entity
 public class DDLCommand {
@@ -13,7 +10,7 @@ public class DDLCommand {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
-    private CommandType CommandType;
+    private CommandType_old CommandType;
     private String schemaName;
     private String tableName;
 //    private List<Column> columns = new ArrayList<>();
