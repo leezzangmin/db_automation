@@ -112,7 +112,7 @@ public class SlackController {
                 } else if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
                     log.info("request Group Selected");
                     updateOnCommandGroupSelected(viewBlocks, state);
-                    log.info("viewBlocks2: {}", viewBlocks);
+                    log.info("viewBlocks: {}", viewBlocks);
 //                    private void updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
 //                        int commandTypeBlockIndex = findBlockIndex(viewBlocks, "actions", slackService.findCommandTypeSelectsElementActionId);
 //                        String selectedDatabaseRequestGroupName = findCurrentValueFromState(state, slackService.findDatabaseRequestCommandGroupSelectsElementActionId);
@@ -139,17 +139,17 @@ public class SlackController {
                 viewBlocks = layoutBlocks;
             }
 
-            ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
-                    .view(slackService.findGlobalRequestModalView(viewBlocks))
-                    .viewId(view.getId())
-                    .build();
-            ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
-            log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
-
-
         } else {
             throw new IllegalArgumentException("미지원 payload");
         }
+
+        ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
+                .view(slackService.findGlobalRequestModalView(viewBlocks))
+                .viewId(view.getId())
+                .build();
+        ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
+        log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
+
         return ResponseEntity.ok(true);
     }
 
@@ -188,7 +188,6 @@ public class SlackController {
                 )
                 .collect(Collectors.toList());
         viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(commandTypeOptions));
-        log.info("viewBlocks: {}", viewBlocks);
         return viewBlocks;
     }
 
