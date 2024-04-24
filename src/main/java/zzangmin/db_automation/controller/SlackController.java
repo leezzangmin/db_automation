@@ -1,8 +1,6 @@
 package zzangmin.db_automation.controller;
 
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.app_backend.interactive_components.*;
-import com.slack.api.app_backend.util.JsonPayloadExtractor;
 import com.slack.api.app_backend.util.JsonPayloadTypeDetector;
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.methods.MethodsClient;
@@ -12,7 +10,6 @@ import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.methods.response.views.ViewsUpdateResponse;
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
@@ -35,9 +32,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
-import static com.slack.api.model.block.Blocks.actions;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
-import static com.slack.api.model.block.element.BlockElements.asElements;
 import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 
 @Slf4j
@@ -77,7 +72,6 @@ public class SlackController {
         log.info("slackCallBack decodedPayload: {}", decodedPayload);
 
         // https://slack.dev/java-slack-sdk/guides/shortcuts under the hood
-        JsonPayloadExtractor payloadExtractor = new JsonPayloadExtractor();
         JsonPayloadTypeDetector typeDetector = new JsonPayloadTypeDetector();
         String payloadType = typeDetector.detectType(decodedPayload);
 
@@ -97,12 +91,21 @@ public class SlackController {
             for (Action action : actions) {
                 log.info("action: {}", action);
                 if (action.getActionId().equals(findClusterSelectsElementActionId)) {
-//                    String DBMSName = findCurrentValueFromState(state, findClusterSelectsElementActionId);
-//                    log.info("DBMSName: {}", DBMSName);
-//                    ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
-//                    ActionsBlock schemaSelects2 = BasicBlockFactory.findStaticSelectsBlock(findSchemaSelectsElementActionId, );
-//                    log.info("schemaSelects: {}", schemaSelects);
-//                    viewBlocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
+                    String DBMSName = findCurrentValueFromState(state, findClusterSelectsElementActionId);
+                    log.info("DBMSName: {}", DBMSName);
+                    DatabaseConnectionInfo databaseConnectionInfo = dataSourceProperties.findByDbName(DBMSName);
+                    List<OptionObject> schemaNameOptions = describeService.findSchemaNames(databaseConnectionInfo)
+                            .getSchemaNames()
+                            .stream()
+                            .map(schemaName -> OptionObject.builder()
+                                    .value(schemaName)
+                                    .text(plainText(schemaName))
+                                    .build())
+                            .collect(Collectors.toList());
+                    ActionsBlock schemaSelects = slackService.findSchemaSelects(schemaNameOptions);
+                    log.info("schemaSelects: {}", schemaSelects);
+                    int schemaSelectIndex = findBlockIndex(viewBlocks, "actions", findSchemaSelectsElementActionId);
+                    viewBlocks.set(schemaSelectIndex, schemaSelects);
                     break;
                 } else if (action.getActionId().equals(findCommandTypeSelectsElementActionId)) {
                     log.info("commandType Selected");
