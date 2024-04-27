@@ -2,7 +2,7 @@ package zzangmin.db_automation.slackview;
 
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.element.StaticSelectElement;
+import com.slack.api.model.block.element.*;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewSubmit;
 import com.slack.api.model.view.ViewTitle;
@@ -16,15 +16,15 @@ import static com.slack.api.model.block.element.BlockElements.*;
 
 public class BasicBlockFactory {
 
-    public static InputBlock findMultilinePlainTextInput(String id, String label, String placeholder) {
-        return input(input -> input
-                .element(plainTextInput(pti -> pti.actionId(id)
-                        .multiline(true)
-                        .placeholder(plainText(placeholder))
-                ))
-                .label(plainText(label))
-                .blockId(id));
-    }
+//    public static InputBlock findMultilinePlainTextInput(String id, String label, String placeholder) {
+//        return input(input -> input
+//                .element(plainTextInput(pti -> pti.actionId(id)
+//                        .multiline(true)
+//                        .placeholder(plainText(placeholder))
+//                ), richTextPreformatted(pt -> pt.))
+//                .label(plainText(label))
+//                .blockId(id));
+//    }
 
     public static ActionsBlock findSubmitButton(String id, String text, String value) {
         return actions(actions -> actions
@@ -76,13 +76,32 @@ public class BasicBlockFactory {
                 .build();
     }
 
-    public SectionBlock getTextSection(String text, String textSectionBlockId) {
+    public static SectionBlock getTextSection(String text, String textSectionBlockId) {
         SectionBlock sectionBlock = section(section -> section.text(plainText(text))
                 .blockId(textSectionBlockId));
         return sectionBlock;
     }
 
-    public DividerBlock getDivider(String dividerBlockId) {
+    public static InputBlock getLabelBLock(String labelText, String labelId) {
+        InputBlock labelBlock = InputBlock.builder()
+                .label(plainText(labelText))
+                .blockId(labelId)
+                .build();
+        return labelBlock;
+    }
+
+
+    /**
+     * rich text는 developer에게 지원되지 않음
+     *
+     */
+    // https://github.com/slackapi/java-slack-sdk/issues/876
+    // https://github.com/slackapi/java-slack-sdk/issues/736
+//    public static RichTextBlock getRichText(String text, String richTextBlockId) {
+//
+//    }
+
+    public static DividerBlock getDivider(String dividerBlockId) {
         DividerBlock divider = divider();
         divider.setBlockId(dividerBlockId);
         return divider;

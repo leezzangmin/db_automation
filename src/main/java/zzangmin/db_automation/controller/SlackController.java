@@ -46,8 +46,14 @@ public class SlackController {
     private final SlackService slackService;
     private final SlackRequestSignatureVerifier slackRequestSignatureVerifier;
 
+
+    public static String tableSchemaLabelId = "tableSchemaLabel";
+    public static String tableSchemaTextId = "tableSchemaText";
+
+
     public static String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
     public static String findClusterSelectsElementActionId = "selectClusterName";
+    public static String findTableSelectsElementActionId = "selectTableName";
     public static String findSchemaSelectsElementActionId = "selectSchemaName";
     public static String findSubmitButtonActionId = "submitButton";
     public static String findPlainTextInputActionId = "plainTextInput";
@@ -91,7 +97,7 @@ public class SlackController {
             for (Action action : actions) {
                 log.info("action: {}", action);
                 if (action.getActionId().equals(findClusterSelectsElementActionId)) {
-                    String DBMSName = findCurrentValueFromState(state, findClusterSelectsElementActionId);
+                    String DBMSName = SlackService.findCurrentValueFromState(state.getValues(), findClusterSelectsElementActionId);
                     log.info("DBMSName: {}", DBMSName);
                     DatabaseConnectionInfo databaseConnectionInfo = dataSourceProperties.findByDbName(DBMSName);
                     List<OptionObject> schemaNameOptions = describeService.findSchemaNames(databaseConnectionInfo)
@@ -104,14 +110,9 @@ public class SlackController {
                             .collect(Collectors.toList());
                     ActionsBlock schemaSelects = slackService.findSchemaSelects(schemaNameOptions);
                     log.info("schemaSelects: {}", schemaSelects);
-                    int schemaSelectIndex = findBlockIndex(viewBlocks, "actions", findSchemaSelectsElementActionId);
+                    int schemaSelectIndex = SlackService.findBlockIndex(viewBlocks, "actions", findSchemaSelectsElementActionId);
                     viewBlocks.set(schemaSelectIndex, schemaSelects);
                     break;
-                } else if (action.getActionId().equals(findCommandTypeSelectsElementActionId)) {
-                    log.info("commandType Selected");
-
-                    break;
-                    // https://api.slack.com/surfaces/modals#updating_views
                 } else if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
                     log.info("request Group Selected");
                     updateOnCommandGroupSelected(viewBlocks, state);
@@ -123,6 +124,15 @@ public class SlackController {
 //                        viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(selectedDatabaseRequestGroup));
 //                    }
                     break;
+                } else if (action.getActionId().equals(findCommandTypeSelectsElementActionId)) {
+                    log.info("commandType Selected");
+                    String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
+                    CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
+
+                    List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
+                    viewBlocks = layoutBlocks;
+                    break;
+                    // https://api.slack.com/surfaces/modals#updating_views
                 }
             }
         }
@@ -134,7 +144,7 @@ public class SlackController {
 
             view = viewSubmissionPayload.getView();
             state = view.getState();
-            String selectedCommandTypeName = findCurrentValueFromState(state, findCommandTypeSelectsElementActionId);
+            String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
             CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
 
             List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
@@ -176,10 +186,10 @@ public class SlackController {
 //    }
 
     private List<LayoutBlock> updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
-        int commandTypeBlockIndex = findBlockIndex(viewBlocks,
+        int commandTypeBlockIndex = SlackService.findBlockIndex(viewBlocks,
                 "actions",
                 findCommandTypeSelectsElementActionId);
-        String selectedDatabaseRequestGroupName = findCurrentValueFromState(state, findDatabaseRequestCommandGroupSelectsElementActionId);
+        String selectedDatabaseRequestGroupName = SlackService.findCurrentValueFromState(state.getValues(), findDatabaseRequestCommandGroupSelectsElementActionId);
         DatabaseRequestCommandGroup selectedDatabaseRequestGroup = findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
         List<OptionObject> commandTypeOptions = findDatabaseRequestCommandTypes(selectedDatabaseRequestGroup)
                 .stream()
@@ -285,51 +295,6 @@ public class SlackController {
         return "<@" + userName + ">";
     }
 
-    private String findCurrentValueFromState(ViewState viewState, String targetValueKey) {
-        Map<String, Map<String, ViewState.Value>> values = viewState.getValues();
-        log.info("values: {}", values);
-        log.info("targetValueKey: {}", targetValueKey);
-        for (String componentId : values.keySet()) {
-            if (componentId.equals(targetValueKey)) {
-                Map<String, ViewState.Value> stringValueMap = values.get(componentId);
-                log.info("stringValueMap: {}", stringValueMap);
-                String selectedValue = stringValueMap.get(targetValueKey).getSelectedOption().getValue();
-                log.info("selectedValue: {}", selectedValue);
-                return selectedValue;
-            }
-        }
-        throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
-    }
 
-    private int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blockId) {
-        for (int i = 0; i < blocks.size(); i++) {
-            LayoutBlock block = blocks.get(i);
-
-            if (block instanceof ActionsBlock) {
-                ActionsBlock childBlock = (ActionsBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else if (block instanceof SectionBlock) {
-                SectionBlock childBlock = (SectionBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else if (block instanceof DividerBlock) {
-                DividerBlock childBlock = (DividerBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else if (block instanceof InputBlock) {
-                InputBlock childBlock = (InputBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else {
-                throw new IllegalArgumentException("지원하지 않는 LayoutBlock 하위 클래스 입니다.");
-            }
-        }
-        throw new IllegalArgumentException("해당 block 이 존재하지 않습니다.");
-    }
 
 }

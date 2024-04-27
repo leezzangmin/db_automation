@@ -19,33 +19,33 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-configuration-processor'
-	implementation 'org.springframework.boot:spring-boot-starter-aop'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.mockito:mockito-core'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.5'
+	implementation 'org.springframework.boot:spring-boot-starter-validation:3.2.5'
+	implementation 'org.springframework.boot:spring-boot-starter-web:3.2.5'
+	implementation 'org.springframework.boot:spring-boot-configuration-processor:3.2.5'
+	implementation 'org.springframework.boot:spring-boot-starter-aop:3.2.5'
+	compileOnly 'org.projectlombok:lombok:1.18.32'
+	runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
+	annotationProcessor 'org.projectlombok:lombok:1.18.32'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.5'
+	testImplementation 'org.mockito:mockito-core:5.11.0'
 
 	// aws sdk for java
-	implementation 'software.amazon.awssdk:ssm:2.16.80'
-	implementation 'software.amazon.awssdk:cloudwatch:2.16.80'
-	implementation 'software.amazon.awssdk:rds:2.16.80'
-	implementation 'software.amazon.awssdk:pi:2.16.80'
-	implementation 'software.amazon.awssdk:secretsmanager:2.16.80'
-	implementation 'software.amazon.awssdk:core:2.16.80'
+	implementation 'software.amazon.awssdk:ssm:2.25.39'
+	implementation 'software.amazon.awssdk:cloudwatch:2.25.39'
+	implementation 'software.amazon.awssdk:rds:2.25.39'
+	implementation 'software.amazon.awssdk:pi:2.25.39'
+	implementation 'software.amazon.awssdk:secretsmanager:2.25.39'
+	implementation 'software.amazon.awssdk:core:2.25.39'
 
 	implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
 
 	// slack
-	implementation 'com.google.code.gson:gson:2.8.6'
+	implementation 'com.google.code.gson:gson:2.8.9'
 	implementation 'com.squareup.okhttp3:okhttp:4.2.0'
-	implementation 'com.slack.api:slack-app-backend:1.6.2'
-	implementation 'com.slack.api:slack-api-model:1.6.2'
-	implementation 'com.slack.api:slack-api-client:1.6.2'
+	implementation 'com.slack.api:slack-app-backend:1.38.3'
+	implementation 'com.slack.api:slack-api-model:1.38.3'
+	implementation 'com.slack.api:slack-api-client:1.38.3'
 
 	// signature hex
 	implementation 'commons-codec:commons-codec:1.15'

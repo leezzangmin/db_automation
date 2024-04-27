@@ -8,6 +8,7 @@ import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
+import com.slack.api.model.view.ViewState;
 import com.slack.api.model.view.ViewSubmit;
 import com.slack.api.model.view.ViewTitle;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import zzangmin.db_automation.slackview.BasicBlockFactory;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.*;
@@ -161,6 +163,51 @@ public class SlackService {
         }
     }
 
+    public static int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blockId) {
+        for (int i = 0; i < blocks.size(); i++) {
+            LayoutBlock block = blocks.get(i);
+
+            if (block instanceof ActionsBlock) {
+                ActionsBlock childBlock = (ActionsBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
+            } else if (block instanceof SectionBlock) {
+                SectionBlock childBlock = (SectionBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
+            } else if (block instanceof DividerBlock) {
+                DividerBlock childBlock = (DividerBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
+            } else if (block instanceof InputBlock) {
+                InputBlock childBlock = (InputBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
+            } else {
+                throw new IllegalArgumentException("지원하지 않는 LayoutBlock 하위 클래스 입니다.");
+            }
+        }
+        throw new IllegalArgumentException("해당 block 이 존재하지 않습니다.");
+    }
+
+    public static String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
+        log.info("values: {}", values);
+        log.info("targetValueKey: {}", targetValueKey);
+        for (String componentId : values.keySet()) {
+            if (componentId.equals(targetValueKey)) {
+                Map<String, ViewState.Value> stringValueMap = values.get(componentId);
+                log.info("stringValueMap: {}", stringValueMap);
+                String selectedValue = stringValueMap.get(targetValueKey).getSelectedOption().getValue();
+                log.info("selectedValue: {}", selectedValue);
+                return selectedValue;
+            }
+        }
+        throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
+    }
 
 
 
