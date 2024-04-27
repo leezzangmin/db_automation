@@ -87,25 +87,24 @@ public class SlackController {
             state = view.getState();
             viewBlocks = view.getBlocks();
             List<Action> actions = blockActionPayload.getActions();
+
             for (Action action : actions) {
                 log.info("action: {}", action);
                 if (action.getActionId().equals(findClusterSelectsElementActionId)) {
                     viewBlocks = selectClusterSchemaTable.handleClusterChange(viewBlocks, state.getValues());
+                    log.info("{} viewBlock: {}", findClusterSelectsElementActionId, viewBlocks);
                     break;
                 } else if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
-                    log.info("request Group Selected");
                     viewBlocks = SelectCommand.handleCommandGroupChange(viewBlocks, state.getValues());
-                    log.info("viewBlocks: {}", viewBlocks);
+                    log.info("{} viewBlock: {}", findDatabaseRequestCommandGroupSelectsElementActionId, viewBlocks);
                     break;
                 } else if (action.getActionId().equals(findCommandTypeSelectsElementActionId)) {
-                    log.info("commandType Selected");
                     String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
                     CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
 
-                    List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
-                    viewBlocks = layoutBlocks;
+                    viewBlocks = generateCommandTypeBlocks(findCommandType);
+                    log.info("{} viewBlock: {}", findCommandTypeSelectsElementActionId, viewBlocks);
                     break;
-                    // https://api.slack.com/surfaces/modals#updating_views
                 }
             }
         }
@@ -128,6 +127,9 @@ public class SlackController {
             throw new IllegalArgumentException("미지원 payload");
         }
 
+        for (LayoutBlock viewBlock : viewBlocks) {
+            log.info("viewBlock: {}", viewBlock);
+        }
         ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
                 .view(slackService.findGlobalRequestModalView(viewBlocks))
                 .viewId(view.getId())
