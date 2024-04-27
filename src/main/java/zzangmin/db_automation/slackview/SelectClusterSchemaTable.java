@@ -133,12 +133,14 @@ public class SelectClusterSchemaTable {
             selectTableNameBlockIndex = SlackService.findBlockIndex(currentBlocks, "section", SlackController.tableSchemaTextId);
         } catch (Exception e) {
             log.info("테이블 최초 선택");
+            return currentBlocks;
         }
         String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = dataSourceProperties.findByDbName(selectedDBMSName);
         String selectedSchemaName = SlackService.findCurrentValueFromState(values, SlackController.findSchemaSelectsElementActionId);
         String selectedTableName = SlackService.findCurrentValueFromState(values, SlackController.findTableSelectsElementActionId);
-        currentBlocks.set(selectTableNameBlockIndex, fetchTableSchemaBlocks(selectedDatabaseConnectionInfo, selectedSchemaName, selectedTableName).get(1));
+        SectionBlock tableSchema = (SectionBlock) fetchTableSchemaBlocks(selectedDatabaseConnectionInfo, selectedSchemaName, selectedTableName).get(1);
+        currentBlocks.add(tableSchema);
         return currentBlocks;
     }
 
