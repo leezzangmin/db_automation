@@ -84,11 +84,7 @@ public class SlackController {
 
             for (Action action : actions) {
                 log.info("action: {}", action);
-                if (action.getActionId().equals(findClusterSelectsElementActionId)) {
-                    viewBlocks = selectClusterSchemaTable.handleClusterChange(viewBlocks, state.getValues());
-                    log.info("{} viewBlock: {}", findClusterSelectsElementActionId, viewBlocks);
-                    break;
-                } else if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
+                if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
                     viewBlocks = SelectCommand.handleCommandGroupChange(viewBlocks, state.getValues());
                     log.info("{} viewBlock: {}", findDatabaseRequestCommandGroupSelectsElementActionId, viewBlocks);
                     break;
@@ -99,8 +95,19 @@ public class SlackController {
                     viewBlocks = generateCommandTypeBlocks(findCommandType);
                     log.info("{} viewBlock: {}", findCommandTypeSelectsElementActionId, viewBlocks);
                     break;
-                } else if (action.getActionId().equals(findTableSelectsElementActionId)) {
+                } else if (action.getActionId().equals(findClusterSelectsElementActionId)) {
+                    viewBlocks = selectClusterSchemaTable.handleClusterChange(viewBlocks, state.getValues());
+                    log.info("{} viewBlock: {}", findClusterSelectsElementActionId, viewBlocks);
+                    break;
+                } else if (action.getActionId().equals(findSchemaSelectsElementActionId)) {
+                    viewBlocks = selectClusterSchemaTable.handleSchemaChange(viewBlocks, state.getValues());
+                    log.info("{} viewBlock: {}", findSchemaSelectsElementActionId, viewBlocks);
+                    break;
+                }
+                else if (action.getActionId().equals(findTableSelectsElementActionId)) {
                     viewBlocks = selectClusterSchemaTable.handleTableChange(viewBlocks, state.getValues());
+                    log.info("{} viewBlock: {}", findTableSelectsElementActionId, viewBlocks);
+                    break;
                 }
             }
         }
