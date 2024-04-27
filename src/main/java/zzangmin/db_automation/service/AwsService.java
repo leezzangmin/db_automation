@@ -2,11 +2,11 @@ package zzangmin.db_automation.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.cloudwatch.model.*;
+import software.amazon.awssdk.services.cloudwatch.model.Metric;
 import software.amazon.awssdk.services.pi.PiClient;
 import software.amazon.awssdk.services.pi.model.GetResourceMetricsRequest;
 import software.amazon.awssdk.services.pi.model.GetResourceMetricsResponse;
