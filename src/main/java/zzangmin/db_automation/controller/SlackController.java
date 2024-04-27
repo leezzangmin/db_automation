@@ -9,7 +9,6 @@ import com.slack.api.methods.request.views.ViewsUpdateRequest;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.methods.response.views.ViewsUpdateResponse;
 import com.slack.api.model.block.*;
-import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
@@ -19,21 +18,15 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
-import zzangmin.db_automation.config.DynamicDataSourceProperties;
-import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.security.SlackRequestSignatureVerifier;
-import zzangmin.db_automation.service.DescribeService;
+
 import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.BasicBlockFactory;
+import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
 import zzangmin.db_automation.slackview.SelectCommand;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
-import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 
 @Slf4j
@@ -41,12 +34,11 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 @RestController
 public class SlackController {
 
-    private final DescribeService describeService;
-    private final DynamicDataSourceProperties dataSourceProperties;
     private final MethodsClient slackClient;
     private final SlackService slackService;
-    private final SlackRequestSignatureVerifier slackRequestSignatureVerifier;
 
+
+    private final SelectClusterSchemaTable selectClusterSchemaTable;
 
     public static String tableSchemaLabelId = "tableSchemaLabel";
     public static String tableSchemaTextId = "tableSchemaText";
@@ -74,7 +66,7 @@ public class SlackController {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
-        slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
+        slackService.validateRequest(slackSignature, timestamp, requestBody);
         String decodedPayload = HtmlUtils.htmlUnescape(payload);
         log.info("slackCallBack decodedPayload: {}", decodedPayload);
 
@@ -98,32 +90,12 @@ public class SlackController {
             for (Action action : actions) {
                 log.info("action: {}", action);
                 if (action.getActionId().equals(findClusterSelectsElementActionId)) {
-                    String DBMSName = SlackService.findCurrentValueFromState(state.getValues(), findClusterSelectsElementActionId);
-                    log.info("DBMSName: {}", DBMSName);
-                    DatabaseConnectionInfo databaseConnectionInfo = dataSourceProperties.findByDbName(DBMSName);
-                    List<OptionObject> schemaNameOptions = describeService.findSchemaNames(databaseConnectionInfo)
-                            .getSchemaNames()
-                            .stream()
-                            .map(schemaName -> OptionObject.builder()
-                                    .value(schemaName)
-                                    .text(plainText(schemaName))
-                                    .build())
-                            .collect(Collectors.toList());
-                    ActionsBlock schemaSelects = slackService.findSchemaSelects(schemaNameOptions);
-                    log.info("schemaSelects: {}", schemaSelects);
-                    int schemaSelectIndex = SlackService.findBlockIndex(viewBlocks, "actions", findSchemaSelectsElementActionId);
-                    viewBlocks.set(schemaSelectIndex, schemaSelects);
+                    viewBlocks = selectClusterSchemaTable.handleClusterChange(viewBlocks, state.getValues());
                     break;
                 } else if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
                     log.info("request Group Selected");
                     viewBlocks = SelectCommand.handleCommandGroupChange(viewBlocks, state.getValues());
                     log.info("viewBlocks: {}", viewBlocks);
-//                    private void updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
-//                        int commandTypeBlockIndex = findBlockIndex(viewBlocks, "actions", slackService.findCommandTypeSelectsElementActionId);
-//                        String selectedDatabaseRequestGroupName = findCurrentValueFromState(state, slackService.findDatabaseRequestCommandGroupSelectsElementActionId);
-//                        DatabaseRequestCommandGroup selectedDatabaseRequestGroup = DatabaseRequestCommandGroup.findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
-//                        viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(selectedDatabaseRequestGroup));
-//                    }
                     break;
                 } else if (action.getActionId().equals(findCommandTypeSelectsElementActionId)) {
                     log.info("commandType Selected");
@@ -208,20 +180,20 @@ public class SlackController {
         List<LayoutBlock> blocks = new ArrayList<>();
         if (commandType.equals(CommandType.CREATE_INDEX)) {
             // generate createindexblock and add to blocks
-            List<OptionObject> clusterOptions = describeService.findDBMSNames()
-                    .getDbmsNames()
-                    .stream()
-                    .map(dbmsName -> OptionObject.builder()
-                            .text(plainText(dbmsName))
-                            .value(dbmsName)
-                            .build()
-                    )
-                    .collect(Collectors.toList());
-            blocks.add(slackService.findClusterSelectsBlock(clusterOptions));
+//            List<OptionObject> clusterOptions = describeService.findDBMSNames()
+//                    .getDbmsNames()
+//                    .stream()
+//                    .map(dbmsName -> OptionObject.builder()
+//                            .text(plainText(dbmsName))
+//                            .value(dbmsName)
+//                            .build()
+//                    )
+//                    .collect(Collectors.toList());
+            blocks.addAll(selectClusterSchemaTable.selectClusterSchemaTableBlocks());
 
-            List<OptionObject> emptyOptions = BasicBlockFactory.generateEmptyOptionObjects();
-
-            blocks.add(slackService.findSchemaSelects(emptyOptions));
+//            List<OptionObject> emptyOptions = BasicBlockFactory.generateEmptyOptionObjects();
+//
+//            blocks.add(slackService.findSchemaSelects(emptyOptions));
         } else if (commandType.equals(CommandType.CREATE_TABLE)) {
             // generate createtableblock and add to blocks
         } else if (commandType.equals(CommandType.ADD_COLUMN)) {
@@ -264,7 +236,7 @@ public class SlackController {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
-        slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
+        slackService.validateRequest(slackSignature, timestamp, requestBody);
 
         List<LayoutBlock> blocks = SelectCommand.selectCommandGroupAndCommandTypeBlocks();
 

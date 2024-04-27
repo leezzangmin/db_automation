@@ -13,11 +13,15 @@ import com.slack.api.model.view.ViewSubmit;
 import com.slack.api.model.view.ViewTitle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Service;
+import zzangmin.db_automation.config.SlackConfig;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -209,8 +213,26 @@ public class SlackService {
         throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
     }
 
+    public void validateRequest(String slackSignature, String timestamp, String requestBody) {
+        try {
+            String secret = SlackConfig.slackAppSigningSecret;
+            String baseString = "v0:" + timestamp + ":" + requestBody;
 
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secretKey);
 
+            byte[] hash = mac.doFinal(baseString.getBytes());
+            String mySignature = "v0=" + Hex.encodeHexString(hash);
+
+            if (!mySignature.equals(slackSignature)) {
+                throw new IllegalArgumentException("http 요청 검증 실패");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("http 요청 검증 실패");
+        }
+    }
 
 
 
