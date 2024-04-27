@@ -69,19 +69,19 @@ public class SlackService {
      * STANDARD - parameter, schema, configs
      * METRIC - cpu, memory, hll
       */
-    public ActionsBlock findDatabaseRequestCommandGroupSelects(List<OptionObject> databaseRequestGroupOptions) {
-        String findCommandGroupPlaceholder = "select database command group";
-        return BasicBlockFactory.findStaticSelectsBlock(findDatabaseRequestCommandGroupSelectsElementActionId,
-                databaseRequestGroupOptions,
-                findCommandGroupPlaceholder);
-    }
+//    public ActionsBlock findDatabaseRequestCommandGroupSelects(List<OptionObject> databaseRequestGroupOptions) {
+//        String findCommandGroupPlaceholder = "select database command group";
+//        return BasicBlockFactory.findStaticSelectsBlock(findDatabaseRequestCommandGroupSelectsElementActionId,
+//                databaseRequestGroupOptions,
+//                findCommandGroupPlaceholder);
+//    }
 
-    public ActionsBlock findDatabaseRequestCommandTypeSelects(List<OptionObject> commandTypeOptions) {
-        String findCommandTypePlaceholder = "select database command type";
-        return BasicBlockFactory.findStaticSelectsBlock(findCommandTypeSelectsElementActionId,
-                commandTypeOptions,
-                findCommandTypePlaceholder);
-    }
+//    public ActionsBlock findDatabaseRequestCommandTypeSelects(List<OptionObject> commandTypeOptions) {
+//        String findCommandTypePlaceholder = "select database command type";
+//        return BasicBlockFactory.findStaticSelectsBlock(findCommandTypeSelectsElementActionId,
+//                commandTypeOptions,
+//                findCommandTypePlaceholder);
+//    }
 
     public View findGlobalRequestModalView(List<LayoutBlock> blocks) {
         return View.builder()

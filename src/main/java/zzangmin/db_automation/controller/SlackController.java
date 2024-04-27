@@ -26,6 +26,7 @@ import zzangmin.db_automation.security.SlackRequestSignatureVerifier;
 import zzangmin.db_automation.service.DescribeService;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
+import zzangmin.db_automation.slackview.SelectCommand;
 
 import java.io.IOException;
 import java.util.*;
@@ -115,7 +116,7 @@ public class SlackController {
                     break;
                 } else if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
                     log.info("request Group Selected");
-                    updateOnCommandGroupSelected(viewBlocks, state);
+                    viewBlocks = SelectCommand.handleCommandGroupChange(viewBlocks, state.getValues());
                     log.info("viewBlocks: {}", viewBlocks);
 //                    private void updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
 //                        int commandTypeBlockIndex = findBlockIndex(viewBlocks, "actions", slackService.findCommandTypeSelectsElementActionId);
@@ -185,23 +186,23 @@ public class SlackController {
 //        }
 //    }
 
-    private List<LayoutBlock> updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
-        int commandTypeBlockIndex = SlackService.findBlockIndex(viewBlocks,
-                "actions",
-                findCommandTypeSelectsElementActionId);
-        String selectedDatabaseRequestGroupName = SlackService.findCurrentValueFromState(state.getValues(), findDatabaseRequestCommandGroupSelectsElementActionId);
-        DatabaseRequestCommandGroup selectedDatabaseRequestGroup = findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
-        List<OptionObject> commandTypeOptions = findDatabaseRequestCommandTypes(selectedDatabaseRequestGroup)
-                .stream()
-                .map(commandType -> OptionObject.builder()
-                        .text(plainText(commandType.name()))
-                        .value(commandType.name())
-                        .build()
-                )
-                .collect(Collectors.toList());
-        viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(commandTypeOptions));
-        return viewBlocks;
-    }
+//    private List<LayoutBlock> updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
+//        int commandTypeBlockIndex = SlackService.findBlockIndex(viewBlocks,
+//                "actions",
+//                findCommandTypeSelectsElementActionId);
+//        String selectedDatabaseRequestGroupName = SlackService.findCurrentValueFromState(state.getValues(), findDatabaseRequestCommandGroupSelectsElementActionId);
+//        DatabaseRequestCommandGroup selectedDatabaseRequestGroup = findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
+//        List<OptionObject> commandTypeOptions = findDatabaseRequestCommandTypes(selectedDatabaseRequestGroup)
+//                .stream()
+//                .map(commandType -> OptionObject.builder()
+//                        .text(plainText(commandType.name()))
+//                        .value(commandType.name())
+//                        .build()
+//                )
+//                .collect(Collectors.toList());
+//        viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(commandTypeOptions));
+//        return viewBlocks;
+//    }
 
     private List<LayoutBlock> generateCommandTypeBlocks(CommandType commandType) {
         List<LayoutBlock> blocks = new ArrayList<>();
@@ -265,27 +266,9 @@ public class SlackController {
         log.info("timestamp: {}", timestamp);
         slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
 
-        List<LayoutBlock> blocks = new ArrayList<>();
-        List<OptionObject> databaseRequestGroupOptions = Arrays.stream(values())
-                .map(group -> OptionObject.builder()
-                        .text(plainText(group.name()))
-                        .value(group.name())
-                        .build()
-                )
-                .collect(Collectors.toList());
-        blocks.add(slackService.findDatabaseRequestCommandGroupSelects(databaseRequestGroupOptions));
-        List<OptionObject> commandTypeOptions = findDatabaseRequestCommandTypes(EMPTY)
-                .stream()
-                .map(commandType -> OptionObject.builder()
-                        .text(plainText(commandType.name()))
-                        .value(commandType.name())
-                        .build()
-                )
-                .collect(Collectors.toList());
-        blocks.add(slackService.findDatabaseRequestCommandTypeSelects(commandTypeOptions));
+        List<LayoutBlock> blocks = SelectCommand.selectCommandGroupAndCommandTypeBlocks();
 
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
-
                 .view(slackService.findGlobalRequestModalView(blocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
 
