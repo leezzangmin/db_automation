@@ -140,7 +140,7 @@ public class SelectClusterSchemaTable {
         String selectedSchemaName = SlackService.findCurrentValueFromState(values, SlackController.findSchemaSelectsElementActionId);
         String selectedTableName = SlackService.findCurrentValueFromState(values, SlackController.findTableSelectsElementActionId);
         SectionBlock tableSchema = (SectionBlock) fetchTableSchemaBlocks(selectedDatabaseConnectionInfo, selectedSchemaName, selectedTableName).get(1);
-        currentBlocks.add(tableSchema);
+        currentBlocks.set(selectTableNameBlockIndex, tableSchema);
         return currentBlocks;
     }
 
