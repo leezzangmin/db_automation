@@ -84,6 +84,9 @@ public class BasicBlockFactory {
 
     public static InputBlock getLabelBLock(String labelText, String labelId) {
         InputBlock labelBlock = InputBlock.builder()
+                .element(PlainTextInputElement.builder()
+                        .actionId(labelId)
+                        .build())
                 .label(plainText(labelText))
                 .blockId(labelId)
                 .build();
