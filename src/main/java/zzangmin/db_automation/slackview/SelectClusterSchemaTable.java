@@ -61,6 +61,13 @@ public class SelectClusterSchemaTable {
         blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findTableSelectsElementActionId,
                 emptyOption,
                 tablePlaceholder));
+
+        String tableSchemaLabelText = "<Table Schema>";
+        InputBlock labelBLock = BasicBlockFactory.getLabelBLock(tableSchemaLabelText, SlackController.tableSchemaLabelId);
+        blocks.add(labelBLock);
+
+        SectionBlock textSection = BasicBlockFactory.getTextSection("choose table", SlackController.tableSchemaTextId);
+        blocks.add(textSection);
         return blocks;
     }
 
