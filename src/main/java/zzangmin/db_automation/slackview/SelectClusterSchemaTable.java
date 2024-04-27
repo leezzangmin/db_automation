@@ -48,12 +48,18 @@ public class SelectClusterSchemaTable {
                 .collect(Collectors.toList());
         blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findClusterSelectsElementActionId, clusterOptions, clusterPlaceholder));
 
-        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findSchemaSelectsElementActionId,
-                new ArrayList<>(),
-                schemaPlaceholder));
 
+        // must provide at least 1 items
+        List<OptionObject> emptyOption = List.of(OptionObject.builder()
+                        .text(plainText("empty"))
+                        .value("empty")
+                .build());
+
+        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findSchemaSelectsElementActionId,
+                emptyOption,
+                schemaPlaceholder));
         blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findTableSelectsElementActionId,
-                new ArrayList<>(),
+                emptyOption,
                 tablePlaceholder));
         return blocks;
     }
