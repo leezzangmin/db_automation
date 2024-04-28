@@ -36,6 +36,7 @@ public class SlackController {
 
     private final MethodsClient slackClient;
     private final SlackService slackService;
+    private final DDLController ddlController;
 
     private final SelectClusterSchemaTable selectClusterSchemaTable;
 
@@ -87,7 +88,7 @@ public class SlackController {
                 } else if (action.getActionId().equals(findCommandTypeSelectsElementActionId)) {
                     CommandType findCommandType = findCommandType(state);
 
-                    viewBlocks = generateCommandTypeBlocks(findCommandType);
+                    viewBlocks.addAll(generateCommandTypeBlocks(findCommandType));
                     log.info("{} viewBlock: {}", findCommandTypeSelectsElementActionId, viewBlocks);
                     break;
                 } else if (action.getActionId().equals(findClusterSelectsElementActionId)) {
@@ -105,9 +106,8 @@ public class SlackController {
                     break;
                 }
             }
-        }
 
-        else if (payloadType.equals("view_submission")) {
+        } else if (payloadType.equals("view_submission")) {
             ViewSubmissionPayload viewSubmissionPayload = GsonFactory.createSnakeCase()
                     .fromJson(decodedPayload, ViewSubmissionPayload.class);
             log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
@@ -116,8 +116,8 @@ public class SlackController {
             state = view.getState();
             CommandType findCommandType = findCommandType(state);
 
-            List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
-            viewBlocks = layoutBlocks;
+//            List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
+//            viewBlocks = layoutBlocks;
 
 
         } else {
@@ -131,38 +131,6 @@ public class SlackController {
 
         return ResponseEntity.ok(true);
     }
-
-    private CommandType findCommandType(ViewState state) {
-        String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
-        CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
-        return findCommandType;
-    }
-
-    private void updateView(List<LayoutBlock> viewBlocks, View view) throws IOException, SlackApiException {
-        ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
-                .view(slackService.findGlobalRequestModalView(viewBlocks))
-                .viewId(view.getId())
-                .build();
-        ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
-        log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
-    }
-
-    private List<LayoutBlock> generateCommandTypeBlocks(CommandType commandType) {
-        List<LayoutBlock> blocks = new ArrayList<>();
-        if (commandType.equals(CommandType.CREATE_INDEX)) {
-            blocks.addAll(selectClusterSchemaTable.selectClusterSchemaTableBlocks());
-        } else if (commandType.equals(CommandType.CREATE_TABLE)) {
-            // generate createtableblock and add to blocks
-        } else if (commandType.equals(CommandType.ADD_COLUMN)) {
-            // generate createaddcolumnblock and add to blocks
-        }
-        // and so on...
-
-        log.info("commandType blocks: {}", blocks);
-        return blocks;
-    }
-
-
 
     @PostMapping(value = "/slack/command/dbselect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public void databaseRequestCommand(@RequestParam("token") String token,
@@ -207,4 +175,32 @@ public class SlackController {
         return "<@" + userName + ">";
     }
 
+    private CommandType findCommandType(ViewState state) {
+        String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
+        CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
+        return findCommandType;
+    }
+
+    private void updateView(List<LayoutBlock> viewBlocks, View view) throws IOException, SlackApiException {
+        ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
+                .view(slackService.findGlobalRequestModalView(viewBlocks))
+                .viewId(view.getId())
+                .build();
+        ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
+        log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
+    }
+
+    private List<LayoutBlock> generateCommandTypeBlocks(CommandType commandType) {
+        if (commandType.equals(CommandType.CREATE_INDEX)) {
+            return selectClusterSchemaTable.selectClusterSchemaTableBlocks();
+        } else if (commandType.equals(CommandType.CREATE_TABLE)) {
+            // generate createtableblock and add to blocks
+        } else if (commandType.equals(CommandType.ADD_COLUMN)) {
+            // generate createaddcolumnblock and add to blocks
+        }
+        // and so on...
+
+        log.info("commandType blocks: {}", blocks);
+        return null;
+    }
 }
