@@ -1,14 +1,14 @@
 package zzangmin.db_automation.controller;
 
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
+import com.slack.api.app_backend.util.JsonPayloadTypeDetector;
+import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.views.ViewsUpdateRequest;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.methods.response.views.ViewsUpdateResponse;
 import com.slack.api.model.block.*;
-import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
@@ -18,22 +18,16 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
-import zzangmin.db_automation.config.DynamicDataSourceProperties;
-import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.security.SlackRequestSignatureVerifier;
-import zzangmin.db_automation.service.DescribeService;
 import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.BasicBlockFactory;
+import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
+import zzangmin.db_automation.slackview.SelectCommand;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
-import static com.slack.api.model.block.Blocks.actions;
-import static com.slack.api.model.block.composition.BlockCompositions.plainText;
-import static com.slack.api.model.block.element.BlockElements.asElements;
 import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 
 @Slf4j
@@ -41,24 +35,20 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 @RestController
 public class SlackController {
 
-    private final DescribeService describeService;
-    private final DynamicDataSourceProperties dataSourceProperties;
     private final MethodsClient slackClient;
     private final SlackService slackService;
-    private final SlackRequestSignatureVerifier slackRequestSignatureVerifier;
+    private final DDLController ddlController;
+    private final SlackActionHandler slackActionHandler;
 
+
+    public static String tableSchemaLabelId = "tableSchemaLabel";
+    public static String tableSchemaTextId = "tableSchemaText";
     public static String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
     public static String findClusterSelectsElementActionId = "selectClusterName";
+    public static String findTableSelectsElementActionId = "selectTableName";
     public static String findSchemaSelectsElementActionId = "selectSchemaName";
-    public static String findSubmitButtonActionId = "submitButton";
-    public static String findPlainTextInputActionId = "plainTextInput";
-    public static String dividerBlockId = "dividerId";
-    public static String textSectionBlockId = "TextSectionId";
+
     public static String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
-    public static String findGlobalRequestModalViewId = "globalRequestModalViewId";
-
-
-
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload,
@@ -68,138 +58,57 @@ public class SlackController {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
-        slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
-
-
+        slackService.validateRequest(slackSignature, timestamp, requestBody);
         String decodedPayload = HtmlUtils.htmlUnescape(payload);
-        log.info("slackCallBack payload: {}", payload);
-        BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
-                .fromJson(decodedPayload, BlockActionPayload.class);
+        log.info("slackCallBack decodedPayload: {}", decodedPayload);
 
-        View view = blockActionPayload.getView();
-        ViewState state = view.getState();
-        List<LayoutBlock> viewBlocks = view.getBlocks();
+        // https://slack.dev/java-slack-sdk/guides/shortcuts under the hood
+        JsonPayloadTypeDetector typeDetector = new JsonPayloadTypeDetector();
+        String payloadType = typeDetector.detectType(decodedPayload);
 
+        View view = null;
+        ViewState state;
+        List<LayoutBlock> viewBlocks = null;
 
-        if (blockActionPayload.getType().equals("block_actions")) {
+        if (payloadType.equals("block_actions")) {
+            BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
+                    .fromJson(decodedPayload, BlockActionPayload.class);
+            log.info("BlockActionPayload: {}", blockActionPayload);
+
+            view = blockActionPayload.getView();
+            state = view.getState();
+            viewBlocks = view.getBlocks();
             List<Action> actions = blockActionPayload.getActions();
+
             for (Action action : actions) {
                 log.info("action: {}", action);
-                if (action.getActionId().equals(findClusterSelectsElementActionId)) {
-//                    String DBMSName = findCurrentValueFromState(state, findClusterSelectsElementActionId);
-//                    log.info("DBMSName: {}", DBMSName);
-//                    ActionsBlock schemaSelects = slackService.findSchemaSelects(DBMSName);
-//                    ActionsBlock schemaSelects2 = BasicBlockFactory.findStaticSelectsBlock(findSchemaSelectsElementActionId, );
-//                    log.info("schemaSelects: {}", schemaSelects);
-//                    viewBlocks.set(SELECT_SCHEMA_ORDER_INDEX, schemaSelects);
-                    break;
-                } else if (action.getActionId().equals(findCommandTypeSelectsElementActionId)) {
-                    log.info("commandType Selected");
-
-                    break;
-                    // https://api.slack.com/surfaces/modals#updating_views
-                } else if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
-                    updateOnCommandGroupSelected(viewBlocks, state);
-//                    private void updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
-//                        int commandTypeBlockIndex = findBlockIndex(viewBlocks, "actions", slackService.findCommandTypeSelectsElementActionId);
-//                        String selectedDatabaseRequestGroupName = findCurrentValueFromState(state, slackService.findDatabaseRequestCommandGroupSelectsElementActionId);
-//                        DatabaseRequestCommandGroup selectedDatabaseRequestGroup = DatabaseRequestCommandGroup.findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
-//                        viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(selectedDatabaseRequestGroup));
-//                    }
-                    break;
-                }
+                viewBlocks = slackActionHandler.handleAction(action, viewBlocks, state.getValues());
             }
-        } else if (blockActionPayload.getType().equals("view_submission")) {
-            if (view.getId().equals(findGlobalRequestModalViewId)) {
-                String selectedCommandTypeName = findCurrentValueFromState(state, findCommandTypeSelectsElementActionId);
-                CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
 
-                List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
-                viewBlocks = layoutBlocks;
-            }
-            // process & close
-            log.info("view submission");
+        } else if (payloadType.equals("view_submission")) {
+            ViewSubmissionPayload viewSubmissionPayload = GsonFactory.createSnakeCase()
+                    .fromJson(decodedPayload, ViewSubmissionPayload.class);
+            log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
+
+            view = viewSubmissionPayload.getView();
+            state = view.getState();
+            CommandType findCommandType = findCommandType(state);
+
+//            List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
+//            viewBlocks = layoutBlocks;
+
+
+        } else {
+            throw new IllegalArgumentException("미지원 payload");
         }
 
         for (LayoutBlock viewBlock : viewBlocks) {
             log.info("viewBlock: {}", viewBlock);
         }
-
-        ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
-                .view(slackService.findGlobalRequestModalView(viewBlocks))
-                .viewId(view.getId())
-                .build();
-        ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
-        log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
+        updateView(viewBlocks, view);
 
         return ResponseEntity.ok(true);
     }
-
-//    private void handleBlockActionPayload(BlockActionPayload payload) {
-//        List<LayoutBlock> viewBlocks = payload.getView().getBlocks();
-//        List<BlockActionPayload.Action> actions = payload.getActions();
-//
-//        if (payload.getType().equals("block_actions")) {
-//            for (BlockActionPayload.Action action : actions) {
-//                if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
-//                    updateOnCommandGroupSelected(viewBlocks, state);
-//                    break;
-//                } else if (action.getActionId().equals(findCommandTypeSelectsElementActionId)) {
-//
-//                }
-//            }
-//        } else if (payload.getType().equals("view_submission")) {
-//            log.info("view submission");
-//
-//        }
-//    }
-
-    private void updateOnCommandGroupSelected(List<LayoutBlock> viewBlocks, ViewState state) {
-        int commandTypeBlockIndex = findBlockIndex(viewBlocks,
-                "actions",
-                findCommandTypeSelectsElementActionId);
-        String selectedDatabaseRequestGroupName = findCurrentValueFromState(state, findDatabaseRequestCommandGroupSelectsElementActionId);
-        DatabaseRequestCommandGroup selectedDatabaseRequestGroup = findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
-        List<OptionObject> commandTypeOptions = DatabaseRequestCommandGroup.findDatabaseRequestCommandTypes(selectedDatabaseRequestGroup)
-                .stream()
-                .map(commandType -> OptionObject.builder()
-                        .text(plainText(commandType.name()))
-                        .value(commandType.name())
-                        .build()
-                )
-                .collect(Collectors.toList());
-        viewBlocks.set(commandTypeBlockIndex, slackService.findDatabaseRequestCommandTypeSelects(commandTypeOptions));
-    }
-
-    private List<LayoutBlock> generateCommandTypeBlocks(CommandType commandType) {
-        List<LayoutBlock> blocks = new ArrayList<>();
-        if (commandType.equals(CommandType.CREATE_INDEX)) {
-            // generate createindexblock and add to blocks
-            List<OptionObject> clusterOptions = describeService.findDBMSNames()
-                    .getDbmsNames()
-                    .stream()
-                    .map(dbmsName -> OptionObject.builder()
-                            .text(plainText(dbmsName))
-                            .value(dbmsName)
-                            .build()
-                    )
-                    .collect(Collectors.toList());
-            blocks.add(slackService.findClusterSelectsBlock(clusterOptions));
-
-            List<OptionObject> emptyOptions = BasicBlockFactory.generateEmptyOptionObjects();
-
-            blocks.add(slackService.findSchemaSelects(emptyOptions));
-        } else if (commandType.equals(CommandType.CREATE_TABLE)) {
-            // generate createtableblock and add to blocks
-        } else if (commandType.equals(CommandType.ADD_COLUMN)) {
-            // generate createaddcolumnblock and add to blocks
-        }
-        // and so on...
-
-        return blocks;
-    }
-
-
 
     @PostMapping(value = "/slack/command/dbselect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public void databaseRequestCommand(@RequestParam("token") String token,
@@ -230,29 +139,12 @@ public class SlackController {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
-        slackRequestSignatureVerifier.validateRequest(slackSignature, timestamp, requestBody);
+        slackService.validateRequest(slackSignature, timestamp, requestBody);
 
-        List<LayoutBlock> blocks = new ArrayList<>();
-        List<OptionObject> databaseRequestGroupOptions = Arrays.stream(DatabaseRequestCommandGroup.values())
-                .map(group -> OptionObject.builder()
-                        .text(plainText(group.name()))
-                        .value(group.name())
-                        .build()
-                )
-                .collect(Collectors.toList());
-        blocks.add(slackService.findDatabaseRequestCommandGroupSelects(databaseRequestGroupOptions));
-        List<OptionObject> commandTypeOptions = DatabaseRequestCommandGroup.findDatabaseRequestCommandTypes(EMPTY)
-                .stream()
-                .map(commandType -> OptionObject.builder()
-                        .text(plainText(commandType.name()))
-                        .value(commandType.name())
-                        .build()
-                )
-                .collect(Collectors.toList());
-        blocks.add(slackService.findDatabaseRequestCommandTypeSelects(commandTypeOptions));
+        List<LayoutBlock> initialBlocks = SelectCommand.selectCommandGroupAndCommandTypeBlocks();
 
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
-                .view(slackService.findGlobalRequestModalView(blocks)));
+                .view(slackService.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
 
     }
@@ -261,48 +153,20 @@ public class SlackController {
         return "<@" + userName + ">";
     }
 
-    private String findCurrentValueFromState(ViewState viewState, String targetValueKey) {
-        Map<String, Map<String, ViewState.Value>> values = viewState.getValues();
-        log.info("values: {}", values);
-        log.info("targetValueKey: {}", targetValueKey);
-        for (String componentId : values.keySet()) {
-            Map<String, ViewState.Value> stringValueMap = values.get(componentId);
-            String selectedValue = stringValueMap.get(targetValueKey).getSelectedOption().getValue();
-            log.info("selectedValue: {}", selectedValue);
-            return selectedValue;
-        }
-        throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
+    private CommandType findCommandType(ViewState state) {
+        String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
+        CommandType findCommandType = DatabaseRequestCommandGroup.findCommandTypeByCommandTypeName(selectedCommandTypeName);
+        return findCommandType;
     }
 
-    private int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blockId) {
-        for (int i = 0; i < blocks.size(); i++) {
-            LayoutBlock block = blocks.get(i);
-
-            if (block instanceof ActionsBlock) {
-                ActionsBlock childBlock = (ActionsBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else if (block instanceof SectionBlock) {
-                SectionBlock childBlock = (SectionBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else if (block instanceof DividerBlock) {
-                DividerBlock childBlock = (DividerBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else if (block instanceof InputBlock) {
-                InputBlock childBlock = (InputBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else {
-                throw new IllegalArgumentException("지원하지 않는 LayoutBlock 하위 클래스 입니다.");
-            }
-        }
-        throw new IllegalArgumentException("해당 block 이 존재하지 않습니다.");
+    private void updateView(List<LayoutBlock> viewBlocks, View view) throws IOException, SlackApiException {
+        ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
+                .view(slackService.findGlobalRequestModalView(viewBlocks))
+                .viewId(view.getId())
+                .build();
+        ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
+        log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
     }
+
 
 }
