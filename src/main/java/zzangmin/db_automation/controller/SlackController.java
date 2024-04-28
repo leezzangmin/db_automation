@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
 import zzangmin.db_automation.slackview.SelectCommand;
@@ -37,8 +38,8 @@ public class SlackController {
     private final MethodsClient slackClient;
     private final SlackService slackService;
     private final DDLController ddlController;
+    private final SlackActionHandler slackActionHandler;
 
-    private final SelectClusterSchemaTable selectClusterSchemaTable;
 
     public static String tableSchemaLabelId = "tableSchemaLabel";
     public static String tableSchemaTextId = "tableSchemaText";
@@ -81,30 +82,7 @@ public class SlackController {
 
             for (Action action : actions) {
                 log.info("action: {}", action);
-                if (action.getActionId().equals(findDatabaseRequestCommandGroupSelectsElementActionId)) {
-                    viewBlocks = SelectCommand.handleCommandGroupChange(viewBlocks, state.getValues());
-                    log.info("{} viewBlock: {}", findDatabaseRequestCommandGroupSelectsElementActionId, viewBlocks);
-                    break;
-                } else if (action.getActionId().equals(findCommandTypeSelectsElementActionId)) {
-                    CommandType findCommandType = findCommandType(state);
-
-                    viewBlocks.addAll(generateCommandTypeBlocks(findCommandType));
-                    log.info("{} viewBlock: {}", findCommandTypeSelectsElementActionId, viewBlocks);
-                    break;
-                } else if (action.getActionId().equals(findClusterSelectsElementActionId)) {
-                    viewBlocks = selectClusterSchemaTable.handleClusterChange(viewBlocks, state.getValues());
-                    log.info("{} viewBlock: {}", findClusterSelectsElementActionId, viewBlocks);
-                    break;
-                } else if (action.getActionId().equals(findSchemaSelectsElementActionId)) {
-                    viewBlocks = selectClusterSchemaTable.handleSchemaChange(viewBlocks, state.getValues());
-                    log.info("{} viewBlock: {}", findSchemaSelectsElementActionId, viewBlocks);
-                    break;
-                }
-                else if (action.getActionId().equals(findTableSelectsElementActionId)) {
-                    viewBlocks = selectClusterSchemaTable.handleTableChange(viewBlocks, state.getValues());
-                    log.info("{} viewBlock: {}", findTableSelectsElementActionId, viewBlocks);
-                    break;
-                }
+                viewBlocks = slackActionHandler.handleAction(action, viewBlocks, state.getValues());
             }
 
         } else if (payloadType.equals("view_submission")) {
@@ -163,10 +141,10 @@ public class SlackController {
         log.info("timestamp: {}", timestamp);
         slackService.validateRequest(slackSignature, timestamp, requestBody);
 
-        List<LayoutBlock> blocks = SelectCommand.selectCommandGroupAndCommandTypeBlocks();
+        List<LayoutBlock> initialBlocks = SelectCommand.selectCommandGroupAndCommandTypeBlocks();
 
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
-                .view(slackService.findGlobalRequestModalView(blocks)));
+                .view(slackService.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
 
     }
@@ -177,7 +155,7 @@ public class SlackController {
 
     private CommandType findCommandType(ViewState state) {
         String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
-        CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
+        CommandType findCommandType = DatabaseRequestCommandGroup.findCommandTypeByCommandTypeName(selectedCommandTypeName);
         return findCommandType;
     }
 
@@ -190,17 +168,5 @@ public class SlackController {
         log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
     }
 
-    private List<LayoutBlock> generateCommandTypeBlocks(CommandType commandType) {
-        if (commandType.equals(CommandType.CREATE_INDEX)) {
-            return selectClusterSchemaTable.selectClusterSchemaTableBlocks();
-        } else if (commandType.equals(CommandType.CREATE_TABLE)) {
-            // generate createtableblock and add to blocks
-        } else if (commandType.equals(CommandType.ADD_COLUMN)) {
-            // generate createaddcolumnblock and add to blocks
-        }
-        // and so on...
 
-        //log.info("commandType blocks: {}", blocks);
-        return null;
-    }
 }

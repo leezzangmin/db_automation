@@ -18,14 +18,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
-import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.findDatabaseRequestCommandGroupByName;
-import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.findDatabaseRequestCommandTypes;
+import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
 public class SelectCommand {
-
 
     private static final String findCommandGroupPlaceholder = "select database command group";
     private static final String findCommandTypePlaceholder = "select database command type";
@@ -60,8 +58,8 @@ public class SelectCommand {
         return blocks;
     }
 
-    public static List<LayoutBlock> handleCommandGroupChange(List<LayoutBlock> blocks, Map<String, Map<String, ViewState.Value>> values) {
-        int commandTypeBlockIndex = SlackService.findBlockIndex(blocks,
+    public List<LayoutBlock> handleCommandGroupChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        int commandTypeBlockIndex = SlackService.findBlockIndex(currentBlocks,
                 "actions",
                 SlackController.findCommandTypeSelectsElementActionId);
         String selectedDatabaseRequestGroupName = SlackService.findCurrentValueFromState(values, SlackController.findDatabaseRequestCommandGroupSelectsElementActionId);
@@ -77,11 +75,30 @@ public class SelectCommand {
         ActionsBlock commandTypeSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackController.findCommandTypeSelectsElementActionId,
                 commandTypeOptions,
                 findCommandTypePlaceholder);
-        blocks.set(commandTypeBlockIndex, commandTypeSelectBlock);
-        return blocks;
+        currentBlocks.set(commandTypeBlockIndex, commandTypeSelectBlock);
+        return currentBlocks;
     }
 
-    public static List<LayoutBlock> handleCommandTypeChange() {
+    public List<LayoutBlock> handleCommandTypeChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        String selectedCommandTypeName = SlackService.findCurrentValueFromState(values, SlackController.findCommandTypeSelectsElementActionId);
+        DatabaseRequestCommandGroup.CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
+        currentBlocks.addAll(generateCommandTypeBlocks(findCommandType));
+
+        return currentBlocks;
+    }
+
+    private List<LayoutBlock> generateCommandTypeBlocks(DatabaseRequestCommandGroup.CommandType commandType) {
+        if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
+            return selectClusterSchemaTable.selectClusterSchemaTableBlocks();
+        } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
+            // generate createtableblock and add to blocks
+        } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
+            // generate createaddcolumnblock and add to blocks
+        }
+        // and so on...
+
+        //log.info("commandType blocks: {}", blocks);
         return null;
     }
+
 }
