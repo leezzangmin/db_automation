@@ -200,7 +200,7 @@ public class SlackController {
         }
         // and so on...
 
-        log.info("commandType blocks: {}", blocks);
+        //log.info("commandType blocks: {}", blocks);
         return null;
     }
 }
