@@ -37,13 +37,10 @@ public class SlackController {
     private final MethodsClient slackClient;
     private final SlackService slackService;
 
-
     private final SelectClusterSchemaTable selectClusterSchemaTable;
 
     public static String tableSchemaLabelId = "tableSchemaLabel";
     public static String tableSchemaTextId = "tableSchemaText";
-
-
     public static String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
     public static String findClusterSelectsElementActionId = "selectClusterName";
     public static String findTableSelectsElementActionId = "selectTableName";
