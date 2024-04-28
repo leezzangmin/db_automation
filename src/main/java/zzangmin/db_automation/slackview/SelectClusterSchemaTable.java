@@ -34,6 +34,7 @@ public class SelectClusterSchemaTable {
     private final String clusterPlaceholder = "select cluster";
     private final String schemaPlaceholder = "select schema";
     private final String tablePlaceholder = "select table";
+    private final SlackService slackService;
 
     public List<LayoutBlock> selectClusterSchemaTableBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
@@ -49,12 +50,7 @@ public class SelectClusterSchemaTable {
                 .collect(Collectors.toList());
         blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findClusterSelectsElementActionId, clusterOptions, clusterPlaceholder));
 
-
-        // must provide at least 1 items
-        List<OptionObject> emptyOption = List.of(OptionObject.builder()
-                        .text(plainText("empty"))
-                        .value("empty")
-                .build());
+        List<OptionObject> emptyOption = BasicBlockFactory.generateEmptyOptionObjects();
 
         blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findSchemaSelectsElementActionId,
                 emptyOption,
@@ -101,6 +97,18 @@ public class SelectClusterSchemaTable {
 
 
     public List<LayoutBlock> handleSchemaChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        setTableNameOptions(currentBlocks, values);
+        resetTableSchemaSectionBlock(currentBlocks);
+        return currentBlocks;
+    }
+
+    private static void resetTableSchemaSectionBlock(List<LayoutBlock> currentBlocks) {
+        int tableSchemaTextSectionIndex = SlackService.findBlockIndex(currentBlocks, "section", SlackController.tableSchemaTextId);
+        SectionBlock textSection = BasicBlockFactory.getTextSection("choose table", SlackController.tableSchemaTextId);
+        currentBlocks.set(tableSchemaTextSectionIndex, textSection);
+    }
+
+    private void setTableNameOptions(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         int selectTableNameBlockIndex = SlackService.findBlockIndex(currentBlocks, "actions", SlackController.findTableSelectsElementActionId);
         String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = dataSourceProperties.findByDbName(selectedDBMSName);
@@ -110,8 +118,6 @@ public class SelectClusterSchemaTable {
                 tableNameOptions,
                 tablePlaceholder);
         currentBlocks.set(selectTableNameBlockIndex, tableSelectBlock);
-
-        return currentBlocks;
     }
 
     public List<LayoutBlock> handleTableChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
