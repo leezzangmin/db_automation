@@ -8,6 +8,7 @@ import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.controller.SlackController;
@@ -71,16 +72,6 @@ public class SelectClusterSchemaTable {
         return blocks;
     }
 
-    private List<String> fetchTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
-        return describeService.findTableNames(databaseConnectionInfo, schemaName)
-                .getTableNames().stream().toList();
-    }
-
-    private List<String> fetchSchemaNames(DatabaseConnectionInfo databaseConnectionInfo) {
-        return new ArrayList<>(describeService.findSchemaNames(databaseConnectionInfo).getSchemaNames());
-    }
-
-
     public List<LayoutBlock> fetchTableSchemaBlocks(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
         List<LayoutBlock> blocks = new ArrayList<>();
         String tableSchemaLabelText = "<Table Schema>";
@@ -98,14 +89,7 @@ public class SelectClusterSchemaTable {
         String DBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
         log.info("DBMSName: {}", DBMSName);
         DatabaseConnectionInfo databaseConnectionInfo = dataSourceProperties.findByDbName(DBMSName);
-        List<OptionObject> schemaNameOptions = describeService.findSchemaNames(databaseConnectionInfo)
-                .getSchemaNames()
-                .stream()
-                .map(schemaName -> OptionObject.builder()
-                        .value(schemaName)
-                        .text(plainText(schemaName))
-                        .build())
-                .collect(Collectors.toList());
+        List<OptionObject> schemaNameOptions = fetchSchemaNameOptions(databaseConnectionInfo);
         ActionsBlock schemaSelects = BasicBlockFactory.findStaticSelectsBlock(findSchemaSelectsElementActionId,
                 schemaNameOptions,
                 schemaPlaceholder);
@@ -115,20 +99,16 @@ public class SelectClusterSchemaTable {
         return currentBlocks;
     }
 
+
     public List<LayoutBlock> handleSchemaChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         int selectTableNameBlockIndex = SlackService.findBlockIndex(currentBlocks, "actions", SlackController.findTableSelectsElementActionId);
         String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = dataSourceProperties.findByDbName(selectedDBMSName);
         String selectedSchemaName = SlackService.findCurrentValueFromState(values, SlackController.findSchemaSelectsElementActionId);
-
-        List<OptionObject> tableNameOptions = fetchTableNames(selectedDatabaseConnectionInfo, selectedSchemaName)
-                .stream()
-                .map(tableName -> OptionObject.builder()
-                        .value(tableName)
-                        .text(plainText(tableName))
-                        .build())
-                .collect(Collectors.toList());
-        ActionsBlock tableSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackController.findTableSelectsElementActionId, tableNameOptions, tablePlaceholder);
+        List<OptionObject> tableNameOptions = fetchTableNameOptions(selectedDatabaseConnectionInfo, selectedSchemaName);
+        ActionsBlock tableSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackController.findTableSelectsElementActionId,
+                tableNameOptions,
+                tablePlaceholder);
         currentBlocks.set(selectTableNameBlockIndex, tableSelectBlock);
 
         return currentBlocks;
@@ -151,4 +131,33 @@ public class SelectClusterSchemaTable {
         return currentBlocks;
     }
 
+    private List<OptionObject> fetchSchemaNameOptions(DatabaseConnectionInfo databaseConnectionInfo) {
+        List<String> schemaNames = describeService.findSchemaNames(databaseConnectionInfo).getSchemaNames();
+        if (schemaNames.isEmpty()) {
+            return BasicBlockFactory.generateEmptyOptionObjects();
+        }
+        List<OptionObject> schemaNameOptions = schemaNames.stream()
+                .map(schemaName -> OptionObject.builder()
+                        .value(schemaName)
+                        .text(plainText(schemaName))
+                        .build())
+                .collect(Collectors.toList());
+        return schemaNameOptions;
+    }
+
+    private List<OptionObject> fetchTableNameOptions(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        List<String> tableNames = describeService.findTableNames(databaseConnectionInfo, schemaName)
+                .getTableNames()
+                .stream()
+                .toList();
+        if (tableNames.isEmpty()) {
+            return BasicBlockFactory.generateEmptyOptionObjects();
+        }
+        return tableNames.stream()
+                .map(tableName -> OptionObject.builder()
+                        .value(tableName)
+                        .text(plainText(tableName))
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

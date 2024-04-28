@@ -48,7 +48,6 @@ public class SlackController {
     public static String findClusterSelectsElementActionId = "selectClusterName";
     public static String findTableSelectsElementActionId = "selectTableName";
     public static String findSchemaSelectsElementActionId = "selectSchemaName";
-    public static String findSubmitButtonActionId = "submitButton";
 
     public static String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
 
@@ -89,8 +88,7 @@ public class SlackController {
                     log.info("{} viewBlock: {}", findDatabaseRequestCommandGroupSelectsElementActionId, viewBlocks);
                     break;
                 } else if (action.getActionId().equals(findCommandTypeSelectsElementActionId)) {
-                    String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
-                    CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
+                    CommandType findCommandType = findCommandType(state);
 
                     viewBlocks = generateCommandTypeBlocks(findCommandType);
                     log.info("{} viewBlock: {}", findCommandTypeSelectsElementActionId, viewBlocks);
@@ -119,8 +117,7 @@ public class SlackController {
 
             view = viewSubmissionPayload.getView();
             state = view.getState();
-            String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
-            CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
+            CommandType findCommandType = findCommandType(state);
 
             List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
             viewBlocks = layoutBlocks;
@@ -136,6 +133,12 @@ public class SlackController {
         updateView(viewBlocks, view);
 
         return ResponseEntity.ok(true);
+    }
+
+    private CommandType findCommandType(ViewState state) {
+        String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
+        CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
+        return findCommandType;
     }
 
     private void updateView(List<LayoutBlock> viewBlocks, View view) throws IOException, SlackApiException {
