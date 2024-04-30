@@ -34,7 +34,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
     private final ProcedureDifferenceChecker procedureDifferenceChecker;
     private final TriggerDifferenceChecker triggerDifferenceChecker;
     private final FunctionDifferenceChecker functionDifferenceChecker;
-
+    private final AccountDifferenceChecker accountDifferenceChecker;
 
     @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() throws Exception {
@@ -52,6 +52,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
             procedureDifferenceChecker.saveProcedures(databaseConnectionInfo, schemaNames);
             triggerDifferenceChecker.saveTriggers(databaseConnectionInfo, schemaNames);
             functionDifferenceChecker.saveFunctions(databaseConnectionInfo, schemaNames);
+            accountDifferenceChecker.saveAccount(databaseConnectionInfo);
         }
 
         slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 저장 완료 !\n");
