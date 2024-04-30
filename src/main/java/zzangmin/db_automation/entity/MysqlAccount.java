@@ -67,6 +67,13 @@ public class MysqlAccount {
                         .build();
                 privileges.add(privilege);
             }
+            if (grantDCL.contains("WITH GRANT OPTION")) {
+                privileges.add(Privilege.builder()
+                        .databaseName(databaseAndTable.split("\\.")[0])
+                        .objectName(databaseAndTable.split("\\.")[1])
+                        .permissionType("WITH GRANT OPTION")
+                        .build());
+            }
             return privileges;
         }
     }
