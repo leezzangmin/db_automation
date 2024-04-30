@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS back_office.request_history (
 
 CREATE TABLE IF NOT EXISTS back_office.mysql_account(
     id bigint primary key auto_increment,
+    service_name varchar(255) not null comment '서비스명 ex. groo, pe, udc',
     host varchar(255) not null comment '호스트 ex.10.100.0.0/255.255.255.0',
     user varchar(255) not null comment '계정명 ex.august'
 );
