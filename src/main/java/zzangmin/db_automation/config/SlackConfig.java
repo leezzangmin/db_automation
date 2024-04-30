@@ -21,7 +21,7 @@ public class SlackConfig {
     public static final int MAX_MESSAGE_SIZE = 10000;
 
     @Autowired
-    public void setSlackAppSigningSecret(@Value("${SLACK_APP_SIGNING_SECRET}")String slackAppSigningSecret) {
+    public void setSlackAppSigningSecret(@Value("${slack.app-signing-secret}")String slackAppSigningSecret) {
         this.slackAppSigningSecret = slackAppSigningSecret;
     }
 
