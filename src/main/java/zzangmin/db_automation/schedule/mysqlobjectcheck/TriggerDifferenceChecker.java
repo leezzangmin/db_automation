@@ -1,4 +1,4 @@
-package zzangmin.db_automation.schedule.tableschemacheck;
+package zzangmin.db_automation.schedule.mysqlobjectcheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.Trigger;
-import zzangmin.db_automation.entity.View;
 import zzangmin.db_automation.service.SchemaObjectService;
 
 import java.util.List;

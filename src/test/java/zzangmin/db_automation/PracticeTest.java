@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.schedule.tableschemacheck.TableDifferenceChecker;
+import zzangmin.db_automation.schedule.mysqlobjectcheck.TableDifferenceChecker;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package zzangmin.db_automation.schedule.tableschemacheck;
+package zzangmin.db_automation.schedule.mysqlobjectcheck;
 
 public interface SchemaMonitor {
 

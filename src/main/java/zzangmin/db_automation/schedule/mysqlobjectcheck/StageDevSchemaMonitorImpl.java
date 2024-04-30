@@ -1,9 +1,8 @@
-package zzangmin.db_automation.schedule.tableschemacheck;
+package zzangmin.db_automation.schedule.mysqlobjectcheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;

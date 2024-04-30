@@ -1,4 +1,4 @@
-package zzangmin.db_automation.schedule.tableschemacheck;
+package zzangmin.db_automation.schedule.mysqlobjectcheck;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -81,7 +81,7 @@ public class DatabaseDifferenceChecker {
     }
 
     public void saveDatabase(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) throws Exception {
-        log.info("database: {}", databaseConnectionInfo);
+        log.info("saveDatabase: {}", databaseConnectionInfo);
         String serviceName = databaseConnectionInfo.findServiceName();
         log.info("serviceName: {}", serviceName);
         Map<String, String> schemaCreateStatements = schemaNames.stream()

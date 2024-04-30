@@ -6,5 +6,6 @@ public enum SchemaObjectType {
     PROCEDURE,
     TRIGGER,
     VIEW,
-    DATABASE
+    DATABASE,
+    ACCOUNT
 }
