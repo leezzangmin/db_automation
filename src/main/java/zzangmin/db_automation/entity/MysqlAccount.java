@@ -2,6 +2,7 @@ package zzangmin.db_automation.entity;
 
 import jakarta.persistence.*;
 import jakarta.persistence.Column;
+import jakarta.persistence.Table;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -9,7 +10,8 @@ import java.util.List;
 
 
 /**
- * role, column 단위 권한은 고려되지 않음
+ * EXECUTE FUNCTION, role, column 단위 권한은 고려되지 않음
+ * -> GRANT EXECUTE ON FUNCTION `dbname`.`function_name` TO 'username'@'localhost'
  * -> GRANT rds_superuser_role@% TO admin@%
  * -> GRANT SELECT (`Company`), SHOW VIEW ON Reports.`Users` to 'chartio_read_only'@`localhost`;
  */
@@ -17,6 +19,7 @@ import java.util.List;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Setter
 @Builder
 @Entity
 public class MysqlAccount {
@@ -25,23 +28,29 @@ public class MysqlAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
+    private String serviceName;
+    @Column(nullable = false)
     private String user;
     @Column(nullable = false)
     private String host;
+    @ToString.Exclude
     @OneToMany(mappedBy = "mysqlAccount", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Privilege> privileges = new ArrayList<>();
 
     @Getter
+    @Setter
     @ToString
     @NoArgsConstructor
     @AllArgsConstructor
     @Builder
     @Entity
+    @Table(name = "mysql_account_privilege")
     public static class Privilege {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         private Long id;
+        @ToString.Exclude
         @ManyToOne
         @JoinColumn(name = "mysql_account_id", nullable = false)
         private MysqlAccount mysqlAccount;
