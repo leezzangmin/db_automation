@@ -414,4 +414,19 @@ public class MysqlClientTest {
         assertThat(views).isNotEmpty();
         assertThat(views.get(0).getViewName()).isEqualTo("v1");
     }
+
+    @DisplayName("findMysqlAccounts 로 계정과 권한을 조회할 수 있다.")
+    @Test
+    void findMysqlAccounts() {
+        // given & when
+        List<MysqlAccount> mysqlAccounts = mysqlClient.findMysqlAccounts(backOfficeDatabaseConnectionInfo);
+        // then
+        assertThat(mysqlAccounts).isNotEmpty();
+        for (MysqlAccount mysqlAccount : mysqlAccounts) {
+            List<MysqlAccount.Privilege> privileges = mysqlAccount.getPrivileges();
+            for (MysqlAccount.Privilege privilege : privileges) {
+                assertThat(privilege.getPermissionType()).doesNotContain(",");
+            }
+        }
+    }
 }
