@@ -364,7 +364,50 @@ public class MysqlClient {
         return Optional.empty();
     }
 
+    public List<MysqlAccount> findMysqlAccounts(DatabaseConnectionInfo databaseConnectionInfo) {
+        String SQL = "SELECT USER,HOST FROM mysql.user";
+        List<MysqlAccount> mysqlAccounts = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL);
+             ResultSet resultSet = statement.executeQuery()) {
 
+            while (resultSet.next()) {
+                String user = resultSet.getString("User");
+                String host = resultSet.getString("Host");
+                MysqlAccount mysqlAccount = MysqlAccount.builder()
+                        .user(user)
+                        .host(host)
+                        .privileges(findPrivilegesForUser(user, host, connection))
+                        .build();
+                mysqlAccounts.add(mysqlAccount);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return mysqlAccounts;
+    }
+
+    private List<MysqlAccount.Privilege> findPrivilegesForUser(String user, String host, Connection connection) throws SQLException {
+        List<MysqlAccount.Privilege> privileges = new ArrayList<>();
+        String showGrantsQuery = "SHOW GRANTS FOR '" + user + "'@'" + host + "'";
+        try (PreparedStatement statement = connection.prepareStatement(showGrantsQuery)) {
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String privilegeString = resultSet.getString(1);
+                    if (privilegeString.contains(" ON ")) {
+                        List<MysqlAccount.Privilege> generatePrivilege = MysqlAccount.Privilege.dclToEntities(privilegeString);
+                        for (MysqlAccount.Privilege privilege : generatePrivilege) {
+                        }
+                        privileges.addAll(generatePrivilege);
+                    }
+                }
+            }
+        }
+        return privileges;
+    }
 
     public List<MetadataLockHolder> findMetadataLockHolders(DatabaseConnectionInfo databaseConnectionInfo) {
         String SQL = "SELECT " +
