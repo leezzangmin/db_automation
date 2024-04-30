@@ -9,7 +9,8 @@ import java.util.List;
 
 
 /**
- * column 단위 권한은 고려되지 않음
+ * role, column 단위 권한은 고려되지 않음
+ * -> GRANT rds_superuser_role@% TO admin@%
  * -> GRANT SELECT (`Company`), SHOW VIEW ON Reports.`Users` to 'chartio_read_only'@`localhost`;
  */
 @Getter
@@ -24,9 +25,9 @@ public class MysqlAccount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
-    private String host;
-    @Column(nullable = false)
     private String user;
+    @Column(nullable = false)
+    private String host;
     @OneToMany(mappedBy = "mysqlAccount", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Privilege> privileges = new ArrayList<>();
 
@@ -36,7 +37,7 @@ public class MysqlAccount {
     @AllArgsConstructor
     @Builder
     @Entity
-    static class Privilege {
+    public static class Privilege {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -50,5 +51,23 @@ public class MysqlAccount {
         private String objectName;
         @Column(nullable = false)
         private String permissionType;
+
+        public static List<Privilege> dclToEntities(String grantDCL) {
+            List<Privilege> privileges = new ArrayList<>();
+            grantDCL = grantDCL.replace("`", "").replace(", ", ",");
+            String[] parts = grantDCL.split(" ON ");
+            String[] permissionParts = parts[0].replace("GRANT ", "").split(",");
+            String databaseAndTable = parts[1].split(" TO ")[0].trim();
+
+            for (String permission : permissionParts) {
+                Privilege privilege = Privilege.builder()
+                        .databaseName(databaseAndTable.split("\\.")[0])
+                        .objectName(databaseAndTable.split("\\.")[1])
+                        .permissionType(permission.trim())
+                        .build();
+                privileges.add(privilege);
+            }
+            return privileges;
+        }
     }
 }
