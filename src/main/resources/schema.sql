@@ -35,3 +35,17 @@ CREATE TABLE IF NOT EXISTS back_office.request_history (
     execution_duration double not null comment '소요 시간(초) ex) `12.403`(초)'
 
 ) comment '요청 내역(개발팀 DB요청 로그)';
+
+CREATE TABLE IF NOT EXISTS back_office.mysql_account(
+    id bigint primary key auto_increment,
+    host varchar(255) not null comment '호스트 ex.10.100.0.0/255.255.255.0',
+    user varchar(255) not null comment '계정명 ex.august'
+);
+
+CREATE TABLE IF NOT EXISTS back_office.mysql_account_privilege(
+    id bigint primary key auto_increment,
+    mysql_account_id bigint not null comment 'mysql account id',
+    database_name varchar(255) not null comment '대상 database 이름 (mysql, information_schema, * 등)',
+    object_name varchar(255) not null comment '대상 object(table,view,function,trigger,procedure 등) 이름',
+    permission_type varchar(255) not null comment '권한 타입 (SELECT, INSERT, UPDATE, DELETE, ALL, USAGE 등)'
+);
