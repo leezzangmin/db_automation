@@ -376,10 +376,12 @@ public class MysqlClient {
                 String user = resultSet.getString("User");
                 String host = resultSet.getString("Host");
                 MysqlAccount mysqlAccount = MysqlAccount.builder()
+                        .serviceName(databaseConnectionInfo.findServiceName())
                         .user(user)
                         .host(host)
-                        .privileges(findPrivilegesForUser(user, host, connection))
                         .build();
+                List<MysqlAccount.Privilege> privilegesForUser = findPrivilegesForUser(mysqlAccount, connection);
+                mysqlAccount.setPrivileges(privilegesForUser);
                 mysqlAccounts.add(mysqlAccount);
             }
 
@@ -390,9 +392,9 @@ public class MysqlClient {
         return mysqlAccounts;
     }
 
-    private List<MysqlAccount.Privilege> findPrivilegesForUser(String user, String host, Connection connection) throws SQLException {
+    private List<MysqlAccount.Privilege> findPrivilegesForUser(MysqlAccount mysqlAccount, Connection connection) throws SQLException {
         List<MysqlAccount.Privilege> privileges = new ArrayList<>();
-        String showGrantsQuery = "SHOW GRANTS FOR '" + user + "'@'" + host + "'";
+        String showGrantsQuery = "SHOW GRANTS FOR '" + mysqlAccount.getUser() + "'@'" + mysqlAccount.getHost() + "'";
         try (PreparedStatement statement = connection.prepareStatement(showGrantsQuery)) {
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
@@ -400,6 +402,7 @@ public class MysqlClient {
                     if (privilegeString.contains(" ON ")) {
                         List<MysqlAccount.Privilege> generatePrivilege = MysqlAccount.Privilege.dclToEntities(privilegeString);
                         for (MysqlAccount.Privilege privilege : generatePrivilege) {
+                            privilege.setMysqlAccount(mysqlAccount);
                         }
                         privileges.addAll(generatePrivilege);
                     }
