@@ -3,6 +3,7 @@ package zzangmin.db_automation.schedule.mysqlobjectcheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
@@ -33,9 +34,10 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
     private final ProcedureDifferenceChecker procedureDifferenceChecker;
     private final TriggerDifferenceChecker triggerDifferenceChecker;
     private final FunctionDifferenceChecker functionDifferenceChecker;
+    private final AccountDifferenceChecker accountDifferenceChecker;
 
 
-    //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
+    @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() {
         slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 시작 !");
 
@@ -49,14 +51,13 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
                     .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
                     .collect(Collectors.toList());
             schemaCheckResult.append(databaseDifferenceChecker.compareDatabaseCrossAccount(databaseConnectionInfo));
-
+            StringBuilder schemaResult = new StringBuilder();
             for (String schemaName : schemaNames) {
-                StringBuilder schemaResult = new StringBuilder();
-                schemaResult.append(tableDifferenceChecker.compareTableCrossAccount(databaseConnectionInfo, schemaName));
-                schemaResult.append(viewDifferenceChecker.compareViewCrossAccount(databaseConnectionInfo, schemaName));
-                schemaResult.append(procedureDifferenceChecker.compareProcedureCrossAccount(databaseConnectionInfo, schemaName));
-                schemaResult.append(triggerDifferenceChecker.compareTriggerCrossAccount(databaseConnectionInfo, schemaName));
-                schemaResult.append(functionDifferenceChecker.compareFunctionCrossAccount(databaseConnectionInfo, schemaName));
+//                schemaResult.append(tableDifferenceChecker.compareTableCrossAccount(databaseConnectionInfo, schemaName));
+//                schemaResult.append(viewDifferenceChecker.compareViewCrossAccount(databaseConnectionInfo, schemaName));
+//                schemaResult.append(procedureDifferenceChecker.compareProcedureCrossAccount(databaseConnectionInfo, schemaName));
+//                schemaResult.append(triggerDifferenceChecker.compareTriggerCrossAccount(databaseConnectionInfo, schemaName));
+//                schemaResult.append(functionDifferenceChecker.compareFunctionCrossAccount(databaseConnectionInfo, schemaName));
 
                 if (!schemaResult.isEmpty()) {
                     schemaCheckResult.append("\n====================");
@@ -67,6 +68,8 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
                     schemaCheckResult.append(schemaResult);
                 }
             }
+            schemaResult.append(accountDifferenceChecker.compareAccountCrossAccount(databaseConnectionInfo));
+
         }
         if (schemaCheckResult.isEmpty()) {
             slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 종료 !");

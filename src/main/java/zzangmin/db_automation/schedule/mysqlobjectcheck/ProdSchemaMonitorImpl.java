@@ -46,12 +46,12 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
                     .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
                     .collect(Collectors.toList());
 
-            databaseDifferenceChecker.saveDatabase(databaseConnectionInfo, schemaNames);
-            tableDifferenceChecker.saveTable(databaseConnectionInfo, schemaNames);
-            viewDifferenceChecker.saveViews(databaseConnectionInfo, schemaNames);
-            procedureDifferenceChecker.saveProcedures(databaseConnectionInfo, schemaNames);
-            triggerDifferenceChecker.saveTriggers(databaseConnectionInfo, schemaNames);
-            functionDifferenceChecker.saveFunctions(databaseConnectionInfo, schemaNames);
+//            databaseDifferenceChecker.saveDatabase(databaseConnectionInfo, schemaNames);
+//            tableDifferenceChecker.saveTable(databaseConnectionInfo, schemaNames);
+//            viewDifferenceChecker.saveViews(databaseConnectionInfo, schemaNames);
+//            procedureDifferenceChecker.saveProcedures(databaseConnectionInfo, schemaNames);
+//            triggerDifferenceChecker.saveTriggers(databaseConnectionInfo, schemaNames);
+//            functionDifferenceChecker.saveFunctions(databaseConnectionInfo, schemaNames);
             accountDifferenceChecker.saveAccount(databaseConnectionInfo);
         }
 

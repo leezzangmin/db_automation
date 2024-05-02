@@ -88,13 +88,13 @@ public class SelectCommand {
     }
 
     private List<LayoutBlock> generateCommandTypeBlocks(DatabaseRequestCommandGroup.CommandType commandType) {
-        if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
-            return selectClusterSchemaTable.selectClusterSchemaTableBlocks();
-        } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
-            // generate createtableblock and add to blocks
-        } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
-            // generate createaddcolumnblock and add to blocks
-        }
+//        if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
+//            return selectClusterSchemaTable.selectClusterSchemaTableBlocks();
+//        } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
+//            // generate createtableblock and add to blocks
+//        } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
+//            // generate createaddcolumnblock and add to blocks
+//        }
         // and so on...
 
         //log.info("commandType blocks: {}", blocks);

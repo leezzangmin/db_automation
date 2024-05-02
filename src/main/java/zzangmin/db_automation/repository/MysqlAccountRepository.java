@@ -13,4 +13,7 @@ public interface MysqlAccountRepository extends JpaRepository<MysqlAccount, Long
 
     @Query
     Optional<MysqlAccount> findByServiceNameAndUserAndHost(String serviceName, String user, String host);
+
+    @Query
+    List<MysqlAccount> findByServiceName(String serviceName);
 }
