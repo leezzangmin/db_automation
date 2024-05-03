@@ -11,7 +11,8 @@ public class AccountStandard {
     public final static String accountHostPercentAllowKey = "accountHostPercentAllow";
 
     // app 계정 허용 권한 목록
-    private final static List<String> applicationAccountAllowedPrivileges = List.of("SELECT",
+    private final static List<String> applicationAccountAllowedPrivileges = List.of("USAGE",
+            "SELECT",
             "INSERT",
             "UPDATE",
             "DELETE",
