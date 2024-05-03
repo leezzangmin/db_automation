@@ -19,7 +19,7 @@ public class InstanceCreationStandardChecker {
         StringBuilder sb = new StringBuilder();
         List<DBInstance> dbInstances = awsService.findAllInstanceInfo();
         for (DBInstance dbInstance : dbInstances) {
-            Set<String> instanceStandardNames = InstanceCreationStandard.instanceCreationStandard.keySet();
+            Set<String> instanceStandardNames = InstanceCreationStandard.instanceCreationStandards.keySet();
             for (String instanceStandardName : instanceStandardNames) {
                 String value = String.valueOf(dbInstance.getValueForField(instanceStandardName, Object.class)
                         .orElseThrow(() -> new IllegalArgumentException("해당 필드가 존재하지 않습니다." + instanceStandardName)));

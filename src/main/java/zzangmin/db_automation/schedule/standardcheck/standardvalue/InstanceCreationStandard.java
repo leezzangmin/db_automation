@@ -5,18 +5,18 @@ import java.util.Map;
 
 public class InstanceCreationStandard {
 
-    public final static Map<String, String> instanceCreationStandard = new HashMap<>();
+    public final static Map<String, String> instanceCreationStandards = new HashMap<>();
 
     static {
-        instanceCreationStandard.put("AutoMinorVersionUpgrade", "false");
-        instanceCreationStandard.put("DeletionProtection", "true");
-        instanceCreationStandard.put("PerformanceInsightsEnabled", "true");
-        instanceCreationStandard.put("EnabledCloudwatchLogsExports", "[slowquery]");
-        instanceCreationStandard.put("PubliclyAccessible", "false");
+        instanceCreationStandards.put("AutoMinorVersionUpgrade", "false");
+        instanceCreationStandards.put("DeletionProtection", "true");
+        instanceCreationStandards.put("PerformanceInsightsEnabled", "true");
+        instanceCreationStandards.put("EnabledCloudwatchLogsExports", "[slowquery]");
+        instanceCreationStandards.put("PubliclyAccessible", "false");
     }
 
     public static String findStandardValue(String parameterName) {
-        return instanceCreationStandard.get(parameterName);
+        return instanceCreationStandards.get(parameterName);
     }
 
 }
