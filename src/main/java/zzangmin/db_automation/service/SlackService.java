@@ -6,7 +6,6 @@ import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.model.view.ViewSubmit;
@@ -16,21 +15,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Service;
 import zzangmin.db_automation.config.SlackConfig;
-import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.net.ssl.SSLHandshakeException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static com.slack.api.model.block.Blocks.*;
-import static com.slack.api.model.block.composition.BlockCompositions.plainText;
-import static com.slack.api.model.block.element.BlockElements.*;
 import static zzangmin.db_automation.config.SlackConfig.DEFAULT_CHANNEL_ID;
 import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
 import static zzangmin.db_automation.controller.SlackController.*;
@@ -160,7 +153,11 @@ public class SlackService {
             ChatPostMessageResponse chatPostMessageResponse = null;
             try {
                 chatPostMessageResponse = slackClient.chatPostMessage(request);
-            } catch (Exception e) {
+            } catch (SSLHandshakeException sslHandshakeException) {
+                log.info(sslHandshakeException.getMessage());
+                break;
+            }
+            catch (Exception e) {
                 log.info(e.getMessage());
             }
             log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
