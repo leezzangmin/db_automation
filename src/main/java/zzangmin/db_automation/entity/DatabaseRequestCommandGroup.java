@@ -37,6 +37,10 @@ public enum DatabaseRequestCommandGroup {
                     CommandType.FUNCTION,
                     CommandType.VIEW,
                     CommandType.TRIGGER)),
+    ACCOUNT("account",
+            List.of(CommandType.CREATE_USER,
+                    CommandType.GRANT_PRIVILEGE,
+                    CommandType.REVOKE_PRIVILEGE)),
     EMPTY("없음",
             List.of(CommandType.EMPTY));
 
@@ -71,6 +75,9 @@ public enum DatabaseRequestCommandGroup {
         FUNCTION,
         VIEW,
         TRIGGER,
+        CREATE_USER,
+        GRANT_PRIVILEGE,
+        REVOKE_PRIVILEGE,
         EMPTY
     }
 
