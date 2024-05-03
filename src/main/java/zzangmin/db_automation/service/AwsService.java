@@ -74,6 +74,24 @@ public class AwsService {
         return clusterParameterGroupNames;
     }
 
+    public String findClusterMasterUserName(String databaseIdentifier) {
+        /**
+         * writer 의 masterUsername return
+         */
+        log.info("findClusterMasterUserName databaseIdentifier: {}", databaseIdentifier);
+        DescribeDbInstancesResponse instancesResponse = awsClient.getRdsClient()
+                .describeDBInstances();
+        for (DBInstance dbInstance : instancesResponse.dbInstances()) {
+            log.info("dbInstance: {}", dbInstance);
+            List<String> readReplicaDBInstanceIdentifiers = dbInstance.readReplicaDBInstanceIdentifiers();
+            if (!readReplicaDBInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier())
+                    && dbInstance.dbInstanceIdentifier().startsWith(databaseIdentifier)) {
+                return dbInstance.masterUsername();
+            }
+        }
+        throw new IllegalStateException("Writer masterUsername not found");
+    }
+
     public List<Parameter> findClusterParameterGroupParameters(String parameterGroupName) {
         RdsClient rdsClient = awsClient.getRdsClient();
 
