@@ -1,6 +1,7 @@
 package zzangmin.db_automation.schedule.standardcheck;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
@@ -12,6 +13,7 @@ import zzangmin.db_automation.service.AwsService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Component
 public class AccountStandardChecker {
@@ -27,10 +29,13 @@ public class AccountStandardChecker {
                 .stream()
                 .collect(Collectors.toList());
         for (DatabaseConnectionInfo databaseConnectionInfo : databaseConnectionInfos) {
+            log.info("databaseConnectionInfo: {}", databaseConnectionInfo);
+            String masterUsername = awsService.findClusterMasterUserName(databaseConnectionInfo.getDatabaseName());
             List<MysqlAccount> mysqlAccounts = mysqlClient.findMysqlAccounts(databaseConnectionInfo)
                     .stream()
-                    .filter(account -> AccountStandard.getAccountBlackList()
-                            .contains(account))
+                    .filter(account -> !AccountStandard.getAccountBlackList()
+                            .contains(account.getUser()))
+                    .filter((account -> !account.getUser().equals(masterUsername)))
                     .collect(Collectors.toList());
             for (MysqlAccount mysqlAccount : mysqlAccounts) {
                 sb.append(checkPrivilege(mysqlAccount));
@@ -39,9 +44,10 @@ public class AccountStandardChecker {
                 }
             }
             if (AccountStandard.isMasterUserEnable()) {
-                sb.append(checkMasterUserExists(mysqlAccounts, databaseConnectionInfo));
+                sb.append(checkMasterUserExists(masterUsername, mysqlAccounts, databaseConnectionInfo));
             }
         }
+        log.info("account standard check result: {}", sb.toString());
         return sb.toString();
     }
 
@@ -50,7 +56,7 @@ public class AccountStandardChecker {
         List<MysqlAccount.Privilege> privileges = mysqlAccount.getPrivileges();
         for (MysqlAccount.Privilege privilege : privileges) {
             if (!AccountStandard.getApplicationAccountAllowedPrivileges().contains(privilege.getPermissionType())) {
-                sb.append(String.format("`%s` 계정에 허용되지 않은 `%s` 권한이 존재합니다.\n", mysqlAccount.getUser(), privilege.getPermissionType()));
+                sb.append(String.format("`%s` 계정에 허용되지 않은 `%s` TO `%s`.`%s` 권한이 존재합니다.\n", mysqlAccount.getUser(), privilege.getPermissionType(), privilege.getDatabaseName(), privilege.getObjectName()));
             }
         }
         return sb.toString();
@@ -64,10 +70,9 @@ public class AccountStandardChecker {
         return sb.toString();
     }
 
-    private String checkMasterUserExists(List<MysqlAccount> mysqlAccounts, DatabaseConnectionInfo databaseConnectionInfo) {
+    private String checkMasterUserExists(String masterUsername, List<MysqlAccount> mysqlAccounts, DatabaseConnectionInfo databaseConnectionInfo) {
         StringBuilder sb = new StringBuilder();
 
-        String masterUsername = awsService.findClusterMasterUserName(databaseConnectionInfo.getDatabaseName());
         if (mysqlAccounts.stream().map(account -> account.getUser()).collect(Collectors.toList()).contains(masterUsername)) {
             sb.append("masterUser 가 활성화되어있습니다. masterUsername: " + masterUsername + "\n");
         }
