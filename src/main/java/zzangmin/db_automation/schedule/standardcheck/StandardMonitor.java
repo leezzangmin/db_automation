@@ -14,6 +14,7 @@ public class StandardMonitor {
     private final ParameterStandardChecker parameterStandardChecker;
     private final SchemaStandardChecker schemaStandardChecker;
     private final TagStandardChecker tagStandardChecker;
+    private final AccountStandardChecker accountStandardChecker;
     private final SlackService slackService;
 
     //@Scheduled(fixedDelay = 1000000)
@@ -25,12 +26,14 @@ public class StandardMonitor {
         String instanceCreationStandardResult = instanceCreationStandardChecker.checkInstanceCreationStandard();
         String schemaStandardResult = schemaStandardChecker.checkSchemaStandard();
         String tagStandardResult = tagStandardChecker.checkTagStandard();
+        String accountStandardResult = accountStandardChecker.checkAccountStandard();
 
         standardCheckResult.append(parameterCheckResult);
         standardCheckResult.append(clusterCreationStandardResult);
         standardCheckResult.append(instanceCreationStandardResult);
         standardCheckResult.append(schemaStandardResult);
         standardCheckResult.append(tagStandardResult);
+        standardCheckResult.append(accountStandardResult);
 
         slackService.sendMessage(standardCheckResult.toString());
     }
