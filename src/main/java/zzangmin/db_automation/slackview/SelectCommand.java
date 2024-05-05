@@ -24,7 +24,7 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 @RequiredArgsConstructor
 @Component
 public class SelectCommand {
-    private final SelectClusterSchemaTable selectClusterSchemaTable;
+    private final CreateIndexBlockPage createIndexBlockPage;
 
     private static final String findCommandGroupPlaceholder = "select database command group";
     private static final String findCommandTypePlaceholder = "select database command type";
@@ -90,7 +90,7 @@ public class SelectCommand {
 
     private List<LayoutBlock> generateCommandTypeBlocks(DatabaseRequestCommandGroup.CommandType commandType) {
         if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
-            return selectClusterSchemaTable.selectClusterSchemaTableBlocks();
+            return createIndexBlockPage.createIndexBlocks();
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
             // generate createtableblock and add to blocks
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
