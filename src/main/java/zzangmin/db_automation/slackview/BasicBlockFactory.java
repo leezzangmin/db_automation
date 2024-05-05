@@ -26,6 +26,16 @@ public class BasicBlockFactory {
 //                .blockId(id));
 //    }
 
+    public static InputBlock findSinglelinePlainTextInput(String id, String label, String placeholder) {
+        return input(input -> input
+                .element(plainTextInput(pti -> pti.actionId(id)
+                        .multiline(false)
+                        .placeholder(plainText(placeholder))
+                ))
+                .label(plainText(label))
+                .blockId(id));
+    }
+
     public static ActionsBlock findSubmitButton(String id, String text, String value) {
         return actions(actions -> actions
                 .elements(asElements(
