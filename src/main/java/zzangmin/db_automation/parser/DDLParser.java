@@ -175,8 +175,8 @@ public class DDLParser {
     private String generateConstraintStatement(Set<Constraint> constraints) {
         StringBuilder sb = new StringBuilder();
         for (Constraint constraint : constraints) {
-            sb.append(constraint.getType());
-            if (!constraint.getType().equals("PRIMARY KEY")) {
+            sb.append(constraint.getConstraintType().getTypeName());
+            if (!constraint.getConstraintType().equals(Constraint.ConstraintType.PRIMARY)) {
                 sb.append(" `");
                 sb.append(constraint.getKeyName());
                 sb.append("`");

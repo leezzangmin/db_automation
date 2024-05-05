@@ -29,7 +29,7 @@ public class EntityFactory {
 
     public static Constraint generateBasicConstraint() {
         Constraint constraint = Constraint.builder()
-                .type("KEY")
+                .constraintType(Constraint.ConstraintType.KEY)
                 .keyName("column_name")
                 .keyColumnNames(new ArrayList<>(List.of("comlumn_name")))
                 .build();

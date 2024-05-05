@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static zzangmin.db_automation.convention.CommonConvention.CONSTRAINT_TYPE;
 
 
 public class IndexConvention {
@@ -14,12 +13,12 @@ public class IndexConvention {
     // https://dev.mysql.com/doc/refman/5.7/en/create-index.html
 
     public static void validateIndexConvention(Constraint constraint) {
-        if (!constraint.getType().equals("PRIMARY KEY")) {
+        if (!constraint.getConstraintType().equals(Constraint.ConstraintType.PRIMARY)) {
             CommonConvention.validateSnakeCase(constraint.getKeyName());
             validateConstraintNamingConvention(constraint.getKeyName(), constraint.getKeyColumnNames());
         }
         validateDuplicateColumnConvention(constraint.getKeyColumnNames());
-        checkConstraintType(constraint.getType());
+        checkConstraintType(constraint.getConstraintType().getTypeName());
     }
 
     public static void validateConstraintNamingConvention(String indexName, List<String> columnNames) {
@@ -39,8 +38,8 @@ public class IndexConvention {
     }
 
     private static void checkConstraintType(String constraintType) {
-        if (!CONSTRAINT_TYPE.contains(constraintType)) {
-            throw new IllegalArgumentException("허용된 Constraint Type 이 아닙니다. [" + constraintType + "], 허용된 타입: " + CONSTRAINT_TYPE);
+        if (!CommonConvention.ALLOWED_CONSTRAINT_TYPE.contains(constraintType)) {
+            throw new IllegalArgumentException("허용된 Constraint Type 이 아닙니다. [" + constraintType + "], 허용된 타입: " + CommonConvention.ALLOWED_CONSTRAINT_TYPE);
         }
     }
 
