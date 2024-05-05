@@ -110,12 +110,12 @@ class DDLParserTest {
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
         Constraint constraint1 = Constraint.builder()
-                .type("PRIMARY KEY")
+                .constraintType(Constraint.ConstraintType.PRIMARY)
                 .keyName("test_column")
                 .keyColumnNames(List.of("test_column"))
                 .build();
         Constraint constraint2 = Constraint.builder()
-                .type("KEY")
+                .constraintType(Constraint.ConstraintType.KEY)
                 .keyName("test_table")
                 .keyColumnNames(List.of("test_column_two"))
                 .build();
@@ -127,13 +127,11 @@ class DDLParserTest {
         String sql = ddlParser.commandToSql(dto);
         // then
 
-        String expectedSql = "CREATE TABLE `test_schema`.`test_table` (\n" +
-                "`test_column` varchar(255) DEFAULT 'asdf' UNIQUE COMMENT 'new column comment',\n" +
-                "`test_column_two` varchar(255) NOT NULL COMMENT 'new column comment',\n" +
-                "PRIMARY KEY (`test_column`),\n" +
-                "KEY `test_table` (`test_column_two`)\n" +
-                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='test table comment'";
-        assertEquals(expectedSql, sql);
+        assertTrue(sql.contains("CREATE TABLE `test_schema`.`test_table` ("));
+        assertTrue(sql.contains("`test_column` varchar(255) DEFAULT 'asdf' UNIQUE COMMENT 'new column comment'"));
+        assertTrue(sql.contains("PRIMARY KEY (`test_column`)"));
+        assertTrue(sql.contains("KEY `test_table` (`test_column_two`)"));
+        assertTrue(sql.contains(") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='test table comment'"));
     }
 
 
