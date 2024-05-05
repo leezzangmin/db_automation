@@ -36,7 +36,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
     private final FunctionDifferenceChecker functionDifferenceChecker;
     private final AccountDifferenceChecker accountDifferenceChecker;
 
-    @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
+    //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() throws Exception {
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
         for (String databaseName : databases.keySet()) {
@@ -46,12 +46,12 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
                     .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
                     .collect(Collectors.toList());
 
-//            databaseDifferenceChecker.saveDatabase(databaseConnectionInfo, schemaNames);
-//            tableDifferenceChecker.saveTable(databaseConnectionInfo, schemaNames);
-//            viewDifferenceChecker.saveViews(databaseConnectionInfo, schemaNames);
-//            procedureDifferenceChecker.saveProcedures(databaseConnectionInfo, schemaNames);
-//            triggerDifferenceChecker.saveTriggers(databaseConnectionInfo, schemaNames);
-//            functionDifferenceChecker.saveFunctions(databaseConnectionInfo, schemaNames);
+            databaseDifferenceChecker.saveDatabase(databaseConnectionInfo, schemaNames);
+            tableDifferenceChecker.saveTable(databaseConnectionInfo, schemaNames);
+            viewDifferenceChecker.saveViews(databaseConnectionInfo, schemaNames);
+            procedureDifferenceChecker.saveProcedures(databaseConnectionInfo, schemaNames);
+            triggerDifferenceChecker.saveTriggers(databaseConnectionInfo, schemaNames);
+            functionDifferenceChecker.saveFunctions(databaseConnectionInfo, schemaNames);
             accountDifferenceChecker.saveAccount(databaseConnectionInfo);
         }
 

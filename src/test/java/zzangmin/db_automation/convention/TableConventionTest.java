@@ -23,9 +23,9 @@ class TableConventionTest {
         // given
         Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         Column column2 = new Column("name", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
-        Constraint constraint2 = new Constraint("KEY", "name", List.of("name"));
-        Constraint constraint3 = new Constraint("KEY", "id_name", List.of("id_name"));
+        Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
+        Constraint constraint2 = new Constraint(Constraint.ConstraintType.KEY, "name", List.of("name"));
+        Constraint constraint3 = new Constraint(Constraint.ConstraintType.KEY, "id_name", List.of("id_name"));
         Table table = new Table("table_name", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
         Assertions.assertDoesNotThrow(() -> TableConvention.validateTableConvention(table));
@@ -38,9 +38,9 @@ class TableConventionTest {
         // given
         Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         Column column2 = new Column("name", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
-        Constraint constraint2 = new Constraint("KEY", "name", List.of("name"));
-        Constraint constraint3 = new Constraint("KEY", "id_name", List.of("id_name"));
+        Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
+        Constraint constraint2 = new Constraint(Constraint.ConstraintType.KEY, "name", List.of("name"));
+        Constraint constraint3 = new Constraint(Constraint.ConstraintType.KEY, "id_name", List.of("id_name"));
         Table table = new Table("NOTSNAKE123", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
@@ -53,9 +53,9 @@ class TableConventionTest {
         // given
         Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         Column column2 = new Column("name123", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
-        Constraint constraint2 = new Constraint("KEY", "name", List.of("name"));
-        Constraint constraint3 = new Constraint("KEY", "id_name", List.of("id_name"));
+        Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
+        Constraint constraint2 = new Constraint(Constraint.ConstraintType.KEY, "name", List.of("name"));
+        Constraint constraint3 = new Constraint(Constraint.ConstraintType.KEY, "id_name", List.of("id_name"));
         Table table = new Table("test_table", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
@@ -68,9 +68,9 @@ class TableConventionTest {
         // given
         Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         Column column2 = new Column("name", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
-        Constraint constraint2 = new Constraint("KEY", "a1", List.of("name"));
-        Constraint constraint3 = new Constraint("KEY", "id_name", List.of("id_name"));
+        Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
+        Constraint constraint2 = new Constraint(Constraint.ConstraintType.KEY, "a1", List.of("name"));
+        Constraint constraint3 = new Constraint(Constraint.ConstraintType.KEY, "id_name", List.of("id_name"));
         Table table = new Table("test_table", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
@@ -83,7 +83,7 @@ class TableConventionTest {
         // given
         Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         Column column2 = new Column("id", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
+        Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Table table = new Table("NOTSNAKE123", Set.of(column1, column2), Set.of(constraint1), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
@@ -96,9 +96,9 @@ class TableConventionTest {
         // given
         Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         Column column2 = new Column("name", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
-        Constraint constraint2 = new Constraint("KEY", "name", List.of("name"));
-        Constraint constraint3 = new Constraint("KEY", "id_name", List.of("id_name"));
+        Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
+        Constraint constraint2 = new Constraint(Constraint.ConstraintType.KEY, "name", List.of("name"));
+        Constraint constraint3 = new Constraint(Constraint.ConstraintType.KEY, "id_name", List.of("id_name"));
         Table table1 = new Table("table_name", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "NOENGINE", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         Table table2 = new Table("table_name", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "invalidaCharacterSet", "utf8mb4_0900_ai_ci", "table comment");
         Table table3 = new Table("table_name", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "invalidCollate", "table comment");

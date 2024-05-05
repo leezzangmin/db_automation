@@ -26,6 +26,9 @@ public class CreateIndexRequestDTO extends DDLRequestDTO {
         private List<String> columnNames;
 
         public Constraint toConstraint() {
-                return new Constraint(this.getIndexType(), this.getIndexName(), this.getColumnNames());
+
+                return new Constraint(Constraint.ConstraintType.valueOf(this.getIndexType()),
+                        this.getIndexName(),
+                        this.getColumnNames());
         }
 }

@@ -233,9 +233,9 @@ public class MysqlClient {
                 String unique = resultSet.getString("NON_UNIQUE");
                 if (unique.equals("0")) {
                     if (indexName.equals("PRIMARY")) {
-                        indexTypes.put(indexName, "PRIMARY KEY");
+                        indexTypes.put(indexName, "PRIMARY");
                     } else {
-                        indexTypes.put(indexName, "UNIQUE KEY");
+                        indexTypes.put(indexName, "UNIQUE");
                     }
                 } else {
                     indexTypes.put(indexName, "KEY");
@@ -254,7 +254,8 @@ public class MysqlClient {
             for (String indexName : indexNames.keySet()) {
                 List<String> columnNames = indexNames.get(indexName);
                 String type = indexTypes.get(indexName);
-                Constraint constraint = new Constraint(type, String.join("_", columnNames), columnNames);
+                log.info("type: {}", type);
+                Constraint constraint = new Constraint(Constraint.ConstraintType.valueOf(type), String.join("_", columnNames), columnNames);
                 constraints.add(constraint);
             }
             log.info("findIndexes: {}", statement);
@@ -812,7 +813,7 @@ public class MysqlClient {
                         keyColumnNames.put(tableName, new HashMap<>(Map.of(indexName, new ArrayList<>(List.of(columnName)))));
                     }
 
-                    Constraint constraint = new Constraint(indexName.equals("PRIMARY") ? "PRIMARY KEY" : (nonUnique.equals("1") ? "KEY" : "UNIQUE KEY"), indexName,  new ArrayList<>());
+                    Constraint constraint = new Constraint(indexName.equals("PRIMARY") ? Constraint.ConstraintType.PRIMARY : (nonUnique.equals("1") ? Constraint.ConstraintType.KEY : Constraint.ConstraintType.UNIQUE), indexName,  new ArrayList<>());
 
                     if (tableConstraints.containsKey(tableName)) {
                         tableConstraints.get(tableName)

@@ -14,7 +14,7 @@ public class CommonConvention {
     public static final String CHARSET = CommonStandard.CHARSET;
     public static final int BYTE_PER_CHARACTER = 4;
     public static final String COLLATE = CommonStandard.COLLATE;
-    public static final Set<String> CONSTRAINT_TYPE = Set.of("PRIMARY KEY", "UNIQUE KEY", "KEY");
+    public static final Set<String> ALLOWED_CONSTRAINT_TYPE = Set.of("PRIMARY KEY", "UNIQUE KEY", "KEY");
 
     public static final Pattern SNAKE_CASE_PATTERN = Pattern.compile("^[a-z]+(_[a-z]+)*$");
     public static final Pattern PURE_LOWER_CASE_PATTER = Pattern.compile("^[a-z_]+$");

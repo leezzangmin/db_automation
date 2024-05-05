@@ -145,8 +145,8 @@ class DDLValidatorTest {
         Column column1 = new Column("id", "INT", false, "0", false, true, "column1 comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         Column column2 = new Column("name", "INT", false, "0", false, false, "column2 comment", "utf8mb4", "utf8mb4_0900_ai_ci");
 
-        Constraint constraint1 = new Constraint("PRIMARY KEY", "id", List.of("id"));
-        Constraint constraint2 = new Constraint("UNIQUE KEY", "name", List.of("name"));
+        Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
+        Constraint constraint2 = new Constraint(Constraint.ConstraintType.UNIQUE, "name", List.of("name"));
         CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", Set.of(column1), Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
         //when & then

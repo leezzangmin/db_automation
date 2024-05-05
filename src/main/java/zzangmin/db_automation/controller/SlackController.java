@@ -49,6 +49,9 @@ public class SlackController {
     public static String findSchemaSelectsElementActionId = "selectSchemaName";
 
     public static String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
+    public static String createIndexIndexNameTextInputId = "inputIndexName";
+    public static String createIndexColumnNameTextInputId = "inputIndexName";
+    public static String findIndexTypeActionId = "selectIndexType";
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload,

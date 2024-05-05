@@ -2,9 +2,11 @@ package zzangmin.db_automation.entity;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import zzangmin.db_automation.convention.CommonConvention;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @ToString
 @Getter
@@ -14,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Constraint {
     @NotBlank
-    private String type; // PRIMARY KEY, UNIQUE KEY, KEY
+    private ConstraintType constraintType; // PRIMARY KEY, UNIQUE KEY, KEY
     @NotBlank
     private String keyName; // promotion_type_date_promotion_end
     @NotBlank
@@ -27,8 +29,8 @@ public class Constraint {
 
     public String reportDifference(Constraint otherConstraint) {
         StringBuilder differences = new StringBuilder();
-        if (!this.type.equals(otherConstraint.type)) {
-            differences.append(String.format("제약조건 타입이 다릅니다: `%s` <-> `%s`\n", this.type, otherConstraint.type));
+        if (!this.constraintType.equals(otherConstraint.constraintType)) {
+            differences.append(String.format("제약조건 타입이 다릅니다: `%s` <-> `%s`\n", this.constraintType.typeName, otherConstraint.constraintType.typeName));
         }
         if (!this.keyName.equals(otherConstraint.keyName)) {
             differences.append(String.format("제약조건 이름이 다릅니다: `%s` <-> `%s`\n", this.keyName, otherConstraint.keyName));
@@ -38,4 +40,23 @@ public class Constraint {
         }
         return differences.toString();
     }
+
+
+    @Getter
+    public enum ConstraintType {
+
+        PRIMARY("PRIMARY KEY"),
+        UNIQUE("UNIQUE KEY"),
+        KEY("KEY");
+
+        private String typeName;
+
+        ConstraintType(String typeName) {
+            if (!CommonConvention.ALLOWED_CONSTRAINT_TYPE.contains(typeName)) {
+                throw new IllegalArgumentException("허용된 Constraint Type 이 아닙니다. [" + typeName + "], 허용된 타입: " + CommonConvention.ALLOWED_CONSTRAINT_TYPE);
+            }
+            this.typeName = typeName;
+        }
+    }
+
 }

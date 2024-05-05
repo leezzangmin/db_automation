@@ -233,9 +233,9 @@ public class MysqlClientTest {
         // then
         assertNotNull(indexes);
         for (Constraint index : indexes) {
-            if (index.getType().equals("PRIMARY KEY")) {
+            if (index.getConstraintType().equals(Constraint.ConstraintType.PRIMARY)) {
                 assertThat(index.getKeyName()).isEqualTo("id");
-            } else if (index.getType().equals("KEY")) {
+            } else if (index.getConstraintType().equals(Constraint.ConstraintType.KEY)) {
                 assertThat(index.getKeyName()).isEqualTo("name");
             }
         }

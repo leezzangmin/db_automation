@@ -39,7 +39,7 @@ public class TableConvention {
             CommonConvention.validateLowerCaseString(column.getName());
         }
         for (Constraint constraint : constraints) {
-            if (constraint.getType().equals("PRIMARY KEY")) {
+            if (constraint.getConstraintType().equals(Constraint.ConstraintType.PRIMARY)) {
                 continue;
             }
             CommonConvention.validateSnakeCase(constraint.getKeyName());

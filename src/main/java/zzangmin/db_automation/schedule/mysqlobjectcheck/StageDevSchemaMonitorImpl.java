@@ -37,7 +37,7 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
     private final AccountDifferenceChecker accountDifferenceChecker;
 
 
-    @Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
+    //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() {
         slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 시작 !");
 
@@ -53,11 +53,11 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
             schemaCheckResult.append(databaseDifferenceChecker.compareDatabaseCrossAccount(databaseConnectionInfo));
             StringBuilder schemaResult = new StringBuilder();
             for (String schemaName : schemaNames) {
-//                schemaResult.append(tableDifferenceChecker.compareTableCrossAccount(databaseConnectionInfo, schemaName));
-//                schemaResult.append(viewDifferenceChecker.compareViewCrossAccount(databaseConnectionInfo, schemaName));
-//                schemaResult.append(procedureDifferenceChecker.compareProcedureCrossAccount(databaseConnectionInfo, schemaName));
-//                schemaResult.append(triggerDifferenceChecker.compareTriggerCrossAccount(databaseConnectionInfo, schemaName));
-//                schemaResult.append(functionDifferenceChecker.compareFunctionCrossAccount(databaseConnectionInfo, schemaName));
+                schemaResult.append(tableDifferenceChecker.compareTableCrossAccount(databaseConnectionInfo, schemaName));
+                schemaResult.append(viewDifferenceChecker.compareViewCrossAccount(databaseConnectionInfo, schemaName));
+                schemaResult.append(procedureDifferenceChecker.compareProcedureCrossAccount(databaseConnectionInfo, schemaName));
+                schemaResult.append(triggerDifferenceChecker.compareTriggerCrossAccount(databaseConnectionInfo, schemaName));
+                schemaResult.append(functionDifferenceChecker.compareFunctionCrossAccount(databaseConnectionInfo, schemaName));
 
                 if (!schemaResult.isEmpty()) {
                     schemaCheckResult.append("\n====================");
