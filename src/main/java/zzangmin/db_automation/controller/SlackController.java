@@ -106,6 +106,9 @@ public class SlackController {
             viewBlocks = view.getBlocks();
             state = view.getState();
             CommandType findCommandType = findCommandType(state);
+            log.info("state: {}", state);
+            log.info("view: {}", view);
+            log.info("values: {}", state.getValues());
             slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
 
 
