@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.SlackController;
 import zzangmin.db_automation.entity.Constraint;
+import zzangmin.db_automation.service.SlackService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.actions;
+import static com.slack.api.model.block.Blocks.section;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.asElements;
 import static com.slack.api.model.block.element.BlockElements.button;
@@ -42,35 +44,16 @@ public class CreateIndexBlockPage {
                         .value(constraintType.getTypeName())
                         .build())
                 .collect(Collectors.toList());
-//        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findIndexTypeActionId,
-//                indexTypeOptions,
-//                createIndexTypePlaceHolder));
-//        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexIndexNameTextInputId,
-//                createIndexIndexNameTextInputLabelId,
-//                createIndexNamePlaceHolder));
-//        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId,
-//                SlackController.createIndexColumnNameTextInputId,
-//                createIndexColumnPlaceHolder));
-        ActionsBlock createIndexActionBlocks = actions(actions -> actions
-                .elements(asElements(
-                        BasicBlockFactory.findStaticSelectsElement(SlackController.findIndexTypeActionId,
-                                indexTypeOptions,
-                                createIndexTypePlaceHolder),
-                        BasicBlockFactory.findSinglelinePlainTextInputElement(SlackController.createIndexIndexNameTextInputId,
-                                createIndexIndexNameTextInputLabelId,
-                                createIndexNamePlaceHolder),
-                        BasicBlockFactory.findSinglelinePlainTextInputElement(SlackController.createIndexColumnNameTextInputId,
-                                SlackController.createIndexColumnNameTextInputId,
-                                createIndexColumnPlaceHolder)
-                ))
-        );
-        blocks.add(createIndexActionBlocks);
-        int i=0;
-        for (LayoutBlock block : blocks) {
-            System.out.println("i = " + i);
-            i++;
-            System.out.println("block = " + block);
-        }
+        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findIndexTypeActionId,
+                indexTypeOptions,
+                createIndexTypePlaceHolder));
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexIndexNameTextInputId,
+                createIndexIndexNameTextInputLabelId,
+                createIndexNamePlaceHolder));
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId,
+                SlackController.createIndexColumnNameTextInputId,
+                createIndexColumnPlaceHolder));
+
         return blocks;
     }
 
@@ -83,9 +66,8 @@ public class CreateIndexBlockPage {
     }
 
     public List<LayoutBlock> handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        List<String> columnNames = new ArrayList<>();
-        String indexName = "indexName";
-
+        String indexName = SlackService.findCurrentValueFromState(values, SlackController.createIndexIndexNameTextInputId);
+        System.out.println("indexName = " + indexName);
         return null;
     }
 
