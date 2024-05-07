@@ -56,10 +56,10 @@ public class SlackActionHandler {
     }
 
     public void handleSubmission(DatabaseRequestCommandGroup.CommandType commandType, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        log.info("<submission> commandType: {}\nblocks: {}\nvalues: {}", commandType, currentBlocks, values);
+        log.info("<submission> commandType: {}", commandType);
         if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
             createIndexBlockPage.handleSubmission(currentBlocks, values);
-            log.info("commandType: {}\ncurrentBlocks: {}", commandType, currentBlocks);
+            log.info("currentBlocks: {}", currentBlocks);
         } else if(commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
             return;
         }

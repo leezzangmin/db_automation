@@ -16,8 +16,6 @@ import zzangmin.db_automation.config.DynamicDataSourceProperties;
 @Component
 public class TargetDatabaseArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private final DynamicDataSourceProperties dataSourceProperties;
-
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         boolean hasAuthAnnotation = parameter.hasParameterAnnotation(TargetDatabase.class);
@@ -29,6 +27,6 @@ public class TargetDatabaseArgumentResolver implements HandlerMethodArgumentReso
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         String databaseNameInput = request.getParameter("databaseName");
-        return dataSourceProperties.findByDbName(databaseNameInput);
+        return DynamicDataSourceProperties.findByDbName(databaseNameInput);
     }
 }

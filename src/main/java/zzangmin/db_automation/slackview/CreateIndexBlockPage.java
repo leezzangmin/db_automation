@@ -6,7 +6,11 @@ import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.config.DynamicDataSourceProperties;
+import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.controller.SlackController;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.service.SlackService;
 
@@ -28,6 +32,7 @@ import static com.slack.api.model.block.element.BlockElements.button;
 public class CreateIndexBlockPage {
 
     private final SelectClusterSchemaTable selectClusterSchemaTable;
+    private final DDLController ddlController;
 
     private static String createIndexIndexNameTextInputLabelId = "Index Name: ";
     private static String createIndexNamePlaceHolder = "idx_orderno_createdat";
@@ -69,9 +74,27 @@ public class CreateIndexBlockPage {
         String indexName = SlackService.findCurrentValueFromState(values, SlackController.createIndexIndexNameTextInputId);
         log.info("indexName: {}", indexName);
 
-        Constraint.ConstraintType constraintType = Constraint.ConstraintType.valueOf(SlackService.findCurrentValueFromState(values, SlackController.findIndexTypeActionId));
-        log.info("constraintType: {}", constraintType);
+        String indexType = SlackService.findCurrentValueFromState(values, SlackController.findIndexTypeActionId);
+        log.info("indexType: {}", indexType);
 
+        String schemaName = SlackService.findCurrentValueFromState(values, SlackController.findSchemaSelectsElementActionId);
+        log.info("schemaName: {}", schemaName);
+
+        String tableName = SlackService.findCurrentValueFromState(values, SlackController.findTableSelectsElementActionId);
+        log.info("tableName: {}", tableName);
+
+
+        CreateIndexRequestDTO createIndexRequestDTO = CreateIndexRequestDTO.builder()
+                .schemaName(schemaName)
+                .tableName(tableName)
+                .indexName(indexName)
+                .indexType(indexType)
+                .columnNames(List.of("name"))
+                .build();
+
+        String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
+        ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         return null;
     }
 
