@@ -23,6 +23,7 @@ import javax.net.ssl.SSLHandshakeException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static zzangmin.db_automation.config.SlackConfig.DEFAULT_CHANNEL_ID;
 import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
@@ -188,6 +189,11 @@ public class SlackService {
                 if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
                     return i;
                 }
+            } else if (block instanceof ContextBlock) {
+                ContextBlock childBlock = (ContextBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
             } else {
                 throw new IllegalArgumentException("지원하지 않는 LayoutBlock 하위 클래스 입니다.");
             }
@@ -198,11 +204,23 @@ public class SlackService {
     public static String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
         log.info("values: {}", values);
         log.info("targetValueKey: {}", targetValueKey);
+        String selectedValue;
         for (String componentId : values.keySet()) {
             if (componentId.equals(targetValueKey)) {
                 Map<String, ViewState.Value> stringValueMap = values.get(componentId);
                 log.info("stringValueMap: {}", stringValueMap);
-                String selectedValue = stringValueMap.get(targetValueKey).getSelectedOption().getValue();
+                ViewState.Value value = stringValueMap.get(targetValueKey);
+
+                // static select
+                if (stringValueMap.get(targetValueKey).getSelectedOption() == null) {
+                    selectedValue = stringValueMap.get(targetValueKey).getValue();
+                }
+                // plain text input
+                else {
+                    selectedValue = stringValueMap.get(targetValueKey)
+                            .getSelectedOption()
+                            .getValue();
+                }
                 log.info("selectedValue: {}", selectedValue);
                 return selectedValue;
             }

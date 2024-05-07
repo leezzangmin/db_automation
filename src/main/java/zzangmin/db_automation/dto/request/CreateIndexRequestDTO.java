@@ -1,16 +1,14 @@
 package zzangmin.db_automation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import zzangmin.db_automation.entity.Constraint;
 
 import java.util.List;
 
 @ToString
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateIndexRequestDTO extends DDLRequestDTO {
@@ -26,8 +24,7 @@ public class CreateIndexRequestDTO extends DDLRequestDTO {
         private List<String> columnNames;
 
         public Constraint toConstraint() {
-
-                return new Constraint(Constraint.ConstraintType.valueOf(this.getIndexType()),
+                return new Constraint(Constraint.ConstraintType.generateConstraintTypeByTypeName(this.getIndexType()),
                         this.getIndexName(),
                         this.getColumnNames());
         }

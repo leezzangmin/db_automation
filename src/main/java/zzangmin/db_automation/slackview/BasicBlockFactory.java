@@ -7,6 +7,7 @@ import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewSubmit;
 import com.slack.api.model.view.ViewTitle;
 
+import javax.naming.Context;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -15,16 +16,6 @@ import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.*;
 
 public class BasicBlockFactory {
-
-//    public static InputBlock findMultilinePlainTextInput(String id, String label, String placeholder) {
-//        return input(input -> input
-//                .element(plainTextInput(pti -> pti.actionId(id)
-//                        .multiline(true)
-//                        .placeholder(plainText(placeholder))
-//                ), richTextPreformatted(pt -> pt.))
-//                .label(plainText(label))
-//                .blockId(id));
-//    }
 
     public static InputBlock findSinglelinePlainTextInput(String id, String label, String placeholder) {
         return input(input -> input
@@ -103,6 +94,12 @@ public class BasicBlockFactory {
         return labelBlock;
     }
 
+    public static ContextBlock getContextBlock(String text, String contextId) {
+        return ContextBlock.builder()
+                .elements(List.of(plainText(text)))
+                .blockId(contextId)
+                .build();
+    }
 
     /**
      * rich text는 developer에게 지원되지 않음

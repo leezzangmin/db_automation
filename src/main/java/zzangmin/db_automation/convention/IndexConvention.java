@@ -18,7 +18,7 @@ public class IndexConvention {
             validateConstraintNamingConvention(constraint.getKeyName(), constraint.getKeyColumnNames());
         }
         validateDuplicateColumnConvention(constraint.getKeyColumnNames());
-        checkConstraintType(constraint.getConstraintType().getTypeName());
+        checkConstraintType(constraint.getConstraintType().typeName);
     }
 
     public static void validateConstraintNamingConvention(String indexName, List<String> columnNames) {

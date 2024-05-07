@@ -21,7 +21,7 @@ public class DynamicDataSourceProperties {
 
     private static Map<String, DatabaseConnectionInfo> databases = new ConcurrentHashMap<>();
 
-    public DatabaseConnectionInfo findByDbName(String dbName) {
+    public static DatabaseConnectionInfo findByDbName(String dbName) {
         if (dbName == null || dbName == "") {
             throw new IllegalArgumentException("올바른 DB 명이 아닙니다.");
         }

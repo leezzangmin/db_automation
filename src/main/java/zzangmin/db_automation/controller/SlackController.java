@@ -9,7 +9,10 @@ import com.slack.api.methods.request.views.ViewsUpdateRequest;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.methods.response.views.ViewsUpdateResponse;
 import com.slack.api.model.block.*;
+import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
+import com.slack.api.model.view.ViewClose;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +24,20 @@ import org.springframework.web.util.HtmlUtils;
 
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
 import zzangmin.db_automation.slackview.SelectCommand;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
+import static com.slack.api.model.block.Blocks.*;
+import static com.slack.api.model.block.composition.BlockCompositions.markdownText;
+import static com.slack.api.model.block.composition.BlockCompositions.plainText;
+import static com.slack.api.model.block.element.BlockElements.asElements;
+import static com.slack.api.model.block.element.BlockElements.button;
 import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 
 @Slf4j
@@ -41,20 +51,21 @@ public class SlackController {
     private final SlackActionHandler slackActionHandler;
 
 
-    public static String tableSchemaLabelId = "tableSchemaLabel";
-    public static String tableSchemaTextId = "tableSchemaText";
-    public static String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
-    public static String findClusterSelectsElementActionId = "selectClusterName";
-    public static String findTableSelectsElementActionId = "selectTableName";
-    public static String findSchemaSelectsElementActionId = "selectSchemaName";
+    public static final String tableSchemaContextId = "tableSchemaContext";
+    public static final String tableSchemaTextId = "tableSchemaText";
+    public static final String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
+    public static final String findClusterSelectsElementActionId = "selectClusterName";
+    public static final String findTableSelectsElementActionId = "selectTableName";
+    public static final String findSchemaSelectsElementActionId = "selectSchemaName";
 
-    public static String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
-    public static String createIndexIndexNameTextInputId = "inputCreateIndexIndexName";
-    public static String createIndexColumnNameTextInputId = "inputCreateIndexColumnName";
-    public static String findIndexTypeActionId = "selectIndexType";
+    public static final String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
+    public static final String createIndexIndexNameTextInputId = "inputCreateIndexIndexName";
+    public static final String createIndexColumnNameTextInputId = "inputCreateIndexColumnName";
+    public static final String findIndexTypeActionId = "selectIndexType";
+    public static final String errorContextBlockId = "errorContextBlock";
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload,
+    public ResponseEntity slackCallBack(@RequestParam String payload,
                                                  @RequestBody String requestBody,
                                                  @RequestHeader("X-Slack-Signature") String slackSignature,
                                                  @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException, SlackApiException {
@@ -94,12 +105,20 @@ public class SlackController {
             log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
 
             view = viewSubmissionPayload.getView();
+            viewBlocks = view.getBlocks();
             state = view.getState();
             CommandType findCommandType = findCommandType(state);
-
-//            List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
-//            viewBlocks = layoutBlocks;
-
+            try {
+                // TODO: USER
+                slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
+                return ResponseEntity.ok(true);
+                // view close
+            } catch (Exception e) {
+                // error block print
+                viewBlocks.add(slackActionHandler.handleException(e));
+                updateView(viewBlocks, view);
+                throw e;
+            }
 
         } else {
             throw new IllegalArgumentException("미지원 payload");
@@ -149,6 +168,37 @@ public class SlackController {
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
                 .view(slackService.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
+
+//        List<LayoutBlock> layoutBlocks = new ArrayList<>();
+//        layoutBlocks.add(section(section -> section.text(markdownText("새로운 배송팁이 등록되었습니다."))));
+//        layoutBlocks.add(divider());
+//        List<OptionObject> optionObjects = BasicBlockFactory.generateEmptyOptionObjects();
+//        StaticSelectElement clusterSelects = StaticSelectElement.builder()
+//                .options(optionObjects)
+//                .placeholder(plainText("testblockholder"))
+//                .actionId("testactionid")
+//                .build();
+//
+//        layoutBlocks.add(
+//                actions(actions -> actions
+//                        .elements(asElements(
+//                                button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
+//                                        .value("deliveryTip.getSeq().toString()")
+//                                        .style("primary")
+//                                        .text(plainText("ddd"))
+//                                        .actionId("aaa")
+//                                ),
+//                                clusterSelects
+//                        ))
+//                )
+//        );
+//        layoutBlock = ActionsBlock(type=actions, elements=[
+//
+//                ButtonElement(type=button, text=PlainTextObject(type=plain_text, text=ddd, emoji=null), actionId=aaa, url=null, value=deliveryTip.getSeq().toString(), style=primary, confirm=null, accessibilityLabel=null),
+//
+//                StaticSelectElement(type=static_select, placeholder=PlainTextObject(type=plain_text, text=testblockholder, emoji=null), actionId=testactionid, options=[OptionObject(text=PlainTextObject(type=plain_text, text=empty option objects, emoji=null), value=dropdown option empty..., description=null, url=null)], optionGroups=null, initialOption=null, confirm=null, focusOnLoad=null)
+//
+//], blockId=null)
 
     }
 

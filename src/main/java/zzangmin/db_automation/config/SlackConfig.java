@@ -16,7 +16,7 @@ public class SlackConfig {
     public String slackToken;
     public static String slackAppSigningSecret;
 
-    public static String DEFAULT_CHANNEL_ID = "C04282D342D"; // TODO: env
+    public static String DEFAULT_CHANNEL_ID = "C06R9FPERDE"; // TODO: env
 
     public static final int MAX_MESSAGE_SIZE = 10000;
 

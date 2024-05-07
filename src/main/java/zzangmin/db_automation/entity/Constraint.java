@@ -42,20 +42,28 @@ public class Constraint {
     }
 
 
-    @Getter
     public enum ConstraintType {
 
         PRIMARY("PRIMARY KEY"),
         UNIQUE("UNIQUE KEY"),
         KEY("KEY");
 
-        private String typeName;
+        public final String typeName;
 
         ConstraintType(String typeName) {
             if (!CommonConvention.ALLOWED_CONSTRAINT_TYPE.contains(typeName)) {
                 throw new IllegalArgumentException("허용된 Constraint Type 이 아닙니다. [" + typeName + "], 허용된 타입: " + CommonConvention.ALLOWED_CONSTRAINT_TYPE);
             }
             this.typeName = typeName;
+        }
+        public static ConstraintType generateConstraintTypeByTypeName(String typeName) {
+            ConstraintType[] constraintTypes = ConstraintType.values();
+            for (ConstraintType constraintType : constraintTypes) {
+                if (constraintType.typeName.equals(typeName)) {
+                    return constraintType;
+                }
+            }
+            throw new IllegalArgumentException("typeName 이 존재하지 않음");
         }
     }
 

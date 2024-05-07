@@ -1,9 +1,6 @@
 package zzangmin.db_automation.slackview;
 
-import com.slack.api.model.block.ActionsBlock;
-import com.slack.api.model.block.InputBlock;
-import com.slack.api.model.block.LayoutBlock;
-import com.slack.api.model.block.SectionBlock;
+import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +26,6 @@ import static zzangmin.db_automation.controller.SlackController.findSchemaSelect
 @Component
 public class SelectClusterSchemaTable {
     private final DescribeService describeService;
-    private final DynamicDataSourceProperties dataSourceProperties;
 
     private final String clusterPlaceholder = "select cluster";
     private final String schemaPlaceholder = "select schema";
@@ -59,8 +55,8 @@ public class SelectClusterSchemaTable {
                 tablePlaceholder));
 
         String tableSchemaLabelText = "<Table Schema>";
-        InputBlock labelBLock = BasicBlockFactory.getLabelBLock(tableSchemaLabelText, SlackController.tableSchemaLabelId);
-        blocks.add(labelBLock);
+        ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackController.tableSchemaContextId);
+        blocks.add(contextBlock);
 
         SectionBlock textSection = BasicBlockFactory.getTextSection("choose table", SlackController.tableSchemaTextId);
         blocks.add(textSection);
@@ -70,8 +66,8 @@ public class SelectClusterSchemaTable {
     public List<LayoutBlock> fetchTableSchemaBlocks(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
         List<LayoutBlock> blocks = new ArrayList<>();
         String tableSchemaLabelText = "<Table Schema>";
-        InputBlock labelBLock = BasicBlockFactory.getLabelBLock(tableSchemaLabelText, SlackController.tableSchemaLabelId);
-        blocks.add(labelBLock);
+        ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackController.tableSchemaContextId);
+        blocks.add(contextBlock);
 
         String tableSchema = describeService.findTableSchema(databaseConnectionInfo, schemaName, tableName);
         SectionBlock textSection = BasicBlockFactory.getTextSection(tableSchema, SlackController.tableSchemaTextId);
@@ -101,7 +97,7 @@ public class SelectClusterSchemaTable {
             return currentBlocks;
         }
         String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = dataSourceProperties.findByDbName(selectedDBMSName);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
         String selectedSchemaName = SlackService.findCurrentValueFromState(values, SlackController.findSchemaSelectsElementActionId);
         String selectedTableName = SlackService.findCurrentValueFromState(values, SlackController.findTableSelectsElementActionId);
         SectionBlock tableSchema = (SectionBlock) fetchTableSchemaBlocks(selectedDatabaseConnectionInfo, selectedSchemaName, selectedTableName).get(1);
@@ -112,7 +108,7 @@ public class SelectClusterSchemaTable {
     private void setSchemaNameOptions(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String DBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
         log.info("DBMSName: {}", DBMSName);
-        DatabaseConnectionInfo databaseConnectionInfo = dataSourceProperties.findByDbName(DBMSName);
+        DatabaseConnectionInfo databaseConnectionInfo = DynamicDataSourceProperties.findByDbName(DBMSName);
         List<OptionObject> schemaNameOptions = fetchSchemaNameOptions(databaseConnectionInfo);
         ActionsBlock schemaSelects = BasicBlockFactory.findStaticSelectsBlock(findSchemaSelectsElementActionId,
                 schemaNameOptions,
@@ -131,7 +127,7 @@ public class SelectClusterSchemaTable {
     private void setTableNameOptions(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         int selectTableNameBlockIndex = SlackService.findBlockIndex(currentBlocks, "actions", SlackController.findTableSelectsElementActionId);
         String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = dataSourceProperties.findByDbName(selectedDBMSName);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
         String selectedSchemaName = SlackService.findCurrentValueFromState(values, SlackController.findSchemaSelectsElementActionId);
         List<OptionObject> tableNameOptions = fetchTableNameOptions(selectedDatabaseConnectionInfo, selectedSchemaName);
         ActionsBlock tableSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackController.findTableSelectsElementActionId,
