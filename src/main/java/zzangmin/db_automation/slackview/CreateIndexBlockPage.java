@@ -45,8 +45,8 @@ public class CreateIndexBlockPage {
         blocks.addAll(selectClusterSchemaTable.selectClusterSchemaTableBlocks());
         List<OptionObject> indexTypeOptions = Arrays.stream(Constraint.ConstraintType.values())
                 .map(constraintType -> OptionObject.builder()
-                        .text(plainText(constraintType.getTypeName()))
-                        .value(constraintType.getTypeName())
+                        .text(plainText(constraintType.name()))
+                        .value(constraintType.name())
                         .build())
                 .collect(Collectors.toList());
         blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findIndexTypeActionId,

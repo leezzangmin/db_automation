@@ -42,7 +42,6 @@ public class Constraint {
     }
 
 
-    @Getter
     public enum ConstraintType {
 
         PRIMARY("PRIMARY KEY"),
