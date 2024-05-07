@@ -7,6 +7,7 @@ import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewSubmit;
 import com.slack.api.model.view.ViewTitle;
 
+import javax.naming.Context;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,15 +85,21 @@ public class BasicBlockFactory {
 
     public static InputBlock getLabelBLock(String labelText, String labelId) {
         InputBlock labelBlock = InputBlock.builder()
-//                .element(PlainTextInputElement.builder()
-//                        .actionId(labelId)
-//                        .build())
+                .element(PlainTextInputElement.builder()
+                        .actionId(labelId)
+                        .build())
                 .label(plainText(labelText))
                 .blockId(labelId)
                 .build();
         return labelBlock;
     }
 
+    public static ContextBlock getContextBlock(String text, String contextId) {
+        return ContextBlock.builder()
+                .elements(List.of(plainText(text)))
+                .blockId(contextId)
+                .build();
+    }
 
     /**
      * rich text는 developer에게 지원되지 않음

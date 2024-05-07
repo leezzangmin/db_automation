@@ -1,9 +1,6 @@
 package zzangmin.db_automation.slackview;
 
-import com.slack.api.model.block.ActionsBlock;
-import com.slack.api.model.block.InputBlock;
-import com.slack.api.model.block.LayoutBlock;
-import com.slack.api.model.block.SectionBlock;
+import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -58,8 +55,8 @@ public class SelectClusterSchemaTable {
                 tablePlaceholder));
 
         String tableSchemaLabelText = "<Table Schema>";
-        InputBlock labelBLock = BasicBlockFactory.getLabelBLock(tableSchemaLabelText, SlackController.tableSchemaLabelId);
-        blocks.add(labelBLock);
+        ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackController.tableSchemaContextId);
+        blocks.add(contextBlock);
 
         SectionBlock textSection = BasicBlockFactory.getTextSection("choose table", SlackController.tableSchemaTextId);
         blocks.add(textSection);
@@ -69,8 +66,8 @@ public class SelectClusterSchemaTable {
     public List<LayoutBlock> fetchTableSchemaBlocks(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
         List<LayoutBlock> blocks = new ArrayList<>();
         String tableSchemaLabelText = "<Table Schema>";
-        InputBlock labelBLock = BasicBlockFactory.getLabelBLock(tableSchemaLabelText, SlackController.tableSchemaLabelId);
-        blocks.add(labelBLock);
+        ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackController.tableSchemaContextId);
+        blocks.add(contextBlock);
 
         String tableSchema = describeService.findTableSchema(databaseConnectionInfo, schemaName, tableName);
         SectionBlock textSection = BasicBlockFactory.getTextSection(tableSchema, SlackController.tableSchemaTextId);

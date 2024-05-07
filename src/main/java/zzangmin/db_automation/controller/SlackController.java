@@ -50,7 +50,7 @@ public class SlackController {
     private final SlackActionHandler slackActionHandler;
 
 
-    public static String tableSchemaLabelId = "tableSchemaLabel";
+    public static String tableSchemaContextId = "tableSchemaContext";
     public static String tableSchemaTextId = "tableSchemaText";
     public static String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
     public static String findClusterSelectsElementActionId = "selectClusterName";
