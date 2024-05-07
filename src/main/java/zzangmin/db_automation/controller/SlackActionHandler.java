@@ -1,6 +1,7 @@
 package zzangmin.db_automation.controller;
 
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
+import com.slack.api.model.block.ContextBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.CreateIndexBlockPage;
 import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
 import zzangmin.db_automation.slackview.SelectCommand;
@@ -67,6 +69,11 @@ public class SlackActionHandler {
             throw new IllegalArgumentException("미지원 commandType: " + commandType);
         }
 
+    }
+
+    public LayoutBlock handleException(Exception e) {
+        ContextBlock contextBlock = BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId);
+        return contextBlock;
     }
 
 

@@ -12,6 +12,7 @@ import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
+import com.slack.api.model.view.ViewClose;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
 import lombok.RequiredArgsConstructor;
@@ -50,20 +51,21 @@ public class SlackController {
     private final SlackActionHandler slackActionHandler;
 
 
-    public static String tableSchemaContextId = "tableSchemaContext";
-    public static String tableSchemaTextId = "tableSchemaText";
-    public static String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
-    public static String findClusterSelectsElementActionId = "selectClusterName";
-    public static String findTableSelectsElementActionId = "selectTableName";
-    public static String findSchemaSelectsElementActionId = "selectSchemaName";
+    public static final String tableSchemaContextId = "tableSchemaContext";
+    public static final String tableSchemaTextId = "tableSchemaText";
+    public static final String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
+    public static final String findClusterSelectsElementActionId = "selectClusterName";
+    public static final String findTableSelectsElementActionId = "selectTableName";
+    public static final String findSchemaSelectsElementActionId = "selectSchemaName";
 
-    public static String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
-    public static String createIndexIndexNameTextInputId = "inputCreateIndexIndexName";
-    public static String createIndexColumnNameTextInputId = "inputCreateIndexColumnName";
-    public static String findIndexTypeActionId = "selectIndexType";
+    public static final String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
+    public static final String createIndexIndexNameTextInputId = "inputCreateIndexIndexName";
+    public static final String createIndexColumnNameTextInputId = "inputCreateIndexColumnName";
+    public static final String findIndexTypeActionId = "selectIndexType";
+    public static final String errorContextBlockId = "errorContextBlock";
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<Boolean> slackCallBack(@RequestParam String payload,
+    public ResponseEntity slackCallBack(@RequestParam String payload,
                                                  @RequestBody String requestBody,
                                                  @RequestHeader("X-Slack-Signature") String slackSignature,
                                                  @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException, SlackApiException {
@@ -106,8 +108,16 @@ public class SlackController {
             viewBlocks = view.getBlocks();
             state = view.getState();
             CommandType findCommandType = findCommandType(state);
-            slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
-
+            try {
+                slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
+                return ResponseEntity.ok(true);
+                // view close
+            } catch (Exception e) {
+                // error block print
+                viewBlocks.add(slackActionHandler.handleException(e));
+                updateView(viewBlocks, view);
+                throw e;
+            }
 
         } else {
             throw new IllegalArgumentException("미지원 payload");

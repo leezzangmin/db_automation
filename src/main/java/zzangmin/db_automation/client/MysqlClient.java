@@ -254,7 +254,6 @@ public class MysqlClient {
             for (String indexName : indexNames.keySet()) {
                 List<String> columnNames = indexNames.get(indexName);
                 String type = indexTypes.get(indexName);
-                log.info("type: {}", type);
                 Constraint constraint = new Constraint(Constraint.ConstraintType.valueOf(type), String.join("_", columnNames), columnNames);
                 constraints.add(constraint);
             }
