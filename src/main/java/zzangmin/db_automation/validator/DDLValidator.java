@@ -25,32 +25,32 @@ public class DDLValidator {
 
 
     public void validateDDLRequest(DatabaseConnectionInfo databaseConnectionInfo, DDLRequestDTO ddlRequestDTO) {
-        if (ddlRequestDTO.getCommandType().equals(CommandType_old.ADD_COLUMN)) {
-            validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.ALTER_COLUMN)) {
-            validateAlterColumn(databaseConnectionInfo, (AlterColumnRequestDTO) ddlRequestDTO);
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.CREATE_INDEX)) {
-            validateCreateIndex(databaseConnectionInfo, (CreateIndexRequestDTO) ddlRequestDTO);
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.CREATE_TABLE)) {
-            validateCreateTable(databaseConnectionInfo, (CreateTableRequestDTO) ddlRequestDTO);
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.ADD_COLUMN)) {
-            validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.DELETE_COLUMN)) {
-            validateDeleteColumn(databaseConnectionInfo, (DeleteColumnRequestDTO) ddlRequestDTO);
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.EXTEND_VARCHAR_COLUMN)) {
-            validateExtendVarchar(databaseConnectionInfo, (ExtendVarcharColumnRequestDTO) ddlRequestDTO);
-            return;
-        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.RENAME_COLUMN)) {
-            validateRenameColumn(databaseConnectionInfo, (RenameColumnRequestDTO) ddlRequestDTO);
-            return ;
-        }
-        throw new IllegalArgumentException("CommandType 지원 불가");
+//        if (ddlRequestDTO.getCommandType().equals(CommandType_old.ADD_COLUMN)) {
+//            validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
+//            return;
+//        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.ALTER_COLUMN)) {
+//            validateAlterColumn(databaseConnectionInfo, (AlterColumnRequestDTO) ddlRequestDTO);
+//            return;
+//        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.CREATE_INDEX)) {
+//            validateCreateIndex(databaseConnectionInfo, (CreateIndexRequestDTO) ddlRequestDTO);
+//            return;
+//        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.CREATE_TABLE)) {
+//            validateCreateTable(databaseConnectionInfo, (CreateTableRequestDTO) ddlRequestDTO);
+//            return;
+//        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.ADD_COLUMN)) {
+//            validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
+//            return;
+//        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.DELETE_COLUMN)) {
+//            validateDeleteColumn(databaseConnectionInfo, (DeleteColumnRequestDTO) ddlRequestDTO);
+//            return;
+//        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.EXTEND_VARCHAR_COLUMN)) {
+//            validateExtendVarchar(databaseConnectionInfo, (ExtendVarcharColumnRequestDTO) ddlRequestDTO);
+//            return;
+//        } else if (ddlRequestDTO.getCommandType().equals(CommandType_old.RENAME_COLUMN)) {
+//            validateRenameColumn(databaseConnectionInfo, (RenameColumnRequestDTO) ddlRequestDTO);
+//            return ;
+//        }
+//        throw new IllegalArgumentException("CommandType 지원 불가");
     }
 
     public void validateAlterColumn(DatabaseConnectionInfo databaseConnectionInfo, AlterColumnRequestDTO alterColumnRequestDTO) {
