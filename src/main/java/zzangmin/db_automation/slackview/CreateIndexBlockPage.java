@@ -11,6 +11,7 @@ import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.controller.SlackController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
+import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.service.SlackService;
 
@@ -90,6 +91,7 @@ public class CreateIndexBlockPage {
                 .indexName(indexName)
                 .indexType(indexType)
                 .columnNames(List.of("name"))
+                .commandType(CommandType_old.CREATE_INDEX)
                 .build();
         log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
         String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);

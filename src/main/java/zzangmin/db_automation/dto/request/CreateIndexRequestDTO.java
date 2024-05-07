@@ -2,6 +2,7 @@ package zzangmin.db_automation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 
 import java.util.List;
@@ -11,7 +12,9 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateIndexRequestDTO extends DDLRequestDTO {
+public class CreateIndexRequestDTO {
+        @NotBlank
+        private CommandType_old commandType;
         @NotBlank
         private String schemaName;
         @NotBlank

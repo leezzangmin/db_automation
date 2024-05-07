@@ -96,9 +96,7 @@ public class SelectCommand {
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
             // generate createaddcolumnblock and add to blocks
         }
-
-        return null;
-        // throw new IllegalAccessException("미구현 command");
+        throw new IllegalArgumentException("미구현 commandType: " + commandType);
     }
 
 }
