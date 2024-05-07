@@ -57,8 +57,8 @@ public class Constraint {
             this.typeName = typeName;
         }
         public static ConstraintType generateConstraintTypeByTypeName(String typeName) {
-            ConstraintType[] values = ConstraintType.values();
-            for (ConstraintType constraintType : values) {
+            ConstraintType[] constraintTypes = ConstraintType.values();
+            for (ConstraintType constraintType : constraintTypes) {
                 if (constraintType.typeName.equals(typeName)) {
                     return constraintType;
                 }
