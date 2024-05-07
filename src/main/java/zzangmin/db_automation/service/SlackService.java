@@ -23,6 +23,7 @@ import javax.net.ssl.SSLHandshakeException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static zzangmin.db_automation.config.SlackConfig.DEFAULT_CHANNEL_ID;
 import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
@@ -198,11 +199,19 @@ public class SlackService {
     public static String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
         log.info("values: {}", values);
         log.info("targetValueKey: {}", targetValueKey);
+        for (String id : values.keySet()) {
+            Map<String, ViewState.Value> stringValueMap = values.get(id);
+            System.out.println("stringValueMap = " + stringValueMap);
+        }
         for (String componentId : values.keySet()) {
             if (componentId.equals(targetValueKey)) {
                 Map<String, ViewState.Value> stringValueMap = values.get(componentId);
                 log.info("stringValueMap: {}", stringValueMap);
-                String selectedValue = stringValueMap.get(targetValueKey).getSelectedOption().getValue();
+                ViewState.Value value = stringValueMap.get(targetValueKey);
+                System.out.println("value123 = " + value);
+                String selectedValue = stringValueMap.get(targetValueKey)
+                        .getSelectedOption()
+                        .getValue();
                 log.info("selectedValue: {}", selectedValue);
                 return selectedValue;
             }
