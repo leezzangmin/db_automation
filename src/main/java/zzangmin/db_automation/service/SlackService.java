@@ -189,6 +189,11 @@ public class SlackService {
                 if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
                     return i;
                 }
+            } else if (block instanceof ContextBlock) {
+                ContextBlock childBlock = (ContextBlock) block;
+                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+                    return i;
+                }
             } else {
                 throw new IllegalArgumentException("지원하지 않는 LayoutBlock 하위 클래스 입니다.");
             }
