@@ -88,6 +88,7 @@ public class CreateIndexBlockPage {
                 .indexType(indexType)
                 .columnNames(List.of("name"))
                 .build();
+        createIndexRequestDTO.setCommandType(CommandType_old.CREATE_INDEX);
         log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
         String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
         log.info("selectedDBMSName: {}", selectedDBMSName);
