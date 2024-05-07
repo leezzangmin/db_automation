@@ -67,7 +67,11 @@ public class CreateIndexBlockPage {
 
     public List<LayoutBlock> handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String indexName = SlackService.findCurrentValueFromState(values, SlackController.createIndexIndexNameTextInputId);
-        System.out.println("indexName = " + indexName);
+        log.info("indexName: {}", indexName);
+
+        Constraint.ConstraintType constraintType = Constraint.ConstraintType.valueOf(SlackService.findCurrentValueFromState(values, SlackController.findIndexTypeActionId));
+        log.info("constraintType: {}", constraintType);
+
         return null;
     }
 

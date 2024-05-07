@@ -199,20 +199,19 @@ public class SlackService {
     public static String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
         log.info("values: {}", values);
         log.info("targetValueKey: {}", targetValueKey);
-        for (String id : values.keySet()) {
-            Map<String, ViewState.Value> stringValueMap = values.get(id);
-            System.out.println("stringValueMap = " + stringValueMap);
-        }
         String selectedValue;
         for (String componentId : values.keySet()) {
             if (componentId.equals(targetValueKey)) {
                 Map<String, ViewState.Value> stringValueMap = values.get(componentId);
                 log.info("stringValueMap: {}", stringValueMap);
                 ViewState.Value value = stringValueMap.get(targetValueKey);
-                System.out.println("value123 = " + value);
+
+                // static select
                 if (stringValueMap.get(targetValueKey).getSelectedOption() == null) {
                     selectedValue = stringValueMap.get(targetValueKey).getValue();
-                } else {
+                }
+                // plain text input
+                else {
                     selectedValue = stringValueMap.get(targetValueKey)
                             .getSelectedOption()
                             .getValue();
