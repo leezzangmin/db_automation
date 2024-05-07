@@ -91,9 +91,10 @@ public class CreateIndexBlockPage {
                 .indexType(indexType)
                 .columnNames(List.of("name"))
                 .build();
-
+        log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
         String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
+        log.info("selectedDatabaseConnectionInfo: {}", selectedDatabaseConnectionInfo);
         ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         return null;
     }
