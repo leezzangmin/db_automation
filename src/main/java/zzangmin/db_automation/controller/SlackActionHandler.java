@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.slackview.CreateIndexBlockPage;
 import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
 import zzangmin.db_automation.slackview.SelectCommand;
 
@@ -23,6 +24,7 @@ public class SlackActionHandler {
 
     private final SelectCommand selectCommand;
     private final SelectClusterSchemaTable selectClusterSchemaTable;
+    private final CreateIndexBlockPage createIndexBlockPage;
 
     public List<LayoutBlock> handleAction(BlockActionPayload.Action action, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String actionId = action.getActionId();
@@ -51,6 +53,20 @@ public class SlackActionHandler {
             throw new IllegalArgumentException("미지원 actionId: " + actionId);
         }
         return currentBlocks;
+    }
+
+    public void handleSubmission(DatabaseRequestCommandGroup.CommandType commandType, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        log.info("<submission> commandType: {}\nblocks: {}\nvalues: {}", commandType, currentBlocks, values);
+        if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
+            createIndexBlockPage.handleSubmission(currentBlocks, values);
+            log.info("commandType: {}\ncurrentBlocks: {}", commandType, currentBlocks);
+        } else if(commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
+            return;
+        }
+        else {
+            throw new IllegalArgumentException("미지원 commandType: " + commandType);
+        }
+
     }
 
 

@@ -103,11 +103,10 @@ public class SlackController {
             log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
 
             view = viewSubmissionPayload.getView();
+            viewBlocks = view.getBlocks();
             state = view.getState();
             CommandType findCommandType = findCommandType(state);
-
-//            List<LayoutBlock> layoutBlocks = generateCommandTypeBlocks(findCommandType);
-//            viewBlocks = layoutBlocks;
+            slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
 
 
         } else {
@@ -159,35 +158,37 @@ public class SlackController {
                 .view(slackService.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
 
-        List<LayoutBlock> layoutBlocks = new ArrayList<>();
-        // 텍스트를 남길 SectionBlock 입니다.
-        layoutBlocks.add(section(section -> section.text(markdownText("새로운 배송팁이 등록되었습니다."))));
-        // Action과 텍스트를 구분하기 위한 Divider 입니다.
-        layoutBlocks.add(divider());
-        // ActionBlock에 승인 버튼과 거부 버튼을 추가 하였습니다.
-        List<OptionObject> optionObjects = BasicBlockFactory.generateEmptyOptionObjects();
-        StaticSelectElement clusterSelects = StaticSelectElement.builder()
-                .options(optionObjects)
-                .placeholder(plainText("testblockholder"))
-                .actionId("testactionid")
-                .build();
+//        List<LayoutBlock> layoutBlocks = new ArrayList<>();
+//        layoutBlocks.add(section(section -> section.text(markdownText("새로운 배송팁이 등록되었습니다."))));
+//        layoutBlocks.add(divider());
+//        List<OptionObject> optionObjects = BasicBlockFactory.generateEmptyOptionObjects();
+//        StaticSelectElement clusterSelects = StaticSelectElement.builder()
+//                .options(optionObjects)
+//                .placeholder(plainText("testblockholder"))
+//                .actionId("testactionid")
+//                .build();
+//
+//        layoutBlocks.add(
+//                actions(actions -> actions
+//                        .elements(asElements(
+//                                button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
+//                                        .value("deliveryTip.getSeq().toString()")
+//                                        .style("primary")
+//                                        .text(plainText("ddd"))
+//                                        .actionId("aaa")
+//                                ),
+//                                clusterSelects
+//                        ))
+//                )
+//        );
+//        layoutBlock = ActionsBlock(type=actions, elements=[
+//
+//                ButtonElement(type=button, text=PlainTextObject(type=plain_text, text=ddd, emoji=null), actionId=aaa, url=null, value=deliveryTip.getSeq().toString(), style=primary, confirm=null, accessibilityLabel=null),
+//
+//                StaticSelectElement(type=static_select, placeholder=PlainTextObject(type=plain_text, text=testblockholder, emoji=null), actionId=testactionid, options=[OptionObject(text=PlainTextObject(type=plain_text, text=empty option objects, emoji=null), value=dropdown option empty..., description=null, url=null)], optionGroups=null, initialOption=null, confirm=null, focusOnLoad=null)
+//
+//], blockId=null)
 
-        layoutBlocks.add(
-                actions(actions -> actions
-                        .elements(asElements(
-                                button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
-                                        .value("deliveryTip.getSeq().toString()")
-                                        .style("primary")
-                                        .text(plainText("ddd"))
-                                        .actionId("aaa")
-                                ),
-                                clusterSelects
-                        ))
-                )
-        );
-        for (LayoutBlock layoutBlock : layoutBlocks) {
-            System.out.println("layoutBlock = " + layoutBlock);
-        }
     }
 
     private String generateSlackTagUserString(String userName) {

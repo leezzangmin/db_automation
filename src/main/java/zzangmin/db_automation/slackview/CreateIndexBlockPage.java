@@ -15,7 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.slack.api.model.block.Blocks.actions;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
+import static com.slack.api.model.block.element.BlockElements.asElements;
+import static com.slack.api.model.block.element.BlockElements.button;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -39,16 +42,29 @@ public class CreateIndexBlockPage {
                         .value(constraintType.getTypeName())
                         .build())
                 .collect(Collectors.toList());
-        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findIndexTypeActionId,
-                indexTypeOptions,
-                createIndexTypePlaceHolder));
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexIndexNameTextInputId,
-                createIndexIndexNameTextInputLabelId,
-                createIndexNamePlaceHolder));
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId,
-                SlackController.createIndexColumnNameTextInputId,
-                createIndexColumnPlaceHolder));
-
+//        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findIndexTypeActionId,
+//                indexTypeOptions,
+//                createIndexTypePlaceHolder));
+//        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexIndexNameTextInputId,
+//                createIndexIndexNameTextInputLabelId,
+//                createIndexNamePlaceHolder));
+//        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId,
+//                SlackController.createIndexColumnNameTextInputId,
+//                createIndexColumnPlaceHolder));
+        ActionsBlock createIndexActionBlocks = actions(actions -> actions
+                .elements(asElements(
+                        BasicBlockFactory.findStaticSelectsElement(SlackController.findIndexTypeActionId,
+                                indexTypeOptions,
+                                createIndexTypePlaceHolder),
+                        BasicBlockFactory.findSinglelinePlainTextInputElement(SlackController.createIndexIndexNameTextInputId,
+                                createIndexIndexNameTextInputLabelId,
+                                createIndexNamePlaceHolder),
+                        BasicBlockFactory.findSinglelinePlainTextInputElement(SlackController.createIndexColumnNameTextInputId,
+                                SlackController.createIndexColumnNameTextInputId,
+                                createIndexColumnPlaceHolder)
+                ))
+        );
+        blocks.add(createIndexActionBlocks);
         return blocks;
     }
 
@@ -61,6 +77,9 @@ public class CreateIndexBlockPage {
     }
 
     public List<LayoutBlock> handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        List<String> columnNames = new ArrayList<>();
+        String indexName = "indexName";
+
         return null;
     }
 

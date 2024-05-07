@@ -26,14 +26,12 @@ public class BasicBlockFactory {
 //                .blockId(id));
 //    }
 
-    public static InputBlock findSinglelinePlainTextInput(String id, String label, String placeholder) {
-        return input(input -> input
-                .element(plainTextInput(pti -> pti.actionId(id)
-                        .multiline(false)
-                        .placeholder(plainText(placeholder))
-                ))
-                .label(plainText(label))
-                .blockId(id));
+    public static PlainTextInputElement findSinglelinePlainTextInputElement(String id, String label, String placeholder) {
+        return PlainTextInputElement.builder()
+                .actionId(id)
+                .multiline(false)
+                .placeholder(plainText(placeholder))
+                .build();
     }
 
     public static ActionsBlock findSubmitButton(String id, String text, String value) {
@@ -65,6 +63,14 @@ public class BasicBlockFactory {
                         .actionId(id)
                         .build()))
                 .blockId(id));
+    }
+
+    public static StaticSelectElement findStaticSelectsElement(String id, List<OptionObject> selectOptions, String placeHolder) {
+        return StaticSelectElement.builder()
+                .options(selectOptions)
+                .placeholder(plainText(placeHolder))
+                .actionId(id)
+                .build();
     }
 
     public static View findView(String viewId, String callbackId, String viewTitle, List<LayoutBlock> blocks, String submitText) {
