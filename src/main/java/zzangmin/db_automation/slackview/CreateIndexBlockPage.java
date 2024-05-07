@@ -65,6 +65,12 @@ public class CreateIndexBlockPage {
                 ))
         );
         blocks.add(createIndexActionBlocks);
+        int i=0;
+        for (LayoutBlock block : blocks) {
+            System.out.println("i = " + i);
+            i++;
+            System.out.println("block = " + block);
+        }
         return blocks;
     }
 

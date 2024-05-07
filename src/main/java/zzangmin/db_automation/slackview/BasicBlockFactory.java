@@ -25,13 +25,22 @@ public class BasicBlockFactory {
 //                .label(plainText(label))
 //                .blockId(id));
 //    }
+public static PlainTextInputElement findSinglelinePlainTextInputElement(String id, String label, String placeholder) {
+    return PlainTextInputElement.builder()
+            .actionId(id)
+            .multiline(false)
+            .placeholder(plainText(placeholder))
+            .build();
+}
 
-    public static PlainTextInputElement findSinglelinePlainTextInputElement(String id, String label, String placeholder) {
-        return PlainTextInputElement.builder()
-                .actionId(id)
-                .multiline(false)
-                .placeholder(plainText(placeholder))
-                .build();
+    public static InputBlock findSinglelinePlainTextInput(String id, String label, String placeholder) {
+        return input(input -> input
+                .element(plainTextInput(pti -> pti.actionId(id)
+                        .multiline(false)
+                        .placeholder(plainText(placeholder))
+                ))
+                .label(plainText(label))
+                .blockId(id));
     }
 
     public static ActionsBlock findSubmitButton(String id, String text, String value) {
