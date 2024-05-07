@@ -2,7 +2,6 @@ package zzangmin.db_automation.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 
 import java.util.List;
