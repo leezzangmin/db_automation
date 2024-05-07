@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.CreateIndexBlockPage;
 import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
@@ -17,7 +16,6 @@ import zzangmin.db_automation.slackview.SelectCommand;
 import java.util.List;
 import java.util.Map;
 
-import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.findCommandTypeByCommandTypeName;
 
 @Slf4j
 @RequiredArgsConstructor

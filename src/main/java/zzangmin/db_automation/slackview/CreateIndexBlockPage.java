@@ -98,6 +98,13 @@ public class CreateIndexBlockPage {
         return null;
     }
 
+    private List<LayoutBlock> startMessageBlocks() {
+        return null;
+    }
+
+    private List<LayoutBlock> endMessageBlocks() {
+        return null;
+    }
 
 
 
