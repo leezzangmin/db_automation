@@ -9,6 +9,8 @@ import com.slack.api.methods.request.views.ViewsUpdateRequest;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.methods.response.views.ViewsUpdateResponse;
 import com.slack.api.model.block.*;
+import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
@@ -21,13 +23,20 @@ import org.springframework.web.util.HtmlUtils;
 
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
 import zzangmin.db_automation.slackview.SelectCommand;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
+import static com.slack.api.model.block.Blocks.*;
+import static com.slack.api.model.block.composition.BlockCompositions.markdownText;
+import static com.slack.api.model.block.composition.BlockCompositions.plainText;
+import static com.slack.api.model.block.element.BlockElements.asElements;
+import static com.slack.api.model.block.element.BlockElements.button;
 import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 
 @Slf4j
@@ -150,6 +159,35 @@ public class SlackController {
                 .view(slackService.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
 
+        List<LayoutBlock> layoutBlocks = new ArrayList<>();
+        // 텍스트를 남길 SectionBlock 입니다.
+        layoutBlocks.add(section(section -> section.text(markdownText("새로운 배송팁이 등록되었습니다."))));
+        // Action과 텍스트를 구분하기 위한 Divider 입니다.
+        layoutBlocks.add(divider());
+        // ActionBlock에 승인 버튼과 거부 버튼을 추가 하였습니다.
+        List<OptionObject> optionObjects = BasicBlockFactory.generateEmptyOptionObjects();
+        StaticSelectElement clusterSelects = StaticSelectElement.builder()
+                .options(optionObjects)
+                .placeholder(plainText("testblockholder"))
+                .actionId("testactionid")
+                .build();
+
+        layoutBlocks.add(
+                actions(actions -> actions
+                        .elements(asElements(
+                                button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
+                                        .value("deliveryTip.getSeq().toString()")
+                                        .style("primary")
+                                        .text(plainText("ddd"))
+                                        .actionId("aaa")
+                                ),
+                                clusterSelects
+                        ))
+                )
+        );
+        for (LayoutBlock layoutBlock : layoutBlocks) {
+            System.out.println("layoutBlock = " + layoutBlock);
+        }
     }
 
     private String generateSlackTagUserString(String userName) {
