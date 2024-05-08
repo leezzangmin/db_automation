@@ -78,8 +78,9 @@ public class CreateIndexBlockPage {
 
     public List<LayoutBlock> handleAddColumn(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         int lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
-        currentBlocks.add(lastInputColumnNameBlockIndex, BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + lastInputColumnNameBlockIndex,
-                inputIndexColumnNameLabel + lastInputColumnNameBlockIndex,
+        int blockIdNumber = findBlockIdNumber(currentBlocks.get(lastInputColumnNameBlockIndex));
+        currentBlocks.add(lastInputColumnNameBlockIndex, BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + blockIdNumber,
+                inputIndexColumnNameLabel + blockIdNumber,
                 createIndexColumnPlaceHolder));
         return currentBlocks;
     }
@@ -97,6 +98,12 @@ public class CreateIndexBlockPage {
             throw new IllegalArgumentException("column name inputBlock 이 존재하지 않습니다.");
         }
         return index;
+    }
+
+    private int findBlockIdNumber(LayoutBlock block) {
+        String blockId = block.getBlockId();
+        blockId.replace(SlackController.createIndexColumnNameTextInputId, "");
+        return Integer.parseInt(blockId);
     }
 
     public List<LayoutBlock> handleRemoveColumn(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
