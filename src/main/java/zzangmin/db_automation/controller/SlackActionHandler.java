@@ -49,9 +49,9 @@ public class SlackActionHandler {
             currentBlocks = selectClusterSchemaTable.handleTableChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackController.findTableSelectsElementActionId, currentBlocks);
         } else if (actionId.equals(SlackController.createIndexAddColumnButtonId)) {
-            createIndexBlockPage.handleAddColumn(currentBlocks, values);
+            currentBlocks = createIndexBlockPage.handleAddColumn(currentBlocks, values);
         } else if (actionId.equals(SlackController.createIndexRemoveColumnButtonId)) {
-            createIndexBlockPage.handleRemoveColumn(currentBlocks, values);
+            currentBlocks = createIndexBlockPage.handleRemoveColumn(currentBlocks, values);
         } else {
             throw new IllegalArgumentException("미지원 actionId: " + actionId);
         }

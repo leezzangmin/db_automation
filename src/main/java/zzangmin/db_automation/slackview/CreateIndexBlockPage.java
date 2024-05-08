@@ -85,7 +85,7 @@ public class CreateIndexBlockPage {
     }
 
     private int findLastInputColumnNameBlockIndex(List<LayoutBlock> currentBlocks) {
-        int index = 1;
+        int index = -1;
         try {
             for (int i = 1; i < 99999999; i++) {
                 index = SlackService.findBlockIndex(currentBlocks, "input", SlackController.createIndexColumnNameTextInputId + i);
@@ -93,11 +93,16 @@ public class CreateIndexBlockPage {
         } catch (Exception e) {
             return index;
         }
+        if (index == -1) {
+            throw new IllegalArgumentException("column name inputBlock 이 존재하지 않습니다.");
+        }
         return index;
     }
 
     public List<LayoutBlock> handleRemoveColumn(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        return null;
+        int lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
+        currentBlocks.remove(lastInputColumnNameBlockIndex);
+        return currentBlocks;
     }
 
     public List<LayoutBlock> handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
