@@ -103,7 +103,7 @@ public class CreateIndexBlockPage {
     private int findBlockIdNumber(LayoutBlock block) {
         String blockId = block.getBlockId();
         System.out.println("blockId012 = " + blockId);
-        blockId.replace(SlackController.createIndexColumnNameTextInputId, "");
+        blockId = blockId.replace(SlackController.createIndexColumnNameTextInputId, "");
         System.out.println("blockId123 = " + blockId);
         return Integer.parseInt(blockId);
     }
