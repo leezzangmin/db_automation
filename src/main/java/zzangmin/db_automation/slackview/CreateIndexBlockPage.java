@@ -79,6 +79,7 @@ public class CreateIndexBlockPage {
 
     public List<LayoutBlock> handleAddColumn(List<LayoutBlock> currentBlocks) {
         int lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
+        log.info("lastInputColumnNameBlockIndex: {}", lastInputColumnNameBlockIndex);
         int blockIdNumber = findBlockIdNumber(currentBlocks.get(lastInputColumnNameBlockIndex));
         currentBlocks.add(lastInputColumnNameBlockIndex + 1, BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + (blockIdNumber + 1),
                 inputIndexColumnNameLabel + (blockIdNumber + 1),
