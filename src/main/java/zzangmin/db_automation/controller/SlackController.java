@@ -169,42 +169,9 @@ public class SlackController {
         slackService.validateRequest(slackSignature, timestamp, requestBody);
 
         List<LayoutBlock> initialBlocks = SelectCommand.selectCommandGroupAndCommandTypeBlocks();
-
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
                 .view(slackService.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
-
-//        List<LayoutBlock> layoutBlocks = new ArrayList<>();
-//        layoutBlocks.add(section(section -> section.text(markdownText("새로운 배송팁이 등록되었습니다."))));
-//        layoutBlocks.add(divider());
-//        List<OptionObject> optionObjects = BasicBlockFactory.generateEmptyOptionObjects();
-//        StaticSelectElement clusterSelects = StaticSelectElement.builder()
-//                .options(optionObjects)
-//                .placeholder(plainText("testblockholder"))
-//                .actionId("testactionid")
-//                .build();
-//
-//        layoutBlocks.add(
-//                actions(actions -> actions
-//                        .elements(asElements(
-//                                button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
-//                                        .value("deliveryTip.getSeq().toString()")
-//                                        .style("primary")
-//                                        .text(plainText("ddd"))
-//                                        .actionId("aaa")
-//                                ),
-//                                clusterSelects
-//                        ))
-//                )
-//        );
-//        layoutBlock = ActionsBlock(type=actions, elements=[
-//
-//                ButtonElement(type=button, text=PlainTextObject(type=plain_text, text=ddd, emoji=null), actionId=aaa, url=null, value=deliveryTip.getSeq().toString(), style=primary, confirm=null, accessibilityLabel=null),
-//
-//                StaticSelectElement(type=static_select, placeholder=PlainTextObject(type=plain_text, text=testblockholder, emoji=null), actionId=testactionid, options=[OptionObject(text=PlainTextObject(type=plain_text, text=empty option objects, emoji=null), value=dropdown option empty..., description=null, url=null)], optionGroups=null, initialOption=null, confirm=null, focusOnLoad=null)
-//
-//], blockId=null)
-
     }
 
     private String generateSlackTagUserString(String userName) {

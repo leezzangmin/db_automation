@@ -62,6 +62,15 @@ public class BasicBlockFactory {
                 .blockId(id));
     }
 
+    public static StaticSelectElement findStaticSelectsElement(String id, List<OptionObject> selectOptions, String placeHolder) {
+        return StaticSelectElement.builder()
+                        .options(selectOptions)
+                        .placeholder(plainText(placeHolder))
+                        .actionId(id)
+                        .build();
+
+    }
+
     public static View findView(String viewId, String callbackId, String viewTitle, List<LayoutBlock> blocks, String submitText) {
         return View.builder()
                 .id(viewId)

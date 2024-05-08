@@ -1,8 +1,10 @@
 package zzangmin.db_automation.slackview;
 
 import com.slack.api.model.block.ActionsBlock;
+import com.slack.api.model.block.Blocks;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.slack.api.model.block.Blocks.actions;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 
@@ -31,6 +34,7 @@ public class SelectCommand {
 
     public static List<LayoutBlock> selectCommandGroupAndCommandTypeBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
+
         List<OptionObject> databaseRequestGroupOptions = Arrays.stream(DatabaseRequestCommandGroup.values())
                 .map(group -> OptionObject.builder()
                         .text(plainText(group.name()))
@@ -38,10 +42,9 @@ public class SelectCommand {
                         .build()
                 )
                 .collect(Collectors.toList());
-        ActionsBlock commandGroupSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackController.findDatabaseRequestCommandGroupSelectsElementActionId,
+        StaticSelectElement commandGroupSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackController.findDatabaseRequestCommandGroupSelectsElementActionId,
                 databaseRequestGroupOptions,
                 findCommandGroupPlaceholder);
-        blocks.add(commandGroupSelectBlock);
 
         List<OptionObject> commandTypeOptions = DatabaseRequestCommandGroup.findDatabaseRequestCommandTypes(DatabaseRequestCommandGroup.EMPTY)
                 .stream()
@@ -51,11 +54,12 @@ public class SelectCommand {
                         .build()
                 )
                 .collect(Collectors.toList());
-        ActionsBlock commandTypeSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackController.findCommandTypeSelectsElementActionId,
+        StaticSelectElement commandTypeSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackController.findCommandTypeSelectsElementActionId,
                 commandTypeOptions,
                 findCommandTypePlaceholder);
-        blocks.add(commandTypeSelectBlock);
 
+        ActionsBlock selectCommandGroupAndCommandTypeBlocks = actions(List.of(commandGroupSelectElement, commandTypeSelectElement));
+        blocks.add(selectCommandGroupAndCommandTypeBlocks);
         return blocks;
     }
 
