@@ -259,7 +259,6 @@ public class SlackService {
                     }
                 }
             }
-            System.out.println("stringValueElementMap = " + stringValueElementMap);
             if (componentId.equals(targetValueKey)) {
                 Map<String, ViewState.Value> stringValueMap = values.get(componentId);
                 log.info("stringValueMap: {}", stringValueMap);
