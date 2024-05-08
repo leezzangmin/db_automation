@@ -73,6 +73,7 @@ public class SlackActionHandler {
     }
 
     public List<LayoutBlock> handleException(List<LayoutBlock> currentBlocks, Exception e) {
+        // TODO: https://api.slack.com/surfaces/modals#displaying_errors
         int contextBlockIndex = 99999999;
         try {
             contextBlockIndex = SlackService.findBlockIndex(currentBlocks, "context", SlackController.errorContextBlockId);

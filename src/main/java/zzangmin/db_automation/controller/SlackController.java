@@ -1,5 +1,6 @@
 package zzangmin.db_automation.controller;
 
+import com.google.gson.Gson;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
 import com.slack.api.app_backend.util.JsonPayloadTypeDetector;
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
@@ -112,6 +113,8 @@ public class SlackController {
                 CommandType findCommandType = findCommandType(state);
                 // TODO: USER
                 slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
+
+                // TODO: https://api.slack.com/surfaces/modals#close_all_views
                 return ResponseEntity.ok(true);
             } catch (Exception e) {
                 viewBlocks = slackActionHandler.handleException(viewBlocks, e);
@@ -126,6 +129,9 @@ public class SlackController {
             log.info("viewBlock: {}", viewBlock);
         }
         updateView(viewBlocks, view);
+        Gson gson = new Gson();
+        String json = gson.toJson(viewBlocks);
+        System.out.println("json = " + json);
 
         return ResponseEntity.ok(true);
     }
