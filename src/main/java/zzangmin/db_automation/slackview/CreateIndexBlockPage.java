@@ -92,11 +92,13 @@ public class CreateIndexBlockPage {
                 index = SlackService.findBlockIndex(currentBlocks, "input", SlackController.createIndexColumnNameTextInputId + i);
             }
         } catch (Exception e) {
+            log.info("index123: {}", index);
             return index;
         }
         if (index == -1) {
             throw new IllegalArgumentException("column name inputBlock 이 존재하지 않습니다.");
         }
+        log.info("index456: {}", index);
         return index;
     }
 
