@@ -131,6 +131,7 @@ public class SlackController {
         updateView(viewBlocks, view);
         Gson gson = new Gson();
         String json = gson.toJson(viewBlocks);
+
         System.out.println("json = " + json);
 
         return ResponseEntity.ok(true);

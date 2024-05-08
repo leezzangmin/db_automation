@@ -108,22 +108,32 @@ public class CreateIndexBlockPage {
     }
 
     private LayoutBlock getInitialIndexColumnNameInputBlock() {
+/**
+ * actions block error:
+ * Invalid value: "plain_text_input".
+ * Must be one of: "static_select", "users_select",
+ * "conversations_select", "channels_select", "external_select", "button",
+ * "workflow_button", "overflow", "datepicker", "radio_buttons",
+ * "checkboxes", "range_datepicker", "timepicker", "multi_static_select",
+ * "multi_users_select", "multi_conversations_select",
+ * "multi_channels_select", "multi_external_select", "datetimepicker"
+ */
 
-        return actions(actions -> actions
-                .elements(asElements(
-                        button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
-                                .value("deliveryTip.getSeq().toString()")
-                                .style("primary")
-                                .text(plainText("ddd"))
-                                .actionId("aaa")
-                        ),
-                        BasicBlockFactory.findSinglelinePlainTextInput2("asdf", "dfdf", "pp")
-                ))
-        );
+//        return actions(actions -> actions
+//                .elements(asElements(
+//                        button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
+//                                .value("deliveryTip.getSeq().toString()")
+//                                .style("primary")
+//                                .text(plainText("ddd"))
+//                                .actionId("aaa")
+//                        ),
+//                        BasicBlockFactory.findSinglelinePlainTextInput2("asdf", "dfdf", "pp")
+//                ))
+//        );
 
-//        return BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + 1,
-//                inputIndexColumnNameLabel + 1,
-//                createIndexColumnPlaceHolder);
+        return BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + 1,
+                inputIndexColumnNameLabel + 1,
+                createIndexColumnPlaceHolder);
     }
 
     private int findBlockIdNumber(LayoutBlock block) {
