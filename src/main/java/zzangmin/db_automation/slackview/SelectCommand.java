@@ -4,6 +4,7 @@ import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.Blocks;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.block.element.BlockElement;
 import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -67,6 +68,11 @@ public class SelectCommand {
         int commandTypeBlockIndex = SlackService.findBlockIndex(currentBlocks,
                 "actions",
                 SlackController.findCommandTypeSelectsElementActionId);
+        ActionsBlock currentBlock = (ActionsBlock) currentBlocks.get(commandTypeBlockIndex);
+        List<BlockElement> currentBlockElements = currentBlock.getElements();
+
+        int commandTypeElementIndex = SlackService.findElementIndex(currentBlockElements, SlackController.findCommandTypeSelectsElementActionId);
+
         String selectedDatabaseRequestGroupName = SlackService.findCurrentValueFromState(values, SlackController.findDatabaseRequestCommandGroupSelectsElementActionId);
         DatabaseRequestCommandGroup selectedDatabaseRequestGroup = findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
         List<OptionObject> commandTypeOptions = findDatabaseRequestCommandTypes(selectedDatabaseRequestGroup)
@@ -77,10 +83,12 @@ public class SelectCommand {
                         .build()
                 )
                 .collect(Collectors.toList());
-        ActionsBlock commandTypeSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackController.findCommandTypeSelectsElementActionId,
+        StaticSelectElement commandTypeSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackController.findCommandTypeSelectsElementActionId,
                 commandTypeOptions,
                 findCommandTypePlaceholder);
-        currentBlocks.set(commandTypeBlockIndex, commandTypeSelectBlock);
+        currentBlockElements.set(commandTypeElementIndex, commandTypeSelectElement);
+        currentBlock.setElements(currentBlockElements);
+        currentBlocks.set(commandTypeBlockIndex, currentBlock);
         return currentBlocks;
     }
 
