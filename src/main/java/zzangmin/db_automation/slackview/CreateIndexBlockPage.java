@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.actions;
+import static com.slack.api.model.block.Blocks.input;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.asElements;
 import static com.slack.api.model.block.element.BlockElements.button;
@@ -98,17 +99,31 @@ public class CreateIndexBlockPage {
             for (int i = 1; i < 99999999; i++) {
                 index = SlackService.findBlockIndex(currentBlocks, "input", SlackController.createIndexColumnNameTextInputId + i);
             }
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
         if (index == -1) {
             throw new IllegalArgumentException("column name inputBlock 이 존재하지 않습니다.");
         }
         return index;
     }
 
-    private LayoutBlock getInitialIndexColumnNameInputBlock () {
-        return BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + 1,
-                inputIndexColumnNameLabel + 1,
-                createIndexColumnPlaceHolder);
+    private LayoutBlock getInitialIndexColumnNameInputBlock() {
+
+        return actions(actions -> actions
+                .elements(asElements(
+                        button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
+                                .value("deliveryTip.getSeq().toString()")
+                                .style("primary")
+                                .text(plainText("ddd"))
+                                .actionId("aaa")
+                        ),
+                        BasicBlockFactory.findSinglelinePlainTextInput2("asdf", "dfdf", "pp")
+                ))
+        );
+
+//        return BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + 1,
+//                inputIndexColumnNameLabel + 1,
+//                createIndexColumnPlaceHolder);
     }
 
     private int findBlockIdNumber(LayoutBlock block) {
@@ -161,7 +176,6 @@ public class CreateIndexBlockPage {
     private List<LayoutBlock> endMessageBlocks() {
         return null;
     }
-
 
 
 }
