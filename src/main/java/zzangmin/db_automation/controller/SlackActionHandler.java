@@ -49,7 +49,7 @@ public class SlackActionHandler {
             currentBlocks = selectClusterSchemaTable.handleTableChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackController.findTableSelectsElementActionId, currentBlocks);
         } else if (actionId.equals(SlackController.createIndexAddColumnButtonId)) {
-            currentBlocks = createIndexBlockPage.handleAddColumn(currentBlocks, values);
+            currentBlocks = createIndexBlockPage.handleAddColumn(currentBlocks);
         } else if (actionId.equals(SlackController.createIndexRemoveColumnButtonId)) {
             currentBlocks = createIndexBlockPage.handleRemoveColumn(currentBlocks, values);
         } else {

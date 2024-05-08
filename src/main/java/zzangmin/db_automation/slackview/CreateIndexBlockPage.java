@@ -71,12 +71,13 @@ public class CreateIndexBlockPage {
                                         .value(SlackController.createIndexRemoveColumnButtonId)
                                         .style("danger")
                                         .actionId(SlackController.createIndexRemoveColumnButtonId)
-                                )))));
+                                )))
+                        .blockId(SlackController.createIndexRemoveColumnButtonId)));
 
         return blocks;
     }
 
-    public List<LayoutBlock> handleAddColumn(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public List<LayoutBlock> handleAddColumn(List<LayoutBlock> currentBlocks) {
         int lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
         int blockIdNumber = findBlockIdNumber(currentBlocks.get(lastInputColumnNameBlockIndex));
         currentBlocks.add(lastInputColumnNameBlockIndex + 1, BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + (blockIdNumber + 1),
