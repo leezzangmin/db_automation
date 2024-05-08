@@ -240,6 +240,9 @@ public class SlackService {
         log.info("targetValueKey: {}", targetValueKey);
         String selectedValue;
         for (String componentId : values.keySet()) {
+            log.info("componentId: {}", componentId);
+            Map<String, ViewState.Value> stringValueMap1 = values.get(componentId);
+            System.out.println("stringValueMap1 = " + stringValueMap1);
             if (componentId.equals(targetValueKey)) {
                 Map<String, ViewState.Value> stringValueMap = values.get(componentId);
                 log.info("stringValueMap: {}", stringValueMap);
