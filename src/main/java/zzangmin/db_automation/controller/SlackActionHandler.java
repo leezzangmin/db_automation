@@ -80,7 +80,8 @@ public class SlackActionHandler {
             currentBlocks.add(BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId));
             return currentBlocks;
         }
-        currentBlocks.set(contextBlockIndex, BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId));
+        currentBlocks.remove(contextBlockIndex);
+        currentBlocks.add(BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId));
         return currentBlocks;
     }
 

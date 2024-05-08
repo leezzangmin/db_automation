@@ -111,9 +111,7 @@ public class SlackController {
                 // TODO: USER
                 slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
                 return ResponseEntity.ok(true);
-                // view close
             } catch (Exception e) {
-                // error block print
                 viewBlocks = slackActionHandler.handleException(viewBlocks, e);
                 updateView(viewBlocks, view);
                 throw e;
