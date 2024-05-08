@@ -1,5 +1,6 @@
 package zzangmin.db_automation.service;
 
+import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
@@ -236,6 +237,8 @@ public class SlackService {
     }
 
     public static String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
+        BlockActionRequest blockActionRequest = new BlockActionRequest();
+
         log.info("values: {}", values);
         log.info("targetValueKey: {}", targetValueKey);
         String selectedValue;
