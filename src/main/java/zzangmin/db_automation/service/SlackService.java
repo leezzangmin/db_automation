@@ -241,13 +241,25 @@ public class SlackService {
         String selectedValue;
         for (String componentId : values.keySet()) {
             log.info("componentId: {}", componentId);
-            Map<String, ViewState.Value> stringValueMap1 = values.get(componentId);
-            for (String s : stringValueMap1.keySet()) {
-                System.out.println("s = " + s);
-                ViewState.Value value = stringValueMap1.get(s);
-                System.out.println("value222 = " + value);
+            Map<String, ViewState.Value> stringValueElementMap = values.get(componentId);
+            for (String actionIdKey : stringValueElementMap.keySet()) {
+                if (actionIdKey.equals(targetValueKey)) {
+                    log.info("actionIdKey: {}", actionIdKey);
+                    ViewState.Value value = stringValueElementMap.get(actionIdKey);
+                    if (stringValueElementMap.get(actionIdKey).getSelectedOption() == null) {
+                        selectedValue = stringValueElementMap.get(actionIdKey).getValue();
+                        log.info("selectedValue: {}", selectedValue);
+                        return selectedValue;
+                    } else {
+                        selectedValue = stringValueElementMap.get(actionIdKey)
+                                .getSelectedOption()
+                                .getValue();
+                        log.info("selectedValue: {}", selectedValue);
+                        return selectedValue;
+                    }
+                }
             }
-            System.out.println("stringValueMap1 = " + stringValueMap1);
+            System.out.println("stringValueElementMap = " + stringValueElementMap);
             if (componentId.equals(targetValueKey)) {
                 Map<String, ViewState.Value> stringValueMap = values.get(componentId);
                 log.info("stringValueMap: {}", stringValueMap);
