@@ -47,7 +47,6 @@ public class SlackController {
 
     private final MethodsClient slackClient;
     private final SlackService slackService;
-    private final DDLController ddlController;
     private final SlackActionHandler slackActionHandler;
 
 
@@ -115,7 +114,7 @@ public class SlackController {
                 // view close
             } catch (Exception e) {
                 // error block print
-                viewBlocks.add(slackActionHandler.handleException(e));
+                viewBlocks = slackActionHandler.handleException(viewBlocks, e);
                 updateView(viewBlocks, view);
                 throw e;
             }
