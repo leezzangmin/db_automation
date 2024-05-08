@@ -99,15 +99,15 @@ public class SlackController {
             }
 
         } else if (payloadType.equals("view_submission")) {
-            ViewSubmissionPayload viewSubmissionPayload = GsonFactory.createSnakeCase()
-                    .fromJson(decodedPayload, ViewSubmissionPayload.class);
-            log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
-
-            view = viewSubmissionPayload.getView();
-            viewBlocks = view.getBlocks();
-            state = view.getState();
-            CommandType findCommandType = findCommandType(state);
             try {
+                ViewSubmissionPayload viewSubmissionPayload = GsonFactory.createSnakeCase()
+                        .fromJson(decodedPayload, ViewSubmissionPayload.class);
+                log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
+
+                view = viewSubmissionPayload.getView();
+                viewBlocks = view.getBlocks();
+                state = view.getState();
+                CommandType findCommandType = findCommandType(state);
                 // TODO: USER
                 slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
                 return ResponseEntity.ok(true);
@@ -118,7 +118,6 @@ public class SlackController {
                 updateView(viewBlocks, view);
                 throw e;
             }
-
         } else {
             throw new IllegalArgumentException("미지원 payload");
         }

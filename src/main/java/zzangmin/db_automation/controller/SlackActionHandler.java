@@ -72,11 +72,11 @@ public class SlackActionHandler {
     }
 
     public List<LayoutBlock> handleException(List<LayoutBlock> currentBlocks, Exception e) {
-        int contextBlockIndex = 123456789;
+        int contextBlockIndex = 99999999;
         try {
             contextBlockIndex = SlackService.findBlockIndex(currentBlocks, "context", SlackController.errorContextBlockId);
         } catch (IllegalArgumentException notFoundIndexException) {}
-        if (contextBlockIndex == 123456789) {
+        if (contextBlockIndex == 99999999) {
             currentBlocks.add(BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId));
             return currentBlocks;
         }
