@@ -7,7 +7,6 @@ import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewSubmit;
 import com.slack.api.model.view.ViewTitle;
 
-import javax.naming.Context;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +26,11 @@ public class BasicBlockFactory {
                 .blockId(id));
     }
 
+    public static PlainTextInputElement findSinglelinePlainTextInput2(String id, String label, String placeholder) {
+        return plainTextInput(pti -> pti.actionId(id)
+                .multiline(false)
+                .placeholder(plainText(placeholder)));
+    }
     public static ActionsBlock findSubmitButton(String id, String text, String value) {
         return actions(actions -> actions
                 .elements(asElements(
@@ -56,6 +60,15 @@ public class BasicBlockFactory {
                         .actionId(id)
                         .build()))
                 .blockId(id));
+    }
+
+    public static StaticSelectElement findStaticSelectsElement(String id, List<OptionObject> selectOptions, String placeHolder) {
+        return StaticSelectElement.builder()
+                        .options(selectOptions)
+                        .placeholder(plainText(placeHolder))
+                        .actionId(id)
+                        .build();
+
     }
 
     public static View findView(String viewId, String callbackId, String viewTitle, List<LayoutBlock> blocks, String submitText) {

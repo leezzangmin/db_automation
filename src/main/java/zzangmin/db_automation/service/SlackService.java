@@ -6,6 +6,10 @@ import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.block.element.BlockElement;
+import com.slack.api.model.block.element.BlockElements;
+import com.slack.api.model.block.element.PlainTextInputElement;
+import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.model.view.ViewSubmit;
@@ -20,10 +24,7 @@ import zzangmin.db_automation.slackview.BasicBlockFactory;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.SSLHandshakeException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static zzangmin.db_automation.config.SlackConfig.DEFAULT_CHANNEL_ID;
 import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
@@ -165,37 +166,70 @@ public class SlackService {
         }
     }
 
-    public static int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blockId) {
-        for (int i = 0; i < blocks.size(); i++) {
-            LayoutBlock block = blocks.get(i);
-
-            if (block instanceof ActionsBlock) {
-                ActionsBlock childBlock = (ActionsBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+    public static int findElementIndex(List<BlockElement> blockElements, String actionId) {
+        /**
+         * ButtonElement
+         * ChannelsSelectElement
+         * CheckboxesElement
+         * ConversationsSelectElement
+         * DatePickerElement
+         * DatetimePickerElement
+         * EmailTextInputElement
+         * ExternalSelectElement
+         * FileInputElement
+         * ImageElement
+         * MultiChannelsSelectElement
+         * MultiConversationsSelectElement
+         * MultiExternalSelectElement
+         * MultiStaticSelectElement
+         * MultiUsersSelectElement
+         * NumberInputElement
+         * OverflowMenuElement
+         * PlainTextInputElement
+         * RadioButtonsElement
+         * RichTextInputElement
+         * RichTextListElement
+         * RichTextPreformattedElement
+         * RichTextQuoteElement
+         * RichTextSectionElement
+         * RichTextUnknownElement
+         * StaticSelectElement
+         * TimePickerElement
+         * URLTextInputElement
+         * UnknownBlockElement
+         * UsersSelectElement
+         * WorkflowButtonElement
+         */
+        for (int i = 0; i < blockElements.size(); i++) {
+            BlockElement blockElement = blockElements.get(i);
+            if (blockElement instanceof PlainTextInputElement) {
+                PlainTextInputElement childElement = (PlainTextInputElement) blockElement;
+                if (childElement.getActionId().equals(actionId)) {
                     return i;
                 }
-            } else if (block instanceof SectionBlock) {
-                SectionBlock childBlock = (SectionBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else if (block instanceof DividerBlock) {
-                DividerBlock childBlock = (DividerBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else if (block instanceof InputBlock) {
-                InputBlock childBlock = (InputBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
-                    return i;
-                }
-            } else if (block instanceof ContextBlock) {
-                ContextBlock childBlock = (ContextBlock) block;
-                if (childBlock.getType().equals(blockType) && childBlock.getBlockId().equals(blockId)) {
+            } else if (blockElement instanceof StaticSelectElement) {
+                StaticSelectElement childElement = (StaticSelectElement) blockElement;
+                if (childElement.getActionId().equals(actionId)) {
                     return i;
                 }
             } else {
-                throw new IllegalArgumentException("지원하지 않는 LayoutBlock 하위 클래스 입니다.");
+                throw new IllegalStateException("미지원 Element Type. 구현을 추가해야 합니다.");
+            }
+        }
+        return -999999999;
+    }
+
+    public static int findBlockIndex(List<LayoutBlock> blocks, String blockType, String blockId) {
+        for (int i = 0; i < blocks.size(); i++) {
+            LayoutBlock block = blocks.get(i);
+            if (block.getType().equals(blockType) && block.getBlockId().equals(blockId)) {
+                return i;
+            }
+            if (block instanceof ActionsBlock) {
+                ActionsBlock childBlock = (ActionsBlock) block;
+                if (findElementIndex(childBlock.getElements(), blockId) != -999999999) {
+                    return i;
+                }
             }
         }
         throw new IllegalArgumentException("해당 block 이 존재하지 않습니다.");
@@ -206,6 +240,25 @@ public class SlackService {
         log.info("targetValueKey: {}", targetValueKey);
         String selectedValue;
         for (String componentId : values.keySet()) {
+            log.info("componentId: {}", componentId);
+            Map<String, ViewState.Value> stringValueElementMap = values.get(componentId);
+            for (String actionIdKey : stringValueElementMap.keySet()) {
+                if (actionIdKey.equals(targetValueKey)) {
+                    log.info("actionIdKey: {}", actionIdKey);
+                    ViewState.Value value = stringValueElementMap.get(actionIdKey);
+                    if (stringValueElementMap.get(actionIdKey).getSelectedOption() == null) {
+                        selectedValue = stringValueElementMap.get(actionIdKey).getValue();
+                        log.info("selectedValue: {}", selectedValue);
+                        return selectedValue;
+                    } else {
+                        selectedValue = stringValueElementMap.get(actionIdKey)
+                                .getSelectedOption()
+                                .getValue();
+                        log.info("selectedValue: {}", selectedValue);
+                        return selectedValue;
+                    }
+                }
+            }
             if (componentId.equals(targetValueKey)) {
                 Map<String, ViewState.Value> stringValueMap = values.get(componentId);
                 log.info("stringValueMap: {}", stringValueMap);

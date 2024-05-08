@@ -18,7 +18,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.slack.api.model.block.Blocks.actions;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
+import static com.slack.api.model.block.element.BlockElements.asElements;
+import static com.slack.api.model.block.element.BlockElements.button;
 import static zzangmin.db_automation.controller.SlackController.findSchemaSelectsElementActionId;
 
 @Slf4j
@@ -43,22 +46,34 @@ public class SelectClusterSchemaTable {
                         .build()
                 )
                 .collect(Collectors.toList());
-        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findClusterSelectsElementActionId, clusterOptions, clusterPlaceholder));
+        ActionsBlock clusterSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackController.findClusterSelectsElementActionId, clusterOptions, clusterPlaceholder);
 
         List<OptionObject> emptyOption = BasicBlockFactory.generateEmptyOptionObjects();
+        ActionsBlock schemaSelectBlock = BasicBlockFactory.findStaticSelectsBlock(findSchemaSelectsElementActionId,
+                emptyOption,
+                schemaPlaceholder);
 
-        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findSchemaSelectsElementActionId,
+        ActionsBlock tableSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackController.findTableSelectsElementActionId,
                 emptyOption,
-                schemaPlaceholder));
-        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findTableSelectsElementActionId,
-                emptyOption,
-                tablePlaceholder));
+                tablePlaceholder);
+
+
+//        actions(actions -> actions
+//                .elements(asElements(
+//                        clusterSelectBlock,
+//                        schemaSelectBlock,
+//                        tableSelectBlock
+//                ))
+//        );
 
         String tableSchemaLabelText = "<Table Schema>";
         ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackController.tableSchemaContextId);
-        blocks.add(contextBlock);
-
         SectionBlock textSection = BasicBlockFactory.getTextSection("choose table first", SlackController.tableSchemaTextId);
+
+        blocks.add(clusterSelectBlock);
+        blocks.add(schemaSelectBlock);
+        blocks.add(tableSelectBlock);
+        blocks.add(contextBlock);
         blocks.add(textSection);
         return blocks;
     }
