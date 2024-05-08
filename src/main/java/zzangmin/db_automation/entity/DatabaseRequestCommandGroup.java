@@ -85,14 +85,14 @@ public enum DatabaseRequestCommandGroup {
         return Arrays.stream(DatabaseRequestCommandGroup.values())
                 .filter(group -> hasDatabaseRequestCommandOption(group, searchTarget))
                 .findAny()
-                .orElseThrow(() -> new NoSuchElementException());
+                .orElseThrow(() -> new NoSuchElementException("commandGroup 을 찾을 수 없습니다"));
     }
 
     public static CommandType findCommandTypeByCommandTypeName(String searchTargetCommandTypeName) {
         CommandType findCommandType = Arrays.stream(CommandType.values())
                 .filter(commandType -> commandType.name().equals(searchTargetCommandTypeName))
                 .findAny()
-                .orElseThrow(() -> new NoSuchElementException());
+                .orElseThrow(() -> new NoSuchElementException("commandType 을 찾을 수 없습니다."));
         log.info("findCommandType: {}", findCommandType);
         return findCommandType;
     }
@@ -105,7 +105,7 @@ public enum DatabaseRequestCommandGroup {
         List<CommandType> findCommandTypes = Arrays.stream(DatabaseRequestCommandGroup.values())
                 .filter(group -> Objects.equals(group.name(), targetGroup.name()))
                 .findAny()
-                .orElseThrow(() -> new NoSuchElementException())
+                .orElseThrow(() -> new NoSuchElementException("commandType 을 찾을 수 없습니다."))
                 .commandTypes;
         log.info("findCommandTypes: {}", findCommandTypes);
         return findCommandTypes;
@@ -116,7 +116,7 @@ public enum DatabaseRequestCommandGroup {
         DatabaseRequestCommandGroup findGroup = Arrays.stream(DatabaseRequestCommandGroup.values())
                 .filter(group -> Objects.equals(group.name(), targetGroupName))
                 .findAny()
-                .orElseThrow(() -> new NoSuchElementException());
+                .orElseThrow(() -> new NoSuchElementException("commandGroup 을 찾을 수 없습니다"));
         log.info("findGroup: {}", findGroup);
         return findGroup;
     }

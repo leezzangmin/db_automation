@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
+import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.CreateIndexBlockPage;
 import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
@@ -22,6 +23,7 @@ import java.util.Map;
 @Component
 public class SlackActionHandler {
 
+    private final SlackService slackService;
     private final SelectCommand selectCommand;
     private final SelectClusterSchemaTable selectClusterSchemaTable;
     private final CreateIndexBlockPage createIndexBlockPage;
@@ -46,10 +48,11 @@ public class SlackActionHandler {
         else if (actionId.equals(SlackController.findTableSelectsElementActionId)) {
             currentBlocks = selectClusterSchemaTable.handleTableChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackController.findTableSelectsElementActionId, currentBlocks);
-        }
-
-
-        else {
+        } else if (actionId.equals(SlackController.createIndexAddColumnButtonId)) {
+            currentBlocks = createIndexBlockPage.handleAddColumn(currentBlocks);
+        } else if (actionId.equals(SlackController.createIndexRemoveColumnButtonId)) {
+            currentBlocks = createIndexBlockPage.handleRemoveColumn(currentBlocks, values);
+        } else {
             throw new IllegalArgumentException("미지원 actionId: " + actionId);
         }
         return currentBlocks;
@@ -69,9 +72,18 @@ public class SlackActionHandler {
 
     }
 
-    public LayoutBlock handleException(Exception e) {
-        ContextBlock contextBlock = BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId);
-        return contextBlock;
+    public List<LayoutBlock> handleException(List<LayoutBlock> currentBlocks, Exception e) {
+        int contextBlockIndex = 99999999;
+        try {
+            contextBlockIndex = SlackService.findBlockIndex(currentBlocks, "context", SlackController.errorContextBlockId);
+        } catch (IllegalArgumentException notFoundIndexException) {}
+        if (contextBlockIndex == 99999999) {
+            currentBlocks.add(BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId));
+            return currentBlocks;
+        }
+        currentBlocks.remove(contextBlockIndex);
+        currentBlocks.add(BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId));
+        return currentBlocks;
     }
 
 

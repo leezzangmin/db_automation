@@ -58,7 +58,7 @@ public class SelectClusterSchemaTable {
         ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackController.tableSchemaContextId);
         blocks.add(contextBlock);
 
-        SectionBlock textSection = BasicBlockFactory.getTextSection("choose table", SlackController.tableSchemaTextId);
+        SectionBlock textSection = BasicBlockFactory.getTextSection("choose table first", SlackController.tableSchemaTextId);
         blocks.add(textSection);
         return blocks;
     }
@@ -120,7 +120,7 @@ public class SelectClusterSchemaTable {
 
     private static void resetTableSchemaSectionBlock(List<LayoutBlock> currentBlocks) {
         int tableSchemaTextSectionIndex = SlackService.findBlockIndex(currentBlocks, "section", SlackController.tableSchemaTextId);
-        SectionBlock textSection = BasicBlockFactory.getTextSection("choose table", SlackController.tableSchemaTextId);
+        SectionBlock textSection = BasicBlockFactory.getTextSection("choose table first", SlackController.tableSchemaTextId);
         currentBlocks.set(tableSchemaTextSectionIndex, textSection);
     }
 

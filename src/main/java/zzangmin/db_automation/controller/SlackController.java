@@ -47,7 +47,6 @@ public class SlackController {
 
     private final MethodsClient slackClient;
     private final SlackService slackService;
-    private final DDLController ddlController;
     private final SlackActionHandler slackActionHandler;
 
 
@@ -61,6 +60,8 @@ public class SlackController {
     public static final String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
     public static final String createIndexIndexNameTextInputId = "inputCreateIndexIndexName";
     public static final String createIndexColumnNameTextInputId = "inputCreateIndexColumnName";
+    public static final String createIndexAddColumnButtonId = "createIndexAddColumnButton";
+    public static final String createIndexRemoveColumnButtonId = "createIndexRemoveColumnButton";
     public static final String findIndexTypeActionId = "selectIndexType";
     public static final String errorContextBlockId = "errorContextBlock";
 
@@ -100,26 +101,23 @@ public class SlackController {
             }
 
         } else if (payloadType.equals("view_submission")) {
-            ViewSubmissionPayload viewSubmissionPayload = GsonFactory.createSnakeCase()
-                    .fromJson(decodedPayload, ViewSubmissionPayload.class);
-            log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
-
-            view = viewSubmissionPayload.getView();
-            viewBlocks = view.getBlocks();
-            state = view.getState();
-            CommandType findCommandType = findCommandType(state);
             try {
+                ViewSubmissionPayload viewSubmissionPayload = GsonFactory.createSnakeCase()
+                        .fromJson(decodedPayload, ViewSubmissionPayload.class);
+                log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
+
+                view = viewSubmissionPayload.getView();
+                viewBlocks = view.getBlocks();
+                state = view.getState();
+                CommandType findCommandType = findCommandType(state);
                 // TODO: USER
                 slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
                 return ResponseEntity.ok(true);
-                // view close
             } catch (Exception e) {
-                // error block print
-                viewBlocks.add(slackActionHandler.handleException(e));
+                viewBlocks = slackActionHandler.handleException(viewBlocks, e);
                 updateView(viewBlocks, view);
                 throw e;
             }
-
         } else {
             throw new IllegalArgumentException("미지원 payload");
         }
