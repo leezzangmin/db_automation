@@ -56,9 +56,7 @@ public class CreateIndexBlockPage {
         blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexIndexNameTextInputId,
                 createIndexIndexNameTextInputLabel,
                 createIndexNamePlaceHolder));
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + 1,
-                inputIndexColumnNameLabel + 1,
-                createIndexColumnPlaceHolder));
+        blocks.add(getInitialIndexColumnNameInputBlock());
         blocks.add(
                 actions(actions -> actions
                         .elements(asElements(
@@ -78,7 +76,14 @@ public class CreateIndexBlockPage {
     }
 
     public List<LayoutBlock> handleAddColumn(List<LayoutBlock> currentBlocks) {
-        int lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
+        int lastInputColumnNameBlockIndex;
+        try {
+            lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
+        } catch (Exception e) {
+            int inputColumnNameIndex = SlackService.findBlockIndex(currentBlocks, "input", SlackController.createIndexIndexNameTextInputId) + 1;
+            currentBlocks.add(inputColumnNameIndex, getInitialIndexColumnNameInputBlock());
+            return currentBlocks;
+        }
         log.info("lastInputColumnNameBlockIndex: {}", lastInputColumnNameBlockIndex);
         int blockIdNumber = findBlockIdNumber(currentBlocks.get(lastInputColumnNameBlockIndex));
         currentBlocks.add(lastInputColumnNameBlockIndex + 1, BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + (blockIdNumber + 1),
@@ -93,15 +98,17 @@ public class CreateIndexBlockPage {
             for (int i = 1; i < 99999999; i++) {
                 index = SlackService.findBlockIndex(currentBlocks, "input", SlackController.createIndexColumnNameTextInputId + i);
             }
-        } catch (Exception e) {
-            log.info("index123: {}", index);
-            return index;
-        }
+        } catch (Exception e) {}
         if (index == -1) {
             throw new IllegalArgumentException("column name inputBlock 이 존재하지 않습니다.");
         }
-        log.info("index456: {}", index);
         return index;
+    }
+
+    private LayoutBlock getInitialIndexColumnNameInputBlock () {
+        return BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + 1,
+                inputIndexColumnNameLabel + 1,
+                createIndexColumnPlaceHolder);
     }
 
     private int findBlockIdNumber(LayoutBlock block) {
