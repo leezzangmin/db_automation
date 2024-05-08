@@ -60,6 +60,8 @@ public class SlackController {
     public static final String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
     public static final String createIndexIndexNameTextInputId = "inputCreateIndexIndexName";
     public static final String createIndexColumnNameTextInputId = "inputCreateIndexColumnName";
+    public static final String createIndexAddColumnButtonId = "createIndexAddColumnButton";
+    public static final String createIndexRemoveColumnButtonId = "createIndexRemoveColumnButton";
     public static final String findIndexTypeActionId = "selectIndexType";
     public static final String errorContextBlockId = "errorContextBlock";
 

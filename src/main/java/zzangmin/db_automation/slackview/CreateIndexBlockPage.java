@@ -21,7 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.slack.api.model.block.Blocks.actions;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
+import static com.slack.api.model.block.element.BlockElements.asElements;
+import static com.slack.api.model.block.element.BlockElements.button;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -31,10 +34,11 @@ public class CreateIndexBlockPage {
     private final SelectClusterSchemaTable selectClusterSchemaTable;
     private final DDLController ddlController;
 
-    private static String createIndexIndexNameTextInputLabelId = "Index Name: ";
+    private static String createIndexIndexNameTextInputLabel = "Index Name";
     private static String createIndexNamePlaceHolder = "idx_orderno_createdat";
     private static String createIndexTypePlaceHolder = "select index type";
     private static String createIndexColumnPlaceHolder = "input column name";
+    private static String inputIndexColumnNameLabel = "Column Name ";
 
     public List<LayoutBlock> createIndexBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
@@ -50,17 +54,46 @@ public class CreateIndexBlockPage {
                 indexTypeOptions,
                 createIndexTypePlaceHolder));
         blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexIndexNameTextInputId,
-                createIndexIndexNameTextInputLabelId,
+                createIndexIndexNameTextInputLabel,
                 createIndexNamePlaceHolder));
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId,
-                SlackController.createIndexColumnNameTextInputId,
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + 1,
+                inputIndexColumnNameLabel + 1,
                 createIndexColumnPlaceHolder));
+        blocks.add(
+                actions(actions -> actions
+                        .elements(asElements(
+                                button(b -> b.text(plainText(pt -> pt.emoji(true).text("컬럼 추가")))
+                                        .value(SlackController.createIndexAddColumnButtonId)
+                                        .style("primary")
+                                        .actionId(SlackController.createIndexAddColumnButtonId)
+                                ),
+                                button(b -> b.text(plainText(pt -> pt.emoji(true).text("컬럼 삭제")))
+                                        .value(SlackController.createIndexRemoveColumnButtonId)
+                                        .style("danger")
+                                        .actionId(SlackController.createIndexRemoveColumnButtonId)
+                                )))));
 
         return blocks;
     }
 
     public List<LayoutBlock> handleAddColumn(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        return null;
+        int lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
+        currentBlocks.add(lastInputColumnNameBlockIndex, BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + lastInputColumnNameBlockIndex,
+                inputIndexColumnNameLabel + lastInputColumnNameBlockIndex,
+                createIndexColumnPlaceHolder));
+        return currentBlocks;
+    }
+
+    private int findLastInputColumnNameBlockIndex(List<LayoutBlock> currentBlocks) {
+        int index = 1;
+        try {
+            for (int i = 1; i < 99999999; i++) {
+                index = SlackService.findBlockIndex(currentBlocks, "input", SlackController.createIndexColumnNameTextInputId + i);
+            }
+        } catch (Exception e) {
+            return index;
+        }
+        return index;
     }
 
     public List<LayoutBlock> handleRemoveColumn(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
