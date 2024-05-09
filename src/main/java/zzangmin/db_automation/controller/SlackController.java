@@ -199,9 +199,8 @@ public class SlackController {
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        PrintWriter writer = response.getWriter();
-        writer.write(gson.toJson(viewSubmissionResponse));
-        writer.flush();
+        response.getOutputStream().write(gson.toJson(viewSubmissionResponse).getBytes(StandardCharsets.UTF_8));
+
     }
 
     public SlackViewSubmissionResponseDTO displayErrorResponse(Exception e) {
