@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
 import com.slack.api.app_backend.util.JsonPayloadTypeDetector;
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
-import com.slack.api.app_backend.views.response.ViewSubmissionResponse;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.views.ViewsUpdateRequest;
@@ -22,13 +21,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
-import zzangmin.db_automation.dto.response.SlackViewSubmissionResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.SelectCommand;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
@@ -105,18 +102,15 @@ public class SlackController {
                 view = viewSubmissionPayload.getView();
                 viewBlocks = view.getBlocks();
                 state = view.getState();
-             //   closeView(view, response);
 
                 CommandType findCommandType = findCommandType(state);
                 // TODO: USER auth
                 slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
-//                closeView(view, response);
+
+                return ResponseEntity.ok(closeViewJsonString());
             } catch (Exception e) {
                 log.info("Exception: {}", e.getMessage());
-                String errorViewResponse = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"errormessage\"}}";
-                System.out.println("errorViewResponse = " + errorViewResponse);
-                return ResponseEntity.ok(errorViewResponse);
-//                return ResponseEntity.ok(displayErrorResponse(e));
+                return ResponseEntity.ok(displayErrorViewJsonString(e));
             }
         } else {
             throw new IllegalArgumentException("미지원 payload");
@@ -129,8 +123,7 @@ public class SlackController {
         String json = gson.toJson(viewBlocks);
         log.info("response JSON: {}", json);
 
-        String closeViewResponse = "{\"response_action\":\"clear\"}";
-        return ResponseEntity.ok(closeViewResponse);
+        return ResponseEntity.ok("ok");
     }
 
     @PostMapping(value = "/slack/command/dbselect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -167,7 +160,9 @@ public class SlackController {
 //        SlashCommandPayloadParser slashCommandPayloadParser = new SlashCommandPayloadParser();
 //        SlashCommandPayload slashCommandPayload = slashCommandPayloadParser.parse(requestBody);
 
-        List<LayoutBlock> initialBlocks = SelectCommand.selectCommandGroupAndCommandTypeBlocks();
+        List<LayoutBlock> initialBlocks = new ArrayList<>();
+//        initialBlocks.add()
+        initialBlocks.addAll(SelectCommand.selectCommandGroupAndCommandTypeBlocks());
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
                 .view(slackService.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
@@ -192,33 +187,17 @@ public class SlackController {
         log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
     }
 
-    private void closeView(View view, HttpServletResponse response) throws IOException {
-        log.info("closeView: {}\nresponse: {}", view, response);
+    private String closeViewJsonString() {
         // TODO: https://api.slack.com/surfaces/modals#close_all_views
-        ViewSubmissionResponse viewSubmissionResponse = ViewSubmissionResponse.builder()
-                .responseAction("clear")
-                .view(view)
-                .build();
-
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getOutputStream().write(gson.toJson(viewSubmissionResponse).getBytes(StandardCharsets.UTF_8));
+        String closeViewResponseJson = "{\"response_action\":\"clear\"}";
+        return closeViewResponseJson;
     }
 
-    public SlackViewSubmissionResponseDTO displayErrorResponse(Exception e) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("8aBeS", e.getMessage());
-        SlackViewSubmissionResponseDTO slackViewSubmissionResponseDTO = new SlackViewSubmissionResponseDTO("errors", errors);
-        log.info("slackViewSubmissionResponseDTO: {}", slackViewSubmissionResponseDTO);
-        return slackViewSubmissionResponseDTO;
-//        log.info("viewSubmissionResponse: {}", viewSubmissionResponse);
-//        response.setContentType("application/json");
-//        response.setCharacterEncoding("UTF-8");
-//        response.getOutputStream().write(gson.toJson(viewSubmissionResponse).getBytes(StandardCharsets.UTF_8));
-//        printResponseDetails(response);
-//        PrintWriter writer = response.getWriter();
-//        writer.write(gson.toJson(viewSubmissionResponse));
-//        writer.flush();
+    private String displayErrorViewJsonString(Exception e) {
+//        String errorViewResponse = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"\"}}";
+        String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"" + e.getMessage() + "\"}}";
+        log.info("errorViewResponseJson: {}", errorViewResponseJson);
+        return errorViewResponseJson;
     }
 
 }
