@@ -67,7 +67,8 @@ public class SlackController {
     public SlackViewSubmissionResponseDTO slackCallBack(@RequestParam String payload,
                                                         @RequestBody String requestBody,
                                                         @RequestHeader("X-Slack-Signature") String slackSignature,
-                                                        @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException, SlackApiException {
+                                                        @RequestHeader("X-Slack-Request-Timestamp") String timestamp,
+                                                        HttpServletResponse response) throws IOException, SlackApiException {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
@@ -107,7 +108,7 @@ public class SlackController {
                 viewBlocks = view.getBlocks();
                 state = view.getState();
                 CommandType findCommandType = findCommandType(state);
-
+                closeView(view, response);
                 // TODO: USER auth
                 slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
 //                closeView(view, response);
