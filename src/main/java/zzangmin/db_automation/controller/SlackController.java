@@ -205,7 +205,7 @@ public class SlackController {
 
     public SlackViewSubmissionResponseDTO displayErrorResponse(Exception e) {
         Map<String, String> errors = new HashMap<>();
-        errors.put("error", e.getMessage());
+        errors.put("8aBeS", e.getMessage());
         SlackViewSubmissionResponseDTO slackViewSubmissionResponseDTO = new SlackViewSubmissionResponseDTO("errors", errors);
         log.info("slackViewSubmissionResponseDTO: {}", slackViewSubmissionResponseDTO);
         return slackViewSubmissionResponseDTO;
