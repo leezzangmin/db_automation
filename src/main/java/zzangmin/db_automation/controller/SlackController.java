@@ -107,8 +107,9 @@ public class SlackController {
                 view = viewSubmissionPayload.getView();
                 viewBlocks = view.getBlocks();
                 state = view.getState();
-                CommandType findCommandType = findCommandType(state);
                 closeView(view, response);
+
+                CommandType findCommandType = findCommandType(state);
                 // TODO: USER auth
                 slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
 //                closeView(view, response);
