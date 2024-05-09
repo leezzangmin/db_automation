@@ -113,7 +113,8 @@ public class SlackController {
 //                closeView(view, response);
             } catch (Exception e) {
                 log.info("Exception: {}", e.getMessage());
-                String errorViewResponse = "{\"response_action\":\"clear\",\"errors\": {\"8aBeS\":\"errormessage\"}}";
+                String errorViewResponse = "{\"response_action\":\"clear\",\"errors\": {\"selectDatabaseRequestCommandType\":\"errormessage\"}}";
+                System.out.println("errorViewResponse = " + errorViewResponse);
                 return ResponseEntity.ok(errorViewResponse);
 //                return ResponseEntity.ok(displayErrorResponse(e));
             }
