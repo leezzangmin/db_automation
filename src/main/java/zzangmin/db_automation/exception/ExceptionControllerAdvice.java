@@ -12,7 +12,7 @@ import java.util.Arrays;
 @RestControllerAdvice
 public class ExceptionControllerAdvice {
 
-    //@ExceptionHandler(Exception.class)
+    @ExceptionHandler(Exception.class)
     public ErrorMessage globalException(Exception e) {
         log.error("Exception Occurred: {}", e.getMessage());
         log.error("Exception StackTrace: {}", Arrays.toString(e.getStackTrace()));
