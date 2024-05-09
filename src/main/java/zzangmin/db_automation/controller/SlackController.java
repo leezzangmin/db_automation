@@ -113,8 +113,8 @@ public class SlackController {
 //                closeView(view, response);
             } catch (Exception e) {
                 log.info("Exception: {}", e.getMessage());
-                String closeViewResponse = "{\"response_action\":\"clear\"}";
-                return ResponseEntity.ok(closeViewResponse);
+                String errorViewResponse = "{\"response_action\":\"clear\",\"errors\": {\"8aBeS\":\"errormessage\"}}";
+                return ResponseEntity.ok(errorViewResponse);
 //                return ResponseEntity.ok(displayErrorResponse(e));
             }
         } else {
@@ -127,7 +127,9 @@ public class SlackController {
         updateView(viewBlocks, view);
         String json = gson.toJson(viewBlocks);
         log.info("response JSON: {}", json);
-        return null;
+
+        String closeViewResponse = "{\"response_action\":\"clear\"}";
+        return ResponseEntity.ok(closeViewResponse);
     }
 
     @PostMapping(value = "/slack/command/dbselect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
