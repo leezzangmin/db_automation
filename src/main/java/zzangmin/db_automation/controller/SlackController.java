@@ -2,8 +2,6 @@ package zzangmin.db_automation.controller;
 
 import com.google.gson.Gson;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.app_backend.slash_commands.SlashCommandPayloadParser;
-import com.slack.api.app_backend.slash_commands.payload.SlashCommandPayload;
 import com.slack.api.app_backend.util.JsonPayloadTypeDetector;
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.app_backend.views.response.ViewSubmissionResponse;
@@ -23,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
+import zzangmin.db_automation.dto.response.SlackViewSubmissionResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.SelectCommand;
@@ -64,11 +63,10 @@ public class SlackController {
     public static final String errorContextBlockId = "errorContextBlock";
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public HttpServletResponse slackCallBack(@RequestParam String payload,
-                                        @RequestBody String requestBody,
-                                        @RequestHeader("X-Slack-Signature") String slackSignature,
-                                        @RequestHeader("X-Slack-Request-Timestamp") String timestamp,
-                                        HttpServletResponse response) throws IOException, SlackApiException {
+    public SlackViewSubmissionResponseDTO slackCallBack(@RequestParam String payload,
+                                                        @RequestBody String requestBody,
+                                                        @RequestHeader("X-Slack-Signature") String slackSignature,
+                                                        @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException, SlackApiException {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
@@ -111,10 +109,9 @@ public class SlackController {
 
                 // TODO: USER auth
                 slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
-                closeView(view, response);
+//                closeView(view, response);
             } catch (Exception e) {
-                displayErrorResponse(response, e);
-                throw e;
+                return displayErrorResponse(e);
             }
         } else {
             throw new IllegalArgumentException("미지원 payload");
@@ -126,7 +123,7 @@ public class SlackController {
         updateView(viewBlocks, view);
         String json = gson.toJson(viewBlocks);
         log.info("response JSON: {}", json);
-        return response;
+        return null;
     }
 
     @PostMapping(value = "/slack/command/dbselect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -203,20 +200,17 @@ public class SlackController {
         writer.flush();
     }
 
-    public void displayErrorResponse(HttpServletResponse response, Exception e) throws IOException {
-        log.info("response: {}",  response);
+    public SlackViewSubmissionResponseDTO displayErrorResponse(Exception e) {
         Map<String, String> errors = new HashMap<>();
         errors.put("error", e.getMessage());
-
-        ViewSubmissionResponse viewSubmissionResponse = ViewSubmissionResponse.builder()
-                .responseAction("errors")
-                .errors(errors)
-                .build();
-        log.info("viewSubmissionResponse: {}", viewSubmissionResponse);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getOutputStream().write(gson.toJson(viewSubmissionResponse).getBytes(StandardCharsets.UTF_8));
-        printResponseDetails(response);
+        SlackViewSubmissionResponseDTO slackViewSubmissionResponseDTO = new SlackViewSubmissionResponseDTO("errors", errors);
+        log.info("slackViewSubmissionResponseDTO: {}", slackViewSubmissionResponseDTO);
+        return slackViewSubmissionResponseDTO;
+//        log.info("viewSubmissionResponse: {}", viewSubmissionResponse);
+//        response.setContentType("application/json");
+//        response.setCharacterEncoding("UTF-8");
+//        response.getOutputStream().write(gson.toJson(viewSubmissionResponse).getBytes(StandardCharsets.UTF_8));
+//        printResponseDetails(response);
 //        PrintWriter writer = response.getWriter();
 //        writer.write(gson.toJson(viewSubmissionResponse));
 //        writer.flush();
@@ -230,6 +224,9 @@ public class SlackController {
         for (String headerName : headerNames) {
             System.out.println(headerName + ": " + response.getHeader(headerName));
         }
+
+        ResponseWrapper responseWrapper = new ResponseWrapper(response);
+
         CustomResponseWrapper wrappedResponse = new CustomResponseWrapper(response);
 
 // 응답 처리 후, 캡처된 응답 바디 출력
