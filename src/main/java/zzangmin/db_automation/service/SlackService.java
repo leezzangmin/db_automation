@@ -1,6 +1,5 @@
 package zzangmin.db_automation.service;
 
-import com.slack.api.bolt.request.builtin.BlockActionRequest;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
