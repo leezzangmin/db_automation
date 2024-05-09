@@ -237,8 +237,6 @@ public class SlackService {
     }
 
     public static String findCurrentValueFromState(Map<String, Map<String, ViewState.Value>> values, String targetValueKey) {
-        BlockActionRequest blockActionRequest = new BlockActionRequest();
-
         log.info("values: {}", values);
         log.info("targetValueKey: {}", targetValueKey);
         String selectedValue;

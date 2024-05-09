@@ -1,9 +1,11 @@
 package zzangmin.db_automation.controller;
 
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
+import com.slack.api.app_backend.views.response.ViewSubmissionResponse;
 import com.slack.api.model.block.ContextBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -14,6 +16,7 @@ import zzangmin.db_automation.slackview.CreateIndexBlockPage;
 import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
 import zzangmin.db_automation.slackview.SelectCommand;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,20 +75,42 @@ public class SlackActionHandler {
 
     }
 
-    public List<LayoutBlock> handleException(List<LayoutBlock> currentBlocks, Exception e) {
-        // TODO: https://api.slack.com/surfaces/modals#displaying_errors
-        int contextBlockIndex = 99999999;
-        try {
-            contextBlockIndex = SlackService.findBlockIndex(currentBlocks, "context", SlackController.errorContextBlockId);
-        } catch (IllegalArgumentException notFoundIndexException) {}
-        if (contextBlockIndex == 99999999) {
-            currentBlocks.add(BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId));
-            return currentBlocks;
-        }
-        currentBlocks.remove(contextBlockIndex);
-        currentBlocks.add(BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId));
-        return currentBlocks;
-    }
-
+//    public List<LayoutBlock> handleException(List<LayoutBlock> currentBlocks, Exception e) {
+//        // TODO: https://api.slack.com/surfaces/modals#displaying_errors
+//        int contextBlockIndex = 99999999;
+//        try {
+//            contextBlockIndex = SlackService.findBlockIndex(currentBlocks, "context", SlackController.errorContextBlockId);
+//        } catch (IllegalArgumentException notFoundIndexException) {}
+//        if (contextBlockIndex == 99999999) {
+//            currentBlocks.add(BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId));
+//            return currentBlocks;
+//        }
+//        currentBlocks.remove(contextBlockIndex);
+//        currentBlocks.add(BasicBlockFactory.getContextBlock(e.getMessage(), SlackController.errorContextBlockId));
+//        return currentBlocks;
+//    }
+//    private void buildErrorResponse(ViewSubmissionPayload payload, String errorDescription, HttpServletResponse response) throws IOException {
+//        List<LayoutBlock> blocks = payload.getView().getBlocks();
+//        if (blocks.size() == BlockId.values().length) {
+//            blocks.remove(BlockId.values().length - 1);
+//        }
+//        blocks.add(SectionBlock.builder()
+//                .blockId(ERROR.name())
+//                .text(MarkdownTextObject.builder()
+//                        .text(errorDescription)
+//                        .build()).build());
+//
+//        boolean isAdmin = vacationAdminService.isAdmin(payload.getUser().getId(), payload.getUser().getTeamId());
+//        View viewWithError = buildAddVacationInfoView(payload.getView().getCallbackId(), payload.getUser().getId(), isAdmin);
+//        viewWithError.setBlocks(blocks);
+//        ViewSubmissionResponse submissionResponse = ViewSubmissionResponse.builder()
+//                .responseAction("update")
+//                .view(viewWithError)
+//                .build();
+//        response.setContentType("application/json");
+//        response.setCharacterEncoding("UTF-8");
+//        response.getWriter().write(gson.toJson(submissionResponse));
+//        response.getWriter().flush();
+//    }
 
 }

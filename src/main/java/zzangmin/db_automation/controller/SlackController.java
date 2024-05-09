@@ -2,43 +2,35 @@ package zzangmin.db_automation.controller;
 
 import com.google.gson.Gson;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
+import com.slack.api.app_backend.slash_commands.SlashCommandPayloadParser;
+import com.slack.api.app_backend.slash_commands.payload.SlashCommandPayload;
 import com.slack.api.app_backend.util.JsonPayloadTypeDetector;
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
+import com.slack.api.app_backend.views.response.ViewSubmissionResponse;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.views.ViewsUpdateRequest;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.methods.response.views.ViewsUpdateResponse;
 import com.slack.api.model.block.*;
-import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.View;
-import com.slack.api.model.view.ViewClose;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
 import zzangmin.db_automation.slackview.SelectCommand;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
-import static com.slack.api.model.block.Blocks.*;
-import static com.slack.api.model.block.composition.BlockCompositions.markdownText;
-import static com.slack.api.model.block.composition.BlockCompositions.plainText;
-import static com.slack.api.model.block.element.BlockElements.asElements;
-import static com.slack.api.model.block.element.BlockElements.button;
 import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 
 @Slf4j
@@ -49,6 +41,8 @@ public class SlackController {
     private final MethodsClient slackClient;
     private final SlackService slackService;
     private final SlackActionHandler slackActionHandler;
+    private final Gson gson;
+    private static final JsonPayloadTypeDetector payloadTypeDetector = new JsonPayloadTypeDetector();
 
 
     public static final String tableSchemaContextId = "tableSchemaContext";
@@ -67,10 +61,11 @@ public class SlackController {
     public static final String errorContextBlockId = "errorContextBlock";
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity slackCallBack(@RequestParam String payload,
-                                                 @RequestBody String requestBody,
-                                                 @RequestHeader("X-Slack-Signature") String slackSignature,
-                                                 @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException, SlackApiException {
+    public void slackCallBack(@RequestParam String payload,
+                                        @RequestBody String requestBody,
+                                        @RequestHeader("X-Slack-Signature") String slackSignature,
+                                        @RequestHeader("X-Slack-Request-Timestamp") String timestamp,
+                                        HttpServletResponse response) throws IOException, SlackApiException {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
@@ -78,9 +73,8 @@ public class SlackController {
         String decodedPayload = HtmlUtils.htmlUnescape(payload);
         log.info("slackCallBack decodedPayload: {}", decodedPayload);
 
-        // https://slack.dev/java-slack-sdk/guides/shortcuts under the hood
-        JsonPayloadTypeDetector typeDetector = new JsonPayloadTypeDetector();
-        String payloadType = typeDetector.detectType(decodedPayload);
+        // https://slack.dev/java-slack-sdk/guides/shortcuts -> under the hood
+        String payloadType = payloadTypeDetector.detectType(decodedPayload);
 
         View view = null;
         ViewState state;
@@ -111,14 +105,12 @@ public class SlackController {
                 viewBlocks = view.getBlocks();
                 state = view.getState();
                 CommandType findCommandType = findCommandType(state);
-                // TODO: USER
-                slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
 
-                // TODO: https://api.slack.com/surfaces/modals#close_all_views
-                return ResponseEntity.ok(true);
+                // TODO: USER auth
+                slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
+                closeView(view, response);
             } catch (Exception e) {
-                viewBlocks = slackActionHandler.handleException(viewBlocks, e);
-                updateView(viewBlocks, view);
+                displayErrorResponse(response, e);
                 throw e;
             }
         } else {
@@ -129,12 +121,9 @@ public class SlackController {
             log.info("viewBlock: {}", viewBlock);
         }
         updateView(viewBlocks, view);
-        Gson gson = new Gson();
         String json = gson.toJson(viewBlocks);
+        log.info("response JSON: {}", json);
 
-        System.out.println("json = " + json);
-
-        return ResponseEntity.ok(true);
     }
 
     @PostMapping(value = "/slack/command/dbselect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -168,6 +157,9 @@ public class SlackController {
         log.info("timestamp: {}", timestamp);
         slackService.validateRequest(slackSignature, timestamp, requestBody);
 
+//        SlashCommandPayloadParser slashCommandPayloadParser = new SlashCommandPayloadParser();
+//        SlashCommandPayload slashCommandPayload = slashCommandPayloadParser.parse(requestBody);
+
         List<LayoutBlock> initialBlocks = SelectCommand.selectCommandGroupAndCommandTypeBlocks();
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
                 .view(slackService.findGlobalRequestModalView(initialBlocks)));
@@ -191,6 +183,33 @@ public class SlackController {
                 .build();
         ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);
         log.info("viewsUpdateResponse: {}", viewsUpdateResponse);
+    }
+
+    private void closeView(View view, HttpServletResponse response) throws IOException {
+        // TODO: https://api.slack.com/surfaces/modals#close_all_views
+        ViewSubmissionResponse viewSubmissionResponse = ViewSubmissionResponse.builder()
+                .responseAction("clear")
+                .view(view)
+                .build();
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(gson.toJson(viewSubmissionResponse));
+        response.getWriter().flush();
+    }
+
+    public void displayErrorResponse(HttpServletResponse response, Exception e) throws IOException {
+        Map<String, String> errors = new HashMap<>();
+        errors.put("error", e.getMessage());
+
+        ViewSubmissionResponse submissionResponse = ViewSubmissionResponse.builder()
+                .responseAction("errors")
+                .errors(errors)
+                .build();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.getWriter().write(gson.toJson(submissionResponse));
+        response.getWriter().flush();
     }
 
 
