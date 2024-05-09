@@ -63,7 +63,7 @@ public class SlackController {
     public static final String errorContextBlockId = "errorContextBlock";
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public void slackCallBack(@RequestParam String payload,
+    public HttpServletResponse slackCallBack(@RequestParam String payload,
                                         @RequestBody String requestBody,
                                         @RequestHeader("X-Slack-Signature") String slackSignature,
                                         @RequestHeader("X-Slack-Request-Timestamp") String timestamp,
@@ -125,7 +125,7 @@ public class SlackController {
         updateView(viewBlocks, view);
         String json = gson.toJson(viewBlocks);
         log.info("response JSON: {}", json);
-
+        return response;
     }
 
     @PostMapping(value = "/slack/command/dbselect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
