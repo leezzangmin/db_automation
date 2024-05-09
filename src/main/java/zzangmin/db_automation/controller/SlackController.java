@@ -19,6 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
@@ -64,11 +65,11 @@ public class SlackController {
     public static final String errorContextBlockId = "errorContextBlock";
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public SlackViewSubmissionResponseDTO slackCallBack(@RequestParam String payload,
-                                                        @RequestBody String requestBody,
-                                                        @RequestHeader("X-Slack-Signature") String slackSignature,
-                                                        @RequestHeader("X-Slack-Request-Timestamp") String timestamp,
-                                                        HttpServletResponse response) throws IOException, SlackApiException {
+    public ResponseEntity<SlackViewSubmissionResponseDTO> slackCallBack(@RequestParam String payload,
+                                                                        @RequestBody String requestBody,
+                                                                        @RequestHeader("X-Slack-Signature") String slackSignature,
+                                                                        @RequestHeader("X-Slack-Request-Timestamp") String timestamp,
+                                                                        HttpServletResponse response) throws IOException, SlackApiException {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
@@ -107,7 +108,7 @@ public class SlackController {
                 view = viewSubmissionPayload.getView();
                 viewBlocks = view.getBlocks();
                 state = view.getState();
-                closeView(view, response);
+             //   closeView(view, response);
 
                 CommandType findCommandType = findCommandType(state);
                 // TODO: USER auth
@@ -115,7 +116,7 @@ public class SlackController {
 //                closeView(view, response);
             } catch (Exception e) {
                 log.info("Exception: {}", e.getMessage());
-                return displayErrorResponse(e);
+                return ResponseEntity.ok(displayErrorResponse(e));
             }
         } else {
             throw new IllegalArgumentException("미지원 payload");
@@ -200,7 +201,6 @@ public class SlackController {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getOutputStream().write(gson.toJson(viewSubmissionResponse).getBytes(StandardCharsets.UTF_8));
-
     }
 
     public SlackViewSubmissionResponseDTO displayErrorResponse(Exception e) {
