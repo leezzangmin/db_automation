@@ -210,6 +210,7 @@ public class SlackController {
                 .responseAction("errors")
                 .errors(errors)
                 .build();
+        log.info("viewSubmissionResponse: {}", viewSubmissionResponse);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter writer = response.getWriter();
