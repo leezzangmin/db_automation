@@ -26,6 +26,7 @@ import org.springframework.web.util.HtmlUtils;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.SelectCommand;
+import zzangmin.db_automation.util.CustomResponseWrapper;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -215,9 +216,25 @@ public class SlackController {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getOutputStream().write(gson.toJson(viewSubmissionResponse).getBytes(StandardCharsets.UTF_8));
+        printResponseDetails(response);
 //        PrintWriter writer = response.getWriter();
 //        writer.write(gson.toJson(viewSubmissionResponse));
 //        writer.flush();
+    }
+    public void printResponseDetails(HttpServletResponse response) {
+        // 상태 코드 출력
+        System.out.println("Status Code: " + response.getStatus());
+
+        // 헤더 이름들을 가져와서 각 헤더의 값을 출력
+        Collection<String> headerNames = response.getHeaderNames();
+        for (String headerName : headerNames) {
+            System.out.println(headerName + ": " + response.getHeader(headerName));
+        }
+        CustomResponseWrapper wrappedResponse = new CustomResponseWrapper(response);
+
+// 응답 처리 후, 캡처된 응답 바디 출력
+        String responseBody = wrappedResponse.getCapturedResponseBody();
+        System.out.println("Response Body: " + responseBody);
     }
 
 
