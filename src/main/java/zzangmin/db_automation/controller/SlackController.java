@@ -13,7 +13,6 @@ import com.slack.api.methods.response.views.ViewsUpdateResponse;
 import com.slack.api.model.block.*;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
-import com.slack.api.util.http.SlackHttpClient;
 import com.slack.api.util.json.GsonFactory;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,10 +26,8 @@ import zzangmin.db_automation.dto.response.SlackViewSubmissionResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.SelectCommand;
-import zzangmin.db_automation.util.CustomResponseWrapper;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -65,7 +62,7 @@ public class SlackController {
     public static final String errorContextBlockId = "errorContextBlock";
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-    public ResponseEntity<SlackViewSubmissionResponseDTO> slackCallBack(@RequestParam String payload,
+    public ResponseEntity<?> slackCallBack(@RequestParam String payload,
                                                                         @RequestBody String requestBody,
                                                                         @RequestHeader("X-Slack-Signature") String slackSignature,
                                                                         @RequestHeader("X-Slack-Request-Timestamp") String timestamp,
@@ -80,9 +77,9 @@ public class SlackController {
         // https://slack.dev/java-slack-sdk/guides/shortcuts -> under the hood
         String payloadType = payloadTypeDetector.detectType(decodedPayload);
 
-        View view = null;
+        View view;
         ViewState state;
-        List<LayoutBlock> viewBlocks = null;
+        List<LayoutBlock> viewBlocks;
 
         if (payloadType.equals("block_actions")) {
             BlockActionPayload blockActionPayload = GsonFactory.createSnakeCase()
@@ -116,7 +113,9 @@ public class SlackController {
 //                closeView(view, response);
             } catch (Exception e) {
                 log.info("Exception: {}", e.getMessage());
-                return ResponseEntity.ok(displayErrorResponse(e));
+                String closeViewResponse = "{\"response_action\":\"clear\"}";
+                return ResponseEntity.ok(closeViewResponse);
+//                return ResponseEntity.ok(displayErrorResponse(e));
             }
         } else {
             throw new IllegalArgumentException("미지원 payload");
