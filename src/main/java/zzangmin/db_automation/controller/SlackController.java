@@ -187,6 +187,7 @@ public class SlackController {
     }
 
     private void closeView(View view, HttpServletResponse response) throws IOException {
+        log.info("closeView: {}\nresponse: {}", view, response);
         // TODO: https://api.slack.com/surfaces/modals#close_all_views
         ViewSubmissionResponse viewSubmissionResponse = ViewSubmissionResponse.builder()
                 .responseAction("clear")
@@ -201,6 +202,7 @@ public class SlackController {
     }
 
     public void displayErrorResponse(HttpServletResponse response, Exception e) throws IOException {
+        log.info("response: {}",  response);
         Map<String, String> errors = new HashMap<>();
         errors.put("error", e.getMessage());
 
