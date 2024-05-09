@@ -21,7 +21,7 @@ public class BasicBlockFactory {
                 .element(plainTextInput(pti -> pti.actionId(id)
                         .multiline(false)
                         .placeholder(plainText(placeholder))
-                ))
+                )).optional(true)
                 .label(plainText(label))
                 .blockId(id));
     }
