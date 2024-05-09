@@ -29,6 +29,7 @@ import zzangmin.db_automation.slackview.SelectCommand;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
@@ -213,9 +214,10 @@ public class SlackController {
         log.info("viewSubmissionResponse: {}", viewSubmissionResponse);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        PrintWriter writer = response.getWriter();
-        writer.write(gson.toJson(viewSubmissionResponse));
-        writer.flush();
+        response.getOutputStream().write(gson.toJson(viewSubmissionResponse).getBytes(StandardCharsets.UTF_8));
+//        PrintWriter writer = response.getWriter();
+//        writer.write(gson.toJson(viewSubmissionResponse));
+//        writer.flush();
     }
 
 
