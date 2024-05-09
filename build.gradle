@@ -47,7 +47,6 @@ dependencies {
 	implementation 'com.slack.api:slack-api-model:1.38.3'
 	implementation 'com.slack.api:slack-api-client:1.38.3'
 
-	implementation 'com.slack.api:bolt:1.38.3'
 
 	// signature hex
 	implementation 'commons-codec:commons-codec:1.15'

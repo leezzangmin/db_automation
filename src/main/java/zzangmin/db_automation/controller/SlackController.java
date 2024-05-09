@@ -13,6 +13,7 @@ import com.slack.api.methods.response.views.ViewsUpdateResponse;
 import com.slack.api.model.block.*;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
+import com.slack.api.util.http.SlackHttpClient;
 import com.slack.api.util.json.GsonFactory;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -111,6 +112,7 @@ public class SlackController {
                 slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
 //                closeView(view, response);
             } catch (Exception e) {
+                log.info("Exception: {}", e.getMessage());
                 return displayErrorResponse(e);
             }
         } else {
