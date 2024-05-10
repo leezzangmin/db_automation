@@ -248,7 +248,7 @@ public class SlackService {
                     ViewState.Value value = stringValueElementMap.get(actionIdKey);
                     if (stringValueElementMap.get(actionIdKey).getSelectedOption() == null) {
                         selectedValue = stringValueElementMap.get(actionIdKey).getValue();
-                        log.info("selectedValue: {}", selectedValue);
+                        log.info("selectedValue1: {}", selectedValue);
                         if (selectedValue == null || selectedValue == "") {
                             throw new IllegalArgumentException(targetValueKey + " 이 비어있습니다.");
                         }
@@ -257,7 +257,7 @@ public class SlackService {
                         selectedValue = stringValueElementMap.get(actionIdKey)
                                 .getSelectedOption()
                                 .getValue();
-                        log.info("selectedValue: {}", selectedValue);
+                        log.info("selectedValue2: {}", selectedValue);
                         if (selectedValue == null || selectedValue == "") {
                             throw new IllegalArgumentException(targetValueKey + " 이 비어있습니다.");
                         }
@@ -280,7 +280,7 @@ public class SlackService {
                             .getSelectedOption()
                             .getValue();
                 }
-                log.info("selectedValue: {}", selectedValue);
+                log.info("selectedValue3: {}", selectedValue);
                 if (selectedValue == null || selectedValue == "") {
                     throw new IllegalArgumentException(targetValueKey + " 이 비어있습니다.");
                 }
