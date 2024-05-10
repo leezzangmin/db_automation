@@ -118,6 +118,12 @@ public class DDLValidator {
     }
 
     private void validateIsNotExistTableName(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        if (schemaName == null || schemaName == "" || schemaName == " ") {
+            throw new IllegalArgumentException("schemaName 이 비어있습니다.");
+        }
+        if (tableName == null || tableName == "" || tableName == " ") {
+            throw new IllegalArgumentException("tableName 이 비어있습니다.");
+        }
         List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
         if (tableNames.contains(tableName)) {
             throw new IllegalStateException("이미 존재하는 테이블입니다.");
@@ -125,6 +131,12 @@ public class DDLValidator {
     }
 
     private void validateIsExistTableName(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        if (schemaName == null || schemaName == "" || schemaName == " ") {
+            throw new IllegalArgumentException("schemaName 이 비어있습니다.");
+        }
+        if (tableName == null || tableName == "" || tableName == " ") {
+            throw new IllegalArgumentException("tableName 이 비어있습니다.");
+        }
         List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
         if (!tableNames.contains(tableName)) {
             throw new IllegalStateException("대상 테이블이 존재하지 않습니다.");
@@ -132,12 +144,24 @@ public class DDLValidator {
     }
 
     private void validateIsExistColumnName(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, String columnName) {
+        if (schemaName == null || schemaName == "" || schemaName == " ") {
+            throw new IllegalArgumentException("schemaName 이 비어있습니다.");
+        }
+        if (tableName == null || tableName == "" || tableName == " ") {
+            throw new IllegalArgumentException("tableName 이 비어있습니다.");
+        }
+        if (columnName == null || columnName == "" || columnName == " ") {
+            throw new IllegalArgumentException("columnName 이 비어있습니다.");
+        }
         mysqlClient.findColumn(databaseConnectionInfo, schemaName, tableName, columnName)
                 .orElseThrow(() -> new IllegalArgumentException("컬럼 정보를 불러올 수 없습니다. 존재하지 않는 컬럼명: " + columnName));
     }
 
 
     private void validateIsSchemaExists(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
+        if (schemaName == null || schemaName == "" || schemaName == " ") {
+            throw new IllegalArgumentException("schemaName 이 비어있습니다.");
+        }
         List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo);
         if (!schemaNames.contains(schemaName)) {
             throw new IllegalStateException("존재하지 않는 스키마입니다.");
@@ -153,6 +177,12 @@ public class DDLValidator {
     }
 
     private void validateIsIndexExists(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName, List<String> columnNames) {
+        if (schemaName == null || schemaName == "" || schemaName == " ") {
+            throw new IllegalArgumentException("schemaName 이 비어있습니다.");
+        }
+        if (tableName == null || tableName == "" || tableName == " ") {
+            throw new IllegalArgumentException("tableName 이 비어있습니다.");
+        }
         List<Constraint> indexes = mysqlClient.findIndexes(databaseConnectionInfo, schemaName, tableName);
         for (Constraint index : indexes) {
             if (isEqualListString(index.getKeyColumnNames(), columnNames)) {
@@ -175,12 +205,18 @@ public class DDLValidator {
     }
 
     private void validateAddColumnHasAutoIncrementOption(Column column) {
+        if (column == null) {
+            throw new IllegalArgumentException("column 이 null 입니다.");
+        }
         if (column.getIsAutoIncrement() == true) {
             throw new IllegalStateException("auto_increment 옵션이 있는 컬럼은 추가할 수 없습니다.");
         }
     }
 
     private void validateCreateIndexType(String indexType) {
+        if (indexType == null || indexType == "" || indexType == " ") {
+            throw new IllegalArgumentException("인덱스 type 이 null 입니다.");
+        }
         if (indexType.equals("KEY") || indexType.equals("UNIQUE KEY")) {
             return;
         }
