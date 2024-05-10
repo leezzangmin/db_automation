@@ -14,6 +14,7 @@ import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
 import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.validator.DDLValidator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +35,7 @@ public class CreateIndexBlockPage {
 
     private final SelectClusterSchemaTable selectClusterSchemaTable;
     private final DDLController ddlController;
-
+    private final DDLValidator ddlValidator;
     private static String createIndexIndexNameTextInputLabel = "Index Name";
     private static String createIndexNamePlaceHolder = "idx_orderno_createdat";
     private static String createIndexTypePlaceHolder = "select index type";
@@ -147,7 +148,7 @@ public class CreateIndexBlockPage {
         return currentBlocks;
     }
 
-    public List<LayoutBlock> handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public List<LayoutBlock> handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
         String indexName = SlackService.findCurrentValueFromState(values, SlackController.createIndexIndexNameTextInputId);
         log.info("indexName: {}", indexName);
 
@@ -174,6 +175,8 @@ public class CreateIndexBlockPage {
         log.info("selectedDBMSName: {}", selectedDBMSName);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
         log.info("selectedDatabaseConnectionInfo: {}", selectedDatabaseConnectionInfo);
+
+        ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         return null;
     }

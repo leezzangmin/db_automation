@@ -62,17 +62,20 @@ public class SlackActionHandler {
     }
 
     public void handleSubmission(DatabaseRequestCommandGroup.CommandType commandType, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        validateSubmission();
         log.info("<submission> commandType: {}", commandType);
         if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
-            createIndexBlockPage.handleSubmission(currentBlocks, values);
+            createIndexBlockPage.handleSubmission(values);
             log.info("currentBlocks: {}", currentBlocks);
-        } else if(commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
+        } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
             return;
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("미지원 commandType: " + commandType);
         }
+    }
 
+    private void validateSubmission() {
+        // TODO
     }
 
 //    public List<LayoutBlock> handleException(List<LayoutBlock> currentBlocks, Exception e) {

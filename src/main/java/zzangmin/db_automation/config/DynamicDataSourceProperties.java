@@ -23,7 +23,7 @@ public class DynamicDataSourceProperties {
 
     public static DatabaseConnectionInfo findByDbName(String dbName) {
         if (dbName == null || dbName == "") {
-            throw new IllegalArgumentException("올바른 DB 명이 아닙니다.");
+            throw new IllegalArgumentException("DB 명이 제공되지 않았습니다.");
         }
         return databases.get(dbName);
     }
