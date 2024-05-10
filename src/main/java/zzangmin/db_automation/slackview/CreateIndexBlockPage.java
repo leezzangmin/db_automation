@@ -14,6 +14,7 @@ import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
 import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.validator.DDLValidator;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,7 +23,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.actions;
-import static com.slack.api.model.block.Blocks.input;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.asElements;
 import static com.slack.api.model.block.element.BlockElements.button;
@@ -34,7 +34,7 @@ public class CreateIndexBlockPage {
 
     private final SelectClusterSchemaTable selectClusterSchemaTable;
     private final DDLController ddlController;
-
+    private final DDLValidator ddlValidator;
     private static String createIndexIndexNameTextInputLabel = "Index Name";
     private static String createIndexNamePlaceHolder = "idx_orderno_createdat";
     private static String createIndexTypePlaceHolder = "select index type";
@@ -160,13 +160,14 @@ public class CreateIndexBlockPage {
         String tableName = SlackService.findCurrentValueFromState(values, SlackController.findTableSelectsElementActionId);
         log.info("tableName: {}", tableName);
 
-
+        List<String> indexColumnNames = findIndexColumnNames(currentBlocks, values);
+        log.info("indexColumnNames: {}", indexColumnNames);
         CreateIndexRequestDTO createIndexRequestDTO = CreateIndexRequestDTO.builder()
                 .schemaName(schemaName)
                 .tableName(tableName)
                 .indexName(indexName)
                 .indexType(indexType)
-                .columnNames(List.of("name"))
+                .columnNames(indexColumnNames)
                 .build();
         createIndexRequestDTO.setCommandType(CommandType_old.CREATE_INDEX);
         log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
@@ -174,8 +175,23 @@ public class CreateIndexBlockPage {
         log.info("selectedDBMSName: {}", selectedDBMSName);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
         log.info("selectedDatabaseConnectionInfo: {}", selectedDatabaseConnectionInfo);
+
+        ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         return null;
+    }
+
+    private List<String> findIndexColumnNames(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        List<String> indexColumnNames = new ArrayList<>();
+        for (int i = 1;i < findLastInputColumnNameBlockIndex(currentBlocks);i++) {
+            try {
+                String columnName = SlackService.findCurrentValueFromState(values, SlackController.createIndexColumnNameTextInputId + i);
+                indexColumnNames.add(columnName);
+            } catch (Exception e) {
+                break;
+            }
+        }
+        return indexColumnNames;
     }
 
     private List<LayoutBlock> startMessageBlocks() {

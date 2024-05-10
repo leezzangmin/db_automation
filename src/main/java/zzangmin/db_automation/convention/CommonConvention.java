@@ -20,12 +20,18 @@ public class CommonConvention {
     public static final Pattern PURE_LOWER_CASE_PATTER = Pattern.compile("^[a-z_]+$");
 
     public static void validateSnakeCase(String str) {
+        if (str == null || str == "" || str == " ") {
+            throw new IllegalArgumentException("문자열이 null 입니다.");
+        }
         if (!SNAKE_CASE_PATTERN.matcher(str).matches()) {
             throw new IllegalArgumentException("snake_case 가 아닙니다: " + str);
         }
     }
 
     public static boolean validateLowerCaseString(String str) {
+        if (str == null || str == "" || str == " ") {
+            throw new IllegalArgumentException("문자열이 null 입니다.");
+        }
         return PURE_LOWER_CASE_PATTER.matcher(str).matches();
     }
 

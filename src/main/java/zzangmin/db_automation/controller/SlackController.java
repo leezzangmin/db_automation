@@ -110,6 +110,8 @@ public class SlackController {
                 return ResponseEntity.ok(closeViewJsonString());
             } catch (Exception e) {
                 log.info("Exception: {}", e.getMessage());
+                log.info("Exception trace: {}", e.getStackTrace());
+                e.printStackTrace();
                 return ResponseEntity.ok(displayErrorViewJsonString(e));
             }
         } else {
@@ -195,7 +197,8 @@ public class SlackController {
 
     private String displayErrorViewJsonString(Exception e) {
 //        String errorViewResponse = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"\"}}";
-        String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"" + e.getMessage() + "\"}}";
+        String errorMessage = e.getMessage().replace("\"", "\'");
+        String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"" + errorMessage + "\"}}";
         log.info("errorViewResponseJson: {}", errorViewResponseJson);
         return errorViewResponseJson;
     }
