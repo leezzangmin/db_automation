@@ -110,6 +110,7 @@ public class SlackController {
                 return ResponseEntity.ok(closeViewJsonString());
             } catch (Exception e) {
                 log.info("Exception: {}", e.getMessage());
+                log.info("Exception trace: {}", e.getStackTrace());
                 return ResponseEntity.ok(displayErrorViewJsonString(e));
             }
         } else {
