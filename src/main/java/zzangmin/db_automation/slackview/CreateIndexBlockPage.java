@@ -162,7 +162,7 @@ public class CreateIndexBlockPage {
         log.info("tableName: {}", tableName);
 
         List<String> indexColumnNames = findIndexColumnNames(values);
-
+        log.info("indexColumnNames: {}", indexColumnNames);
         CreateIndexRequestDTO createIndexRequestDTO = CreateIndexRequestDTO.builder()
                 .schemaName(schemaName)
                 .tableName(tableName)
