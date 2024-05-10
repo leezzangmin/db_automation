@@ -23,7 +23,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.actions;
-import static com.slack.api.model.block.Blocks.input;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.asElements;
 import static com.slack.api.model.block.element.BlockElements.button;
