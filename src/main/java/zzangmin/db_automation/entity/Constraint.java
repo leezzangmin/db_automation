@@ -63,7 +63,7 @@ public class Constraint {
                     return constraintType;
                 }
             }
-            throw new IllegalArgumentException("typeName 이 존재하지 않음");
+            throw new IllegalArgumentException("index typeName 이 존재하지 않음");
         }
     }
 
