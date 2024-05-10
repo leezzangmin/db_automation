@@ -249,12 +249,18 @@ public class SlackService {
                     if (stringValueElementMap.get(actionIdKey).getSelectedOption() == null) {
                         selectedValue = stringValueElementMap.get(actionIdKey).getValue();
                         log.info("selectedValue: {}", selectedValue);
+                        if (selectedValue == null || selectedValue == "") {
+                            throw new IllegalArgumentException(targetValueKey + " 이 비어있습니다.");
+                        }
                         return selectedValue;
                     } else {
                         selectedValue = stringValueElementMap.get(actionIdKey)
                                 .getSelectedOption()
                                 .getValue();
                         log.info("selectedValue: {}", selectedValue);
+                        if (selectedValue == null || selectedValue == "") {
+                            throw new IllegalArgumentException(targetValueKey + " 이 비어있습니다.");
+                        }
                         return selectedValue;
                     }
                 }
@@ -275,6 +281,9 @@ public class SlackService {
                             .getValue();
                 }
                 log.info("selectedValue: {}", selectedValue);
+                if (selectedValue == null || selectedValue == "") {
+                    throw new IllegalArgumentException(targetValueKey + " 이 비어있습니다.");
+                }
                 return selectedValue;
             }
         }
