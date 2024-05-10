@@ -148,7 +148,7 @@ public class CreateIndexBlockPage {
         return currentBlocks;
     }
 
-    public List<LayoutBlock> handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
+    public List<LayoutBlock> handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String indexName = SlackService.findCurrentValueFromState(values, SlackController.createIndexIndexNameTextInputId);
         log.info("indexName: {}", indexName);
 
@@ -161,7 +161,7 @@ public class CreateIndexBlockPage {
         String tableName = SlackService.findCurrentValueFromState(values, SlackController.findTableSelectsElementActionId);
         log.info("tableName: {}", tableName);
 
-        List<String> indexColumnNames = findIndexColumnNames(values);
+        List<String> indexColumnNames = findIndexColumnNames(currentBlocks, values);
         log.info("indexColumnNames: {}", indexColumnNames);
         CreateIndexRequestDTO createIndexRequestDTO = CreateIndexRequestDTO.builder()
                 .schemaName(schemaName)
@@ -182,9 +182,9 @@ public class CreateIndexBlockPage {
         return null;
     }
 
-    private List<String> findIndexColumnNames(Map<String, Map<String, ViewState.Value>> values) {
+    private List<String> findIndexColumnNames(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         List<String> indexColumnNames = new ArrayList<>();
-        for (int i = 1;i < 99999999;i++) {
+        for (int i = 1;i < findLastInputColumnNameBlockIndex(currentBlocks);i++) {
             try {
                 String columnName = SlackService.findCurrentValueFromState(values, SlackController.createIndexColumnNameTextInputId + i);
                 indexColumnNames.add(columnName);

@@ -65,7 +65,7 @@ public class SlackActionHandler {
         validateSubmission();
         log.info("<submission> commandType: {}", commandType);
         if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
-            createIndexBlockPage.handleSubmission(values);
+            createIndexBlockPage.handleSubmission(currentBlocks, values);
             log.info("currentBlocks: {}", currentBlocks);
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
             return;
