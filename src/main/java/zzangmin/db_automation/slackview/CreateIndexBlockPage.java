@@ -161,13 +161,14 @@ public class CreateIndexBlockPage {
         String tableName = SlackService.findCurrentValueFromState(values, SlackController.findTableSelectsElementActionId);
         log.info("tableName: {}", tableName);
 
+        List<String> indexColumnNames = findIndexColumnNames(values);
 
         CreateIndexRequestDTO createIndexRequestDTO = CreateIndexRequestDTO.builder()
                 .schemaName(schemaName)
                 .tableName(tableName)
                 .indexName(indexName)
                 .indexType(indexType)
-                .columnNames(List.of("name"))
+                .columnNames(indexColumnNames)
                 .build();
         createIndexRequestDTO.setCommandType(CommandType_old.CREATE_INDEX);
         log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
@@ -179,6 +180,19 @@ public class CreateIndexBlockPage {
         ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         return null;
+    }
+
+    private List<String> findIndexColumnNames(Map<String, Map<String, ViewState.Value>> values) {
+        List<String> indexColumnNames = new ArrayList<>();
+        for (int i = 1;i < 99999999;i++) {
+            try {
+                String columnName = SlackService.findCurrentValueFromState(values, SlackController.createIndexColumnNameTextInputId + i);
+                indexColumnNames.add(columnName);
+            } catch (Exception e) {
+                break;
+            }
+        }
+        return indexColumnNames;
     }
 
     private List<LayoutBlock> startMessageBlocks() {
