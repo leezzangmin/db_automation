@@ -1,22 +1,15 @@
 package zzangmin.db_automation.controller;
 
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.app_backend.views.response.ViewSubmissionResponse;
-import com.slack.api.model.block.ContextBlock;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.CreateIndexBlockPage;
-import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
-import zzangmin.db_automation.slackview.SelectCommand;
+import zzangmin.db_automation.slackview.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,27 +26,27 @@ public class SlackActionHandler {
 
     public List<LayoutBlock> handleAction(BlockActionPayload.Action action, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String actionId = action.getActionId();
-        if (actionId.equals(SlackController.findDatabaseRequestCommandGroupSelectsElementActionId)) {
+        if (actionId.equals(SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId)) {
             currentBlocks = selectCommand.handleCommandGroupChange(currentBlocks, values);
-            log.info("{} currentBlocks: {}", SlackController.findDatabaseRequestCommandGroupSelectsElementActionId, currentBlocks);
-        } else if (actionId.equals(SlackController.findCommandTypeSelectsElementActionId)) {
+            log.info("{} currentBlocks: {}", SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId, currentBlocks);
+        } else if (actionId.equals(SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId)) {
             currentBlocks = selectCommand.handleCommandTypeChange(currentBlocks, values);
 
 
-            log.info("{} currentBlocks: {}", SlackController.findCommandTypeSelectsElementActionId, currentBlocks);
-        } else if (actionId.equals(SlackController.findClusterSelectsElementActionId)) {
+            log.info("{} currentBlocks: {}", SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId, currentBlocks);
+        } else if (actionId.equals(SlackConstants.CommandBlockIds.findClusterSelectsElementActionId)) {
             currentBlocks = selectClusterSchemaTable.handleClusterChange(currentBlocks, values);
-            log.info("{} currentBlocks: {}", SlackController.findClusterSelectsElementActionId, currentBlocks);
-        } else if (actionId.equals(SlackController.findSchemaSelectsElementActionId)) {
+            log.info("{} currentBlocks: {}", SlackConstants.CommandBlockIds.findClusterSelectsElementActionId, currentBlocks);
+        } else if (actionId.equals(SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId)) {
             currentBlocks = selectClusterSchemaTable.handleSchemaChange(currentBlocks, values);
-            log.info("{} currentBlocks: {}", SlackController.findSchemaSelectsElementActionId, currentBlocks);
+            log.info("{} currentBlocks: {}", SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId, currentBlocks);
         }
-        else if (actionId.equals(SlackController.findTableSelectsElementActionId)) {
+        else if (actionId.equals(SlackConstants.CommandBlockIds.findTableSelectsElementActionId)) {
             currentBlocks = selectClusterSchemaTable.handleTableChange(currentBlocks, values);
-            log.info("{} currentBlocks: {}", SlackController.findTableSelectsElementActionId, currentBlocks);
-        } else if (actionId.equals(SlackController.createIndexAddColumnButtonId)) {
+            log.info("{} currentBlocks: {}", SlackConstants.CommandBlockIds.findTableSelectsElementActionId, currentBlocks);
+        } else if (actionId.equals(SlackConstants.CommandBlockIds.createIndexAddColumnButtonId)) {
             currentBlocks = createIndexBlockPage.handleAddColumn(currentBlocks);
-        } else if (actionId.equals(SlackController.createIndexRemoveColumnButtonId)) {
+        } else if (actionId.equals(SlackConstants.CommandBlockIds.createIndexRemoveColumnButtonId)) {
             currentBlocks = createIndexBlockPage.handleRemoveColumn(currentBlocks, values);
         } else {
             throw new IllegalArgumentException("미지원 actionId: " + actionId);

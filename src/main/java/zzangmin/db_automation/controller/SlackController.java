@@ -24,6 +24,7 @@ import org.springframework.web.util.HtmlUtils;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.SelectCommand;
+import zzangmin.db_automation.slackview.SlackConstants;
 
 import java.io.IOException;
 import java.util.*;
@@ -41,22 +42,6 @@ public class SlackController {
     private final SlackActionHandler slackActionHandler;
     private final Gson gson;
     private static final JsonPayloadTypeDetector payloadTypeDetector = new JsonPayloadTypeDetector();
-
-
-    public static final String tableSchemaContextId = "tableSchemaContext";
-    public static final String tableSchemaTextId = "tableSchemaText";
-    public static final String findCommandTypeSelectsElementActionId = "selectDatabaseRequestCommandType";
-    public static final String findClusterSelectsElementActionId = "selectClusterName";
-    public static final String findTableSelectsElementActionId = "selectTableName";
-    public static final String findSchemaSelectsElementActionId = "selectSchemaName";
-
-    public static final String findDatabaseRequestCommandGroupSelectsElementActionId = "selectDatabaseRequestCommandGroup";
-    public static final String createIndexIndexNameTextInputId = "inputCreateIndexIndexName";
-    public static final String createIndexColumnNameTextInputId = "inputCreateIndexColumnName";
-    public static final String createIndexAddColumnButtonId = "createIndexAddColumnButton";
-    public static final String createIndexRemoveColumnButtonId = "createIndexRemoveColumnButton";
-    public static final String findIndexTypeActionId = "selectIndexType";
-    public static final String errorContextBlockId = "errorContextBlock";
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public ResponseEntity<?> slackCallBack(@RequestParam String payload,
@@ -175,7 +160,7 @@ public class SlackController {
     }
 
     private CommandType findCommandType(ViewState state) {
-        String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), findCommandTypeSelectsElementActionId);
+        String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
         CommandType findCommandType = DatabaseRequestCommandGroup.findCommandTypeByCommandTypeName(selectedCommandTypeName);
         return findCommandType;
     }

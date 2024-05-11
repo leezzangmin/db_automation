@@ -44,7 +44,7 @@ public class SelectCommand {
                         .build()
                 )
                 .collect(Collectors.toList());
-        StaticSelectElement commandGroupSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackController.findDatabaseRequestCommandGroupSelectsElementActionId,
+        StaticSelectElement commandGroupSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId,
                 databaseRequestGroupOptions,
                 findCommandGroupPlaceholder);
 
@@ -56,7 +56,7 @@ public class SelectCommand {
                         .build()
                 )
                 .collect(Collectors.toList());
-        StaticSelectElement commandTypeSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackController.findCommandTypeSelectsElementActionId,
+        StaticSelectElement commandTypeSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId,
                 commandTypeOptions,
                 findCommandTypePlaceholder);
 
@@ -68,13 +68,13 @@ public class SelectCommand {
     public List<LayoutBlock> handleCommandGroupChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         int commandTypeBlockIndex = SlackService.findBlockIndex(currentBlocks,
                 "actions",
-                SlackController.findCommandTypeSelectsElementActionId);
+                SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
         ActionsBlock currentBlock = (ActionsBlock) currentBlocks.get(commandTypeBlockIndex);
         List<BlockElement> currentBlockElements = currentBlock.getElements();
 
-        int commandTypeElementIndex = SlackService.findElementIndex(currentBlockElements, SlackController.findCommandTypeSelectsElementActionId);
+        int commandTypeElementIndex = SlackService.findElementIndex(currentBlockElements, SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
 
-        String selectedDatabaseRequestGroupName = SlackService.findCurrentValueFromState(values, SlackController.findDatabaseRequestCommandGroupSelectsElementActionId);
+        String selectedDatabaseRequestGroupName = SlackService.findCurrentValueFromState(values, SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId);
         DatabaseRequestCommandGroup selectedDatabaseRequestGroup = findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
         List<OptionObject> commandTypeOptions = findDatabaseRequestCommandTypes(selectedDatabaseRequestGroup)
                 .stream()
@@ -84,7 +84,7 @@ public class SelectCommand {
                         .build()
                 )
                 .collect(Collectors.toList());
-        StaticSelectElement commandTypeSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackController.findCommandTypeSelectsElementActionId,
+        StaticSelectElement commandTypeSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId,
                 commandTypeOptions,
                 findCommandTypePlaceholder);
         currentBlockElements.set(commandTypeElementIndex, commandTypeSelectElement);
@@ -94,7 +94,7 @@ public class SelectCommand {
     }
 
     public List<LayoutBlock> handleCommandTypeChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        String selectedCommandTypeName = SlackService.findCurrentValueFromState(values, SlackController.findCommandTypeSelectsElementActionId);
+        String selectedCommandTypeName = SlackService.findCurrentValueFromState(values, SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
         DatabaseRequestCommandGroup.CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
         currentBlocks.addAll(generateCommandTypeBlocks(findCommandType));
 

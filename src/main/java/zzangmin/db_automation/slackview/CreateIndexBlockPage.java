@@ -51,10 +51,10 @@ public class CreateIndexBlockPage {
                         .value(constraintType.name())
                         .build())
                 .collect(Collectors.toList());
-        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackController.findIndexTypeActionId,
+        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.findIndexTypeActionId,
                 indexTypeOptions,
                 createIndexTypePlaceHolder));
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexIndexNameTextInputId,
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.createIndexIndexNameTextInputId,
                 createIndexIndexNameTextInputLabel,
                 createIndexNamePlaceHolder));
         blocks.add(getInitialIndexColumnNameInputBlock());
@@ -62,16 +62,16 @@ public class CreateIndexBlockPage {
                 actions(actions -> actions
                         .elements(asElements(
                                 button(b -> b.text(plainText(pt -> pt.emoji(true).text("컬럼 추가")))
-                                        .value(SlackController.createIndexAddColumnButtonId)
+                                        .value(SlackConstants.CommandBlockIds.createIndexAddColumnButtonId)
                                         .style("primary")
-                                        .actionId(SlackController.createIndexAddColumnButtonId)
+                                        .actionId(SlackConstants.CommandBlockIds.createIndexAddColumnButtonId)
                                 ),
                                 button(b -> b.text(plainText(pt -> pt.emoji(true).text("컬럼 삭제")))
-                                        .value(SlackController.createIndexRemoveColumnButtonId)
+                                        .value(SlackConstants.CommandBlockIds.createIndexRemoveColumnButtonId)
                                         .style("danger")
-                                        .actionId(SlackController.createIndexRemoveColumnButtonId)
+                                        .actionId(SlackConstants.CommandBlockIds.createIndexRemoveColumnButtonId)
                                 )))
-                        .blockId(SlackController.createIndexRemoveColumnButtonId)));
+                        .blockId(SlackConstants.CommandBlockIds.createIndexRemoveColumnButtonId)));
 
         return blocks;
     }
@@ -81,13 +81,13 @@ public class CreateIndexBlockPage {
         try {
             lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
         } catch (Exception e) {
-            int inputColumnNameIndex = SlackService.findBlockIndex(currentBlocks, "input", SlackController.createIndexIndexNameTextInputId) + 1;
+            int inputColumnNameIndex = SlackService.findBlockIndex(currentBlocks, "input", SlackConstants.CommandBlockIds.createIndexIndexNameTextInputId) + 1;
             currentBlocks.add(inputColumnNameIndex, getInitialIndexColumnNameInputBlock());
             return currentBlocks;
         }
         log.info("lastInputColumnNameBlockIndex: {}", lastInputColumnNameBlockIndex);
         int blockIdNumber = findBlockIdNumber(currentBlocks.get(lastInputColumnNameBlockIndex));
-        currentBlocks.add(lastInputColumnNameBlockIndex + 1, BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + (blockIdNumber + 1),
+        currentBlocks.add(lastInputColumnNameBlockIndex + 1, BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.createIndexColumnNameTextInputId + (blockIdNumber + 1),
                 inputIndexColumnNameLabel + (blockIdNumber + 1),
                 createIndexColumnPlaceHolder));
         return currentBlocks;
@@ -97,7 +97,9 @@ public class CreateIndexBlockPage {
         int index = -1;
         try {
             for (int i = 1; i < 99999999; i++) {
-                index = SlackService.findBlockIndex(currentBlocks, "input", SlackController.createIndexColumnNameTextInputId + i);
+                index = SlackService.findBlockIndex(currentBlocks,
+                        "input",
+                        SlackConstants.CommandBlockIds.createIndexColumnNameTextInputId + i);
             }
         } catch (Exception e) {
         }
@@ -130,14 +132,14 @@ public class CreateIndexBlockPage {
 //                ))
 //        );
 
-        return BasicBlockFactory.findSinglelinePlainTextInput(SlackController.createIndexColumnNameTextInputId + 1,
+        return BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.createIndexColumnNameTextInputId + 1,
                 inputIndexColumnNameLabel + 1,
                 createIndexColumnPlaceHolder);
     }
 
     private int findBlockIdNumber(LayoutBlock block) {
         String blockId = block.getBlockId();
-        blockId = blockId.replace(SlackController.createIndexColumnNameTextInputId, "");
+        blockId = blockId.replace(SlackConstants.CommandBlockIds.createIndexColumnNameTextInputId, "");
         return Integer.parseInt(blockId);
     }
 
@@ -148,16 +150,16 @@ public class CreateIndexBlockPage {
     }
 
     public List<LayoutBlock> handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        String indexName = SlackService.findCurrentValueFromState(values, SlackController.createIndexIndexNameTextInputId);
+        String indexName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.createIndexIndexNameTextInputId);
         log.info("indexName: {}", indexName);
 
-        String indexType = SlackService.findCurrentValueFromState(values, SlackController.findIndexTypeActionId);
+        String indexType = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findIndexTypeActionId);
         log.info("indexType: {}", indexType);
 
-        String schemaName = SlackService.findCurrentValueFromState(values, SlackController.findSchemaSelectsElementActionId);
+        String schemaName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId);
         log.info("schemaName: {}", schemaName);
 
-        String tableName = SlackService.findCurrentValueFromState(values, SlackController.findTableSelectsElementActionId);
+        String tableName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findTableSelectsElementActionId);
         log.info("tableName: {}", tableName);
 
         List<String> indexColumnNames = findIndexColumnNames(currentBlocks, values);
@@ -171,7 +173,7 @@ public class CreateIndexBlockPage {
                 .build();
         createIndexRequestDTO.setCommandType(CommandType_old.CREATE_INDEX);
         log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
-        String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackController.findClusterSelectsElementActionId);
+        String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findClusterSelectsElementActionId);
         log.info("selectedDBMSName: {}", selectedDBMSName);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
         log.info("selectedDatabaseConnectionInfo: {}", selectedDatabaseConnectionInfo);
@@ -185,7 +187,7 @@ public class CreateIndexBlockPage {
         List<String> indexColumnNames = new ArrayList<>();
         for (int i = 1;i < findLastInputColumnNameBlockIndex(currentBlocks);i++) {
             try {
-                String columnName = SlackService.findCurrentValueFromState(values, SlackController.createIndexColumnNameTextInputId + i);
+                String columnName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.createIndexColumnNameTextInputId + i);
                 indexColumnNames.add(columnName);
             } catch (Exception e) {
                 break;
