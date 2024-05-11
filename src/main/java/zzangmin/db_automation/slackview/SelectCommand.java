@@ -29,6 +29,7 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 @Component
 public class SelectCommand {
     private final CreateIndexBlockPage createIndexBlockPage;
+    private final CreateTableBlockPage createTableBlockPage;
 
     private static final String findCommandGroupPlaceholder = "select database command group";
     private static final String findCommandTypePlaceholder = "select database command type";
@@ -104,7 +105,7 @@ public class SelectCommand {
         if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
             return createIndexBlockPage.createIndexBlocks();
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
-            // generate createtableblock and add to blocks
+            return createTableBlockPage.createIndexBlocks();
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
             // generate createaddcolumnblock and add to blocks
         }
