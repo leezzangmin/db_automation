@@ -213,6 +213,7 @@ public class SlackService {
                     return i;
                 }
             } else {
+                log.error("blockElement: {}", blockElement);
                 throw new IllegalStateException("미지원 Element Type. 구현을 추가해야 합니다.");
             }
         }
@@ -227,6 +228,8 @@ public class SlackService {
             }
             if (block instanceof ActionsBlock) {
                 ActionsBlock childBlock = (ActionsBlock) block;
+
+                // 찾으려는 대상이 ActionBlock 내부 element 에 존재
                 if (findElementIndex(childBlock.getElements(), blockId) != -999999999) {
                     return i;
                 }
