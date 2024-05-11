@@ -5,11 +5,7 @@ import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
 import com.slack.api.model.block.*;
-import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.element.BlockElement;
-import com.slack.api.model.block.element.BlockElements;
-import com.slack.api.model.block.element.PlainTextInputElement;
-import com.slack.api.model.block.element.StaticSelectElement;
+import com.slack.api.model.block.element.*;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.model.view.ViewSubmit;
@@ -19,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Service;
 import zzangmin.db_automation.config.SlackConfig;
-import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.SlackConstants;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -29,8 +23,6 @@ import java.util.*;
 
 import static zzangmin.db_automation.config.SlackConfig.DEFAULT_CHANNEL_ID;
 import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
-import static zzangmin.db_automation.controller.SlackController.*;
-
 
 @Slf4j
 @RequiredArgsConstructor
@@ -123,6 +115,11 @@ public class SlackService {
                 }
             } else if (blockElement instanceof StaticSelectElement) {
                 StaticSelectElement childElement = (StaticSelectElement) blockElement;
+                if (childElement.getActionId().equals(actionId)) {
+                    return i;
+                }
+            } else if (blockElement instanceof ButtonElement) {
+                ButtonElement childElement = (ButtonElement) blockElement;
                 if (childElement.getActionId().equals(actionId)) {
                     return i;
                 }
