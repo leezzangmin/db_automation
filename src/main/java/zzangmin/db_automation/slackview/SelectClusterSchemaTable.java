@@ -67,27 +67,57 @@ public class SelectClusterSchemaTable {
         return blocks;
     }
 
-    private List<LayoutBlock> fetchTableSchemaBlocks(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+    public List<LayoutBlock> selectClusterSchemaBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
-        String tableSchemaLabelText = "<Table Schema>";
-        ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackController.tableSchemaContextId);
-        blocks.add(contextBlock);
 
-        String tableSchema = describeService.findTableSchema(databaseConnectionInfo, schemaName, tableName);
-        SectionBlock textSection = BasicBlockFactory.getTextSection(tableSchema, SlackController.tableSchemaTextId);
-        blocks.add(textSection);
+        List<OptionObject> clusterOptions = describeService.findDBMSNames()
+                .getDbmsNames()
+                .stream()
+                .map(dbmsName -> OptionObject.builder()
+                        .text(plainText(dbmsName))
+                        .value(dbmsName)
+                        .build()
+                )
+                .collect(Collectors.toList());
+        StaticSelectElement clusterSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackController.findClusterSelectsElementActionId,
+                clusterOptions,
+                clusterPlaceholder);
 
+        List<OptionObject> emptyOption = BasicBlockFactory.generateEmptyOptionObjects();
+        StaticSelectElement schemaSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackController.findSchemaSelectsElementActionId,
+                emptyOption,
+                schemaPlaceholder);
+
+        blocks.add(actions(List.of(clusterSelectElement, schemaSelectElement)));
         return blocks;
     }
 
     public List<LayoutBlock> handleClusterChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         setSchemaNameOptions(currentBlocks, values);
+        try {
+            SlackService.findBlockIndex(currentBlocks, "section", SlackController.tableSchemaTextId);
+        } catch (Exception e) {
+            log.info("table schema element 없음");
+            return currentBlocks;
+        }
         resetTableSchemaSectionBlock(currentBlocks);
         return currentBlocks;
     }
 
     public List<LayoutBlock> handleSchemaChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        try {
+            SlackService.findBlockIndex(currentBlocks, "actions", SlackController.findTableSelectsElementActionId);
+        } catch (Exception e) {
+            log.info("table element 없음");
+            return currentBlocks;
+        }
         setTableNameOptions(currentBlocks, values);
+        try {
+            SlackService.findBlockIndex(currentBlocks, "section", SlackController.tableSchemaTextId);
+        } catch (Exception e) {
+            log.info("table schema element 없음");
+            return currentBlocks;
+        }
         resetTableSchemaSectionBlock(currentBlocks);
         return currentBlocks;
     }
@@ -107,6 +137,19 @@ public class SelectClusterSchemaTable {
         SectionBlock tableSchema = (SectionBlock) fetchTableSchemaBlocks(selectedDatabaseConnectionInfo, selectedSchemaName, selectedTableName).get(1);
         currentBlocks.set(selectTableNameBlockIndex, tableSchema);
         return currentBlocks;
+    }
+
+    private List<LayoutBlock> fetchTableSchemaBlocks(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {
+        List<LayoutBlock> blocks = new ArrayList<>();
+        String tableSchemaLabelText = "<Table Schema>";
+        ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackController.tableSchemaContextId);
+        blocks.add(contextBlock);
+
+        String tableSchema = describeService.findTableSchema(databaseConnectionInfo, schemaName, tableName);
+        SectionBlock textSection = BasicBlockFactory.getTextSection(tableSchema, SlackController.tableSchemaTextId);
+        blocks.add(textSection);
+
+        return blocks;
     }
 
     private void setSchemaNameOptions(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
