@@ -1,16 +1,16 @@
 package zzangmin.db_automation.slackview;
 
 import com.slack.api.model.block.ActionsBlock;
-import com.slack.api.model.block.Blocks;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.BlockElement;
+import com.slack.api.model.block.element.ButtonElement;
+import com.slack.api.model.block.element.PlainTextInputElement;
 import com.slack.api.model.block.element.StaticSelectElement;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.controller.SlackController;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 
@@ -96,9 +96,60 @@ public class SelectCommand {
     public List<LayoutBlock> handleCommandTypeChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String selectedCommandTypeName = SlackService.findCurrentValueFromState(values, SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
         DatabaseRequestCommandGroup.CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
+        removeCommandBlocks(currentBlocks);
         currentBlocks.addAll(generateCommandTypeBlocks(findCommandType));
 
         return currentBlocks;
+    }
+
+    private void removeCommandBlocks(List<LayoutBlock> currentBlocks) {
+        for (LayoutBlock currentBlock : currentBlocks) {
+            log.info("currentBlockId: {}", currentBlock.getBlockId());
+        }
+        List<LayoutBlock> commandBlocks = new ArrayList<>();
+        for (int i = 0;i < currentBlocks.size();i++) {
+            LayoutBlock currentBlock = currentBlocks.get(i);
+            if (SlackConstants.CommandBlockIds.isMember(currentBlock.getBlockId())) {
+                commandBlocks.add(currentBlock);
+            }
+
+            // actions 블록의 내부 element 검사
+            if (currentBlock instanceof ActionsBlock) {
+                ActionsBlock currentActionsBlock = (ActionsBlock) currentBlock;
+                List<BlockElement> elements = currentActionsBlock.getElements();
+                for (int j = 0;j < elements.size();j++) {
+                    BlockElement blockElement = elements.get(j);
+
+                    if (blockElement instanceof PlainTextInputElement) {
+                        PlainTextInputElement childElement = (PlainTextInputElement) blockElement;
+                        if (SlackConstants.CommandBlockIds.isMember(childElement.getActionId())) {
+                            commandBlocks.add(currentActionsBlock);
+                            break;
+                        }
+                    } else if (blockElement instanceof StaticSelectElement) {
+                        StaticSelectElement childElement = (StaticSelectElement) blockElement;
+                        if (SlackConstants.CommandBlockIds.isMember(childElement.getActionId())) {
+                            commandBlocks.add(currentActionsBlock);
+                            break;
+                        }
+                    } else if (blockElement instanceof ButtonElement) {
+                        ButtonElement childElement = (ButtonElement) blockElement;
+                        if (SlackConstants.CommandBlockIds.isMember(childElement.getActionId())) {
+                            commandBlocks.add(currentActionsBlock);
+                            break;
+                        }
+                    } else {
+                        log.error("blockElement: {}", blockElement);
+                        throw new IllegalStateException("미지원 Element Type. 구현을 추가해야 합니다.");
+                    }
+                }
+            }
+        }
+
+        currentBlocks.removeAll(commandBlocks);
+        for (LayoutBlock currentBlock : currentBlocks) {
+            log.info("222currentBlockId: {}", currentBlock.getBlockId());
+        }
     }
 
     private List<LayoutBlock> generateCommandTypeBlocks(DatabaseRequestCommandGroup.CommandType commandType) {
