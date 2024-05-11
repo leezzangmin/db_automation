@@ -1,5 +1,7 @@
 package zzangmin.db_automation.slackview;
 
+import java.lang.reflect.Field;
+
 public class SlackConstants {
 
     private SlackConstants() {}
@@ -7,6 +9,20 @@ public class SlackConstants {
     public static class CommandBlockIds {
         private CommandBlockIds() {}
 
+        public static boolean isMember(String id) {
+            Field[] fields = SlackConstants.CommandBlockIds.class.getDeclaredFields();
+            for (Field field : fields) {
+                try {
+                    String fieldValue = (String) field.get(null);
+                    if (id.equals(fieldValue) || id.startsWith(fieldValue)) {
+                        return true;
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            return false;
+        }
         public static final String createIndexIndexNameTextInputId = "inputCreateIndexIndexName";
         public static final String createIndexColumnNameTextInputId = "inputCreateIndexColumnName";
         public static final String createIndexAddColumnButtonId = "createIndexAddColumnButton";
