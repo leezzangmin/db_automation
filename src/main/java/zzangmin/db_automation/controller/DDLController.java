@@ -69,7 +69,8 @@ public class DDLController {
 
     @PutMapping("/ddl/table")
     public CreateTableDDLResponseDTO createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
-                                                 @RequestBody CreateTableRequestDTO ddlRequestDTO) throws InterruptedException {
+                                                 @RequestBody CreateTableRequestDTO ddlRequestDTO) {
+        log.info("createTableRequestDTO: {}", ddlRequestDTO);
         ddlValidator.validateCreateTable(databaseConnectionInfo, ddlRequestDTO);
         CreateTableDDLResponseDTO createTableResponseDTO = ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
         changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(),
