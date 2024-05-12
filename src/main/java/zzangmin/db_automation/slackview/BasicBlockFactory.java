@@ -21,16 +21,11 @@ public class BasicBlockFactory {
                 .element(plainTextInput(pti -> pti.actionId(id)
                         .multiline(false)
                         .placeholder(plainText(placeholder))
-                )).optional(true)
+                )).optional(false)
                 .label(plainText(label))
                 .blockId(id));
     }
 
-    public static PlainTextInputElement findSinglelinePlainTextInput2(String id, String label, String placeholder) {
-        return plainTextInput(pti -> pti.actionId(id)
-                .multiline(false)
-                .placeholder(plainText(placeholder)));
-    }
     public static ActionsBlock findSubmitButton(String id, String text, String value) {
         return actions(actions -> actions
                 .elements(asElements(
@@ -41,6 +36,16 @@ public class BasicBlockFactory {
                                 .actionId(id)
                         ))).blockId(id)
         );
+    }
+
+    public static SectionBlock findMultiSelectsBlock(String id, List<OptionObject> selectOptions, String label, String placeHolder) {
+        MultiStaticSelectElement multiStaticSelectElement = MultiStaticSelectElement.builder()
+                .options(selectOptions)
+                .placeholder(plainText(placeHolder))
+                .actionId(id)
+                .build();
+        return section(section -> section.accessory(multiStaticSelectElement)
+                .text(plainText(label)));
     }
 
     public static List<OptionObject> findOptionObjects(List<String> options) {
