@@ -35,6 +35,7 @@ public class CreateIndexBlockPage {
     private final SelectClusterSchemaTable selectClusterSchemaTable;
     private final DDLController ddlController;
     private final DDLValidator ddlValidator;
+
     private static String createIndexIndexNameTextInputLabel = "Index Name";
     private static String createIndexNamePlaceHolder = "idx_orderno_createdat";
     private static String createIndexTypePlaceHolder = "select index type";
@@ -45,19 +46,28 @@ public class CreateIndexBlockPage {
         List<LayoutBlock> blocks = new ArrayList<>();
 
         blocks.addAll(selectClusterSchemaTable.selectClusterSchemaTableBlocks());
+
         List<OptionObject> indexTypeOptions = Arrays.stream(Constraint.ConstraintType.values())
                 .map(constraintType -> OptionObject.builder()
                         .text(plainText(constraintType.name()))
                         .value(constraintType.name())
                         .build())
                 .collect(Collectors.toList());
+
+        // 인덱스 타입
         blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.findIndexTypeActionId,
                 indexTypeOptions,
                 createIndexTypePlaceHolder));
+
+        // 인덱스 명
         blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.createIndexIndexNameTextInputId,
                 createIndexIndexNameTextInputLabel,
                 createIndexNamePlaceHolder));
+
+        // 인덱스 컬럼명
         blocks.add(getInitialIndexColumnNameInputBlock());
+
+        // 컬럼 추가, 삭제 버튼
         blocks.add(
                 actions(actions -> actions
                         .elements(asElements(
@@ -72,8 +82,8 @@ public class CreateIndexBlockPage {
                                         .actionId(SlackConstants.CommandBlockIds.createIndexRemoveColumnButtonId)
                                 )))
                         .blockId(SlackConstants.CommandBlockIds.createIndexRemoveColumnButtonId)));
-
         return blocks;
+
     }
 
     public List<LayoutBlock> handleAddColumn(List<LayoutBlock> currentBlocks) {
