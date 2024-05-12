@@ -19,7 +19,7 @@ const CreateTable = () => {
             collate: 'utf8mb4_0900_ai_ci',
         },
     ]);
-    const [constraints, setConstraints] = useState([{ type: 'PRIMARY KEY', keyName: '', keyColumnNames: [''] }]);
+    const [constraints, setConstraints] = useState([{ constraintType: 'PRIMARY KEY', keyName: '', keyColumnNames: [''] }]);
     const [engine, setEngine] = useState('InnoDB');
     const [charset, setCharset] = useState('utf8mb4');
     const [collate, setCollate] = useState('utf8mb4_0900_ai_ci');
@@ -187,7 +187,7 @@ const CreateTable = () => {
 
     const handleConstraintTypeChange = (index, value) => {
         const updatedConstraints = [...constraints];
-        updatedConstraints[index].type = value;
+        updatedConstraints[index].constraintType = value;
         setConstraints(updatedConstraints);
     };
 
@@ -204,7 +204,7 @@ const CreateTable = () => {
     };
 
     const handleAddConstraint = () => {
-        setConstraints([...constraints, { type: 'PRIMARY KEY', keyName: '', keyColumnNames: [''] }]);
+        setConstraints([...constraints, { constraintType: 'PRIMARY KEY', keyName: '', keyColumnNames: [''] }]);
     };
 
     const handleRemoveConstraint = (index) => {
@@ -283,11 +283,11 @@ const CreateTable = () => {
       <label>Constraints:</label><br />
       {constraints.map((constraint, constraintIndex) => (
         <div key={constraintIndex}>
-          <select value={constraint.type} onChange={(e) => handleConstraintTypeChange(constraintIndex, e.target.value)}>
+          <select value={constraint.constraintType} onChange={(e) => handleConstraintTypeChange(constraintIndex, e.target.value)}>
             <option value="">Select a constraint type</option>
-            <option value="PRIMARY KEY">PRIMARY KEY</option>
+            <option value="PRIMARY">PRIMARY KEY</option>
             <option value="KEY">KEY</option>
-            <option value="UNIQUE KEY">UNIQUE KEY</option>
+            <option value="UNIQUE">UNIQUE KEY</option>
           </select><br />
 
           <label>Constraint name:</label><br />
