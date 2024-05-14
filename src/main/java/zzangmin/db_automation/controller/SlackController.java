@@ -183,7 +183,9 @@ public class SlackController {
     private String displayErrorViewJsonString(Exception e) {
 //        String errorViewResponse = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"\"}}";
         String errorMessage = e.getMessage().replace("\"", "\'");
-        String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"" + errorMessage + "\"}}";
+//        String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"" + errorMessage + "\"}}";
+
+        String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"selectClusterName\":\"" + errorMessage + "\"}}";
         log.info("errorViewResponseJson: {}", errorViewResponseJson);
         return errorViewResponseJson;
     }
