@@ -52,7 +52,7 @@ public class ColumnConvention {
     }
 
     private static void checkColumnCommentExistConvention(String columnName, String columnComment) {
-        if (columnComment.isBlank() || columnComment.isEmpty()) {
+        if (columnComment == null || columnComment.isBlank() || columnComment.isEmpty()) {
             throw new IllegalArgumentException(columnName + " 의 코멘트가 존재하지 않습니다.");
         }
     }
