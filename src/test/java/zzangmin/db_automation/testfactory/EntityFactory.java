@@ -36,8 +36,8 @@ public class EntityFactory {
     public static Table generateBasicTable(String tableName) {
         Table table = Table.builder()
                 .tableName(tableName)
-                .columns((LinkedHashSet<Column>) (Set.of(generateBasicColumn("column_name"))))
-                .constraints(((LinkedHashSet<Constraint>) Set.of(generateBasicConstraint())))
+                .columns(new LinkedHashSet<> ((Set.of(generateBasicColumn("column_name")))))
+                .constraints((new LinkedHashSet<>(Set.of(generateBasicConstraint()))))
                 .tableEngine("innoDB")
                 .tableCharset("utf8mb4")
                 .tableCollate("utf8mb4_0900_ai_ci")
