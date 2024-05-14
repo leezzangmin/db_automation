@@ -108,8 +108,8 @@ class TableDifferenceCheckerTest {
 
         Table prodTable = EntityFactory.generateBasicTable("basic_table");
         Table stageTable = EntityFactory.generateBasicTable("basic_table");
-        prodTable.addColumns(List.of(new Column("column_name", "varchar(123)", true, null, false, false, "comment", "utf8mb4", "utf8mb4_0900_ai_ci")));
-        stageTable.addColumns(List.of(new Column("column_name", "varchar(124)", true, null, false, false, "asdfcomment", "utf8mb4", "utf8mb4_0900_ai_ci")));
+        prodTable.addColumns(List.of(new Column("column_name", "varchar(123)", true, null, false, "comment", "utf8mb4", "utf8mb4_0900_ai_ci")));
+        stageTable.addColumns(List.of(new Column("column_name", "varchar(124)", true, null, false, "asdfcomment", "utf8mb4", "utf8mb4_0900_ai_ci")));
 
         when(mysqlClient.findSchemaNames(eq(prod))).thenReturn(List.of("test"));
         when(mysqlClient.findTableNames(any(), eq("test"))).thenReturn(List.of("basic_table"));

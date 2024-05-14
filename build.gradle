@@ -51,6 +51,8 @@ dependencies {
 	// signature hex
 	implementation 'commons-codec:commons-codec:1.15'
 
+	// sql parser
+	implementation 'com.github.jsqlparser:jsqlparser:4.9'
 
 }
 

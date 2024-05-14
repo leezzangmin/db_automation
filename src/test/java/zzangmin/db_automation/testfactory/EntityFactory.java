@@ -18,7 +18,7 @@ public class EntityFactory {
                 .type("varchar(255)")
                 .isNull(true)
                 .defaultValue(null)
-                .isUnique(false)
+                //.isUnique(false)
                 .isAutoIncrement(false)
                 .comment("column comment 123")
                 .charset("utf8mb4")

@@ -70,7 +70,7 @@ class DDLServiceTest {
     @Test
     void createTable() {
         //given
-        Column column1 = new Column("id", "INT", false, "0", false, true, "column1 comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column1 = new Column("id", "INT", false, "0", true, "column1 comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.UNIQUE, "id", List.of("id"));
         CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", Set.of(column1), Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
@@ -121,7 +121,7 @@ class DDLServiceTest {
     @Test
     void addColumn() {
         //given
-        Column column = new Column("add", "INT", false, null, false, false, "add column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column = new Column("add", "INT", false, null, false, "add column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
         addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
         //when
@@ -155,7 +155,7 @@ class DDLServiceTest {
     @Test
     void alterColumn() {
         //given
-        Column column = new Column("name", "VARCHAR(255)", false, null, false, false, "alter column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column = new Column("name", "VARCHAR(255)", false, null, false, "alter column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
         AlterColumnRequestDTO alterColumnRequestDTO = new AlterColumnRequestDTO(schemaName, "test_table", "name", column);
         alterColumnRequestDTO.setCommandType(CommandType_old.ALTER_COLUMN);
         //when
