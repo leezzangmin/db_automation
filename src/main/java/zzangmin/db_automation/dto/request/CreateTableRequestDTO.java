@@ -38,7 +38,6 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
     @NotBlank
     private String tableComment;
 
-    // TODO
     public static CreateTableRequestDTO of(String createTableSQL) throws JSQLParserException {
         createTableSQL = createTableSQL.replaceAll("`", "");
         CreateTable parse = (CreateTable) CCJSqlParserUtil.parse(createTableSQL);
