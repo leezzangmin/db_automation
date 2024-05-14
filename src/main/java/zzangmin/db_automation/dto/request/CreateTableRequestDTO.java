@@ -68,12 +68,14 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
                 constraints.add(Constraint.builder()
                         .constraintType(Constraint.ConstraintType.PRIMARY)
                         .keyName(columnDefinition.getColumnName())
+                        .keyColumnNames(List.of(columnDefinition.getColumnName()))
                         .build()
                 );
             } else if (columnSpecs.contains("unique") || columnSpecs.contains("UNIQUE")) {
                 constraints.add(Constraint.builder()
                         .constraintType(Constraint.ConstraintType.UNIQUE)
                         .keyName(columnDefinition.getColumnName())
+                        .keyColumnNames(List.of(columnDefinition.getColumnName()))
                         .build()
                 );
             }
