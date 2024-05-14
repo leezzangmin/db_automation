@@ -39,11 +39,7 @@ public class SlackConstants {
         public static final String findIndexTypeActionId = "selectIndexType";
 
         // create table
-        public static final String createTableTableNameTextInputId = "inputCreateTableTableName";
-        public static final String createTableColumnNameTextInputId = "inputCreateTableColumnName";
-        public static final String createTableColumnTypeTextInputId = "inputCreateTableColumnType";
-        public static final String createTableColumnOptionTypeMultiSelectSectionId = " createTableColumnOptionTypeMultiSelect";
-        public static final String createTableColumnDefaultValueTextInputId = "inputCreateTableColumnDefaultValue";
+        public static final String createTableSQLTextInputId = "inputCreateTableSQL";
 
     }
     public static class FixedBlockIds {
