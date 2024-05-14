@@ -1,5 +1,6 @@
 package zzangmin.db_automation.parser;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
@@ -8,6 +9,7 @@ import zzangmin.db_automation.entity.Constraint;
 
 import java.util.Set;
 
+@Slf4j
 @Component
 public class DDLParser {
 
@@ -54,7 +56,7 @@ public class DDLParser {
         sb.append(dto.getAfterColumn().getType());
         sb.append(" ");
         sb.append(dto.getAfterColumn().generateNull());
-        sb.append(dto.getAfterColumn().generateUnique());
+        // sb.append(dto.getAfterColumn().generateUnique());
         sb.append(dto.getAfterColumn().generateAutoIncrement());
         sb.append(" COMMENT '");
         sb.append(dto.getAfterColumn().getComment());
@@ -86,7 +88,7 @@ public class DDLParser {
         sb.append(afterColumn.getType());
         sb.append(" ");
         sb.append(afterColumn.generateNull());
-        sb.append(afterColumn.generateUnique());
+        // sb.append(afterColumn.generateUnique());
         sb.append(afterColumn.generateAutoIncrement());
         sb.append(" COMMENT '");
         sb.append(afterColumn.getComment());
@@ -106,7 +108,7 @@ public class DDLParser {
         sb.append(dto.getColumn().getType());
         sb.append(" ");
         sb.append(dto.getColumn().generateNull());
-        sb.append(dto.getColumn().generateUnique());
+        // sb.append(dto.getColumn().generateUnique());
         sb.append(" COMMENT '");
         sb.append(dto.getColumn().getComment());
         sb.append("'");
@@ -163,12 +165,16 @@ public class DDLParser {
             sb.append(column.getType());
             sb.append(" ");
             sb.append(column.generateNull());
-            sb.append(column.generateUnique());
+            // sb.append(column.generateUnique());
             sb.append(column.generateAutoIncrement());
             sb.append(" COMMENT '");
             sb.append(column.getComment());
             sb.append("',\n");
         }
+        if (sb.isEmpty()) {
+            return sb.toString();
+        }
+        sb.deleteCharAt(sb.lastIndexOf(","));
         return sb.toString();
     }
 
@@ -190,8 +196,14 @@ public class DDLParser {
             sb.deleteCharAt(sb.lastIndexOf(","));
             sb.append("),\n");
         }
-        sb.deleteCharAt(sb.lastIndexOf(","));
-        return sb.toString();
+        if (sb.isEmpty()) {
+            return sb.toString();
+        }
+        StringBuilder firstComma = new StringBuilder();
+        firstComma.append(",");
+        firstComma.append(sb);
+        firstComma.deleteCharAt(firstComma.lastIndexOf(","));
+        return firstComma.toString();
     }
 
     private String generateCreateTableOptions(String engine, String charset, String collate, String comment) {

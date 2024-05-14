@@ -2,6 +2,7 @@ package zzangmin.db_automation.entity;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import net.sf.jsqlparser.statement.create.table.Index;
 import zzangmin.db_automation.convention.CommonConvention;
 
 import java.util.ArrayList;
@@ -39,6 +40,15 @@ public class Constraint {
             differences.append(String.format("제약조건 컬럼 구성이 다릅니다: `%s` <-> `%s`\n", this.keyColumnNames, otherConstraint.keyColumnNames));
         }
         return differences.toString();
+    }
+
+    public static Constraint of(Index index) {
+        Constraint constraint = Constraint.builder()
+                .constraintType(Constraint.ConstraintType.generateConstraintTypeByTypeName(index.getType()))
+                .keyName(index.getName())
+                .keyColumnNames(index.getColumnsNames())
+                .build();
+        return constraint;
     }
 
 

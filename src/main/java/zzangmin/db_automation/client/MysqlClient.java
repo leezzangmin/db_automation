@@ -18,6 +18,7 @@ public class MysqlClient {
 
 
     public void executeSQL(DatabaseConnectionInfo databaseConnectionInfo, String SQL) {
+        log.info("SQL: {}", SQL);
         try (Connection connection = DriverManager.getConnection(
                 databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
@@ -293,7 +294,7 @@ public class MysqlClient {
                     String collate = resultSet.getString("COLLATION_NAME");
 
                     boolean isNullValue = isNull.equals("YES");
-                    boolean isUniqueKey = key.equals("UNI");
+//                    boolean isUniqueKey = key.equals("UNI");
                     boolean isAutoIncrement = extra.equals("auto_increment");
                     type = Objects.isNull(characterMaxLength) ? type : type + "(" + characterMaxLength + ")";
                     columns.add(new Column(
@@ -301,10 +302,10 @@ public class MysqlClient {
                             type,
                             isNullValue,
                             defaultValue,
-                            isUniqueKey,
+                            //isUniqueKey,
                             isAutoIncrement,
                             columnComment,
-                            Objects.isNull(charset) ? CommonConvention.CHARSET : charset,
+//                            Objects.isNull(charset) ? CommonConvention.CHARSET : charset,
                             Objects.isNull(collate) ? CommonConvention.COLLATE : collate));
                 }
             }
@@ -343,7 +344,7 @@ public class MysqlClient {
                     String collate = resultSet.getString("COLLATION_NAME");
 
                     boolean isNullValue = isNull.equals("YES");
-                    boolean isUniqueKey = key.equals("UNI");
+                    // boolean isUniqueKey = key.equals("UNI");
                     boolean isAutoIncrement = extra.equals("auto_increment");
                     type = Objects.isNull(characterMaxLength) ? type : type + "(" + characterMaxLength + ")";
                     return Optional.of(new Column(
@@ -351,11 +352,11 @@ public class MysqlClient {
                             type,
                             isNullValue,
                             defaultValue,
-                            isUniqueKey,
+                            //isUniqueKey,
                             isAutoIncrement,
                             columnComment,
-                            Objects.isNull(charset) ? CommonConvention.CHARSET : charset,
-                            Objects.isNull(collate) ? CommonConvention.COLLATE : collate));
+//                            Objects.isNull(charset) ? null : charset,
+                            Objects.isNull(collate) ? null : collate));
                 }
             }
         } catch (SQLException e) {
@@ -758,7 +759,7 @@ public class MysqlClient {
                     String columnCollate = resultSet.getString("COLLATION_NAME");
 
                     boolean isNullValue = isNull.equals("YES");
-                    boolean isUniqueKey = key.equals("UNI");
+                    //boolean isUniqueKey = key.equals("UNI");
                     boolean isAutoIncrement = extra.equals("auto_increment");
                     columnType = Objects.isNull(characterMaxLength) ? columnType : columnType + "(" + characterMaxLength + ")";
                     Column column = new Column(
@@ -766,16 +767,16 @@ public class MysqlClient {
                             columnType,
                             isNullValue,
                             defaultValue,
-                            isUniqueKey,
+                            //isUniqueKey,
                             isAutoIncrement,
                             columnComment,
-                            Objects.isNull(columnCharset) ? CommonConvention.CHARSET : columnCharset,
-                            Objects.isNull(columnCollate) ? CommonConvention.COLLATE : columnCollate);
+//                            Objects.isNull(columnCharset) ? null : columnCharset,
+                            Objects.isNull(columnCollate) ? null : columnCollate);
                     Table table = Table.builder()
                             .tableName(tableName)
                             .tableEngine(tableEngine)
-                            .columns(new HashSet<>())
-                            .constraints(new HashSet<>())
+                            .columns(new LinkedHashSet<>())
+                            .constraints(new LinkedHashSet<>())
                             .tableCharset(tableCharset)
                             .tableCollate(tableCollate)
                             .tableComment(tableComment)

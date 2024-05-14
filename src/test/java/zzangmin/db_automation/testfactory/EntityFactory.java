@@ -5,10 +5,7 @@ import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.Table;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class EntityFactory {
 
@@ -18,10 +15,10 @@ public class EntityFactory {
                 .type("varchar(255)")
                 .isNull(true)
                 .defaultValue(null)
-                .isUnique(false)
+                //.isUnique(false)
                 .isAutoIncrement(false)
                 .comment("column comment 123")
-                .charset("utf8mb4")
+                //.charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
         return column;
@@ -39,8 +36,8 @@ public class EntityFactory {
     public static Table generateBasicTable(String tableName) {
         Table table = Table.builder()
                 .tableName(tableName)
-                .columns(new HashSet<>(Set.of(generateBasicColumn("column_name"))))
-                .constraints(new HashSet<>(Set.of(generateBasicConstraint())))
+                .columns((LinkedHashSet<Column>) (Set.of(generateBasicColumn("column_name"))))
+                .constraints(((LinkedHashSet<Constraint>) Set.of(generateBasicConstraint())))
                 .tableEngine("innoDB")
                 .tableCharset("utf8mb4")
                 .tableCollate("utf8mb4_0900_ai_ci")

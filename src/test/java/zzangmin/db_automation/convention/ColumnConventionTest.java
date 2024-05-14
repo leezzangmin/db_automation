@@ -21,10 +21,10 @@ class ColumnConventionTest {
                 .type("varchar(255)")
                 .isNull(true)
                 .defaultValue(null)
-                .isUnique(false)
+//                .isUnique(false)
                 .isAutoIncrement(false)
                 .comment("User ID comment")
-                .charset("utf8mb4")
+//                .charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
 
@@ -41,10 +41,10 @@ class ColumnConventionTest {
                 .type("varchar(255)")
                 .isNull(true)
                 .defaultValue(null)
-                .isUnique(false)
+//                .isUnique(false)
                 .isAutoIncrement(false)
                 .comment("User ID comment")
-                .charset("utf8mb4")
+//                .charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
 
@@ -82,10 +82,10 @@ class ColumnConventionTest {
                 .type("varchar(100)")
                 .isNull(true)
                 .defaultValue(null)
-                .isUnique(false)
+//                .isUnique(false)
                 .isAutoIncrement(false)
                 .comment("User Name")
-                .charset("utf8mb4")
+//                .charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
         int futureLength = 150;
@@ -103,10 +103,10 @@ class ColumnConventionTest {
                 .type("varchar(30)")
                 .isNull(true)
                 .defaultValue(null)
-                .isUnique(false)
+//                .isUnique(false)
                 .isAutoIncrement(false)
                 .comment("User Name")
-                .charset("utf8mb4")
+//                .charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
         int futureLength = 256;
@@ -124,10 +124,10 @@ class ColumnConventionTest {
                 .type("varchar(255)")
                 .isNull(true)
                 .defaultValue(null)
-                .isUnique(false)
+//                .isUnique(false)
                 .isAutoIncrement(false)
                 .comment("")
-                .charset("utf8mb4")
+//                .charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
 

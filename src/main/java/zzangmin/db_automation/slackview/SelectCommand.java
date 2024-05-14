@@ -1,12 +1,10 @@
 package zzangmin.db_automation.slackview;
 
-import com.slack.api.model.block.ActionsBlock;
-import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.element.BlockElement;
-import com.slack.api.model.block.element.ButtonElement;
-import com.slack.api.model.block.element.PlainTextInputElement;
-import com.slack.api.model.block.element.StaticSelectElement;
+import com.slack.api.model.block.composition.PlainTextObject;
+import com.slack.api.model.block.composition.TextObject;
+import com.slack.api.model.block.element.*;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +34,8 @@ public class SelectCommand {
 
     public static List<LayoutBlock> selectCommandGroupAndCommandTypeBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
+        // errorMessageBlock
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextOptionalInput(SlackConstants.ErrorBlockIds.errorMessageBlockId, "에러 메세지 표시용 블럭", "사용되지 않는 블럭입니다."));
 
         List<OptionObject> databaseRequestGroupOptions = Arrays.stream(DatabaseRequestCommandGroup.values())
                 .map(group -> OptionObject.builder()
@@ -111,6 +111,7 @@ public class SelectCommand {
             LayoutBlock currentBlock = currentBlocks.get(i);
             if (SlackConstants.CommandBlockIds.isMember(currentBlock.getBlockId())) {
                 commandBlocks.add(currentBlock);
+                continue;
             }
 
             // actions 블록의 내부 element 검사
@@ -119,7 +120,7 @@ public class SelectCommand {
                 List<BlockElement> elements = currentActionsBlock.getElements();
                 for (int j = 0;j < elements.size();j++) {
                     BlockElement blockElement = elements.get(j);
-
+                    log.info("blockElement: {}", blockElement);
                     if (blockElement instanceof PlainTextInputElement) {
                         PlainTextInputElement childElement = (PlainTextInputElement) blockElement;
                         if (SlackConstants.CommandBlockIds.isMember(childElement.getActionId())) {
@@ -143,6 +144,40 @@ public class SelectCommand {
                         throw new IllegalStateException("미지원 Element Type. 구현을 추가해야 합니다.");
                     }
                 }
+            } else if (currentBlock instanceof SectionBlock) {
+                SectionBlock currentSectionBlock = (SectionBlock) currentBlock;
+                if (SlackConstants.CommandBlockIds.isMember(currentSectionBlock.getBlockId())) {
+                    commandBlocks.add(currentBlock);
+                    continue;
+                }
+                BlockElement blockElement = currentSectionBlock.getAccessory();
+                if (blockElement instanceof MultiStaticSelectElement) {
+                    MultiStaticSelectElement childElement = (MultiStaticSelectElement) blockElement;
+                    if (SlackConstants.CommandBlockIds.isMember(childElement.getActionId())) {
+                        commandBlocks.add(currentBlock);
+                    } else {
+                        log.error("blockElement: {}", blockElement);
+                        throw new IllegalStateException("미지원 Element Type. 구현을 추가해야 합니다.");
+                    }
+                }
+
+                // ContextBlock 의 Element는 id가 없음
+            } else if (currentBlock instanceof ContextBlock) {
+                ContextBlock currentContextBlock = (ContextBlock) currentBlock;
+                if (SlackConstants.CommandBlockIds.isMember(currentContextBlock.getBlockId())) {
+                    commandBlocks.add(currentBlock);
+                    continue;
+                }
+            } else if (currentBlock instanceof InputBlock) {
+                InputBlock currentInputBlock = (InputBlock) currentBlock;
+                if (SlackConstants.CommandBlockIds.isMember(currentInputBlock.getBlockId())) {
+                    commandBlocks.add(currentBlock);
+                    continue;
+                }
+            }
+            else {
+                log.error("currentBlock: {}", currentBlock);
+                throw new IllegalStateException("미지원 Block Type. 구현을 추가해야 합니다.");
             }
         }
 

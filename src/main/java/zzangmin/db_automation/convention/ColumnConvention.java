@@ -41,16 +41,18 @@ public class ColumnConvention {
         if (column.getType().startsWith("varchar") || column.getType().startsWith("VARCHAR")) {
             column.injectVarcharLength();
         }
-        if (!column.getCharset().equals(CHARSET)) {
-            throw new IllegalArgumentException(column.getName() + " 의 CHARSET 이 " + CHARSET +" 이 아닙니다.");
-        }
-        if (!column.getCollate().equals(COLLATE)) {
-            throw new IllegalArgumentException(column.getName() + " 의 COLLATE 가 " + COLLATE +" 이 아닙니다.");
+        if (column.getType().contains("char") || column.getType().contains("CHAR") || column.getType().contains("text") || column.getType().contains("TEXT")) {
+//            if (!column.getCharset().equals(CHARSET)) {
+//                throw new IllegalArgumentException(column.getName() + " 의 CHARSET 이 " + CHARSET + " 이 아닙니다.");
+//            }
+            if (!column.getCollate().equals(COLLATE)) {
+                throw new IllegalArgumentException(column.getName() + " 의 COLLATE 가 " + COLLATE + " 이 아닙니다.");
+            }
         }
     }
 
     private static void checkColumnCommentExistConvention(String columnName, String columnComment) {
-        if (columnComment.isBlank() || columnComment.isEmpty()) {
+        if (columnComment == null || columnComment.isBlank() || columnComment.isEmpty()) {
             throw new IllegalArgumentException(columnName + " 의 코멘트가 존재하지 않습니다.");
         }
     }

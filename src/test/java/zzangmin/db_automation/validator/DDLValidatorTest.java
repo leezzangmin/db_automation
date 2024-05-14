@@ -15,6 +15,7 @@ import zzangmin.db_automation.service.AwsService;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -67,7 +68,7 @@ class DDLValidatorTest {
 
         Thread.sleep(3500);
 
-        Column column = new Column("new_column", "VARCHAR(255)", false, null, false, false, "new column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column = new Column("new_column", "VARCHAR(255)", false, null, false, "new column comment", "utf8mb4_0900_ai_ci");
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
         addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
 
@@ -79,7 +80,7 @@ class DDLValidatorTest {
     @Test
     void validateAddColumnTest() {
         //given
-        Column column = new Column("new_column", "VARCHAR(255)", false, null, false, false, "new column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column = new Column("new_column", "VARCHAR(255)", false, null, false, "new column comment", "utf8mb4_0900_ai_ci");
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
         addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
         //when & then
@@ -90,7 +91,7 @@ class DDLValidatorTest {
     @Test
     void validateAddColumnTest_autoIncrement() {
         //given
-        Column column = new Column("new_column", "VARCHAR(255)", false, null, false, true, "new column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column = new Column("new_column", "VARCHAR(255)", false, null, true, "new column comment", "utf8mb4_0900_ai_ci");
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
         addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
         //when & then
@@ -102,7 +103,7 @@ class DDLValidatorTest {
     @Test
     void validateAlterColumnTest() {
         //given
-        Column column = new Column("name", "VARCHAR(255)", false, null, false, false, "alter column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column = new Column("name", "VARCHAR(255)", false, null, false, "alter column comment", "utf8mb4_0900_ai_ci");
         AlterColumnRequestDTO alterColumnRequestDTO = new AlterColumnRequestDTO(schemaName, "test_table", "name", column);
         alterColumnRequestDTO.setCommandType(CommandType_old.ALTER_COLUMN);
         //when & then
@@ -142,12 +143,12 @@ class DDLValidatorTest {
     @Test
     void validateCreateTableTest() {
         //given
-        Column column1 = new Column("id", "INT", false, "0", false, true, "column1 comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Column column2 = new Column("name", "INT", false, "0", false, false, "column2 comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column1 = new Column("id", "INT", false, "0", true, "column1 comment", "utf8mb4_0900_ai_ci");
+        Column column2 = new Column("name", "INT", false, "0", false, "column2 comment", "utf8mb4_0900_ai_ci");
 
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.UNIQUE, "name", List.of("name"));
-        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", Set.of(column1), Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", (LinkedHashSet<Column>) Set.of(column1), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
         //when & then
         Assertions.assertDoesNotThrow(() -> ddlValidator.validateCreateTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO));

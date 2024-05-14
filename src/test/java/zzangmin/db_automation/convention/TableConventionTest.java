@@ -9,6 +9,7 @@ import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.Table;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -21,12 +22,12 @@ class TableConventionTest {
     @Test
     void validateTableConventionTest() {
         // given
-        Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Column column2 = new Column("name", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column1 = new Column("id", "BIGINT", false, null, true, "id column comment", "utf8mb4_0900_ai_ci");
+        Column column2 = new Column("name", "VARCHAR(255)", false, null, false, "name column comment", "utf8mb4_0900_ai_ci");
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.KEY, "name", List.of("name"));
         Constraint constraint3 = new Constraint(Constraint.ConstraintType.KEY, "id_name", List.of("id_name"));
-        Table table = new Table("table_name", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        Table table = new Table("table_name", (LinkedHashSet<Column>) Set.of(column1, column2), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
         Assertions.assertDoesNotThrow(() -> TableConvention.validateTableConvention(table));
 
@@ -36,12 +37,12 @@ class TableConventionTest {
     @Test
     void validateTableConventionTest_noSnakeCase() {
         // given
-        Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Column column2 = new Column("name", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column1 = new Column("id", "BIGINT", false, null,  true, "id column comment", "utf8mb4_0900_ai_ci");
+        Column column2 = new Column("name", "VARCHAR(255)", false, null, false, "name column comment", "utf8mb4_0900_ai_ci");
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.KEY, "name", List.of("name"));
         Constraint constraint3 = new Constraint(Constraint.ConstraintType.KEY, "id_name", List.of("id_name"));
-        Table table = new Table("NOTSNAKE123", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        Table table = new Table("NOTSNAKE123", (LinkedHashSet<Column>) Set.of(column1, column2), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
 
@@ -51,12 +52,12 @@ class TableConventionTest {
     @Test
     void validateTableConventionTest_noSnakeCaseColumnName() {
         // given
-        Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Column column2 = new Column("name123", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column1 = new Column("id", "BIGINT", false, null, true, "id column comment", "utf8mb4_0900_ai_ci");
+        Column column2 = new Column("name123", "VARCHAR(255)", false, null, false, "name column comment", "utf8mb4_0900_ai_ci");
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.KEY, "name", List.of("name"));
         Constraint constraint3 = new Constraint(Constraint.ConstraintType.KEY, "id_name", List.of("id_name"));
-        Table table = new Table("test_table", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        Table table = new Table("test_table", (LinkedHashSet<Column>) Set.of(column1, column2), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
 
@@ -66,12 +67,12 @@ class TableConventionTest {
     @Test
     void validateTableConventionTest_noSnakeCaseIndexName() {
         // given
-        Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Column column2 = new Column("name", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column1 = new Column("id", "BIGINT", false, null, true, "id column comment",  "utf8mb4_0900_ai_ci");
+        Column column2 = new Column("name", "VARCHAR(255)", false, null, false, "name column comment", "utf8mb4_0900_ai_ci");
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.KEY, "a1", List.of("name"));
         Constraint constraint3 = new Constraint(Constraint.ConstraintType.KEY, "id_name", List.of("id_name"));
-        Table table = new Table("test_table", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        Table table = new Table("test_table", (LinkedHashSet<Column>) Set.of(column1, column2), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
 
@@ -81,10 +82,10 @@ class TableConventionTest {
     @Test
     void validateTableConventionTest_duplicateColumnName() {
         // given
-        Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Column column2 = new Column("id", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column1 = new Column("id", "BIGINT", false, null, true, "id column comment",  "utf8mb4_0900_ai_ci");
+        Column column2 = new Column("id", "VARCHAR(255)", false, null, false, "name column comment", "utf8mb4_0900_ai_ci");
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
-        Table table = new Table("NOTSNAKE123", Set.of(column1, column2), Set.of(constraint1), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        Table table = new Table("NOTSNAKE123", (LinkedHashSet<Column>) Set.of(column1, column2), (LinkedHashSet<Constraint>) Set.of(constraint1), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table));
 
@@ -94,15 +95,15 @@ class TableConventionTest {
     @Test
     void validateTableConventionTest_invalidTableOptions() {
         // given
-        Column column1 = new Column("id", "BIGINT", false, null, false, true, "id column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
-        Column column2 = new Column("name", "VARCHAR(255)", false, null, false, false, "name column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column1 = new Column("id", "BIGINT", false, null, true, "id column comment", "utf8mb4_0900_ai_ci");
+        Column column2 = new Column("name", "VARCHAR(255)", false, null, false, "name column comment", "utf8mb4_0900_ai_ci");
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.KEY, "name", List.of("name"));
         Constraint constraint3 = new Constraint(Constraint.ConstraintType.KEY, "id_name", List.of("id_name"));
-        Table table1 = new Table("table_name", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "NOENGINE", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
-        Table table2 = new Table("table_name", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "invalidaCharacterSet", "utf8mb4_0900_ai_ci", "table comment");
-        Table table3 = new Table("table_name", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "invalidCollate", "table comment");
-        Table table4 = new Table("table_name", Set.of(column1, column2), Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", null);
+        Table table1 = new Table("table_name", (LinkedHashSet<Column>) Set.of(column1, column2), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2, constraint3), "NOENGINE", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        Table table2 = new Table("table_name", (LinkedHashSet<Column>) Set.of(column1, column2), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2, constraint3), "InnoDB", "invalidaCharacterSet", "utf8mb4_0900_ai_ci", "table comment");
+        Table table3 = new Table("table_name", (LinkedHashSet<Column>) Set.of(column1, column2), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "invalidCollate", "table comment");
+        Table table4 = new Table("table_name", (LinkedHashSet<Column>) Set.of(column1, column2), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2, constraint3), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", null);
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table1));
         Assertions.assertThrows(IllegalArgumentException.class, () -> TableConvention.validateTableConvention(table2));

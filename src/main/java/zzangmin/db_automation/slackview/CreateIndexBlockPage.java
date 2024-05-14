@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.controller.DDLController;
-import zzangmin.db_automation.controller.SlackController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
 import zzangmin.db_automation.entity.CommandType_old;
@@ -159,7 +158,7 @@ public class CreateIndexBlockPage {
         return currentBlocks;
     }
 
-    public List<LayoutBlock> handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String indexName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.createIndexIndexNameTextInputId);
         log.info("indexName: {}", indexName);
 
@@ -190,7 +189,6 @@ public class CreateIndexBlockPage {
 
         ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
-        return null;
     }
 
     private List<String> findIndexColumnNames(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {

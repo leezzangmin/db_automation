@@ -3,7 +3,9 @@ package zzangmin.db_automation.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,17 +25,15 @@ public class Column {
     @JsonProperty("isNull")
     private Boolean isNull; // NOT NULL, DEFAULT NULL
     private String defaultValue;
-    @NotBlank
-    @JsonProperty("isUnique")
-    private Boolean isUnique;
+//    @NotBlank
+//    @JsonProperty("isUnique")
+//    private Boolean isUnique;
     @NotBlank
     @JsonProperty("isAutoIncrement")
     private Boolean isAutoIncrement;
     @NotBlank
     private String comment;
-    @NotBlank
-    private String charset;
-    @NotBlank
+//    private String charset;
     private String collate;
 
 
@@ -50,12 +50,12 @@ public class Column {
         return "NOT NULL";
     }
 
-    public String generateUnique() {
-        if (this.isUnique) {
-            return " UNIQUE";
-        }
-        return "";
-    }
+//    public String generateUnique() {
+//        if (this.isUnique) {
+//            return " UNIQUE";
+//        }
+//        return "";
+//    }
 
     public String generateAutoIncrement() {
         if (this.isAutoIncrement) {
@@ -86,28 +86,28 @@ public class Column {
     public String reportDifference(Column other) {
         StringBuilder differenceResult = new StringBuilder();
         StringBuilder differences = new StringBuilder();
-        if (!this.type.equals(other.type)) {
+        if (!Objects.equals(this.type, other.type)) {
             differences.append(String.format("타입이 다릅니다: `%s` <-> `%s`\n", this.type, other.type));
         }
-        if (this.isNull != other.isNull) {
+        if (!Objects.equals(this.isNull, other.isNull)) {
             differences.append(String.format("NULL 가능 여부가 다릅니다: `%s` <-> `%s`\n", this.isNull, other.isNull));
         }
-        if (!Objects.equals(this.defaultValue, other.defaultValue)) { // Objects.equals는 null-safe 비교를 제공합니다.
+        if (!Objects.equals(this.defaultValue, other.defaultValue)) { // Objects.equals는 null-safe
             differences.append(String.format("기본값이 다릅니다: `%s` <-> `%s`\n", this.defaultValue, other.defaultValue));
         }
-        if (this.isUnique != other.isUnique) {
-            differences.append(String.format("고유 여부가 다릅니다: `%s` <-> `%s`\n", this.isUnique, other.isUnique));
-        }
-        if (this.isAutoIncrement != other.isAutoIncrement) {
+//        if (this.isUnique != other.isUnique) {
+//            differences.append(String.format("고유 여부가 다릅니다: `%s` <-> `%s`\n", this.isUnique, other.isUnique));
+//        }
+        if (!Objects.equals(this.isAutoIncrement, other.isAutoIncrement)) {
             differences.append(String.format("자동 증가 여부가 다릅니다: `%s` <-> `%s`\n", this.isAutoIncrement, other.isAutoIncrement));
         }
-        if (!this.comment.equals(other.comment)) {
+        if (!Objects.equals(this.comment, other.comment)) {
             differences.append(String.format("코멘트가 다릅니다: `%s` <-> `%s`\n", this.comment, other.comment));
         }
-        if (!this.charset.equals(other.charset)) {
-            differences.append(String.format("문자셋이 다릅니다: `%s` <-> `%s`\n", this.charset, other.charset));
-        }
-        if (!this.collate.equals(other.collate)) {
+//        if (!Objects.equals(this.charset, other.charset)) {
+//            differences.append(String.format("문자셋이 다릅니다: `%s` <-> `%s`\n", this.charset, other.charset));
+//        }
+        if (!Objects.equals(this.collate, other.collate)) {
             differences.append(String.format("콜레이션이 다릅니다: `%s` <-> `%s`\n", this.collate, other.collate));
         }
 
@@ -117,6 +117,38 @@ public class Column {
         }
 
         return differenceResult.toString();
+    }
+
+    public static Column of(ColumnDefinition columnDefinition) {
+        List<String> columnSpecs = columnDefinition.getColumnSpecs();
+        int collateColumnSpecIndex = -1;
+        if (columnSpecs.indexOf("collate") != -1) {
+            collateColumnSpecIndex = columnSpecs.indexOf("collate");
+        } else if (columnSpecs.indexOf("COLLATE") != -1) {
+            collateColumnSpecIndex = columnSpecs.indexOf("COLLATE");
+        }
+        int defaultColumnSpecIndex = -1;
+        if (columnSpecs.indexOf("default") != -1) {
+            defaultColumnSpecIndex = columnSpecs.indexOf("default");
+        } else if (columnSpecs.indexOf("DEFAULT") != -1) {
+            defaultColumnSpecIndex = columnSpecs.indexOf("DEFAULT");
+        }
+
+        Column column = Column.builder()
+                .name(columnDefinition.getColumnName())
+                .type(columnDefinition.getColDataType().toString().replace(" ", ""))
+                .isNull((columnDefinition.getColumnSpecs().contains("NOT") ||
+                        columnDefinition.getColumnSpecs().contains("NOT") ||
+                        columnDefinition.getColumnSpecs().contains("primary") ||
+                        columnDefinition.getColumnSpecs().contains("PRIMARY")) ? false : true)
+                .defaultValue(defaultColumnSpecIndex == -1 ? null : columnSpecs.get(defaultColumnSpecIndex + 1))
+                .isAutoIncrement((columnDefinition.getColumnSpecs().contains("auto_increment") || columnDefinition.getColumnSpecs().contains("AUTO_INCREMENT")) ? true : false)
+//                .charset(null)
+                .collate(collateColumnSpecIndex == -1 ? null : columnSpecs.get(collateColumnSpecIndex + 1))
+                .comment((columnDefinition.getColumnSpecs().contains("comment") || columnDefinition.getColumnSpecs().contains("COMMENT")) ?
+                        columnDefinition.getColumnSpecs().get(columnDefinition.getColumnSpecs().size() - 1).replace("'","") : null)
+                .build();
+        return column;
     }
 
 }

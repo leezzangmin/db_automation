@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.*;
 
 import java.util.List;
@@ -19,10 +18,10 @@ import java.util.Map;
 @Component
 public class SlackActionHandler {
 
-    private final SlackService slackService;
     private final SelectCommand selectCommand;
     private final SelectClusterSchemaTable selectClusterSchemaTable;
     private final CreateIndexBlockPage createIndexBlockPage;
+    private final CreateTableBlockPage createTableBlockPage;
 
     public List<LayoutBlock> handleAction(BlockActionPayload.Action action, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String actionId = action.getActionId();
@@ -59,9 +58,8 @@ public class SlackActionHandler {
         log.info("<submission> commandType: {}", commandType);
         if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
             createIndexBlockPage.handleSubmission(currentBlocks, values);
-            log.info("currentBlocks: {}", currentBlocks);
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
-            return;
+            createTableBlockPage.handleSubmission(currentBlocks, values);
         } else {
             throw new IllegalArgumentException("미지원 commandType: " + commandType);
         }
