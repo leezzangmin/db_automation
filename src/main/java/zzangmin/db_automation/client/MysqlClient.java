@@ -18,6 +18,7 @@ public class MysqlClient {
 
 
     public void executeSQL(DatabaseConnectionInfo databaseConnectionInfo, String SQL) {
+        log.info("SQL: {}", SQL);
         try (Connection connection = DriverManager.getConnection(
                 databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {

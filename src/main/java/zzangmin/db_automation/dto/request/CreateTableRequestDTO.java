@@ -95,9 +95,9 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
         }
         String tableComment;
         try {
-            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 2);
+            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 2).replace("'","");
         } catch (Exception e) {
-            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 1);
+            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 1).replace("'","");
         }
         CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(parse.getTable().getSchemaName(),
                 parse.getTable().getName(),

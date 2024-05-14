@@ -143,7 +143,7 @@ public class Column {
 //                .charset(null)
                 .collate(collateColumnSpecIndex == -1 ? null : columnSpecs.get(collateColumnSpecIndex + 1))
                 .comment((columnDefinition.getColumnSpecs().contains("comment") || columnDefinition.getColumnSpecs().contains("COMMENT")) ?
-                        columnDefinition.getColumnSpecs().get(columnDefinition.getColumnSpecs().size() - 1) : null)
+                        columnDefinition.getColumnSpecs().get(columnDefinition.getColumnSpecs().size() - 1).replace("'","") : null)
                 .build();
         return column;
     }
