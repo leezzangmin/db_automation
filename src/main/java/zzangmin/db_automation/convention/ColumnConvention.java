@@ -41,11 +41,13 @@ public class ColumnConvention {
         if (column.getType().startsWith("varchar") || column.getType().startsWith("VARCHAR")) {
             column.injectVarcharLength();
         }
-        if (!column.getCharset().equals(CHARSET)) {
-            throw new IllegalArgumentException(column.getName() + " 의 CHARSET 이 " + CHARSET +" 이 아닙니다.");
-        }
-        if (!column.getCollate().equals(COLLATE)) {
-            throw new IllegalArgumentException(column.getName() + " 의 COLLATE 가 " + COLLATE +" 이 아닙니다.");
+        if (column.getType().contains("char") || column.getType().contains("CHAR") || column.getType().contains("text") || column.getType().contains("TEXT")) {
+            if (!column.getCharset().equals(CHARSET)) {
+                throw new IllegalArgumentException(column.getName() + " 의 CHARSET 이 " + CHARSET + " 이 아닙니다.");
+            }
+            if (!column.getCollate().equals(COLLATE)) {
+                throw new IllegalArgumentException(column.getName() + " 의 COLLATE 가 " + COLLATE + " 이 아닙니다.");
+            }
         }
     }
 
