@@ -119,7 +119,7 @@ public class SelectCommand {
                 List<BlockElement> elements = currentActionsBlock.getElements();
                 for (int j = 0;j < elements.size();j++) {
                     BlockElement blockElement = elements.get(j);
-
+                    log.info("blockElement: {}", blockElement);
                     if (blockElement instanceof PlainTextInputElement) {
                         PlainTextInputElement childElement = (PlainTextInputElement) blockElement;
                         if (SlackConstants.CommandBlockIds.isMember(childElement.getActionId())) {
