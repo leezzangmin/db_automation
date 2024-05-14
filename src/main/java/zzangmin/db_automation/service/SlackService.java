@@ -159,7 +159,6 @@ public class SlackService {
             for (String actionIdKey : stringValueElementMap.keySet()) {
                 if (actionIdKey.equals(targetValueKey)) {
                     log.info("actionIdKey: {}", actionIdKey);
-                    ViewState.Value value = stringValueElementMap.get(actionIdKey);
                     if (stringValueElementMap.get(actionIdKey).getSelectedOption() == null) {
                         selectedValue = stringValueElementMap.get(actionIdKey).getValue();
                         log.info("selectedValue1: {}", selectedValue);

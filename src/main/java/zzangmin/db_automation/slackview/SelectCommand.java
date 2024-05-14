@@ -34,9 +34,9 @@ public class SelectCommand {
 
     public static List<LayoutBlock> selectCommandGroupAndCommandTypeBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
+        // errorMessageBlock
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextOptionalInput(SlackConstants.ErrorBlockIds.errorMessageBlockId, "에러 메세지 표시용 블럭", "사용되지 않는 블럭입니다."));
 
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.ErrorBlockIds.errorMessageBlockId, "에러 메세지 표시용 블럭", "사용되지 않는 블럭입니다."));
-//        errorMessageBlockId
         List<OptionObject> databaseRequestGroupOptions = Arrays.stream(DatabaseRequestCommandGroup.values())
                 .map(group -> OptionObject.builder()
                         .text(plainText(group.name()))

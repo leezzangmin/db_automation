@@ -26,6 +26,17 @@ public class BasicBlockFactory {
                 .blockId(id));
     }
 
+    public static InputBlock findSinglelinePlainTextOptionalInput(String id, String label, String placeholder) {
+        return input(input -> input
+                .element(plainTextInput(pti -> pti.actionId(id)
+                        .multiline(false)
+                        .placeholder(plainText(placeholder))
+                )).optional(true)
+                .label(plainText(label))
+                .blockId(id));
+    }
+
+
     public static InputBlock findMultilinePlainTextInput(String id, String label, String placeholder) {
         return input(input -> input
                 .element(plainTextInput(pti -> pti.actionId(id)
