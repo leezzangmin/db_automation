@@ -1,9 +1,9 @@
 package zzangmin.db_automation.slackview;
 
-import com.slack.api.model.block.ActionsBlock;
-import com.slack.api.model.block.LayoutBlock;
-import com.slack.api.model.block.SectionBlock;
+import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.block.composition.PlainTextObject;
+import com.slack.api.model.block.composition.TextObject;
 import com.slack.api.model.block.element.*;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -109,6 +109,7 @@ public class SelectCommand {
             LayoutBlock currentBlock = currentBlocks.get(i);
             if (SlackConstants.CommandBlockIds.isMember(currentBlock.getBlockId())) {
                 commandBlocks.add(currentBlock);
+                continue;
             }
 
             // actions 블록의 내부 element 검사
@@ -143,6 +144,10 @@ public class SelectCommand {
                 }
             } else if (currentBlock instanceof SectionBlock) {
                 SectionBlock currentSectionBlock = (SectionBlock) currentBlock;
+                if (SlackConstants.CommandBlockIds.isMember(currentSectionBlock.getBlockId())) {
+                    commandBlocks.add(currentBlock);
+                    continue;
+                }
                 BlockElement blockElement = currentSectionBlock.getAccessory();
                 if (blockElement instanceof MultiStaticSelectElement) {
                     MultiStaticSelectElement childElement = (MultiStaticSelectElement) blockElement;
@@ -152,6 +157,12 @@ public class SelectCommand {
                         log.error("blockElement: {}", blockElement);
                         throw new IllegalStateException("미지원 Element Type. 구현을 추가해야 합니다.");
                     }
+                }
+            } else if (currentBlock instanceof ContextBlock) {
+                ContextBlock currentContextBlock = (ContextBlock) currentBlock;
+                if (SlackConstants.CommandBlockIds.isMember(currentContextBlock.getBlockId())) {
+                    commandBlocks.add(currentBlock);
+                    continue;
                 }
             } else {
                 log.error("currentBlock: {}", currentBlock);
