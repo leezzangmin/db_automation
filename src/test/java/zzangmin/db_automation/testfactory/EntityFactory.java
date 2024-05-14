@@ -21,7 +21,7 @@ public class EntityFactory {
                 //.isUnique(false)
                 .isAutoIncrement(false)
                 .comment("column comment 123")
-                .charset("utf8mb4")
+                //.charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
         return column;

@@ -56,7 +56,7 @@ class ChangeHistoryServiceTest {
     void addChangeHistoryTest() {
         //given
         CreateChangeHistoryRequestDTO createChangeHistoryRequestDTO = new CreateChangeHistoryRequestDTO(CommandType_old.ADD_COLUMN, backOfficeDatabaseConnectionInfo.getDatabaseName(), schemaName, "test_table", "test_doer@gmail.com", LocalDateTime.now());
-        Column column = new Column("add", "INT", false, null, false, "add column comment", "utf8mb4", "utf8mb4_0900_ai_ci");
+        Column column = new Column("add", "INT", false, null, false, "add column comment", "utf8mb4_0900_ai_ci");
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
         addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
         //when

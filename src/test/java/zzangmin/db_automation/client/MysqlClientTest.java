@@ -261,7 +261,7 @@ public class MysqlClientTest {
         assertFalse(column.getIsAutoIncrement());
         assertNull(column.getDefaultValue());
         assertEquals("name comment", column.getComment());
-        assertEquals("utf8mb4", column.getCharset());
+//        assertEquals("utf8mb4", column.getCharset());
         assertEquals("utf8mb4_0900_ai_ci", column.getCollate());
     }
 

@@ -304,7 +304,7 @@ public class MysqlClient {
                             //isUniqueKey,
                             isAutoIncrement,
                             columnComment,
-                            Objects.isNull(charset) ? CommonConvention.CHARSET : charset,
+//                            Objects.isNull(charset) ? CommonConvention.CHARSET : charset,
                             Objects.isNull(collate) ? CommonConvention.COLLATE : collate));
                 }
             }
@@ -354,7 +354,7 @@ public class MysqlClient {
                             //isUniqueKey,
                             isAutoIncrement,
                             columnComment,
-                            Objects.isNull(charset) ? null : charset,
+//                            Objects.isNull(charset) ? null : charset,
                             Objects.isNull(collate) ? null : collate));
                 }
             }
@@ -769,7 +769,7 @@ public class MysqlClient {
                             //isUniqueKey,
                             isAutoIncrement,
                             columnComment,
-                            Objects.isNull(columnCharset) ? null : columnCharset,
+//                            Objects.isNull(columnCharset) ? null : columnCharset,
                             Objects.isNull(columnCollate) ? null : columnCollate);
                     Table table = Table.builder()
                             .tableName(tableName)

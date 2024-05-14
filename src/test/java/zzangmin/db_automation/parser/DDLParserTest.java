@@ -42,7 +42,7 @@ class DDLParserTest {
 //                .isUnique(true)
                 .isAutoIncrement(false)
                 .comment("new column comment")
-                .charset("utf8mb4")
+//                .charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
         Column column2 = Column.builder()
@@ -53,7 +53,7 @@ class DDLParserTest {
 //                .isUnique(false)
                 .isAutoIncrement(false)
                 .comment("new column comment")
-                .charset("utf8mb4")
+//                .charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
         DDLRequestDTO dto1 = new AddColumnRequestDTO("test_schema", "test_table", column1);
@@ -95,7 +95,7 @@ class DDLParserTest {
 //                .isUnique(true)
                 .isAutoIncrement(false)
                 .comment("new column comment")
-                .charset("utf8mb4")
+//                .charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
         Column column2 = Column.builder()
@@ -106,7 +106,7 @@ class DDLParserTest {
 //                .isUnique(false)
                 .isAutoIncrement(false)
                 .comment("new column comment")
-                .charset("utf8mb4")
+//                .charset("utf8mb4")
                 .collate("utf8mb4_0900_ai_ci")
                 .build();
         Constraint constraint1 = Constraint.builder()

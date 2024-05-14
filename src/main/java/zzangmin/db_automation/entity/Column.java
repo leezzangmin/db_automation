@@ -33,7 +33,7 @@ public class Column {
     private Boolean isAutoIncrement;
     @NotBlank
     private String comment;
-    private String charset;
+//    private String charset;
     private String collate;
 
 
@@ -104,9 +104,9 @@ public class Column {
         if (!Objects.equals(this.comment, other.comment)) {
             differences.append(String.format("코멘트가 다릅니다: `%s` <-> `%s`\n", this.comment, other.comment));
         }
-        if (!Objects.equals(this.charset, other.charset)) {
-            differences.append(String.format("문자셋이 다릅니다: `%s` <-> `%s`\n", this.charset, other.charset));
-        }
+//        if (!Objects.equals(this.charset, other.charset)) {
+//            differences.append(String.format("문자셋이 다릅니다: `%s` <-> `%s`\n", this.charset, other.charset));
+//        }
         if (!Objects.equals(this.collate, other.collate)) {
             differences.append(String.format("콜레이션이 다릅니다: `%s` <-> `%s`\n", this.collate, other.collate));
         }
@@ -140,7 +140,7 @@ public class Column {
                 .isNull((columnDefinition.getColumnSpecs().contains("NOT") || columnDefinition.getColumnSpecs().contains("NOT")) ? false : true)
                 .defaultValue(defaultColumnSpecIndex == -1 ? null : columnSpecs.get(defaultColumnSpecIndex + 1))
                 .isAutoIncrement((columnDefinition.getColumnSpecs().contains("auto_increment") || columnDefinition.getColumnSpecs().contains("AUTO_INCREMENT")) ? true : false)
-                .charset(null)
+//                .charset(null)
                 .collate(collateColumnSpecIndex == -1 ? null : columnSpecs.get(collateColumnSpecIndex + 1))
                 .comment((columnDefinition.getColumnSpecs().contains("comment") || columnDefinition.getColumnSpecs().contains("COMMENT")) ?
                         columnDefinition.getColumnSpecs().get(columnDefinition.getColumnSpecs().size() - 1) : null)
