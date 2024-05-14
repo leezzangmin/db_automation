@@ -49,7 +49,7 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
 
     // TODO
     public static CreateTableRequestDTO of(String createTableSQL) throws JSQLParserException {
-        createTableSQL = createTableSQL.replaceAll("`", "\"");
+        createTableSQL = createTableSQL.replaceAll("`", "");
         CreateTable parse = (CreateTable) CCJSqlParserUtil.parse(createTableSQL);
 
         Set<Constraint> constraints = new HashSet<>();
