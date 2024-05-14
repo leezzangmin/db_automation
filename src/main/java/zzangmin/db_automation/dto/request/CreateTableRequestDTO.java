@@ -13,6 +13,7 @@ import zzangmin.db_automation.entity.Constraint;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -59,19 +60,30 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
             columns.add(Column.of(columnDefinition));
             List<String> columnSpecs = columnDefinition.getColumnSpecs();
             if (columnSpecs.contains("primary") || columnSpecs.contains("PRIMARY")) {
-                constraints.add(Constraint.builder()
-                        .constraintType(Constraint.ConstraintType.PRIMARY)
-                        .keyName(columnDefinition.getColumnName())
-                        .keyColumnNames(List.of(columnDefinition.getColumnName()))
-                        .build()
-                );
+                Optional<Constraint> pkConstraint = constraints.stream()
+                        .filter(c -> c.getConstraintType().equals(Constraint.ConstraintType.PRIMARY))
+                        .findAny();
+                if (pkConstraint.isEmpty()) {
+                    constraints.add(Constraint.builder()
+                            .constraintType(Constraint.ConstraintType.PRIMARY)
+                            .keyName(columnDefinition.getColumnName())
+                            .keyColumnNames(List.of(columnDefinition.getColumnName()))
+                            .build()
+                    );
+                }
             } else if (columnSpecs.contains("unique") || columnSpecs.contains("UNIQUE")) {
-                constraints.add(Constraint.builder()
-                        .constraintType(Constraint.ConstraintType.UNIQUE)
-                        .keyName(columnDefinition.getColumnName())
-                        .keyColumnNames(List.of(columnDefinition.getColumnName()))
-                        .build()
-                );
+                Optional<Constraint> ukConstraint = constraints.stream()
+                        .filter(c -> c.getConstraintType().equals(Constraint.ConstraintType.PRIMARY))
+                        .filter(c -> c.getKeyColumnNames().get(0).equals(columnDefinition.getColumnName()))
+                        .findAny();
+                if (ukConstraint.isEmpty()) {
+                    constraints.add(Constraint.builder()
+                            .constraintType(Constraint.ConstraintType.UNIQUE)
+                            .keyName(columnDefinition.getColumnName())
+                            .keyColumnNames(List.of(columnDefinition.getColumnName()))
+                            .build()
+                    );
+                }
             }
         }
 
