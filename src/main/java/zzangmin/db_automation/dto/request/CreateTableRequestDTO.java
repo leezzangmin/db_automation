@@ -1,12 +1,7 @@
 package zzangmin.db_automation.dto.request;
 
-import com.slack.api.model.block.LayoutBlock;
-import com.slack.api.model.view.ViewState;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
@@ -15,16 +10,14 @@ import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.table.Index;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
-import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.SlackConstants;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Slf4j
 @ToString
+@Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor

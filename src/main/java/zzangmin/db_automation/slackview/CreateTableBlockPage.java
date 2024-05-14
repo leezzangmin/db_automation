@@ -62,7 +62,7 @@ public class CreateTableBlockPage {
         CreateTableRequestDTO createTableRequestDTO;
         try {
             createTableRequestDTO = CreateTableRequestDTO.of(createTableStatementSQL);
-            createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
+
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
@@ -74,7 +74,11 @@ public class CreateTableBlockPage {
         log.info("selectedDBMSName: {}", selectedDBMSName);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
         log.info("selectedDatabaseConnectionInfo: {}", selectedDatabaseConnectionInfo);
+        String schemaName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId);
+        log.info("schemaName: {}", schemaName);
 
+        createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
+        createTableRequestDTO.setSchemaName(schemaName);
         ddlValidator.validateCreateTable(selectedDatabaseConnectionInfo, createTableRequestDTO);
         ddlController.createTable(selectedDatabaseConnectionInfo, createTableRequestDTO);
     }
