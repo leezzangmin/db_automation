@@ -31,6 +31,9 @@ public class DatabaseConnectionInfo {
     }
 
     public String findServiceName() {
+        if (tags.isEmpty()) {
+            throw new IllegalStateException(this.databaseName + "DB tag 가 비어있습니다.");
+        }
         for (Tag tag : tags) {
             if (tag.key().equals(TagStandard.getServiceTagKeyName())) {
                 return tag.value();
