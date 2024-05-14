@@ -1,5 +1,6 @@
 package zzangmin.db_automation.parser;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
@@ -8,6 +9,7 @@ import zzangmin.db_automation.entity.Constraint;
 
 import java.util.Set;
 
+@Slf4j
 @Component
 public class DDLParser {
 
@@ -190,6 +192,11 @@ public class DDLParser {
             sb.deleteCharAt(sb.lastIndexOf(","));
             sb.append("),\n");
         }
+        log.info("sbtostring: {}", sb.toString());
+        if (sb.isEmpty()) {
+            return sb.toString();
+        }
+
         sb.deleteCharAt(sb.lastIndexOf(","));
         return sb.toString();
     }
