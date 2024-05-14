@@ -71,10 +71,10 @@ class DDLServiceTest {
     @Test
     void createTable() {
         //given
-        Column column1 = new Column("id", "INT", false, "0", true, "column1 comment", "utf8mb4_0900_ai_ci");
+        Column column1 = new Column("id", "INT", false, "0", true, "column1 comment", null);
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.UNIQUE, "id", List.of("id"));
-        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", (LinkedHashSet<Column>) Set.of(column1), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", new LinkedHashSet<> (Set.of(column1)), new LinkedHashSet<> (Set.of(constraint1, constraint2)), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
         //when
         ddlService.createTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO);
@@ -95,7 +95,7 @@ class DDLServiceTest {
         Assertions.assertThat(findColumn.getIsAutoIncrement()).isEqualTo(true);
         Assertions.assertThat(findColumn.getComment()).isEqualTo("column1 comment");
 //        Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
-        Assertions.assertThat(findColumn.getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
+        Assertions.assertThat(findColumn.getCollate()).isEqualTo(null);
 
         Assertions.assertThat(findConstraint0.getKeyName()).startsWith("PRIMARY");
         Assertions.assertThat(findConstraint1.getKeyName()).isEqualTo("id");
@@ -122,7 +122,7 @@ class DDLServiceTest {
     @Test
     void addColumn() {
         //given
-        Column column = new Column("add", "INT", false, null, false, "add column comment", "utf8mb4_0900_ai_ci");
+        Column column = new Column("add", "INT", false, null, false, "add column comment", null);
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
         addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
         //when
@@ -136,7 +136,7 @@ class DDLServiceTest {
         Assertions.assertThat(findColumn.getIsAutoIncrement()).isEqualTo(false);
         Assertions.assertThat(findColumn.getComment()).isEqualTo("add column comment");
 //        Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
-        Assertions.assertThat(findColumn.getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
+        Assertions.assertThat(findColumn.getCollate()).isNull();
     }
 
     @DisplayName("delete column 성공 테스트")

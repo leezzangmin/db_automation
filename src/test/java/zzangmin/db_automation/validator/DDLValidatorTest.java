@@ -32,8 +32,6 @@ class DDLValidatorTest {
 
     @Autowired
     private MysqlClient mysqlClient;
-    @Autowired
-    private AwsService awsService;
 
     private DatabaseConnectionInfo backOfficeDatabaseConnectionInfo;
     private String schemaName = "test_schema";
@@ -148,7 +146,7 @@ class DDLValidatorTest {
 
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.UNIQUE, "name", List.of("name"));
-        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", (LinkedHashSet<Column>) Set.of(column1), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", new LinkedHashSet<> (Set.of(column1)), new LinkedHashSet<> (Set.of(constraint1, constraint2)), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
         //when & then
         Assertions.assertDoesNotThrow(() -> ddlValidator.validateCreateTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO));

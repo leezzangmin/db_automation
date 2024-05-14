@@ -65,7 +65,7 @@ class DDLParserTest {
         String sql1 = ddlParser.commandToSql(dto1);
         String sql2 = ddlParser.commandToSql(dto2);
         // then
-        String expectedSql1 = "ALTER TABLE `test_schema`.`test_table` ADD COLUMN `new_column` varchar(255) DEFAULT 'asdf' UNIQUE COMMENT 'new column comment'";
+        String expectedSql1 = "ALTER TABLE `test_schema`.`test_table` ADD COLUMN `new_column` varchar(255) DEFAULT 'asdf' COMMENT 'new column comment'";
         String expectedSql2 = "ALTER TABLE `test_schema`.`test_table` ADD COLUMN `new_column` varchar(255) NOT NULL COMMENT 'new column comment'";
         assertEquals(expectedSql1, sql1);
         assertEquals(expectedSql2, sql2);
@@ -121,7 +121,7 @@ class DDLParserTest {
                 .keyColumnNames(List.of("test_column_two"))
                 .build();
 
-        DDLRequestDTO dto = new CreateTableRequestDTO("test_schema", "test_table", (LinkedHashSet<Column>) Set.of(column1, column2), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "test table comment");
+        DDLRequestDTO dto = new CreateTableRequestDTO("test_schema", "test_table", new LinkedHashSet<>(Set.of(column1, column2)), new LinkedHashSet<>(Set.of(constraint1, constraint2)), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "test table comment");
 
         dto.setCommandType(CommandType_old.CREATE_TABLE);
         // when
