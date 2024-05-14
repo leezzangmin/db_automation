@@ -2,11 +2,9 @@ package zzangmin.db_automation.slackview;
 
 import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.block.SectionBlock;
 import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.element.BlockElement;
-import com.slack.api.model.block.element.ButtonElement;
-import com.slack.api.model.block.element.PlainTextInputElement;
-import com.slack.api.model.block.element.StaticSelectElement;
+import com.slack.api.model.block.element.*;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -143,6 +141,21 @@ public class SelectCommand {
                         throw new IllegalStateException("미지원 Element Type. 구현을 추가해야 합니다.");
                     }
                 }
+            } else if (currentBlock instanceof SectionBlock) {
+                SectionBlock currentSectionBlock = (SectionBlock) currentBlock;
+                BlockElement blockElement = currentSectionBlock.getAccessory();
+                if (blockElement instanceof MultiStaticSelectElement) {
+                    MultiStaticSelectElement childElement = (MultiStaticSelectElement) blockElement;
+                    if (SlackConstants.CommandBlockIds.isMember(childElement.getActionId())) {
+                        commandBlocks.add(currentBlock);
+                    } else {
+                        log.error("blockElement: {}", blockElement);
+                        throw new IllegalStateException("미지원 Element Type. 구현을 추가해야 합니다.");
+                    }
+                }
+            } else {
+                log.error("currentBlock: {}", currentBlock);
+                throw new IllegalStateException("미지원 Block Type. 구현을 추가해야 합니다.");
             }
         }
 
