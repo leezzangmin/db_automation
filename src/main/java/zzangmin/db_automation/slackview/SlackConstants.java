@@ -50,8 +50,10 @@ public class SlackConstants {
 
     }
 
-    public static class BlockIds {
-        private BlockIds() {}
+    public static class ErrorBlockIds {
+        public static final String errorMessageBlockId = "displayErrorBlockGlobal";
+
+        private ErrorBlockIds() {}
     }
 
 }
