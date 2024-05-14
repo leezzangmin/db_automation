@@ -33,7 +33,7 @@ public class PracticeTest {
                 "id bigint primary key auto_increment) engine=InnoDB default charset = utf8mb4 collate=utf8mb4_0900_ai_ci comment 'comment123';";
 
         String createTableSQL2 = "CREATE TABLE `users` (\n" +
-                "  `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '사용자 고유번호',\n" +
+                "  `user_id` bigint(20) primary key NOT NULL AUTO_INCREMENT COMMENT '사용자 고유번호',\n" +
                 "  `user_name` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '국문 사용자 성명',\n" +
                 "  `user_name_en` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '영문 사용자 성명',\n" +
                 "  `nickname` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '닉네임',\n" +
@@ -56,6 +56,14 @@ public class PracticeTest {
         if (indexes != null) {
             for (Index index : indexes) {
                 constraints.add(Constraint.of(index));
+            }
+        }
+        List<ColumnDefinition> columnDefinitions1 = parse.getColumnDefinitions();
+        for (ColumnDefinition columnDefinition : columnDefinitions1) {
+            System.out.println("columnDefinition = " + columnDefinition);
+            List<String> columnSpecs = columnDefinition.getColumnSpecs();
+            for (String columnSpec : columnSpecs) {
+                System.out.println("columnSpec = " + columnSpec);
             }
         }
 

@@ -63,6 +63,20 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
         Set<Column> columns = new HashSet<>();
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columns.add(Column.of(columnDefinition));
+            List<String> columnSpecs = columnDefinition.getColumnSpecs();
+            if (columnSpecs.contains("primary") || columnSpecs.contains("PRIMARY")) {
+                constraints.add(Constraint.builder()
+                        .constraintType(Constraint.ConstraintType.PRIMARY)
+                        .keyName(columnDefinition.getColumnName())
+                        .build()
+                );
+            } else if (columnSpecs.contains("unique") || columnSpecs.contains("UNIQUE")) {
+                constraints.add(Constraint.builder()
+                        .constraintType(Constraint.ConstraintType.UNIQUE)
+                        .keyName(columnDefinition.getColumnName())
+                        .build()
+                );
+            }
         }
 
         List<String> tableOptionsStrings = parse.getTableOptionsStrings();
