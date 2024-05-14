@@ -79,14 +79,14 @@ public class SlackController {
             }
 
         } else if (payloadType.equals("view_submission")) {
-            try {
-                ViewSubmissionPayload viewSubmissionPayload = GsonFactory.createSnakeCase()
-                        .fromJson(decodedPayload, ViewSubmissionPayload.class);
-                log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
+            ViewSubmissionPayload viewSubmissionPayload = GsonFactory.createSnakeCase()
+                    .fromJson(decodedPayload, ViewSubmissionPayload.class);
+            log.info("ViewSubmissionPayload: {}", viewSubmissionPayload);
 
-                view = viewSubmissionPayload.getView();
-                viewBlocks = view.getBlocks();
-                state = view.getState();
+            view = viewSubmissionPayload.getView();
+            viewBlocks = view.getBlocks();
+            state = view.getState();
+            try {
 
                 CommandType findCommandType = findCommandType(state);
                 // TODO: USER auth
@@ -97,7 +97,7 @@ public class SlackController {
                 log.info("Exception: {}", e.getMessage());
                 log.info("Exception trace: {}", e.getStackTrace());
                 e.printStackTrace();
-                return ResponseEntity.ok(displayErrorViewJsonString(e));
+                return ResponseEntity.ok(displayErrorViewJsonString(e, viewBlocks));
             }
         } else {
             throw new IllegalArgumentException("미지원 payload");
@@ -180,12 +180,14 @@ public class SlackController {
         return closeViewResponseJson;
     }
 
-    private String displayErrorViewJsonString(Exception e) {
+    private String displayErrorViewJsonString(Exception e, List<LayoutBlock> blocks) {
+        int databaseCommandGroupBlockId = SlackService.findBlockIndex(blocks, "actions", SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId);
+        String blockId = blocks.get(databaseCommandGroupBlockId).getBlockId();
 //        String errorViewResponse = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"\"}}";
         String errorMessage = e.getMessage().replace("\"", "\'");
 //        String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"" + errorMessage + "\"}}";
 
-        String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"selectClusterName\":\"" + errorMessage + "\"}}";
+        String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"" + blockId + "\":\"" + errorMessage + "\"}}";
         log.info("errorViewResponseJson: {}", errorViewResponseJson);
         return errorViewResponseJson;
     }
