@@ -171,6 +171,10 @@ public class DDLParser {
             sb.append(column.getComment());
             sb.append("',\n");
         }
+        if (sb.isEmpty()) {
+            return sb.toString();
+        }
+        sb.deleteCharAt(sb.lastIndexOf(","));
         return sb.toString();
     }
 
