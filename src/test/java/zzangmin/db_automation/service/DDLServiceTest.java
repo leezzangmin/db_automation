@@ -16,6 +16,7 @@ import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.Table;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -73,7 +74,7 @@ class DDLServiceTest {
         Column column1 = new Column("id", "INT", false, "0", true, "column1 comment", "utf8mb4_0900_ai_ci");
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.UNIQUE, "id", List.of("id"));
-        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", Set.of(column1), Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
+        CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", (LinkedHashSet<Column>) Set.of(column1), (LinkedHashSet<Constraint>) Set.of(constraint1, constraint2), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
         createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
         //when
         ddlService.createTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO);

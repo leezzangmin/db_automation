@@ -19,10 +19,7 @@ import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.schedule.mysqlobjectcheck.TableDifferenceChecker;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PracticeTest {
@@ -51,7 +48,7 @@ public class PracticeTest {
         createTableSQL = createTableSQL.replaceAll("`", "\"");
         CreateTable parse = (CreateTable) CCJSqlParserUtil.parse(createTableSQL);
 
-        Set<Constraint> constraints = new HashSet<>();
+        LinkedHashSet<Constraint> constraints = new LinkedHashSet<>();
         List<Index> indexes = parse.getIndexes();
         if (indexes != null) {
             for (Index index : indexes) {
@@ -68,7 +65,7 @@ public class PracticeTest {
         }
 
         List<ColumnDefinition> columnDefinitions = parse.getColumnDefinitions();
-        Set<Column> columns = new HashSet<>();
+        LinkedHashSet<Column> columns = new LinkedHashSet<>();
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columns.add(Column.of(columnDefinition));
         }

@@ -11,10 +11,7 @@ import net.sf.jsqlparser.statement.create.table.Index;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @ToString
@@ -29,9 +26,9 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
     @NotBlank
     private String tableName;
     @NotBlank
-    private Set<Column> columns;
+    private LinkedHashSet<Column> columns;
     @NotBlank
-    private Set<Constraint> constraints;
+    private LinkedHashSet<Constraint> constraints;
     @NotBlank
     private String engine;
     @NotBlank
@@ -46,7 +43,7 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
         createTableSQL = createTableSQL.replaceAll("`", "");
         CreateTable parse = (CreateTable) CCJSqlParserUtil.parse(createTableSQL);
 
-        Set<Constraint> constraints = new HashSet<>();
+        LinkedHashSet<Constraint> constraints = new LinkedHashSet<>();
         List<Index> indexes = parse.getIndexes();
         if (indexes != null) {
             for (Index index : indexes) {
@@ -55,7 +52,7 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
         }
 
         List<ColumnDefinition> columnDefinitions = parse.getColumnDefinitions();
-        Set<Column> columns = new HashSet<>();
+        LinkedHashSet<Column> columns = new LinkedHashSet<>();
         for (ColumnDefinition columnDefinition : columnDefinitions) {
             columns.add(Column.of(columnDefinition));
             List<String> columnSpecs = columnDefinition.getColumnSpecs();

@@ -5,6 +5,7 @@ import lombok.*;
 import zzangmin.db_automation.util.ProfileUtil;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -18,9 +19,9 @@ public class Table {
     @NotBlank
     private String tableName;
     @NotBlank
-    private Set<Column> columns = new HashSet<>();
+    private LinkedHashSet<Column> columns = new LinkedHashSet<>();
     @NotBlank
-    private Set<Constraint> constraints = new HashSet<>();
+    private LinkedHashSet<Constraint> constraints = new LinkedHashSet<>();
     @NotBlank
     private String tableEngine;
     @NotBlank
