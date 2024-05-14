@@ -40,7 +40,8 @@ public enum DatabaseRequestCommandGroup {
     ACCOUNT("account",
             List.of(CommandType.CREATE_USER,
                     CommandType.GRANT_PRIVILEGE,
-                    CommandType.REVOKE_PRIVILEGE)),
+                    CommandType.REVOKE_PRIVILEGE,
+                    CommandType.SHOW_GRANTS)),
     EMPTY("없음",
             List.of(CommandType.EMPTY));
 
@@ -78,6 +79,7 @@ public enum DatabaseRequestCommandGroup {
         CREATE_USER,
         GRANT_PRIVILEGE,
         REVOKE_PRIVILEGE,
+        SHOW_GRANTS,
         EMPTY
     }
 
@@ -127,4 +129,3 @@ public enum DatabaseRequestCommandGroup {
                 .anyMatch(commandType -> commandType == searchTarget);
     }
 }
-
