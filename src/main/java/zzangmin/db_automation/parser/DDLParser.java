@@ -200,9 +200,11 @@ public class DDLParser {
         if (sb.isEmpty()) {
             return sb.toString();
         }
-
-        sb.deleteCharAt(sb.lastIndexOf(","));
-        return sb.toString();
+        StringBuilder firstComma = new StringBuilder();
+        firstComma.append(",");
+        firstComma.append(sb);
+        firstComma.deleteCharAt(sb.lastIndexOf(","));
+        return firstComma.toString();
     }
 
     private String generateCreateTableOptions(String engine, String charset, String collate, String comment) {
