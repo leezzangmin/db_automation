@@ -137,7 +137,10 @@ public class Column {
         Column column = Column.builder()
                 .name(columnDefinition.getColumnName())
                 .type(columnDefinition.getColDataType().toString().replace(" ", ""))
-                .isNull((columnDefinition.getColumnSpecs().contains("NOT") || columnDefinition.getColumnSpecs().contains("NOT")) ? false : true)
+                .isNull((columnDefinition.getColumnSpecs().contains("NOT") ||
+                        columnDefinition.getColumnSpecs().contains("NOT") ||
+                        columnDefinition.getColumnSpecs().contains("primary") ||
+                        columnDefinition.getColumnSpecs().contains("PRIMARY")) ? false : true)
                 .defaultValue(defaultColumnSpecIndex == -1 ? null : columnSpecs.get(defaultColumnSpecIndex + 1))
                 .isAutoIncrement((columnDefinition.getColumnSpecs().contains("auto_increment") || columnDefinition.getColumnSpecs().contains("AUTO_INCREMENT")) ? true : false)
 //                .charset(null)
