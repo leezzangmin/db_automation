@@ -168,7 +168,14 @@ public class SelectCommand {
                     commandBlocks.add(currentBlock);
                     continue;
                 }
-            } else {
+            } else if (currentBlock instanceof InputBlock) {
+                InputBlock currentInputBlock = (InputBlock) currentBlock;
+                if (SlackConstants.CommandBlockIds.isMember(currentInputBlock.getBlockId())) {
+                    commandBlocks.add(currentBlock);
+                    continue;
+                }
+            }
+            else {
                 log.error("currentBlock: {}", currentBlock);
                 throw new IllegalStateException("미지원 Block Type. 구현을 추가해야 합니다.");
             }
