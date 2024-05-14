@@ -74,6 +74,7 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
             } else if (columnSpecs.contains("unique") || columnSpecs.contains("UNIQUE")) {
                 Optional<Constraint> ukConstraint = constraints.stream()
                         .filter(c -> c.getConstraintType().equals(Constraint.ConstraintType.PRIMARY))
+                        .filter(c -> c.getKeyColumnNames().size() == 1)
                         .filter(c -> c.getKeyColumnNames().get(0).equals(columnDefinition.getColumnName()))
                         .findAny();
                 if (ukConstraint.isEmpty()) {
