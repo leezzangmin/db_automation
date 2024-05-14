@@ -47,7 +47,7 @@ public class PracticeTest {
                 "  PRIMARY KEY (`user_id`),\n" +
                 "  UNIQUE KEY `uk_external_user_id` (`external_user_id`)\n" +
                 ") ENGINE=InnoDB AUTO_INCREMENT=201534 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자'";
-
+        System.out.println("createTableSQL2 = " + createTableSQL2);
         createTableSQL = createTableSQL.replaceAll("`", "\"");
         CreateTable parse = (CreateTable) CCJSqlParserUtil.parse(createTableSQL);
 
