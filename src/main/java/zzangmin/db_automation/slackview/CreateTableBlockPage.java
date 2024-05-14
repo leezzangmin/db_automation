@@ -20,19 +20,21 @@ public class CreateTableBlockPage {
     private final DDLValidator ddlValidator;
 
     private static String createTableSQLTextInputLabel = "Create Table SQL";
-    private static String createTableSQLPlaceHolder = "CREATE TABLE `sample` (\n" +
-            "  `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '사용자 고유번호',\n" +
-            "  `user_name` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '국문 사용자 성명',\n" +
-            "  `user_name_en` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '영문 사용자 성명',\n" +
-            "  `nickname` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '닉네임',\n" +
-            "  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '이메일',\n" +
-            "  `created_by` bigint(20) NOT NULL COMMENT '등록자',\n" +
-            "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',\n" +
-            "  `updated_by` bigint(20) DEFAULT NULL COMMENT '수정자',\n" +
-            "  `updated_at` datetime DEFAULT NULL COMMENT '수정일시',\n" +
-            "  PRIMARY KEY (`user_id`),\n" +
-            "  UNIQUE KEY `uk_externaluserid` (`external_user_id`)\n" +
-            ") ENGINE=InnoDB AUTO_INCREMENT=123456 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='테이블코멘트샘플'";
+    private static String createTableSQLPlaceHolder = "create table ....";
+
+//            "CREATE TABLE `sample` (\n" +
+//            "  `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '사용자 고유번호',\n" +
+//            "  `user_name` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '국문 사용자 성명',\n" +
+//            "  `user_name_en` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '영문 사용자 성명',\n" +
+//            "  `nickname` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '닉네임',\n" +
+//            "  `email` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '이메일',\n" +
+//            "  `created_by` bigint(20) NOT NULL COMMENT '등록자',\n" +
+//            "  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '등록일시',\n" +
+//            "  `updated_by` bigint(20) DEFAULT NULL COMMENT '수정자',\n" +
+//            "  `updated_at` datetime DEFAULT NULL COMMENT '수정일시',\n" +
+//            "  PRIMARY KEY (`user_id`),\n" +
+//            "  UNIQUE KEY `uk_externaluserid` (`external_user_id`)\n" +
+//            ") ENGINE=InnoDB AUTO_INCREMENT=123456 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='테이블코멘트샘플'";
 
     public List<LayoutBlock> createIndexBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
