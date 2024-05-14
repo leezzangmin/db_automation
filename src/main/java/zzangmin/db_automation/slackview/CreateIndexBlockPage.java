@@ -158,7 +158,7 @@ public class CreateIndexBlockPage {
         return currentBlocks;
     }
 
-    public List<LayoutBlock> handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String indexName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.createIndexIndexNameTextInputId);
         log.info("indexName: {}", indexName);
 
@@ -189,7 +189,6 @@ public class CreateIndexBlockPage {
 
         ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
-        return null;
     }
 
     private List<String> findIndexColumnNames(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
