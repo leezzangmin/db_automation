@@ -93,6 +93,12 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
         } else if (tableOptionsStrings.indexOf("COMMENT") != -1) {
             tableCommentOptionIndex = tableOptionsStrings.indexOf("COMMENT");
         }
+        String tableComment;
+        try {
+            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 2);
+        } catch (Exception e) {
+            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 1);
+        }
         CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(parse.getTable().getSchemaName(),
                 parse.getTable().getName(),
                 columns,
@@ -100,7 +106,7 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
                 engineOptionIndex == -1 ? null : tableOptionsStrings.get(engineOptionIndex + 2),
                 charsetOptionIndex == -1 ? null : tableOptionsStrings.get(charsetOptionIndex + 2),
                 collateOptionIndex == -1 ? null : tableOptionsStrings.get(collateOptionIndex + 2),
-                tableCommentOptionIndex == -1 ? null : tableOptionsStrings.get(tableCommentOptionIndex + 2)
+                tableComment
         );
         log.info("jsqlParser createTableRequestDTO: {}", createTableRequestDTO);
         return createTableRequestDTO;

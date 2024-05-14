@@ -29,8 +29,8 @@ public class PracticeTest {
 
     @Test
     public void test() throws Exception {
-        String createTableSQL = "create table test(id bigint not null unique primary key auto_increment,\n" +
-                "name int unique not null) engine=InnoDB;";
+        String createTableSQL = "create table dba.asdf_ddd(\n" +
+                "id bigint primary key auto_increment) engine=InnoDB default charset = utf8mb4 collate=utf8mb4_0900_ai_ci comment 'comment123';";
 
         String createTableSQL2 = "CREATE TABLE `users` (\n" +
                 "  `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '사용자 고유번호',\n" +
@@ -93,6 +93,12 @@ public class PracticeTest {
         } else if (tableOptionsStrings.indexOf("COMMENT") != -1) {
             tableCommentOptionIndex = tableOptionsStrings.indexOf("COMMENT");
         }
+        String tableComment;
+        try {
+            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 2);
+        } catch (Exception e) {
+            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 1);
+        }
         CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(parse.getTable().getSchemaName(),
                 parse.getTable().getName(),
                 columns,
@@ -100,7 +106,7 @@ public class PracticeTest {
                 engineOptionIndex == -1 ? null : tableOptionsStrings.get(engineOptionIndex + 2),
                 charsetOptionIndex == -1 ? null : tableOptionsStrings.get(charsetOptionIndex + 2),
                 collateOptionIndex == -1 ? null : tableOptionsStrings.get(collateOptionIndex + 2),
-                tableCommentOptionIndex == -1 ? null : tableOptionsStrings.get(tableCommentOptionIndex + 2)
+                tableComment
                 );
         System.out.println("createTableRequestDTO = " + createTableRequestDTO);
     }
