@@ -196,14 +196,13 @@ public class DDLParser {
             sb.deleteCharAt(sb.lastIndexOf(","));
             sb.append("),\n");
         }
-        log.info("sbtostring: {}", sb.toString());
         if (sb.isEmpty()) {
             return sb.toString();
         }
         StringBuilder firstComma = new StringBuilder();
         firstComma.append(",");
         firstComma.append(sb);
-        firstComma.deleteCharAt(sb.lastIndexOf(","));
+        firstComma.deleteCharAt(firstComma.lastIndexOf(","));
         return firstComma.toString();
     }
 
