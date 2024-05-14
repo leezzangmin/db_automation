@@ -158,6 +158,8 @@ public class SelectCommand {
                         throw new IllegalStateException("미지원 Element Type. 구현을 추가해야 합니다.");
                     }
                 }
+
+                // ContextBlock 의 Element는 id가 없음
             } else if (currentBlock instanceof ContextBlock) {
                 ContextBlock currentContextBlock = (ContextBlock) currentBlock;
                 if (SlackConstants.CommandBlockIds.isMember(currentContextBlock.getBlockId())) {
