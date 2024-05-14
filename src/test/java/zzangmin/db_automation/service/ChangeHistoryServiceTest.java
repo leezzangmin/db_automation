@@ -32,8 +32,6 @@ class ChangeHistoryServiceTest {
     @Autowired
     private MysqlClient mysqlClient;
 
-    @Autowired
-    private AwsService awsService;
 
     private DatabaseConnectionInfo backOfficeDatabaseConnectionInfo;
     private String schemaName = "test_schema";

@@ -10,6 +10,7 @@ import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
+import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.validator.DDLValidator;
 
@@ -61,6 +62,7 @@ public class CreateTableBlockPage {
         CreateTableRequestDTO createTableRequestDTO;
         try {
             createTableRequestDTO = CreateTableRequestDTO.of(createTableStatementSQL);
+            createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e.getMessage());
