@@ -10,7 +10,7 @@ public class ProfileUtil {
     public static String CURRENT_ENVIRONMENT_PROFILE;
 
     @Autowired
-    public void setCURRENT_ENVIRONMENT_PROFILE(@Value("${spring.profiles.active}")String profile) {
+    public void setCURRENT_ENVIRONMENT_PROFILE(@Value("${spring.config.activate.on-profile}")String profile) {
         this.CURRENT_ENVIRONMENT_PROFILE = profile;
     }
 }

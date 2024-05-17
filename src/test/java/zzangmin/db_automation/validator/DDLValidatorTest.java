@@ -3,6 +3,7 @@ package zzangmin.db_automation.validator;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import zzangmin.db_automation.testfactory.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.*;
@@ -23,6 +24,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class DDLValidatorTest {
     @Autowired
     private DatabaseConnectionInfoFactory databaseConnectionInfoFactory;

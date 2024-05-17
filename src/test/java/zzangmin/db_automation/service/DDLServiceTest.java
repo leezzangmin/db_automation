@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import zzangmin.db_automation.testfactory.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.*;
@@ -23,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class DDLServiceTest {
 
     @Autowired

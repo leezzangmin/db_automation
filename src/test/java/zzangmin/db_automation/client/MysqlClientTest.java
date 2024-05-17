@@ -3,6 +3,7 @@ package zzangmin.db_automation.client;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import zzangmin.db_automation.testfactory.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
@@ -19,6 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class MysqlClientTest {
 
     @Autowired
