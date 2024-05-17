@@ -46,6 +46,7 @@ public class SlackConstants {
         public static final String addColumnColumnTypeTextInputId = "inputAddColumnColumnType";
         public static final String addColumnColumnIsNullRadioId = "selectAddColumnIsNullRadio";
         public static final String addColumnColumnCommentTextInputId = "inputAddColumnColumnComment";
+        public static final String addColumnColumnDefaultValueTextInputId = "inputAddColumnColumnDefaultValue";
 
     }
     public static class FixedBlockIds {

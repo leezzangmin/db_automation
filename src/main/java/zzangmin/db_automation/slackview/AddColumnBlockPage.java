@@ -29,6 +29,8 @@ public class AddColumnBlockPage {
     private static final String columnCommentLabel = "input column comment";
     private static final String columnCommentPlaceholder = "column comment";
     private static final String columnIsNullLabel = "choose column nullable";
+    private static final String columnDefaultValueLabel = "input column default value";
+    private static final String columnDefaultValuePlaceholder = "12345";
 
     /**
      *  auto_increment, unique 컬럼 추가는 미지원
@@ -64,9 +66,12 @@ public class AddColumnBlockPage {
                 columnIsNullLabel));
 
         // default value
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.addColumnColumnDefaultValueTextInputId,
+                columnDefaultValueLabel,
+                columnDefaultValuePlaceholder));
 
         // 코멘트
-        blocks.add(BasicBlockFactory.findMultilinePlainTextInput(SlackConstants.CommandBlockIds.addColumnColumnCommentTextInputId,
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.addColumnColumnCommentTextInputId,
                 columnCommentLabel,
                 columnCommentPlaceholder));
 
