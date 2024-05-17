@@ -28,6 +28,7 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 public class SelectCommand {
     private final CreateIndexBlockPage createIndexBlockPage;
     private final CreateTableBlockPage createTableBlockPage;
+    private final AddColumnBlockPage addColumnBlockPage;
 
     private static final String findCommandGroupPlaceholder = "select database command group";
     private static final String findCommandTypePlaceholder = "select database command type";
@@ -193,7 +194,7 @@ public class SelectCommand {
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
             return createTableBlockPage.createIndexBlocks();
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
-            // generate createaddcolumnblock and add to blocks
+            return addColumnBlockPage.addColumnBlocks();
         }
         throw new IllegalArgumentException("미구현 commandType: " + commandType);
     }
