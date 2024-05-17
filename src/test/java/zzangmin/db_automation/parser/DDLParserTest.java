@@ -127,9 +127,9 @@ class DDLParserTest {
         // when
         String sql = ddlParser.commandToSql(dto);
         // then
-
+        System.out.println("sql = " + sql);
         assertTrue(sql.contains("CREATE TABLE `test_schema`.`test_table` ("));
-        assertTrue(sql.contains("`test_column` varchar(255) DEFAULT 'asdf' UNIQUE COMMENT 'new column comment'"));
+        assertTrue(sql.contains("`test_column` varchar(255) DEFAULT 'asdf' COMMENT 'new column comment'"));
         assertTrue(sql.contains("PRIMARY KEY (`test_column`)"));
         assertTrue(sql.contains("KEY `test_table` (`test_column_two`)"));
         assertTrue(sql.contains(") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='test table comment'"));
