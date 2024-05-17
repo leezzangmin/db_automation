@@ -41,6 +41,12 @@ public class SlackConstants {
         // create table
         public static final String createTableSQLTextInputId = "inputCreateTableSQL";
 
+        // add column
+        public static final String addColumnColumnNameTextInputId = "inputAddColumnColumnName";
+        public static final String addColumnColumnTypeTextInputId = "inputAddColumnColumnType";
+        public static final String addColumnColumnIsNullRadioId = "selectAddColumnIsNullRadio";
+        public static final String addColumnColumnCommentTextInputId = "inputAddColumnColumnComment";
+
     }
     public static class FixedBlockIds {
         private FixedBlockIds() {}
