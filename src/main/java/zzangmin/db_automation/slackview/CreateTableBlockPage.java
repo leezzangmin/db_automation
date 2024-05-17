@@ -26,8 +26,8 @@ public class CreateTableBlockPage {
     private final DDLController ddlController;
     private final DDLValidator ddlValidator;
 
-    private static String createTableSQLTextInputLabel = "Create Table SQL";
-    private static String createTableSQLPlaceHolder = "create table ....";
+    private static final String createTableSQLTextInputLabel = "Create Table SQL";
+    private static final String createTableSQLPlaceHolder = "create table ....";
 
 //            "CREATE TABLE `sample` (\n" +
 //            "  `user_id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '사용자 고유번호',\n" +

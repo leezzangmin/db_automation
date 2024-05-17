@@ -35,11 +35,11 @@ public class CreateIndexBlockPage {
     private final DDLController ddlController;
     private final DDLValidator ddlValidator;
 
-    private static String createIndexIndexNameTextInputLabel = "Index Name";
-    private static String createIndexNamePlaceHolder = "idx_orderno_createdat";
-    private static String createIndexTypePlaceHolder = "select index type";
-    private static String createIndexColumnPlaceHolder = "input column name";
-    private static String inputIndexColumnNameLabel = "Column Name ";
+    private static final String createIndexIndexNameTextInputLabel = "Index Name";
+    private static final String createIndexNamePlaceHolder = "idx_orderno_createdat";
+    private static final String createIndexTypePlaceHolder = "select index type";
+    private static final String createIndexColumnPlaceHolder = "input column name";
+    private static final String inputIndexColumnNameLabel = "Column Name ";
 
     public List<LayoutBlock> createIndexBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
