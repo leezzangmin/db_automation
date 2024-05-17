@@ -1,5 +1,6 @@
 package zzangmin.db_automation.slackview;
 
+import com.slack.api.model.Option;
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.*;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.*;
+import static com.slack.api.model.block.composition.BlockCompositions.markdownText;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.*;
 
@@ -90,10 +92,10 @@ public class BasicBlockFactory {
 
     public static StaticSelectElement findStaticSelectsElement(String id, List<OptionObject> selectOptions, String placeHolder) {
         return StaticSelectElement.builder()
-                        .options(selectOptions)
-                        .placeholder(plainText(placeHolder))
-                        .actionId(id)
-                        .build();
+                .options(selectOptions)
+                .placeholder(plainText(placeHolder))
+                .actionId(id)
+                .build();
 
     }
 
@@ -122,17 +124,6 @@ public class BasicBlockFactory {
         return sectionBlock;
     }
 
-    public static InputBlock getLabelBLock(String labelText, String labelId) {
-        InputBlock labelBlock = InputBlock.builder()
-                .element(PlainTextInputElement.builder()
-                        .actionId(labelId)
-                        .build())
-                .label(plainText(labelText))
-                .blockId(labelId)
-                .build();
-        return labelBlock;
-    }
-
     public static ContextBlock getContextBlock(String text, String contextId) {
         return ContextBlock.builder()
                 .elements(List.of(plainText(text)))
@@ -140,9 +131,18 @@ public class BasicBlockFactory {
                 .build();
     }
 
+    public static SectionBlock getRadioBlock(List<OptionObject> options, String id, String text) {
+        return section(section -> section.accessory(RadioButtonsElement.builder()
+                        .options(options)
+                        .actionId(id)
+                        .build())
+                .text(plainText(text))
+                .blockId(id)
+        );
+    }
+
     /**
      * rich text는 developer에게 지원되지 않음
-     *
      */
     // https://github.com/slackapi/java-slack-sdk/issues/876
     // https://github.com/slackapi/java-slack-sdk/issues/736
