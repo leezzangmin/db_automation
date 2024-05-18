@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.commandpage.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +23,7 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class SelectCommand {
+public class SelectCommandBlocks {
 
     private final BlockPageManager blockPageManager;
 

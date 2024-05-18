@@ -19,8 +19,8 @@ import java.util.Map;
 @Component
 public class SlackActionHandler {
 
-    private final SelectCommand selectCommand;
-    private final SelectClusterSchemaTable selectClusterSchemaTable;
+    private final SelectCommandBlocks selectCommandBlocks;
+    private final SelectClusterSchemaTableBlocks selectClusterSchemaTableBlocks;
     private final BlockPageManager blockPageManager;
 
     private final CreateIndexBlockPage createIndexBlockPage;
@@ -28,20 +28,20 @@ public class SlackActionHandler {
     public List<LayoutBlock> handleAction(BlockActionPayload.Action action, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String actionId = action.getActionId();
         if (actionId.equals(SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId)) {
-            currentBlocks = selectCommand.handleCommandGroupChange(currentBlocks, values);
+            currentBlocks = selectCommandBlocks.handleCommandGroupChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId, currentBlocks);
         } else if (actionId.equals(SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId)) {
-            currentBlocks = selectCommand.handleCommandTypeChange(currentBlocks, values);
+            currentBlocks = selectCommandBlocks.handleCommandTypeChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId, currentBlocks);
         } else if (actionId.equals(SlackConstants.CommandBlockIds.findClusterSelectsElementActionId)) {
-            currentBlocks = selectClusterSchemaTable.handleClusterChange(currentBlocks, values);
+            currentBlocks = selectClusterSchemaTableBlocks.handleClusterChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackConstants.CommandBlockIds.findClusterSelectsElementActionId, currentBlocks);
         } else if (actionId.equals(SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId)) {
-            currentBlocks = selectClusterSchemaTable.handleSchemaChange(currentBlocks, values);
+            currentBlocks = selectClusterSchemaTableBlocks.handleSchemaChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId, currentBlocks);
         }
         else if (actionId.equals(SlackConstants.CommandBlockIds.findTableSelectsElementActionId)) {
-            currentBlocks = selectClusterSchemaTable.handleTableChange(currentBlocks, values);
+            currentBlocks = selectClusterSchemaTableBlocks.handleTableChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackConstants.CommandBlockIds.findTableSelectsElementActionId, currentBlocks);
         } else if (actionId.equals(SlackConstants.CommandBlockIds.createIndexAddColumnButtonId)) {
             currentBlocks = createIndexBlockPage.handleAddColumn(currentBlocks);

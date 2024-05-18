@@ -15,7 +15,7 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.CommonStandard;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
+import zzangmin.db_automation.slackview.SelectClusterSchemaTableBlocks;
 import zzangmin.db_automation.slackview.SlackConstants;
 import zzangmin.db_automation.validator.DDLValidator;
 
@@ -30,7 +30,7 @@ import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 @Component
 public class AddColumnBlockPage implements BlockPage {
 
-    private final SelectClusterSchemaTable selectClusterSchemaTable;
+    private final SelectClusterSchemaTableBlocks selectClusterSchemaTableBlocks;
     private final DDLController ddlController;
     private final DDLValidator ddlValidator;
 
@@ -52,7 +52,7 @@ public class AddColumnBlockPage implements BlockPage {
     public List<LayoutBlock> generateBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
 
-        blocks.addAll(selectClusterSchemaTable.selectClusterSchemaTableBlocks());
+        blocks.addAll(selectClusterSchemaTableBlocks.selectClusterSchemaTableBlocks());
 
         // 컬럼명
         blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.addColumnColumnNameTextInputId,
@@ -111,9 +111,9 @@ public class AddColumnBlockPage implements BlockPage {
         String columnComment = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.addColumnColumnCommentTextInputId);
 
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTable.getDatabaseConnectionInfo(values);
-        String schemaName = selectClusterSchemaTable.getSchemaName(values);
-        String tableName = selectClusterSchemaTable.getTableName(values);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
+        String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
+        String tableName = selectClusterSchemaTableBlocks.getTableName(values);
 
         Column column = Column.builder()
                 .name(columnName)

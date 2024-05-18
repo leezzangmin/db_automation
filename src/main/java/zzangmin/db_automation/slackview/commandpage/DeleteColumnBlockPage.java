@@ -12,7 +12,7 @@ import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
+import zzangmin.db_automation.slackview.SelectClusterSchemaTableBlocks;
 import zzangmin.db_automation.slackview.SlackConstants;
 import zzangmin.db_automation.validator.DDLValidator;
 
@@ -24,7 +24,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Component
 public class DeleteColumnBlockPage implements BlockPage {
-    private final SelectClusterSchemaTable selectClusterSchemaTable;
+    private final SelectClusterSchemaTableBlocks selectClusterSchemaTableBlocks;
     private final DDLController ddlController;
     private final DDLValidator ddlValidator;
 
@@ -34,7 +34,7 @@ public class DeleteColumnBlockPage implements BlockPage {
     @Override
     public List<LayoutBlock> generateBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
-        blocks.addAll(selectClusterSchemaTable.selectClusterSchemaTableBlocks());
+        blocks.addAll(selectClusterSchemaTableBlocks.selectClusterSchemaTableBlocks());
 
         // 컬럼명
         blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.deleteColumnColumnNameTextInputId,
@@ -50,9 +50,9 @@ public class DeleteColumnBlockPage implements BlockPage {
         String columnName = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.deleteColumnColumnNameTextInputId);
 
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTable.getDatabaseConnectionInfo(values);
-        String schemaName = selectClusterSchemaTable.getSchemaName(values);
-        String tableName = selectClusterSchemaTable.getTableName(values);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
+        String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
+        String tableName = selectClusterSchemaTableBlocks.getTableName(values);
 
         DeleteColumnRequestDTO deleteColumnRequestDTO = new DeleteColumnRequestDTO(schemaName, tableName, columnName);
         deleteColumnRequestDTO.setCommandType(CommandType_old.DELETE_COLUMN);

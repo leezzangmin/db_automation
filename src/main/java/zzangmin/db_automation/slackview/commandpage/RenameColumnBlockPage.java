@@ -12,7 +12,7 @@ import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
+import zzangmin.db_automation.slackview.SelectClusterSchemaTableBlocks;
 import zzangmin.db_automation.slackview.SlackConstants;
 import zzangmin.db_automation.validator.DDLValidator;
 
@@ -25,7 +25,7 @@ import java.util.Map;
 @Component
 public class RenameColumnBlockPage implements BlockPage {
 
-    private final SelectClusterSchemaTable selectClusterSchemaTable;
+    private final SelectClusterSchemaTableBlocks selectClusterSchemaTableBlocks;
     private final DDLController ddlController;
     private final DDLValidator ddlValidator;
 
@@ -38,7 +38,7 @@ public class RenameColumnBlockPage implements BlockPage {
     @Override
     public List<LayoutBlock> generateBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
-        blocks.addAll(selectClusterSchemaTable.selectClusterSchemaTableBlocks());
+        blocks.addAll(selectClusterSchemaTableBlocks.selectClusterSchemaTableBlocks());
 
         // 변경 대상 컬럼명 (old)
         blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.renameColumnOldColumnNameTextInputId,
@@ -62,9 +62,9 @@ public class RenameColumnBlockPage implements BlockPage {
         String newColumnName = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.renameColumnNewColumnNameTextInputId);
 
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTable.getDatabaseConnectionInfo(values);
-        String schemaName = selectClusterSchemaTable.getSchemaName(values);
-        String tableName = selectClusterSchemaTable.getTableName(values);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
+        String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
+        String tableName = selectClusterSchemaTableBlocks.getTableName(values);
 
 
         RenameColumnRequestDTO renameColumnRequestDTO = new RenameColumnRequestDTO(schemaName, tableName, oldColumnName, newColumnName);

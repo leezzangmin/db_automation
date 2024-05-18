@@ -24,7 +24,7 @@ import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class SelectClusterSchemaTable {
+public class SelectClusterSchemaTableBlocks {
     private final DescribeService describeService;
 
     private final String clusterPlaceholder = "select cluster";

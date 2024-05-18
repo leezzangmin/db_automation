@@ -23,7 +23,7 @@ import org.springframework.web.util.HtmlUtils;
 
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.SelectCommand;
+import zzangmin.db_automation.slackview.SelectCommandBlocks;
 import zzangmin.db_automation.slackview.SlackConstants;
 
 import java.io.IOException;
@@ -149,7 +149,7 @@ public class SlackController {
 
         List<LayoutBlock> initialBlocks = new ArrayList<>();
 //        initialBlocks.add()
-        initialBlocks.addAll(SelectCommand.selectCommandGroupAndCommandTypeBlocks());
+        initialBlocks.addAll(SelectCommandBlocks.selectCommandGroupAndCommandTypeBlocks());
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
                 .view(slackService.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);

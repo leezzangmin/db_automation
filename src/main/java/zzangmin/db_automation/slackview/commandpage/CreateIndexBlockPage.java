@@ -14,7 +14,7 @@ import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
+import zzangmin.db_automation.slackview.SelectClusterSchemaTableBlocks;
 import zzangmin.db_automation.slackview.SlackConstants;
 import zzangmin.db_automation.validator.DDLValidator;
 
@@ -34,7 +34,7 @@ import static com.slack.api.model.block.element.BlockElements.button;
 @Component
 public class CreateIndexBlockPage implements BlockPage {
 
-    private final SelectClusterSchemaTable selectClusterSchemaTable;
+    private final SelectClusterSchemaTableBlocks selectClusterSchemaTableBlocks;
     private final DDLController ddlController;
     private final DDLValidator ddlValidator;
 
@@ -48,7 +48,7 @@ public class CreateIndexBlockPage implements BlockPage {
     public List<LayoutBlock> generateBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
 
-        blocks.addAll(selectClusterSchemaTable.selectClusterSchemaTableBlocks());
+        blocks.addAll(selectClusterSchemaTableBlocks.selectClusterSchemaTableBlocks());
 
         List<OptionObject> indexTypeOptions = Arrays.stream(Constraint.ConstraintType.values())
                 .map(constraintType -> OptionObject.builder()
@@ -100,9 +100,9 @@ public class CreateIndexBlockPage implements BlockPage {
         List<String> indexColumnNames = findIndexColumnNames(currentBlocks, values);
         log.info("indexColumnNames: {}", indexColumnNames);
 
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTable.getDatabaseConnectionInfo(values);
-        String schemaName = selectClusterSchemaTable.getSchemaName(values);
-        String tableName = selectClusterSchemaTable.getTableName(values);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
+        String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
+        String tableName = selectClusterSchemaTableBlocks.getTableName(values);
 
         CreateIndexRequestDTO createIndexRequestDTO = CreateIndexRequestDTO.builder()
                 .schemaName(schemaName)
