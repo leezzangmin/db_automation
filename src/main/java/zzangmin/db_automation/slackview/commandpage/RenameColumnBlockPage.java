@@ -76,7 +76,12 @@ public class RenameColumnBlockPage implements BlockPage {
     }
 
     @Override
-    public boolean supports(DatabaseRequestCommandGroup.CommandType commandType) {
+    public boolean supportsCommandType(DatabaseRequestCommandGroup.CommandType commandType) {
         return commandType.equals(DatabaseRequestCommandGroup.CommandType.RENAME_COLUMN);
+    }
+
+    @Override
+    public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        return;
     }
 }

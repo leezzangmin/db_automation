@@ -11,5 +11,8 @@ public interface BlockPage {
 
     List<LayoutBlock> generateBlocks();
     void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values);
-    boolean supports(DatabaseRequestCommandGroup.CommandType commandType);
+    boolean supportsCommandType(DatabaseRequestCommandGroup.CommandType commandType);
+    boolean supportsActionId(String actionId);
+    void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values);
+
 }

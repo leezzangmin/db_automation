@@ -84,7 +84,17 @@ public class CreateTableBlockPage implements BlockPage {
     }
 
     @Override
-    public boolean supports(DatabaseRequestCommandGroup.CommandType commandType) {
+    public boolean supportsCommandType(DatabaseRequestCommandGroup.CommandType commandType) {
         return commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE);
+    }
+
+    @Override
+    public boolean supportsActionId(String actionId) {
+        return false;
+    }
+
+    @Override
+    public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        return;
     }
 }

@@ -27,6 +27,7 @@ public class SlackActionHandler {
 
     public List<LayoutBlock> handleAction(BlockActionPayload.Action action, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String actionId = action.getActionId();
+        blockPageManager.
         if (actionId.equals(SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId)) {
             currentBlocks = selectCommandBlocks.handleCommandGroupChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId, currentBlocks);
@@ -39,8 +40,7 @@ public class SlackActionHandler {
         } else if (actionId.equals(SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId)) {
             currentBlocks = selectClusterSchemaTableBlocks.handleSchemaChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId, currentBlocks);
-        }
-        else if (actionId.equals(SlackConstants.CommandBlockIds.findTableSelectsElementActionId)) {
+        } else if (actionId.equals(SlackConstants.CommandBlockIds.findTableSelectsElementActionId)) {
             currentBlocks = selectClusterSchemaTableBlocks.handleTableChange(currentBlocks, values);
             log.info("{} currentBlocks: {}", SlackConstants.CommandBlockIds.findTableSelectsElementActionId, currentBlocks);
         } else if (actionId.equals(SlackConstants.CommandBlockIds.createIndexAddColumnButtonId)) {

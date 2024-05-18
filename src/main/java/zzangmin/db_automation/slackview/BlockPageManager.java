@@ -21,32 +21,43 @@ public class BlockPageManager {
     }
 
     public List<LayoutBlock> generateBlocks(DatabaseRequestCommandGroup.CommandType commandType) {
-        List<BlockPage> filteredBlockPages = this.blockPages.stream()
-                .filter(h -> h.supports(commandType))
-                .collect(Collectors.toList());
-
-        if (filteredBlockPages.size() != 1) {
-            throw new IllegalArgumentException("Unsupported or ambiguous command type: " + filteredBlockPages);
-        }
-
-        BlockPage selectedBlockPage = filteredBlockPages.get(0);
+        BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
 
         return selectedBlockPage.generateBlocks();
     }
 
     public void handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
                               List<LayoutBlock> blocks, Map<String, Map<String, ViewState.Value>> values) {
-        List<BlockPage> filteredBlockPages = this.blockPages.stream()
-                .filter(h -> h.supports(commandType))
-                .collect(Collectors.toList());
-
-        if (filteredBlockPages.size() != 1) {
-            throw new IllegalArgumentException("Unsupported or ambiguous command type: " + filteredBlockPages);
-        }
-
-        BlockPage selectedBlockPage = filteredBlockPages.get(0);
+        BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
 
         selectedBlockPage.handleSubmission(blocks, values);
+    }
+
+    public void handleAction(String actionId, List<LayoutBlock> blocks, Map<String, Map<String, ViewState.Value>> values) {
+        BlockPage selectedBlockPage = findBlockPageByActionId(actionId);
+        selectedBlockPage.handleAction(actionId, blocks, values);
+    }
+
+    private BlockPage findBlockPageByCommandType(DatabaseRequestCommandGroup.CommandType commandType) {
+        List<BlockPage> filteredBlockPages = this.blockPages.stream()
+                .filter(h -> h.supportsCommandType(commandType))
+                .collect(Collectors.toList());
+        if (filteredBlockPages.size() != 1) {
+            throw new IllegalArgumentException("Unsupported or ambiguous command type: " + commandType);
+        }
+        BlockPage selectedBlockPage = filteredBlockPages.get(0);
+        return selectedBlockPage;
+    }
+
+    private BlockPage findBlockPageByActionId(String actionId) {
+        List<BlockPage> filteredBlockPages = this.blockPages.stream()
+                .filter(h -> h.supportsActionId(actionId))
+                .collect(Collectors.toList());
+        if (filteredBlockPages.size() != 1) {
+            throw new IllegalArgumentException("Unsupported or ambiguous actionId: " + actionId);
+        }
+        BlockPage selectedBlockPage = filteredBlockPages.get(0);
+        return selectedBlockPage;
     }
 
 }
