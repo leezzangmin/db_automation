@@ -183,10 +183,7 @@ public class SlackController {
     private String displayErrorViewJsonString(Exception e, List<LayoutBlock> blocks) {
         int errorBlockIndex = SlackService.findBlockIndex(blocks, "input", SlackConstants.ErrorBlockIds.errorMessageBlockId);
         String errorBlockId = blocks.get(errorBlockIndex).getBlockId();
-//        String errorViewResponse = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"\"}}";
         String errorMessage = e.getMessage().replace("\"", "\'");
-//        String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"inputCreateIndexColumnName1\":\"" + errorMessage + "\"}}";
-
         String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"" + errorBlockId + "\":\"" + errorMessage + "\"}}";
         log.info("errorViewResponseJson: {}", errorViewResponseJson);
         return errorViewResponseJson;

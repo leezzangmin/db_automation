@@ -2,14 +2,24 @@ package zzangmin.db_automation.slackview;
 
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
+import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.controller.DDLController;
+import zzangmin.db_automation.convention.CommonConvention;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
+import zzangmin.db_automation.entity.Column;
+import zzangmin.db_automation.entity.CommandType_old;
+import zzangmin.db_automation.schedule.standardcheck.standardvalue.CommonStandard;
+import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.validator.DDLValidator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 
@@ -79,4 +89,41 @@ public class AddColumnBlockPage {
 
         return blocks;
     }
+
+    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+
+        String columnName = SlackService.findCurrentValueFromState(values,
+                SlackConstants.CommandBlockIds.addColumnColumnNameTextInputId);
+
+        String columnType = SlackService.findCurrentValueFromState(values,
+                SlackConstants.CommandBlockIds.addColumnColumnTypeTextInputId);
+
+        String nullable = SlackService.findCurrentValueFromState(values,
+                SlackConstants.CommandBlockIds.addColumnColumnIsNullRadioId);
+
+        String defaultValue = SlackService.findCurrentValueFromState(values,
+                SlackConstants.CommandBlockIds.addColumnColumnDefaultValueTextInputId);
+
+        String columnComment = SlackService.findCurrentValueFromState(values,
+                SlackConstants.CommandBlockIds.addColumnColumnCommentTextInputId);
+
+        String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findClusterSelectsElementActionId);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
+        String schemaName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId);
+        String tableName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findTableSelectsElementActionId);
+        Column column = Column.builder()
+                .name(columnName)
+                .type(columnType)
+                .isNull(nullable.equals("NOT NULL") ? false : true)
+                .defaultValue(defaultValue)
+                .isAutoIncrement(false)
+                .comment(columnComment)
+                .collate(CommonStandard.COLLATE)
+                .build();
+        AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, tableName, column);
+        addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
+        ddlValidator.validateAddColumn(selectedDatabaseConnectionInfo, addColumnRequestDTO);
+        ddlController.addColumn(selectedDatabaseConnectionInfo, addColumnRequestDTO);
+    }
+
 }
