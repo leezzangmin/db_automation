@@ -28,7 +28,7 @@ public class SelectCommand {
     private final CreateTableBlockPage createTableBlockPage;
     private final AddColumnBlockPage addColumnBlockPage;
     private final DeleteColumnBlockPage deleteColumnBlockPage;
-
+    private final RenameColumnBlockPage renameColumnBlockPage;
     private static final String findCommandGroupPlaceholder = "select database command group";
     private static final String findCommandTypePlaceholder = "select database command type";
 
@@ -196,6 +196,8 @@ public class SelectCommand {
             return addColumnBlockPage.addColumnBlocks();
         } else if (commandType.equals(CommandType.DELETE_COLUMN)) {
             return deleteColumnBlockPage.deleteColumnBlocks();
+        } else if (commandType.equals(CommandType.RENAME_COLUMN)) {
+            return renameColumnBlockPage.renameColumnBlocks();
         }
         throw new IllegalArgumentException("미구현 commandType: " + commandType);
     }

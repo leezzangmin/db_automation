@@ -51,6 +51,9 @@ public class SlackConstants {
         // delete column
         public static final String deleteColumnColumnNameTextInputId = "inputDeleteColumnColumnName";
 
+        // rename column
+        public static final String renameColumnOldColumnNameTextInputId = "inputRenameColumnOldColumnName";
+        public static final String renameColumnNewColumnNameTextInputId = "inputRenameColumnNewColumnName";
     }
     public static class FixedBlockIds {
         private FixedBlockIds() {}
