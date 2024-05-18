@@ -66,7 +66,7 @@ class DDLParserTest {
         String sql2 = ddlParser.commandToSql(dto2);
         // then
         String expectedSql1 = "ALTER TABLE `test_schema`.`test_table` ADD COLUMN `new_column` varchar(255) DEFAULT 'asdf' COMMENT 'new column comment'";
-        String expectedSql2 = "ALTER TABLE `test_schema`.`test_table` ADD COLUMN `new_column` varchar(255) NOT NULL COMMENT 'new column comment'";
+        String expectedSql2 = "ALTER TABLE `test_schema`.`test_table` ADD COLUMN `new_column` varchar(255) NOT NULL DEFAULT '' COMMENT 'new column comment'";
         assertEquals(expectedSql1, sql1);
         assertEquals(expectedSql2, sql2);
     }
