@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
-import zzangmin.db_automation.controller.SlackController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
 import zzangmin.db_automation.service.SlackService;
@@ -120,6 +119,22 @@ public class SelectClusterSchemaTable {
         }
         resetTableSchemaSectionBlock(currentBlocks);
         return currentBlocks;
+    }
+
+    public DatabaseConnectionInfo getDatabaseConnectionInfo(Map<String, Map<String, ViewState.Value>> values) {
+        String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findClusterSelectsElementActionId);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
+        return selectedDatabaseConnectionInfo;
+    }
+
+    public String getSchemaName(Map<String, Map<String, ViewState.Value>> values) {
+        String schemaName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId);
+        return schemaName;
+    }
+
+    public String getTableName(Map<String, Map<String, ViewState.Value>> values) {
+        String tableName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findTableSelectsElementActionId);
+        return tableName;
     }
 
     public List<LayoutBlock> handleTableChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {

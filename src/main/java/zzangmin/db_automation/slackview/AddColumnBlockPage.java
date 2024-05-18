@@ -6,9 +6,7 @@ import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.controller.DDLController;
-import zzangmin.db_automation.convention.CommonConvention;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
 import zzangmin.db_automation.entity.Column;
@@ -107,10 +105,10 @@ public class AddColumnBlockPage {
         String columnComment = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.addColumnColumnCommentTextInputId);
 
-        String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findClusterSelectsElementActionId);
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
-        String schemaName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId);
-        String tableName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findTableSelectsElementActionId);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTable.getDatabaseConnectionInfo(values);
+        String schemaName = selectClusterSchemaTable.getSchemaName(values);
+        String tableName = selectClusterSchemaTable.getTableName(values);
+
         Column column = Column.builder()
                 .name(columnName)
                 .type(columnType)

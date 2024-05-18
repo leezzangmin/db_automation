@@ -6,7 +6,6 @@ import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
@@ -165,14 +164,13 @@ public class CreateIndexBlockPage {
         String indexType = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findIndexTypeActionId);
         log.info("indexType: {}", indexType);
 
-        String schemaName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findSchemaSelectsElementActionId);
-        log.info("schemaName: {}", schemaName);
-
-        String tableName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findTableSelectsElementActionId);
-        log.info("tableName: {}", tableName);
-
         List<String> indexColumnNames = findIndexColumnNames(currentBlocks, values);
         log.info("indexColumnNames: {}", indexColumnNames);
+
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTable.getDatabaseConnectionInfo(values);
+        String schemaName = selectClusterSchemaTable.getSchemaName(values);
+        String tableName = selectClusterSchemaTable.getTableName(values);
+
         CreateIndexRequestDTO createIndexRequestDTO = CreateIndexRequestDTO.builder()
                 .schemaName(schemaName)
                 .tableName(tableName)
@@ -182,10 +180,6 @@ public class CreateIndexBlockPage {
                 .build();
         createIndexRequestDTO.setCommandType(CommandType_old.CREATE_INDEX);
         log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
-        String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findClusterSelectsElementActionId);
-        log.info("selectedDBMSName: {}", selectedDBMSName);
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
-        log.info("selectedDatabaseConnectionInfo: {}", selectedDatabaseConnectionInfo);
 
         ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);
         ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
