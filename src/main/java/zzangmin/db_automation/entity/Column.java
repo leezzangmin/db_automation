@@ -46,16 +46,14 @@ public class Column {
                 return "DEFAULT NULL";
             }
             return "DEFAULT '" + this.defaultValue + "'";
+        } else if (!this.isNull) {
+            if (defaultValue.equals("null") || defaultValue.equals("NULL")) {
+                return "NOT NULL";
+            }
+            return "NOT NULL DEFAULT '" + this.defaultValue + "'";
         }
         return "NOT NULL";
     }
-
-//    public String generateUnique() {
-//        if (this.isUnique) {
-//            return " UNIQUE";
-//        }
-//        return "";
-//    }
 
     public String generateAutoIncrement() {
         if (this.isAutoIncrement) {
