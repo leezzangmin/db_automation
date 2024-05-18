@@ -1,11 +1,15 @@
 package zzangmin.db_automation.util;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
 
 public class EncryptionUtil {
-    private static String MEATDATA_ENCRYPT_KEY = System.getenv("ENCRYPT_KEY");;
+
+    @Value("${METADATA_ENCRYPT_KEY}")
+    private static String MEATDATA_ENCRYPT_KEY;// = System.getenv("ENCRYPT_KEY");;
 
     private static final String ALGORITHM = "AES";
 
