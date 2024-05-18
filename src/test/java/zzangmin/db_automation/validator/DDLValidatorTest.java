@@ -143,7 +143,7 @@ class DDLValidatorTest {
     @Test
     void validateCreateTableTest() {
         //given
-        Column column1 = new Column("id", "INT", false, "0", true, "column1 comment", "utf8mb4_0900_ai_ci");
+        Column column1 = new Column("id", "INT", false, null, true, "column1 comment", "utf8mb4_0900_ai_ci");
         Column column2 = new Column("name", "INT", false, "0", false, "column2 comment", "utf8mb4_0900_ai_ci");
 
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));

@@ -73,7 +73,7 @@ class DDLServiceTest {
     @Test
     void createTable() {
         //given
-        Column column1 = new Column("id", "INT", false, "0", true, "column1 comment", null);
+        Column column1 = new Column("id", "INT", false, null, true, "column1 comment", null);
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.UNIQUE, "id", List.of("id"));
         CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", new LinkedHashSet<> (Set.of(column1)), new LinkedHashSet<> (Set.of(constraint1, constraint2)), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");

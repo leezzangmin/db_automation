@@ -53,6 +53,24 @@ class ColumnConventionTest {
     }
 
     @Test
+    @DisplayName("auto increment 컬럼 default value 컨벤션 검증 실패")
+    void validateColumnConventionIsAutoIncrementHasDefaultValue() {
+        // Given
+        Column column = Column.builder()
+                .name("user_id")
+                .type("varchar(255)")
+                .isNull(true)
+                .defaultValue("asdfasdf")
+                .isAutoIncrement(true)
+                .comment("User ID comment")
+                .collate("utf8mb4_0900_ai_ci")
+                .build();
+
+        // When & Then
+        assertThrows(IllegalArgumentException.class, () -> ColumnConvention.validateColumnConvention(column));
+    }
+
+    @Test
     @DisplayName("컬럼 네이밍 컨벤션 검증")
     void validateColumnNamingConvention() {
         // Given
