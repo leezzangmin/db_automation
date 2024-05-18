@@ -48,6 +48,9 @@ public class SlackConstants {
         public static final String addColumnColumnCommentTextInputId = "inputAddColumnColumnComment";
         public static final String addColumnColumnDefaultValueTextInputId = "inputAddColumnColumnDefaultValue";
 
+        // delete column
+        public static final String deleteColumnColumnNameTextInputId = "inputDeleteColumnColumnName";
+
     }
     public static class FixedBlockIds {
         private FixedBlockIds() {}

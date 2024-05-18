@@ -23,6 +23,7 @@ public class SlackActionHandler {
     private final CreateIndexBlockPage createIndexBlockPage;
     private final CreateTableBlockPage createTableBlockPage;
     private final AddColumnBlockPage addColumnBlockPage;
+    private final DeleteColumnBlockPage deleteColumnBlockPage;
 
     public List<LayoutBlock> handleAction(BlockActionPayload.Action action, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String actionId = action.getActionId();
@@ -63,6 +64,8 @@ public class SlackActionHandler {
             createTableBlockPage.handleSubmission(currentBlocks, values);
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
             addColumnBlockPage.handleSubmission(currentBlocks, values);
+        } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.DELETE_COLUMN)) {
+            deleteColumnBlockPage.handleSubmission(currentBlocks, values);
         }
         else {
             throw new IllegalArgumentException("미지원 commandType: " + commandType);
