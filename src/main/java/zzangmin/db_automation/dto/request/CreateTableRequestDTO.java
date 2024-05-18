@@ -8,8 +8,11 @@ import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.table.Index;
+import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
+import zzangmin.db_automation.parser.DDLParser;
 
 import java.util.*;
 
@@ -19,7 +22,8 @@ import java.util.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateTableRequestDTO extends DDLRequestDTO {
+@Component
+public class CreateTableRequestDTO implements DDLRequestDTO {
 
     @NotBlank
     private String schemaName;
@@ -37,6 +41,27 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
     private String collate;
     @NotBlank
     private String tableComment;
+
+    @Override
+    public String toSQL() {
+        StringBuilder sb = new StringBuilder();
+
+        Set<Column> columns = this.getColumns();
+        Set<Constraint> constraints = this.getConstraints();
+        sb.append(DDLParser.generateCreateTableStatement(this.getSchemaName(), this.getTableName()));
+        sb.append(DDLParser.generateColumnStatement(columns));
+        sb.append(DDLParser.generateConstraintStatement(constraints));
+        sb.append(DDLParser.generateCreateTableOptions(this.getEngine(),
+                this.getCharset(),
+                this.getCollate(),
+                this.getTableComment()));
+        return sb.toString();
+    }
+
+    @Override
+    public DatabaseRequestCommandGroup.CommandType getCommandType() {
+        return DatabaseRequestCommandGroup.CommandType.CREATE_TABLE;
+    }
 
     public static CreateTableRequestDTO of(String createTableSQL) throws JSQLParserException {
         createTableSQL = createTableSQL.replaceAll("`", "");
@@ -107,17 +132,23 @@ public class CreateTableRequestDTO extends DDLRequestDTO {
             collateOptionIndex = tableOptionsStrings.indexOf("COLLATE");
         }
         int tableCommentOptionIndex = -1;
+        log.info("tableOptionsStrings: {}", tableOptionsStrings);
         if (tableOptionsStrings.indexOf("comment") != -1) {
             tableCommentOptionIndex = tableOptionsStrings.indexOf("comment");
         } else if (tableOptionsStrings.indexOf("COMMENT") != -1) {
             tableCommentOptionIndex = tableOptionsStrings.indexOf("COMMENT");
         }
+        if (tableCommentOptionIndex == -1 ) {
+            throw new IllegalArgumentException("table Comment 가 없습니다.");
+        }
+
         String tableComment;
         try {
-            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 2).replace("'","");
+            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 2).replace("'", "");
         } catch (Exception e) {
-            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 1).replace("'","");
+            tableComment = tableOptionsStrings.get(tableCommentOptionIndex + 1).replace("'", "");
         }
+
         CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(parse.getTable().getSchemaName(),
                 parse.getTable().getName(),
                 columns,

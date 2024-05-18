@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
-import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
@@ -110,7 +109,6 @@ public class CreateIndexBlockPage implements BlockPage {
                 .indexType(indexType)
                 .columnNames(indexColumnNames)
                 .build();
-        createIndexRequestDTO.setCommandType(CommandType_old.CREATE_INDEX);
         log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
 
         ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);

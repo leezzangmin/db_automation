@@ -8,10 +8,8 @@ import zzangmin.db_automation.testfactory.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.service.AwsService;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -70,7 +68,6 @@ class DDLValidatorTest {
 
         Column column = new Column("new_column", "VARCHAR(255)", false, null, false, "new column comment", "utf8mb4_0900_ai_ci");
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
-        addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
 
         //when & then
         Assertions.assertThrows(IllegalStateException.class, () -> ddlValidator.validateDDLRequest(backOfficeDatabaseConnectionInfo, addColumnRequestDTO));
@@ -82,7 +79,6 @@ class DDLValidatorTest {
         //given
         Column column = new Column("new_column", "VARCHAR(255)", false, null, false, "new column comment", "utf8mb4_0900_ai_ci");
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
-        addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
         //when & then
         Assertions.assertDoesNotThrow(() -> ddlValidator.validateAddColumn(backOfficeDatabaseConnectionInfo, addColumnRequestDTO));
     }
@@ -93,7 +89,6 @@ class DDLValidatorTest {
         //given
         Column column = new Column("new_column", "VARCHAR(255)", false, null, true, "new column comment", "utf8mb4_0900_ai_ci");
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
-        addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
         //when & then
 
         Assertions.assertThrows(IllegalStateException.class, () -> ddlValidator.validateAddColumn(backOfficeDatabaseConnectionInfo, addColumnRequestDTO));
@@ -105,7 +100,6 @@ class DDLValidatorTest {
         //given
         Column column = new Column("name", "VARCHAR(255)", false, null, false, "alter column comment", "utf8mb4_0900_ai_ci");
         AlterColumnRequestDTO alterColumnRequestDTO = new AlterColumnRequestDTO(schemaName, "test_table", "name", column);
-        alterColumnRequestDTO.setCommandType(CommandType_old.ALTER_COLUMN);
         //when & then
         Assertions.assertDoesNotThrow(() -> ddlValidator.validateAlterColumn(backOfficeDatabaseConnectionInfo, alterColumnRequestDTO));
     }
@@ -149,7 +143,6 @@ class DDLValidatorTest {
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.UNIQUE, "name", List.of("name"));
         CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", new LinkedHashSet<> (Set.of(column1)), new LinkedHashSet<> (Set.of(constraint1, constraint2)), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
-        createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
         //when & then
         Assertions.assertDoesNotThrow(() -> ddlValidator.validateCreateTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO));
     }
@@ -167,7 +160,19 @@ class DDLValidatorTest {
     @Test
     void validateExtendVarcharColumnTest() {
         //given
-        ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO = new ExtendVarcharColumnRequestDTO(schemaName, "test_table", "name", 50);
+        Column oldColumn = Column.builder()
+                .name("name")
+                .type("varchar(45)")
+                .isNull(true)
+                .defaultValue(null)
+                .isAutoIncrement(false)
+                .comment("test comment")
+                .collate("utf8mb4_0900_ai_ci")
+                .build();
+        ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO = new ExtendVarcharColumnRequestDTO(schemaName,
+                "test_table",
+                oldColumn,
+                50);
         //when & then
         Assertions.assertDoesNotThrow(() -> ddlValidator.validateExtendVarchar(backOfficeDatabaseConnectionInfo, extendVarcharColumnRequestDTO));
     }
@@ -176,7 +181,19 @@ class DDLValidatorTest {
     @Test
     void validateExtendVarcharColumnTest_notInPlace() {
         //given
-        ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO = new ExtendVarcharColumnRequestDTO(schemaName, "test_table", "name", 500);
+        Column oldColumn = Column.builder()
+                .name("test_column")
+                .type("varchar(45)")
+                .isNull(true)
+                .defaultValue(null)
+                .isAutoIncrement(false)
+                .comment("test comment")
+                .collate("utf8mb4_0900_ai_ci")
+                .build();
+        ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO = new ExtendVarcharColumnRequestDTO(schemaName,
+                "test_table",
+                oldColumn,
+                500);
         //when & then
         Assertions.assertThrows(IllegalArgumentException.class, () -> ddlValidator.validateExtendVarchar(backOfficeDatabaseConnectionInfo, extendVarcharColumnRequestDTO));
     }

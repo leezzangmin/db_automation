@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
-import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -76,7 +75,6 @@ public class CreateTableBlockPage implements BlockPage {
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
         String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
 
-        createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
         createTableRequestDTO.setSchemaName(schemaName);
         ddlValidator.validateCreateTable(selectedDatabaseConnectionInfo, createTableRequestDTO);
         ddlController.createTable(selectedDatabaseConnectionInfo, createTableRequestDTO);

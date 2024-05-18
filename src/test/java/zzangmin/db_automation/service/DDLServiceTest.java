@@ -12,7 +12,6 @@ import zzangmin.db_automation.testfactory.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.Table;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
@@ -59,8 +58,19 @@ class DDLServiceTest {
     @Test
     void extendVarcharColumn() {
         //given
-        ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO = new ExtendVarcharColumnRequestDTO("test_schema", "test_table", "name", 50);
-        extendVarcharColumnRequestDTO.setCommandType(CommandType_old.EXTEND_VARCHAR_COLUMN);
+        Column oldColumn = Column.builder()
+                .name("name")
+                .type("varchar(45)")
+                .isNull(true)
+                .defaultValue(null)
+                .isAutoIncrement(false)
+                .comment("test comment")
+                .collate("utf8mb4_0900_ai_ci")
+                .build();
+        ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO = new ExtendVarcharColumnRequestDTO("test_schema",
+                "test_table",
+                oldColumn,
+                50);
         //when
         ddlService.extendVarcharColumn(backOfficeDatabaseConnectionInfo, extendVarcharColumnRequestDTO);
         //then
@@ -77,7 +87,6 @@ class DDLServiceTest {
         Constraint constraint1 = new Constraint(Constraint.ConstraintType.PRIMARY, "id", List.of("id"));
         Constraint constraint2 = new Constraint(Constraint.ConstraintType.UNIQUE, "id", List.of("id"));
         CreateTableRequestDTO createTableRequestDTO = new CreateTableRequestDTO(schemaName, "create_table_test", new LinkedHashSet<> (Set.of(column1)), new LinkedHashSet<> (Set.of(constraint1, constraint2)), "InnoDB", "utf8mb4", "utf8mb4_0900_ai_ci", "table comment");
-        createTableRequestDTO.setCommandType(CommandType_old.CREATE_TABLE);
         //when
         ddlService.createTable(backOfficeDatabaseConnectionInfo, createTableRequestDTO);
         //then
@@ -96,7 +105,6 @@ class DDLServiceTest {
         Assertions.assertThat(findColumn.getDefaultValue()).isEqualTo(null);
         Assertions.assertThat(findColumn.getIsAutoIncrement()).isEqualTo(true);
         Assertions.assertThat(findColumn.getComment()).isEqualTo("column1 comment");
-//        Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
         Assertions.assertThat(findColumn.getCollate()).isEqualTo(null);
 
         Assertions.assertThat(findConstraint0.getKeyName()).startsWith("PRIMARY");
@@ -112,7 +120,6 @@ class DDLServiceTest {
     void createIndex() {
         //given
         CreateIndexRequestDTO createIndexRequestDTO = new CreateIndexRequestDTO(schemaName, "test_table", "id_name", "KEY", List.of("id", "name"));
-        createIndexRequestDTO.setCommandType(CommandType_old.CREATE_INDEX);
         //when
         ddlService.createIndex(backOfficeDatabaseConnectionInfo, createIndexRequestDTO);
         //then
@@ -126,7 +133,6 @@ class DDLServiceTest {
         //given
         Column column = new Column("add", "INT", false, null, false, "add column comment", null);
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
-        addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
         //when
         ddlService.addColumn(backOfficeDatabaseConnectionInfo, addColumnRequestDTO);
         //then
@@ -137,7 +143,6 @@ class DDLServiceTest {
         Assertions.assertThat(findColumn.getDefaultValue()).isEqualTo(null);
         Assertions.assertThat(findColumn.getIsAutoIncrement()).isEqualTo(false);
         Assertions.assertThat(findColumn.getComment()).isEqualTo("add column comment");
-//        Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
         Assertions.assertThat(findColumn.getCollate()).isNull();
     }
 
@@ -146,7 +151,6 @@ class DDLServiceTest {
     void deleteColumn() {
         //given
         DeleteColumnRequestDTO deleteColumnRequestDTO = new DeleteColumnRequestDTO(schemaName, "test_table", "name");
-        deleteColumnRequestDTO.setCommandType(CommandType_old.DELETE_COLUMN);
         //when
         ddlService.deleteColumn(backOfficeDatabaseConnectionInfo, deleteColumnRequestDTO);
         //then
@@ -160,7 +164,6 @@ class DDLServiceTest {
         //given
         Column column = new Column("name", "VARCHAR(255)", false, null, false, "alter column comment", "utf8mb4_0900_ai_ci");
         AlterColumnRequestDTO alterColumnRequestDTO = new AlterColumnRequestDTO(schemaName, "test_table", "name", column);
-        alterColumnRequestDTO.setCommandType(CommandType_old.ALTER_COLUMN);
         //when
         ddlService.alterColumn(backOfficeDatabaseConnectionInfo, alterColumnRequestDTO);
         //then
@@ -171,7 +174,6 @@ class DDLServiceTest {
         Assertions.assertThat(findColumn.getDefaultValue()).isEqualTo(null);
         Assertions.assertThat(findColumn.getIsAutoIncrement()).isEqualTo(false);
         Assertions.assertThat(findColumn.getComment()).isEqualTo("alter column comment");
-        //Assertions.assertThat(findColumn.getCharset()).isEqualTo("utf8mb4");
         Assertions.assertThat(findColumn.getCollate()).isEqualTo("utf8mb4_0900_ai_ci");
     }
 
@@ -180,7 +182,6 @@ class DDLServiceTest {
     void renameColumn() {
         //given
         RenameColumnRequestDTO renameColumnRequestDTO = new RenameColumnRequestDTO(schemaName, "test_table", "name", "rename");
-        renameColumnRequestDTO.setCommandType(CommandType_old.RENAME_COLUMN);
         //when
         ddlService.renameColumn(backOfficeDatabaseConnectionInfo, renameColumnRequestDTO);
         //then

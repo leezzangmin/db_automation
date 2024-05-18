@@ -84,6 +84,11 @@ public class SlackConstants {
             public static final String renameColumnOldColumnNameTextInputId = "inputRenameColumnOldColumnName";
             public static final String renameColumnNewColumnNameTextInputId = "inputRenameColumnNewColumnName";
         }
+
+        // rename table
+        public static class RenameTable {
+            public static final String renameTableNewTableNameTextInputId = "inputRenameTableNewTableName";
+        }
     }
 
     public static class FixedBlockIds {
@@ -117,91 +122,3 @@ public class SlackConstants {
     }
 
 }
-
-// // TODO: enum + reflection 제거
-//public class SlackConstants2 {
-//
-//    private SlackConstants2() {}
-//
-//    public enum CommandBlockIds {
-//        // Cluster schema table
-//        FIND_CLUSTER_SELECTS_ELEMENT("selectClusterName"),
-//        FIND_TABLE_SELECTS_ELEMENT("selectTableName"),
-//        FIND_SCHEMA_SELECTS_ELEMENT("selectSchemaName"),
-//        TABLE_SCHEMA_CONTEXT("tableSchemaContext"),
-//        TABLE_SCHEMA_TEXT("tableSchemaText"),
-//
-//        // Create index
-//        CREATE_INDEX_INDEX_NAME_TEXT_INPUT("inputCreateIndexIndexName"),
-//        CREATE_INDEX_COLUMN_NAME_TEXT_INPUT("inputCreateIndexColumnName"),
-//        CREATE_INDEX_ADD_COLUMN_BUTTON("createIndexAddColumnButton"),
-//        CREATE_INDEX_REMOVE_COLUMN_BUTTON("createIndexRemoveColumnButton"),
-//        FIND_INDEX_TYPE("selectIndexType"),
-//
-//        // Create table
-//        CREATE_TABLE_SQL_TEXT_INPUT("inputCreateTableSQL"),
-//
-//        // Add column
-//        ADD_COLUMN_COLUMN_NAME_TEXT_INPUT("inputAddColumnColumnName"),
-//        ADD_COLUMN_COLUMN_TYPE_TEXT_INPUT("inputAddColumnColumnType"),
-//        ADD_COLUMN_COLUMN_IS_NULL_RADIO("selectAddColumnIsNullRadio"),
-//        ADD_COLUMN_COLUMN_COMMENT_TEXT_INPUT("inputAddColumnColumnComment"),
-//        ADD_COLUMN_COLUMN_DEFAULT_VALUE_TEXT_INPUT("inputAddColumnColumnDefaultValue"),
-//
-//        // Delete column
-//        DELETE_COLUMN_COLUMN_NAME_TEXT_INPUT("inputDeleteColumnColumnName"),
-//
-//        // Rename column
-//        RENAME_COLUMN_OLD_COLUMN_NAME_TEXT_INPUT("inputRenameColumnOldColumnName"),
-//        RENAME_COLUMN_NEW_COLUMN_NAME_TEXT_INPUT("inputRenameColumnNewColumnName");
-//
-//        private final String actionId;
-//
-//        CommandBlockIds(String actionId) {
-//            this.actionId = actionId;
-//        }
-//
-//        public String getActionId() {
-//            return this.actionId;
-//        }
-//
-//        public static boolean isMember(String id) {
-//            for (CommandBlockIds value : CommandBlockIds.values()) {
-//                if (id.equals(value.getActionId()) || id.startsWith(value.getActionId())) {
-//                    return true;
-//                }
-//            }
-//            return false;
-//        }
-//    }
-//
-//    public enum FixedBlockIds {
-//        FIND_DATABASE_REQUEST_COMMAND_GROUP_SELECTS_ELEMENT("selectDatabaseRequestCommandGroup"),
-//        FIND_COMMAND_TYPE_SELECTS_ELEMENT("selectDatabaseRequestCommandType");
-//
-//        private final String actionId;
-//
-//        FixedBlockIds(String actionId) {
-//            this.actionId = actionId;
-//        }
-//
-//        public String getActionId() {
-//            return this.actionId;
-//        }
-//    }
-//
-//    public enum ErrorBlockIds {
-//        ERROR_MESSAGE_BLOCK("displayErrorBlockGlobal");
-//
-//        private final String actionId;
-//
-//        ErrorBlockIds(String actionId) {
-//            this.actionId = actionId;
-//        }
-//
-//        public String getActionId() {
-//            return this.actionId;
-//        }
-//    }
-//
-//}

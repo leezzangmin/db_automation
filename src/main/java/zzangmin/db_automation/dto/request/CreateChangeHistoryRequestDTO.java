@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import zzangmin.db_automation.entity.CommandType_old;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateChangeHistoryRequestDTO {
-    private CommandType_old commandType;
+    private DatabaseRequestCommandGroup.CommandType commandType;
     private String databaseIdentifier;
     private String schemaName;
     private String tableName;

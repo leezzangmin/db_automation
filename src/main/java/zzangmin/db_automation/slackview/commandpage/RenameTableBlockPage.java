@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.request.DeleteColumnRequestDTO;
+import zzangmin.db_automation.dto.request.RenameTableRequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -21,51 +21,49 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class DeleteColumnBlockPage implements BlockPage {
+public class RenameTableBlockPage implements BlockPage {
+
     private final SelectClusterSchemaTableBlocks selectClusterSchemaTableBlocks;
     private final DDLController ddlController;
     private final DDLValidator ddlValidator;
 
-    private static final String columnNameLabel = "input column name";
-    private static final String columnNamePlaceholder = "id";
+    private static final String newTableNameLabel = "input new table name";
+    private static final String newTableNamePlaceholder = "new_table_name";
 
     @Override
     public List<LayoutBlock> generateBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
         blocks.addAll(selectClusterSchemaTableBlocks.selectClusterSchemaTableBlocks());
 
-        // 컬럼명
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.DeleteColumn.deleteColumnColumnNameTextInputId,
-                columnNameLabel,
-                columnNamePlaceholder));
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.RenameTable.renameTableNewTableNameTextInputId,
+                newTableNameLabel,
+                newTableNamePlaceholder));
 
         return blocks;
     }
 
     @Override
     public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-
-        String columnName = SlackService.findCurrentValueFromState(values,
-                SlackConstants.CommandBlockIds.DeleteColumn.deleteColumnColumnNameTextInputId);
-
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
+        DatabaseConnectionInfo databaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
         String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
-        String tableName = selectClusterSchemaTableBlocks.getTableName(values);
+        String oldTableName = selectClusterSchemaTableBlocks.getTableName(values);
 
-        DeleteColumnRequestDTO deleteColumnRequestDTO = new DeleteColumnRequestDTO(schemaName, tableName, columnName);
-        ddlValidator.validateDeleteColumn(selectedDatabaseConnectionInfo, deleteColumnRequestDTO);
-        ddlController.deleteColumn(selectedDatabaseConnectionInfo, deleteColumnRequestDTO);
+        String newTableName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.RenameTable.renameTableNewTableNameTextInputId);
+
+        RenameTableRequestDTO renameTableRequestDTO = new RenameTableRequestDTO(schemaName, oldTableName, newTableName);
+        ddlValidator.validateRenameTable(databaseConnectionInfo, renameTableRequestDTO);
+        ddlController.renameTable(databaseConnectionInfo, renameTableRequestDTO);
     }
 
     @Override
     public boolean supportsCommandType(DatabaseRequestCommandGroup.CommandType commandType) {
-        return commandType.equals(DatabaseRequestCommandGroup.CommandType.DELETE_COLUMN);
+        return commandType.equals(DatabaseRequestCommandGroup.CommandType.RENAME_TABLE);
     }
 
     @Override
     public boolean supportsActionId(String actionId) {
         return SlackConstants.CommandBlockIds
-                .getMembers(SlackConstants.CommandBlockIds.DeleteColumn.class)
+                .getMembers(SlackConstants.CommandBlockIds.RenameTable.class)
                 .contains(actionId);
     }
 

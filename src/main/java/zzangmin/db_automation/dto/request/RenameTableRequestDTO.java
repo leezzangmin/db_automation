@@ -1,6 +1,5 @@
 package zzangmin.db_automation.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,29 +10,28 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeleteColumnRequestDTO implements DDLRequestDTO {
-    @NotBlank
+public class RenameTableRequestDTO implements DDLRequestDTO {
+
     private String schemaName;
-    @NotBlank
-    private String tableName;
-    @NotBlank
-    private String columnName;
+    private String oldTableName;
+    private String newTableName;
 
     @Override
     public String toSQL() {
         StringBuilder sb = new StringBuilder();
-        sb.append("ALTER TABLE `");
-        sb.append(this.getSchemaName());
-        sb.append("`.`");
-        sb.append(this.getTableName());
-        sb.append("` DROP COLUMN `");
-        sb.append(this.getColumnName());
-        sb.append("`");
+        sb.append("ALTER TABLE ");
+        sb.append(schemaName);
+        sb.append(".");
+        sb.append(oldTableName);
+        sb.append(" RENAME TO ");
+        sb.append(newTableName);
+        sb.append(";");
         return sb.toString();
     }
 
+
     @Override
     public DatabaseRequestCommandGroup.CommandType getCommandType() {
-        return DatabaseRequestCommandGroup.CommandType.DELETE_COLUMN;
+        return DatabaseRequestCommandGroup.CommandType.RENAME_TABLE;
     }
 }

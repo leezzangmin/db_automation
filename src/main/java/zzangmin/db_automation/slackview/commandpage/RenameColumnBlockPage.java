@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RenameColumnRequestDTO;
-import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -67,7 +66,6 @@ public class RenameColumnBlockPage implements BlockPage {
 
 
         RenameColumnRequestDTO renameColumnRequestDTO = new RenameColumnRequestDTO(schemaName, tableName, oldColumnName, newColumnName);
-        renameColumnRequestDTO.setCommandType(CommandType_old.RENAME_COLUMN);
 
         ddlValidator.validateRenameColumn(selectedDatabaseConnectionInfo, renameColumnRequestDTO);
 

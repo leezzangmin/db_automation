@@ -10,7 +10,6 @@ import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
 import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.CommonStandard;
 import zzangmin.db_automation.service.SlackService;
@@ -124,7 +123,7 @@ public class AddColumnBlockPage implements BlockPage {
                 .collate(CommonStandard.COLLATE)
                 .build();
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, tableName, column);
-        addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
+
         ddlValidator.validateAddColumn(selectedDatabaseConnectionInfo, addColumnRequestDTO);
         ddlController.addColumn(selectedDatabaseConnectionInfo, addColumnRequestDTO);
     }

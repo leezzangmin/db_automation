@@ -7,13 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.testfactory.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
 import zzangmin.db_automation.dto.request.CreateChangeHistoryRequestDTO;
 import zzangmin.db_automation.entity.ChangeHistory;
 import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 import java.time.LocalDateTime;
@@ -55,10 +55,9 @@ class ChangeHistoryServiceTest {
     @Test
     void addChangeHistoryTest() {
         //given
-        CreateChangeHistoryRequestDTO createChangeHistoryRequestDTO = new CreateChangeHistoryRequestDTO(CommandType_old.ADD_COLUMN, backOfficeDatabaseConnectionInfo.getDatabaseName(), schemaName, "test_table", "test_doer@gmail.com", LocalDateTime.now());
+        CreateChangeHistoryRequestDTO createChangeHistoryRequestDTO = new CreateChangeHistoryRequestDTO(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN, backOfficeDatabaseConnectionInfo.getDatabaseName(), schemaName, "test_table", "test_doer@gmail.com", LocalDateTime.now());
         Column column = new Column("add", "INT", false, null, false, "add column comment", "utf8mb4_0900_ai_ci");
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, "test_table", column);
-        addColumnRequestDTO.setCommandType(CommandType_old.ADD_COLUMN);
         //when
         changeHistoryService.addChangeHistory(createChangeHistoryRequestDTO, addColumnRequestDTO);
         //then
@@ -66,7 +65,7 @@ class ChangeHistoryServiceTest {
         assertEquals(1, changeHistories.size());
 
         ChangeHistory changeHistory = changeHistories.get(0);
-        assertEquals(CommandType_old.ADD_COLUMN, changeHistory.getCommandType());
+        assertEquals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN, changeHistory.getCommandType());
         assertEquals(backOfficeDatabaseConnectionInfo.getDatabaseName(), changeHistory.getDatabaseIdentifier());
         assertEquals(schemaName, changeHistory.getSchemaName());
         assertEquals("test_table", changeHistory.getTableName());

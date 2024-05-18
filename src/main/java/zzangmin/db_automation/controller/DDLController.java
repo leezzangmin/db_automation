@@ -35,6 +35,13 @@ public class DDLController {
         return "ok";
     }
 
+    public String renameTable(DatabaseConnectionInfo databaseConnectionInfo,
+                             RenameTableRequestDTO ddlRequestDTO) {
+        ddlValidator.validateRenameTable(databaseConnectionInfo, ddlRequestDTO);
+        ddlService.renameTable(databaseConnectionInfo, ddlRequestDTO);
+        return "ok";
+    }
+
     @PutMapping("/ddl/column")
     public AddColumnDDLResponseDTO addColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                              @RequestBody AddColumnRequestDTO ddlRequestDTO) {
