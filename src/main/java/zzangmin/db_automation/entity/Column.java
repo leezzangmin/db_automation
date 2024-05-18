@@ -47,7 +47,7 @@ public class Column {
             }
             return "DEFAULT '" + this.defaultValue + "'";
         } else if (!this.isNull) {
-            if (defaultValue.equals("null") || defaultValue.equals("NULL")) {
+            if (defaultValue == null || defaultValue.equals("null") || defaultValue.equals("NULL")) {
                 return "NOT NULL";
             }
             return "NOT NULL DEFAULT '" + this.defaultValue + "'";
