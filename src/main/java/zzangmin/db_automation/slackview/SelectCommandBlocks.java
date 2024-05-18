@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.slackview.commandpage.BlockPage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,12 +24,44 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class SelectCommandBlocks {
+public class SelectCommandBlocks implements BlockPage {
 
     private final BlockPageManager blockPageManager;
 
     private static final String findCommandGroupPlaceholder = "select database command group";
     private static final String findCommandTypePlaceholder = "select database command type";
+
+    @Override
+    public List<LayoutBlock> generateBlocks() {
+        throw new IllegalArgumentException("미지원 page");
+    }
+
+    @Override
+    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        throw new IllegalArgumentException("미지원 page");
+    }
+
+    @Override
+    public boolean supportsCommandType(CommandType commandType) {
+        return false;
+    }
+
+    @Override
+    public boolean supportsActionId(String actionId) {
+        return SlackConstants.FixedBlockIds
+                .isMember(actionId);
+    }
+
+    @Override
+    public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        if (actionId.equals(SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId)) {
+            handleCommandGroupChange(currentBlocks, values);
+        } else if (actionId.equals(SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId)) {
+            handleCommandTypeChange(currentBlocks, values);
+        } else {
+            throw new IllegalArgumentException("미지원 actionId: " + actionId);
+        }
+    }
 
     public static List<LayoutBlock> selectCommandGroupAndCommandTypeBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
@@ -63,7 +96,7 @@ public class SelectCommandBlocks {
         return blocks;
     }
 
-    public List<LayoutBlock> handleCommandGroupChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    private List<LayoutBlock> handleCommandGroupChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         int commandTypeBlockIndex = SlackService.findBlockIndex(currentBlocks,
                 "actions",
                 SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
@@ -91,7 +124,7 @@ public class SelectCommandBlocks {
         return currentBlocks;
     }
 
-    public List<LayoutBlock> handleCommandTypeChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    private List<LayoutBlock> handleCommandTypeChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String selectedCommandTypeName = SlackService.findCurrentValueFromState(values, SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
         DatabaseRequestCommandGroup.CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
         removeCommandBlocks(currentBlocks);
@@ -184,5 +217,4 @@ public class SelectCommandBlocks {
             log.info("222currentBlockId: {}", currentBlock.getBlockId());
         }
     }
-
 }

@@ -41,12 +41,12 @@ public class RenameColumnBlockPage implements BlockPage {
         blocks.addAll(selectClusterSchemaTableBlocks.selectClusterSchemaTableBlocks());
 
         // 변경 대상 컬럼명 (old)
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.renameColumnOldColumnNameTextInputId,
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.RenameColumn.renameColumnOldColumnNameTextInputId,
                 oldColumnNameLabel,
                 oldColumnNamePlaceholder));
 
         // 바꿀 컬럼명
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.renameColumnNewColumnNameTextInputId,
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.RenameColumn.renameColumnNewColumnNameTextInputId,
                 newColumnNameLabel,
                 newColumnNamePlaceholder));
 
@@ -57,10 +57,10 @@ public class RenameColumnBlockPage implements BlockPage {
     public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
 
         String oldColumnName = SlackService.findCurrentValueFromState(values,
-                SlackConstants.CommandBlockIds.renameColumnOldColumnNameTextInputId);
+                SlackConstants.CommandBlockIds.RenameColumn.renameColumnOldColumnNameTextInputId);
 
         String newColumnName = SlackService.findCurrentValueFromState(values,
-                SlackConstants.CommandBlockIds.renameColumnNewColumnNameTextInputId);
+                SlackConstants.CommandBlockIds.RenameColumn.renameColumnNewColumnNameTextInputId);
 
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
         String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
@@ -78,6 +78,13 @@ public class RenameColumnBlockPage implements BlockPage {
     @Override
     public boolean supportsCommandType(DatabaseRequestCommandGroup.CommandType commandType) {
         return commandType.equals(DatabaseRequestCommandGroup.CommandType.RENAME_COLUMN);
+    }
+
+    @Override
+    public boolean supportsActionId(String actionId) {
+        return SlackConstants.CommandBlockIds
+                .getMembers(SlackConstants.CommandBlockIds.RenameColumn.class)
+                .contains(actionId);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class DeleteColumnBlockPage implements BlockPage {
         blocks.addAll(selectClusterSchemaTableBlocks.selectClusterSchemaTableBlocks());
 
         // 컬럼명
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.deleteColumnColumnNameTextInputId,
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.DeleteColumn.deleteColumnColumnNameTextInputId,
                 columnNameLabel,
                 columnNamePlaceholder));
 
@@ -48,7 +48,7 @@ public class DeleteColumnBlockPage implements BlockPage {
     public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
 
         String columnName = SlackService.findCurrentValueFromState(values,
-                SlackConstants.CommandBlockIds.deleteColumnColumnNameTextInputId);
+                SlackConstants.CommandBlockIds.DeleteColumn.deleteColumnColumnNameTextInputId);
 
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
         String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
@@ -63,6 +63,13 @@ public class DeleteColumnBlockPage implements BlockPage {
     @Override
     public boolean supportsCommandType(DatabaseRequestCommandGroup.CommandType commandType) {
         return commandType.equals(DatabaseRequestCommandGroup.CommandType.DELETE_COLUMN);
+    }
+
+    @Override
+    public boolean supportsActionId(String actionId) {
+        return SlackConstants.CommandBlockIds
+                .getMembers(SlackConstants.CommandBlockIds.DeleteColumn.class)
+                .contains(actionId);
     }
 
     @Override

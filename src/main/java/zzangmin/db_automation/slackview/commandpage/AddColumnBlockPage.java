@@ -55,12 +55,12 @@ public class AddColumnBlockPage implements BlockPage {
         blocks.addAll(selectClusterSchemaTableBlocks.selectClusterSchemaTableBlocks());
 
         // 컬럼명
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.addColumnColumnNameTextInputId,
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.AddColumn.addColumnColumnNameTextInputId,
                 columnNameLabel,
                 columnNamePlaceholder));
 
         // 컬럼 타입
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.addColumnColumnTypeTextInputId,
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.AddColumn.addColumnColumnTypeTextInputId,
                 columnTypeLabel,
                 columnTypePlaceholder));
 
@@ -75,16 +75,16 @@ public class AddColumnBlockPage implements BlockPage {
                 .value("NOT NULL")
                 .build());
         blocks.add(BasicBlockFactory.getRadioBlock(options,
-                SlackConstants.CommandBlockIds.addColumnColumnIsNullRadioId,
+                SlackConstants.CommandBlockIds.AddColumn.addColumnColumnIsNullRadioId,
                 columnIsNullLabel));
 
         // default value
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.addColumnColumnDefaultValueTextInputId,
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.AddColumn.addColumnColumnDefaultValueTextInputId,
                 columnDefaultValueLabel,
                 columnDefaultValuePlaceholder));
 
         // 코멘트
-        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.addColumnColumnCommentTextInputId,
+        blocks.add(BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.AddColumn.addColumnColumnCommentTextInputId,
                 columnCommentLabel,
                 columnCommentPlaceholder));
 
@@ -97,19 +97,19 @@ public class AddColumnBlockPage implements BlockPage {
     public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
 
         String columnName = SlackService.findCurrentValueFromState(values,
-                SlackConstants.CommandBlockIds.addColumnColumnNameTextInputId);
+                SlackConstants.CommandBlockIds.AddColumn.addColumnColumnNameTextInputId);
 
         String columnType = SlackService.findCurrentValueFromState(values,
-                SlackConstants.CommandBlockIds.addColumnColumnTypeTextInputId);
+                SlackConstants.CommandBlockIds.AddColumn.addColumnColumnTypeTextInputId);
 
         String nullable = SlackService.findCurrentValueFromState(values,
-                SlackConstants.CommandBlockIds.addColumnColumnIsNullRadioId);
+                SlackConstants.CommandBlockIds.AddColumn.addColumnColumnIsNullRadioId);
 
         String defaultValue = SlackService.findCurrentValueFromState(values,
-                SlackConstants.CommandBlockIds.addColumnColumnDefaultValueTextInputId);
+                SlackConstants.CommandBlockIds.AddColumn.addColumnColumnDefaultValueTextInputId);
 
         String columnComment = SlackService.findCurrentValueFromState(values,
-                SlackConstants.CommandBlockIds.addColumnColumnCommentTextInputId);
+                SlackConstants.CommandBlockIds.AddColumn.addColumnColumnCommentTextInputId);
 
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
         String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
@@ -138,5 +138,12 @@ public class AddColumnBlockPage implements BlockPage {
     @Override
     public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         return;
+    }
+
+    @Override
+    public boolean supportsActionId(String actionId) {
+        return SlackConstants.CommandBlockIds
+                .getMembers(SlackConstants.CommandBlockIds.AddColumn.class)
+                .contains(actionId);
     }
 }

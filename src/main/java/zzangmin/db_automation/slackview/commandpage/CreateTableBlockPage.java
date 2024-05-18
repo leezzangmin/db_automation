@@ -52,7 +52,7 @@ public class CreateTableBlockPage implements BlockPage {
 
         blocks.addAll(selectClusterSchemaTableBlocks.selectClusterSchemaBlocks());
 
-        blocks.add(BasicBlockFactory.findMultilinePlainTextInput(SlackConstants.CommandBlockIds.createTableSQLTextInputId,
+        blocks.add(BasicBlockFactory.findMultilinePlainTextInput(SlackConstants.CommandBlockIds.CreateTable.createTableSQLTextInputId,
                 createTableSQLTextInputLabel,
                 createTableSQLPlaceHolder));
 
@@ -61,7 +61,7 @@ public class CreateTableBlockPage implements BlockPage {
 
     @Override
     public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        String createTableStatementSQL = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.createTableSQLTextInputId);
+        String createTableStatementSQL = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateTable.createTableSQLTextInputId);
         log.info("createTableStatementSQL: {}", createTableStatementSQL);
         CreateTableRequestDTO createTableRequestDTO;
         try {
@@ -90,7 +90,10 @@ public class CreateTableBlockPage implements BlockPage {
 
     @Override
     public boolean supportsActionId(String actionId) {
-        return false;
+        return SlackConstants.CommandBlockIds
+                .getMembers(SlackConstants.CommandBlockIds.CreateTable.class)
+                .contains(actionId);
+
     }
 
     @Override
