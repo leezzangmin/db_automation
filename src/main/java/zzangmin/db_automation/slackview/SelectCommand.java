@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.slackview.commandpage.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,11 +25,9 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 @RequiredArgsConstructor
 @Component
 public class SelectCommand {
-    private final CreateIndexBlockPage createIndexBlockPage;
-    private final CreateTableBlockPage createTableBlockPage;
-    private final AddColumnBlockPage addColumnBlockPage;
-    private final DeleteColumnBlockPage deleteColumnBlockPage;
-    private final RenameColumnBlockPage renameColumnBlockPage;
+
+    private final BlockPageManager blockPageManager;
+
     private static final String findCommandGroupPlaceholder = "select database command group";
     private static final String findCommandTypePlaceholder = "select database command type";
 
@@ -97,7 +96,7 @@ public class SelectCommand {
         String selectedCommandTypeName = SlackService.findCurrentValueFromState(values, SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
         DatabaseRequestCommandGroup.CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
         removeCommandBlocks(currentBlocks);
-        currentBlocks.addAll(generateCommandTypeBlocks(findCommandType));
+        currentBlocks.addAll(blockPageManager.generateBlocks(findCommandType));
 
         return currentBlocks;
     }
@@ -185,21 +184,6 @@ public class SelectCommand {
         for (LayoutBlock currentBlock : currentBlocks) {
             log.info("222currentBlockId: {}", currentBlock.getBlockId());
         }
-    }
-
-    private List<LayoutBlock> generateCommandTypeBlocks(DatabaseRequestCommandGroup.CommandType commandType) {
-        if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
-            return createIndexBlockPage.createIndexBlocks();
-        } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
-            return createTableBlockPage.createTableBlocks();
-        } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
-            return addColumnBlockPage.addColumnBlocks();
-        } else if (commandType.equals(CommandType.DELETE_COLUMN)) {
-            return deleteColumnBlockPage.deleteColumnBlocks();
-        } else if (commandType.equals(CommandType.RENAME_COLUMN)) {
-            return renameColumnBlockPage.renameColumnBlocks();
-        }
-        throw new IllegalArgumentException("미구현 commandType: " + commandType);
     }
 
 }

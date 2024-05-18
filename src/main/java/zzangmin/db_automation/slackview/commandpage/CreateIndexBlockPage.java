@@ -1,4 +1,4 @@
-package zzangmin.db_automation.slackview;
+package zzangmin.db_automation.slackview.commandpage;
 
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
@@ -11,7 +11,11 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
 import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.Constraint;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.slackview.BasicBlockFactory;
+import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
+import zzangmin.db_automation.slackview.SlackConstants;
 import zzangmin.db_automation.validator.DDLValidator;
 
 import java.util.ArrayList;
@@ -28,7 +32,7 @@ import static com.slack.api.model.block.element.BlockElements.button;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class CreateIndexBlockPage {
+public class CreateIndexBlockPage implements BlockPage {
 
     private final SelectClusterSchemaTable selectClusterSchemaTable;
     private final DDLController ddlController;
@@ -40,7 +44,8 @@ public class CreateIndexBlockPage {
     private static final String createIndexColumnPlaceHolder = "input column name";
     private static final String inputIndexColumnNameLabel = "Column Name ";
 
-    public List<LayoutBlock> createIndexBlocks() {
+    @Override
+    public List<LayoutBlock> generateBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
 
         blocks.addAll(selectClusterSchemaTable.selectClusterSchemaTableBlocks());
@@ -82,6 +87,40 @@ public class CreateIndexBlockPage {
                         .blockId(SlackConstants.CommandBlockIds.createIndexRemoveColumnButtonId)));
         return blocks;
 
+    }
+
+    @Override
+    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        String indexName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.createIndexIndexNameTextInputId);
+        log.info("indexName: {}", indexName);
+
+        String indexType = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findIndexTypeActionId);
+        log.info("indexType: {}", indexType);
+
+        List<String> indexColumnNames = findIndexColumnNames(currentBlocks, values);
+        log.info("indexColumnNames: {}", indexColumnNames);
+
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTable.getDatabaseConnectionInfo(values);
+        String schemaName = selectClusterSchemaTable.getSchemaName(values);
+        String tableName = selectClusterSchemaTable.getTableName(values);
+
+        CreateIndexRequestDTO createIndexRequestDTO = CreateIndexRequestDTO.builder()
+                .schemaName(schemaName)
+                .tableName(tableName)
+                .indexName(indexName)
+                .indexType(indexType)
+                .columnNames(indexColumnNames)
+                .build();
+        createIndexRequestDTO.setCommandType(CommandType_old.CREATE_INDEX);
+        log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
+
+        ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);
+        ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
+    }
+
+    @Override
+    public boolean supports(DatabaseRequestCommandGroup.CommandType commandType) {
+        return commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX);
     }
 
     public List<LayoutBlock> handleAddColumn(List<LayoutBlock> currentBlocks) {
@@ -155,34 +194,6 @@ public class CreateIndexBlockPage {
         int lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
         currentBlocks.remove(lastInputColumnNameBlockIndex);
         return currentBlocks;
-    }
-
-    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        String indexName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.createIndexIndexNameTextInputId);
-        log.info("indexName: {}", indexName);
-
-        String indexType = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.findIndexTypeActionId);
-        log.info("indexType: {}", indexType);
-
-        List<String> indexColumnNames = findIndexColumnNames(currentBlocks, values);
-        log.info("indexColumnNames: {}", indexColumnNames);
-
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTable.getDatabaseConnectionInfo(values);
-        String schemaName = selectClusterSchemaTable.getSchemaName(values);
-        String tableName = selectClusterSchemaTable.getTableName(values);
-
-        CreateIndexRequestDTO createIndexRequestDTO = CreateIndexRequestDTO.builder()
-                .schemaName(schemaName)
-                .tableName(tableName)
-                .indexName(indexName)
-                .indexType(indexType)
-                .columnNames(indexColumnNames)
-                .build();
-        createIndexRequestDTO.setCommandType(CommandType_old.CREATE_INDEX);
-        log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
-
-        ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);
-        ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
     }
 
     private List<String> findIndexColumnNames(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {

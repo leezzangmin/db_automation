@@ -1,4 +1,4 @@
-package zzangmin.db_automation.slackview;
+package zzangmin.db_automation.slackview.commandpage;
 
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
@@ -11,8 +11,12 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.CommandType_old;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.CommonStandard;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.slackview.BasicBlockFactory;
+import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
+import zzangmin.db_automation.slackview.SlackConstants;
 import zzangmin.db_automation.validator.DDLValidator;
 
 import java.util.ArrayList;
@@ -24,7 +28,7 @@ import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class AddColumnBlockPage {
+public class AddColumnBlockPage implements BlockPage {
 
     private final SelectClusterSchemaTable selectClusterSchemaTable;
     private final DDLController ddlController;
@@ -44,7 +48,8 @@ public class AddColumnBlockPage {
      *  auto_increment, unique 컬럼 추가는 미지원
      *  -> [컬럼 추가 후 제약조건 추가] 2단계로 진행
      */
-    public List<LayoutBlock> addColumnBlocks() {
+    @Override
+    public List<LayoutBlock> generateBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
 
         blocks.addAll(selectClusterSchemaTable.selectClusterSchemaTableBlocks());
@@ -88,6 +93,7 @@ public class AddColumnBlockPage {
         return blocks;
     }
 
+    @Override
     public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
 
         String columnName = SlackService.findCurrentValueFromState(values,
@@ -124,4 +130,8 @@ public class AddColumnBlockPage {
         ddlController.addColumn(selectedDatabaseConnectionInfo, addColumnRequestDTO);
     }
 
+    @Override
+    public boolean supports(DatabaseRequestCommandGroup.CommandType commandType) {
+        return commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN);
+    }
 }

@@ -1,4 +1,4 @@
-package zzangmin.db_automation.slackview;
+package zzangmin.db_automation.slackview.commandpage;
 
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
@@ -9,7 +9,11 @@ import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.CreateTableRequestDTO;
 import zzangmin.db_automation.entity.CommandType_old;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.slackview.BasicBlockFactory;
+import zzangmin.db_automation.slackview.SelectClusterSchemaTable;
+import zzangmin.db_automation.slackview.SlackConstants;
 import zzangmin.db_automation.validator.DDLValidator;
 
 import java.util.ArrayList;
@@ -19,7 +23,7 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class CreateTableBlockPage {
+public class CreateTableBlockPage implements BlockPage {
 
     private final SelectClusterSchemaTable selectClusterSchemaTable;
     private final DDLController ddlController;
@@ -42,7 +46,8 @@ public class CreateTableBlockPage {
 //            "  UNIQUE KEY `uk_externaluserid` (`external_user_id`)\n" +
 //            ") ENGINE=InnoDB AUTO_INCREMENT=123456 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='테이블코멘트샘플'";
 
-    public List<LayoutBlock> createTableBlocks() {
+    @Override
+    public List<LayoutBlock> generateBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
 
         blocks.addAll(selectClusterSchemaTable.selectClusterSchemaBlocks());
@@ -54,6 +59,7 @@ public class CreateTableBlockPage {
         return blocks;
     }
 
+    @Override
     public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         String createTableStatementSQL = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.createTableSQLTextInputId);
         log.info("createTableStatementSQL: {}", createTableStatementSQL);
@@ -75,5 +81,10 @@ public class CreateTableBlockPage {
         createTableRequestDTO.setSchemaName(schemaName);
         ddlValidator.validateCreateTable(selectedDatabaseConnectionInfo, createTableRequestDTO);
         ddlController.createTable(selectedDatabaseConnectionInfo, createTableRequestDTO);
+    }
+
+    @Override
+    public boolean supports(DatabaseRequestCommandGroup.CommandType commandType) {
+        return commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE);
     }
 }
