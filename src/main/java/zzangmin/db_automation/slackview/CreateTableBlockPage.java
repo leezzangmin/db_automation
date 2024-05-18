@@ -42,7 +42,7 @@ public class CreateTableBlockPage {
 //            "  UNIQUE KEY `uk_externaluserid` (`external_user_id`)\n" +
 //            ") ENGINE=InnoDB AUTO_INCREMENT=123456 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='테이블코멘트샘플'";
 
-    public List<LayoutBlock> createIndexBlocks() {
+    public List<LayoutBlock> createTableBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
 
         blocks.addAll(selectClusterSchemaTable.selectClusterSchemaBlocks());

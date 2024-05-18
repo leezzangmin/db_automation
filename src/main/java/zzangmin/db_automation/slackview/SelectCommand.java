@@ -2,8 +2,6 @@ package zzangmin.db_automation.slackview;
 
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.composition.PlainTextObject;
-import com.slack.api.model.block.composition.TextObject;
 import com.slack.api.model.block.element.*;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -193,7 +191,7 @@ public class SelectCommand {
         if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
             return createIndexBlockPage.createIndexBlocks();
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
-            return createTableBlockPage.createIndexBlocks();
+            return createTableBlockPage.createTableBlocks();
         } else if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
             return addColumnBlockPage.addColumnBlocks();
         } else if (commandType.equals(CommandType.DELETE_COLUMN)) {
