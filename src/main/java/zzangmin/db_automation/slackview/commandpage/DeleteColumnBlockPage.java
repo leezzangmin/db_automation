@@ -12,7 +12,6 @@ import zzangmin.db_automation.entity.CommandType_old;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.SelectClusterSchemaTableBlocks;
 import zzangmin.db_automation.slackview.SlackConstants;
 import zzangmin.db_automation.validator.DDLValidator;
 

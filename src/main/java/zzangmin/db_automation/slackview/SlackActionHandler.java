@@ -1,4 +1,4 @@
-package zzangmin.db_automation.controller;
+package zzangmin.db_automation.slackview;
 
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
 import com.slack.api.model.block.LayoutBlock;
@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.slackview.*;
 
 import java.util.List;
 import java.util.Map;

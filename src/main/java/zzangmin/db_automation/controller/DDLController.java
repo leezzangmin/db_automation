@@ -29,6 +29,12 @@ public class DDLController {
         return "ok";
     }
 
+    public String executeCommand(DatabaseConnectionInfo databaseConnectionInfo,
+                                 DDLRequestDTO ddlRequestDTO) {
+
+        return "ok";
+    }
+
     @PutMapping("/ddl/column")
     public AddColumnDDLResponseDTO addColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                              @RequestBody AddColumnRequestDTO ddlRequestDTO) {
