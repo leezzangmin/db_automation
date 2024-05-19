@@ -14,16 +14,16 @@ public class ExecutionTimeAspect {
     @Autowired
     public ExecutionTimeAspect() {}
 
-    @Pointcut("execution(* zzangmin.db_automation.service.DDLService.*(..))")
-    private void ddlServiceMethods() {}
+    @Pointcut("execution(* zzangmin.db_automation.controller.DDLController.*(..))")
+    private void ddlControllerMethods() {}
 
-    @Before("ddlServiceMethods()")
+    @Before("ddlControllerMethods()")
     public void setStartTime(JoinPoint joinPoint) {
         long startTime = System.currentTimeMillis();
         executionTimeHolder.set(startTime);
     }
 
-    @AfterReturning(pointcut = "ddlServiceMethods()", returning = "dto")
+    @AfterReturning(pointcut = "ddlControllerMethods()", returning = "dto")
     public void afterReturningSetDTOsDuration(Object dto) {
         long endTime = System.currentTimeMillis();
         long startTime = executionTimeHolder.get();
