@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS back_office.change_history (
     table_name varchar(255) not null,
     doer varchar(255) not null,
     do_date_time datetime not null,
-    change_content text not null
+    change_content_sql text not null
 );
 
 CREATE TABLE IF NOT EXISTS back_office.schema_object (

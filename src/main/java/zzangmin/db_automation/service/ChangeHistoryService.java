@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import zzangmin.db_automation.dto.request.*;
 import zzangmin.db_automation.entity.ChangeHistory;
-import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.repository.ChangeHistoryRepository;
 
 import java.util.List;
@@ -28,7 +27,7 @@ public class ChangeHistoryService {
                 .tableName(createChangeHistoryRequestDTO.getTableName())
                 .doer(createChangeHistoryRequestDTO.getDoer())
                 .doDateTime(createChangeHistoryRequestDTO.getDoDateTime())
-                .changeContent(generateChangeContent(createChangeHistoryRequestDTO, ddlRequestDTO))
+                .changeContentSql(ddlRequestDTO.toSQL())
                 .build();
         changeHistoryRepository.save(changeHistory);
         log.info("ChangeHistoryService.addChangeHistory(): {}", changeHistory);
@@ -37,56 +36,5 @@ public class ChangeHistoryService {
     @Transactional(readOnly = true)
     public List<ChangeHistory> findChangeHistories(String databaseIdentifier, String schemaName, String tableName) {
         return changeHistoryRepository.findByDatabaseIdentifierAndSchemaNameAndTableName(databaseIdentifier, schemaName, tableName);
-    }
-
-    private String generateChangeContent(CreateChangeHistoryRequestDTO createChangeHistoryRequestDTO, DDLRequestDTO ddlRequestDTO) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("schemaName: ");
-        sb.append(createChangeHistoryRequestDTO.getSchemaName());
-        sb.append(", tableName: ");
-        sb.append(createChangeHistoryRequestDTO.getTableName());
-        sb.append(", commandType: ");
-        sb.append(ddlRequestDTO.getCommandType());
-
-        if (ddlRequestDTO.getCommandType().equals(DatabaseRequestCommandGroup.CommandType.CREATE_INDEX)) {
-            CreateIndexRequestDTO dto = (CreateIndexRequestDTO) ddlRequestDTO;
-            sb.append(", indexName: ");
-            sb.append(dto.getIndexName());
-            sb.append(", columnNames: ");
-            sb.append(dto.getColumnNames());
-        } else if (ddlRequestDTO.getCommandType().equals(DatabaseRequestCommandGroup.CommandType.CREATE_TABLE)) {
-            CreateTableRequestDTO dto = (CreateTableRequestDTO) ddlRequestDTO;
-        } else if (ddlRequestDTO.getCommandType().equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
-            AddColumnRequestDTO dto = (AddColumnRequestDTO) ddlRequestDTO;
-            sb.append(", column: ");
-            sb.append(dto.getColumn());
-        } else if (ddlRequestDTO.getCommandType().equals(DatabaseRequestCommandGroup.CommandType.ALTER_COLUMN)) {
-            AlterColumnRequestDTO dto = (AlterColumnRequestDTO) ddlRequestDTO;
-            sb.append(", after: ");
-            sb.append(dto.getAfterColumn());
-        } else if (ddlRequestDTO.getCommandType().equals(DatabaseRequestCommandGroup.CommandType.DELETE_COLUMN)) {
-            DeleteColumnRequestDTO dto = (DeleteColumnRequestDTO) ddlRequestDTO;
-            sb.append(", delteColumnName: ");
-            sb.append(dto.getColumnName());
-        } else if (ddlRequestDTO.getCommandType().equals(DatabaseRequestCommandGroup.CommandType.EXTEND_VARCHAR_COLUMN)) {
-            ExtendVarcharColumnRequestDTO dto = (ExtendVarcharColumnRequestDTO) ddlRequestDTO;
-            sb.append(", extendColumnName: ");
-            sb.append(dto.getOldColumn().getName());
-            sb.append(", extendColumnSize: ");
-            sb.append(dto.getExtendSize());
-        } else if (ddlRequestDTO.getCommandType().equals(DatabaseRequestCommandGroup.CommandType.RENAME_COLUMN)) {
-            RenameColumnRequestDTO dto = (RenameColumnRequestDTO) ddlRequestDTO;
-            sb.append(", beforeColumnName: ");
-            sb.append(dto.getBeforeColumnName());
-            sb.append(", afterColumnName: ");
-            sb.append(dto.getAfterColumnName());
-        } else {
-            throw new IllegalArgumentException("지원하지 않는 명령");
-        }
-        sb.append(", executeTime: ");
-        sb.append(createChangeHistoryRequestDTO.getDoDateTime());
-        sb.append(", doer: ");
-        sb.append(createChangeHistoryRequestDTO.getDoer());
-        return sb.toString();
     }
 }
