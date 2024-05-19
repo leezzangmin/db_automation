@@ -24,6 +24,8 @@ public class RenameTableRequestDTO implements DDLRequestDTO {
         sb.append(".");
         sb.append(oldTableName);
         sb.append(" RENAME TO ");
+        sb.append(schemaName);
+        sb.append(".");
         sb.append(newTableName);
         sb.append(";");
         return sb.toString();
