@@ -1,5 +1,6 @@
 package zzangmin.db_automation.slackview.commandpage;
 
+import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.ViewState;
@@ -88,7 +89,9 @@ public class CreateIndexBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleSubmission(List<LayoutBlock> currentBlocks,
+                                 Map<String, Map<String, ViewState.Value>> values,
+                                 ViewSubmissionPayload.User slackUser) {
         String indexName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.createIndexIndexNameTextInputId);
         log.info("indexName: {}", indexName);
 
@@ -112,7 +115,7 @@ public class CreateIndexBlockPage implements BlockPage {
         log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
 
         ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);
-        ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO);
+        ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO, slackUser);
     }
 
     @Override

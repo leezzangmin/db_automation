@@ -1,5 +1,6 @@
 package zzangmin.db_automation.slackview.commandpage;
 
+import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.ViewState;
@@ -92,7 +93,9 @@ public class AddColumnBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleSubmission(List<LayoutBlock> currentBlocks,
+                                 Map<String, Map<String, ViewState.Value>> values,
+                                 ViewSubmissionPayload.User slackUser) {
 
         String columnName = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.AddColumn.addColumnColumnNameTextInputId);
@@ -125,7 +128,7 @@ public class AddColumnBlockPage implements BlockPage {
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, tableName, column);
 
         ddlValidator.validateAddColumn(selectedDatabaseConnectionInfo, addColumnRequestDTO);
-        ddlController.addColumn(selectedDatabaseConnectionInfo, addColumnRequestDTO);
+        ddlController.addColumn(selectedDatabaseConnectionInfo, addColumnRequestDTO, slackUser);
     }
 
     @Override

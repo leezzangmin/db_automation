@@ -1,6 +1,7 @@
 package zzangmin.db_automation.slackview;
 
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
+import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +30,13 @@ public class SlackRequestHandler {
         return currentBlocks;
     }
 
-    public void handleSubmission(DatabaseRequestCommandGroup.CommandType commandType, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
+                                 List<LayoutBlock> currentBlocks,
+                                 Map<String, Map<String,ViewState.Value>> values,
+                                 ViewSubmissionPayload.User slackUser) {
         validateSubmission();
         log.info("<submission> commandType: {}", commandType);
-        blockPageManager.handleSubmission(commandType, currentBlocks, values);
+        blockPageManager.handleSubmission(commandType, currentBlocks, values, slackUser);
     }
 
     public void validateRequest(String slackSignature, String timestamp, String requestBody) {

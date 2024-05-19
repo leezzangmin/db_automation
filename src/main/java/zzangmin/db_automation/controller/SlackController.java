@@ -84,10 +84,11 @@ public class SlackController {
             viewBlocks = view.getBlocks();
             state = view.getState();
             try {
-
                 CommandType findCommandType = findCommandType(state);
-                // TODO: USER auth
-                slackRequestHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
+                slackRequestHandler.handleSubmission(findCommandType,
+                        viewBlocks,
+                        state.getValues(),
+                        viewSubmissionPayload.getUser());
 
                 return ResponseEntity.ok(closeViewJsonString());
             } catch (Exception e) {

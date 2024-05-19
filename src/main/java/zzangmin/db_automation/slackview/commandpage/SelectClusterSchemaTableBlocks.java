@@ -1,5 +1,6 @@
 package zzangmin.db_automation.slackview.commandpage;
 
+import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.BlockElement;
@@ -40,7 +41,9 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleSubmission(List<LayoutBlock> currentBlocks,
+                                 Map<String, Map<String, ViewState.Value>> values,
+                                 ViewSubmissionPayload.User slackUser) {
         throw new IllegalArgumentException("미지원 page");
     }
 

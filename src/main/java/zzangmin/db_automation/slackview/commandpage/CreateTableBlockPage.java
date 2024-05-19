@@ -1,5 +1,6 @@
 package zzangmin.db_automation.slackview.commandpage;
 
+import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +59,9 @@ public class CreateTableBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleSubmission(List<LayoutBlock> currentBlocks,
+                                 Map<String, Map<String, ViewState.Value>> values,
+                                 ViewSubmissionPayload.User slackUser) {
         String createTableStatementSQL = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateTable.createTableSQLTextInputId);
         log.info("createTableStatementSQL: {}", createTableStatementSQL);
         CreateTableRequestDTO createTableRequestDTO;
@@ -77,7 +80,7 @@ public class CreateTableBlockPage implements BlockPage {
 
         createTableRequestDTO.setSchemaName(schemaName);
         ddlValidator.validateCreateTable(selectedDatabaseConnectionInfo, createTableRequestDTO);
-        ddlController.createTable(selectedDatabaseConnectionInfo, createTableRequestDTO);
+        ddlController.createTable(selectedDatabaseConnectionInfo, createTableRequestDTO, slackUser);
     }
 
     @Override

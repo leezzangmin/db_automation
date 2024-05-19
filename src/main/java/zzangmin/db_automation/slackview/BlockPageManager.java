@@ -1,5 +1,6 @@
 package zzangmin.db_automation.slackview;
 
+import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,12 @@ public class BlockPageManager {
     }
 
     public void handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
-                              List<LayoutBlock> blocks,
-                                 Map<String, Map<String, ViewState.Value>> values) {
+                                 List<LayoutBlock> blocks,
+                                 Map<String, Map<String, ViewState.Value>> values,
+                                 ViewSubmissionPayload.User slackUser) {
         BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
 
-        selectedBlockPage.handleSubmission(blocks, values);
+        selectedBlockPage.handleSubmission(blocks, values, slackUser);
     }
 
     public void handleAction(String actionId, List<LayoutBlock> blocks, Map<String, Map<String, ViewState.Value>> values) {

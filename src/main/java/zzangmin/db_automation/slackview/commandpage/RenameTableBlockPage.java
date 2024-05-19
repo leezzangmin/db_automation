@@ -1,5 +1,6 @@
 package zzangmin.db_automation.slackview.commandpage;
 
+import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +44,9 @@ public class RenameTableBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleSubmission(List<LayoutBlock> currentBlocks,
+                                 Map<String, Map<String, ViewState.Value>> values,
+                                 ViewSubmissionPayload.User slackUser) {
         DatabaseConnectionInfo databaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
         String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
         String oldTableName = selectClusterSchemaTableBlocks.getTableName(values);
@@ -52,7 +55,7 @@ public class RenameTableBlockPage implements BlockPage {
 
         RenameTableRequestDTO renameTableRequestDTO = new RenameTableRequestDTO(schemaName, oldTableName, newTableName);
         ddlValidator.validateRenameTable(databaseConnectionInfo, renameTableRequestDTO);
-        ddlController.renameTable(databaseConnectionInfo, renameTableRequestDTO);
+        ddlController.renameTable(databaseConnectionInfo, renameTableRequestDTO, slackUser);
     }
 
     @Override
