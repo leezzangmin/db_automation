@@ -15,14 +15,14 @@ public class SlackConfig {
     @Value("${slack.token}")
     public String slackToken;
     public static String slackAppSigningSecret;
-
-    public static String DEFAULT_CHANNEL_ID = "C06R9FPERDE"; // TODO: env
-
+    public static String DEFAULT_CHANNEL_ID;
     public static final int MAX_MESSAGE_SIZE = 10000;
 
     @Autowired
-    public void setSlackAppSigningSecret(@Value("${slack.app-signing-secret}")String slackAppSigningSecret) {
+    public void setSlackAppSigningSecret(@Value("${slack.app-signing-secret}")String slackAppSigningSecret,
+                                         @Value("${slack.default-channel-id}")String DEFAULT_CHANNEL_ID) {
         this.slackAppSigningSecret = slackAppSigningSecret;
+        this.DEFAULT_CHANNEL_ID = DEFAULT_CHANNEL_ID;
     }
 
     @Bean
