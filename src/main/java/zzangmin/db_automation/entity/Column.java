@@ -25,15 +25,11 @@ public class Column {
     @JsonProperty("isNull")
     private Boolean isNull; // NOT NULL, DEFAULT NULL
     private String defaultValue;
-//    @NotBlank
-//    @JsonProperty("isUnique")
-//    private Boolean isUnique;
     @NotBlank
     @JsonProperty("isAutoIncrement")
     private Boolean isAutoIncrement;
     @NotBlank
     private String comment;
-//    private String charset;
     private String collate;
 
 
@@ -45,10 +41,16 @@ public class Column {
             if (defaultValue.equals("null") || defaultValue.equals("NULL")) {
                 return "DEFAULT NULL";
             }
+            if (defaultValue.equals("CURRENT_TIMESTAMP") || defaultValue.equals("current_timestamp")) {
+                return "DEFAULT CURRENT_TIMESTAMP";
+            }
             return "DEFAULT '" + this.defaultValue + "'";
         } else if (!this.isNull) {
             if (defaultValue == null || defaultValue.equals("null") || defaultValue.equals("NULL")) {
                 return "NOT NULL";
+            }
+            if (defaultValue.equals("CURRENT_TIMESTAMP") || defaultValue.equals("current_timestamp")) {
+                return "NOT NULL DEFAULT CURRENT_TIMESTAMP";
             }
             return "NOT NULL DEFAULT '" + this.defaultValue + "'";
         }
@@ -77,10 +79,6 @@ public class Column {
         throw new IllegalStateException(this.name + " 컬럼은 varchar 타입이 아닙니다. 정상 입력 ex: VARCHAR(255)");
     }
 
-    public void changeColumnType(String type) {
-        this.type = type;
-    }
-
     public String reportDifference(Column other) {
         StringBuilder differenceResult = new StringBuilder();
         StringBuilder differences = new StringBuilder();
@@ -93,18 +91,12 @@ public class Column {
         if (!Objects.equals(this.defaultValue, other.defaultValue)) { // Objects.equals는 null-safe
             differences.append(String.format("기본값이 다릅니다: `%s` <-> `%s`\n", this.defaultValue, other.defaultValue));
         }
-//        if (this.isUnique != other.isUnique) {
-//            differences.append(String.format("고유 여부가 다릅니다: `%s` <-> `%s`\n", this.isUnique, other.isUnique));
-//        }
         if (!Objects.equals(this.isAutoIncrement, other.isAutoIncrement)) {
             differences.append(String.format("자동 증가 여부가 다릅니다: `%s` <-> `%s`\n", this.isAutoIncrement, other.isAutoIncrement));
         }
         if (!Objects.equals(this.comment, other.comment)) {
             differences.append(String.format("코멘트가 다릅니다: `%s` <-> `%s`\n", this.comment, other.comment));
         }
-//        if (!Objects.equals(this.charset, other.charset)) {
-//            differences.append(String.format("문자셋이 다릅니다: `%s` <-> `%s`\n", this.charset, other.charset));
-//        }
         if (!Objects.equals(this.collate, other.collate)) {
             differences.append(String.format("콜레이션이 다릅니다: `%s` <-> `%s`\n", this.collate, other.collate));
         }
@@ -141,7 +133,6 @@ public class Column {
                         columnDefinition.getColumnSpecs().contains("PRIMARY")) ? false : true)
                 .defaultValue(defaultColumnSpecIndex == -1 ? null : columnSpecs.get(defaultColumnSpecIndex + 1))
                 .isAutoIncrement((columnDefinition.getColumnSpecs().contains("auto_increment") || columnDefinition.getColumnSpecs().contains("AUTO_INCREMENT")) ? true : false)
-//                .charset(null)
                 .collate(collateColumnSpecIndex == -1 ? null : columnSpecs.get(collateColumnSpecIndex + 1))
                 .comment((columnDefinition.getColumnSpecs().contains("comment") || columnDefinition.getColumnSpecs().contains("COMMENT")) ?
                         columnDefinition.getColumnSpecs().get(columnDefinition.getColumnSpecs().size() - 1).replace("'","") : null)
