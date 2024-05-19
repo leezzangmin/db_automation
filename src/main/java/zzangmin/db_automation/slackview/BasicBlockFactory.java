@@ -1,6 +1,5 @@
 package zzangmin.db_automation.slackview;
 
-import com.slack.api.model.Option;
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.*;
@@ -12,11 +11,28 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.*;
-import static com.slack.api.model.block.composition.BlockCompositions.markdownText;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.*;
 
 public class BasicBlockFactory {
+
+    public static View findGlobalRequestModalView(List<LayoutBlock> blocks) {
+        return View.builder()
+                .type("modal")
+                .callbackId("global-request-modal")
+                .title(ViewTitle.builder()
+                        .type("plain_text")
+                        .text("Database Request")
+                        .emoji(true)
+                        .build())
+                .blocks(blocks)
+                .submit(ViewSubmit.builder()
+                        .type("plain_text")
+                        .text("Database Request submit")
+                        .emoji(true)
+                        .build())
+                .build();
+    }
 
     public static InputBlock findSinglelinePlainTextInput(String id, String label, String placeholder) {
         return input(input -> input

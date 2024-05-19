@@ -13,7 +13,6 @@ import com.slack.api.model.block.*;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -23,7 +22,8 @@ import org.springframework.web.util.HtmlUtils;
 
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.SlackActionHandler;
+import zzangmin.db_automation.slackview.BasicBlockFactory;
+import zzangmin.db_automation.slackview.SlackRequestHandler;
 import zzangmin.db_automation.slackview.commandpage.SelectCommandBlocks;
 import zzangmin.db_automation.slackview.SlackConstants;
 
@@ -39,8 +39,7 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 public class SlackController {
 
     private final MethodsClient slackClient;
-    private final SlackService slackService;
-    private final SlackActionHandler slackActionHandler;
+    private final SlackRequestHandler slackRequestHandler;
     private final Gson gson;
     private static final JsonPayloadTypeDetector payloadTypeDetector = new JsonPayloadTypeDetector();
 
@@ -48,12 +47,11 @@ public class SlackController {
     public ResponseEntity<?> slackCallBack(@RequestParam String payload,
                                                                         @RequestBody String requestBody,
                                                                         @RequestHeader("X-Slack-Signature") String slackSignature,
-                                                                        @RequestHeader("X-Slack-Request-Timestamp") String timestamp,
-                                                                        HttpServletResponse response) throws IOException, SlackApiException {
+                                                                        @RequestHeader("X-Slack-Request-Timestamp") String timestamp) throws IOException, SlackApiException {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
-        slackService.validateRequest(slackSignature, timestamp, requestBody);
+        slackRequestHandler.validateRequest(slackSignature, timestamp, requestBody);
         String decodedPayload = HtmlUtils.htmlUnescape(payload);
         log.info("slackCallBack decodedPayload: {}", decodedPayload);
 
@@ -73,12 +71,10 @@ public class SlackController {
             state = view.getState();
             viewBlocks = view.getBlocks();
             List<Action> actions = blockActionPayload.getActions();
-
             for (Action action : actions) {
                 log.info("action: {}", action);
-                viewBlocks = slackActionHandler.handleAction(action, viewBlocks, state.getValues());
+                viewBlocks = slackRequestHandler.handleAction(action, viewBlocks, state.getValues());
             }
-
         } else if (payloadType.equals("view_submission")) {
             ViewSubmissionPayload viewSubmissionPayload = GsonFactory.createSnakeCase()
                     .fromJson(decodedPayload, ViewSubmissionPayload.class);
@@ -91,7 +87,7 @@ public class SlackController {
 
                 CommandType findCommandType = findCommandType(state);
                 // TODO: USER auth
-                slackActionHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
+                slackRequestHandler.handleSubmission(findCommandType, viewBlocks, state.getValues());
 
                 return ResponseEntity.ok(closeViewJsonString());
             } catch (Exception e) {
@@ -143,16 +139,13 @@ public class SlackController {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
-        slackService.validateRequest(slackSignature, timestamp, requestBody);
 
-//        SlashCommandPayloadParser slashCommandPayloadParser = new SlashCommandPayloadParser();
-//        SlashCommandPayload slashCommandPayload = slashCommandPayloadParser.parse(requestBody);
+        slackRequestHandler.validateRequest(slackSignature, timestamp, requestBody);
 
         List<LayoutBlock> initialBlocks = new ArrayList<>();
-//        initialBlocks.add()
         initialBlocks.addAll(SelectCommandBlocks.selectCommandGroupAndCommandTypeBlocks());
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
-                .view(slackService.findGlobalRequestModalView(initialBlocks)));
+                .view(BasicBlockFactory.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
     }
 
@@ -168,7 +161,7 @@ public class SlackController {
 
     private void updateView(List<LayoutBlock> viewBlocks, View view) throws IOException, SlackApiException {
         ViewsUpdateRequest viewsUpdateRequest = ViewsUpdateRequest.builder()
-                .view(slackService.findGlobalRequestModalView(viewBlocks))
+                .view(BasicBlockFactory.findGlobalRequestModalView(viewBlocks))
                 .viewId(view.getId())
                 .build();
         ViewsUpdateResponse viewsUpdateResponse = slackClient.viewsUpdate(viewsUpdateRequest);

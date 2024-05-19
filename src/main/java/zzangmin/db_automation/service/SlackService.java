@@ -31,20 +31,6 @@ public class SlackService {
 
     private final MethodsClient slackClient;
 
-    public View findGlobalRequestModalView(List<LayoutBlock> blocks) {
-        return View.builder()
-                .type("modal")
-                .callbackId("global-request-modal")
-                .title(ViewTitle.builder()
-                        .type("plain_text")
-                        .text("Database Request")
-                        .emoji(true)
-                        .build())
-                .blocks(blocks)
-                .submit(ViewSubmit.builder().type("plain_text").text("Database Request submit").emoji(true).build())
-                .build();
-    }
-
     public void sendMessage(String message) {
         if (message.isBlank()) {
             return;
@@ -68,7 +54,11 @@ public class SlackService {
             catch (Exception e) {
                 log.info(e.getMessage());
             }
-            log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
+            if (chatPostMessageResponse.isOk()) {
+                log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
+            } else {
+                log.error("chatPostMessageResponse: {}", chatPostMessageResponse);
+            }
         }
     }
 
@@ -202,28 +192,5 @@ public class SlackService {
         }
         throw new IllegalStateException("state에 target 값이 존재하지 않습니다.");
     }
-
-    public void validateRequest(String slackSignature, String timestamp, String requestBody) {
-        try {
-            String secret = SlackConfig.slackAppSigningSecret;
-            String baseString = "v0:" + timestamp + ":" + requestBody;
-
-            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(secretKey);
-
-            byte[] hash = mac.doFinal(baseString.getBytes());
-            String mySignature = "v0=" + Hex.encodeHexString(hash);
-
-            if (!mySignature.equals(slackSignature)) {
-                throw new IllegalArgumentException("http 요청 검증 실패");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("http 요청 검증 실패");
-        }
-    }
-
-
 
 }
