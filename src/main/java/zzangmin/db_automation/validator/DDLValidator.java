@@ -228,7 +228,7 @@ public class DDLValidator {
         if (indexType == null || indexType == "" || indexType == " ") {
             throw new IllegalArgumentException("인덱스 type 이 null 입니다.");
         }
-        if (indexType.equals("KEY") || indexType.equals("UNIQUE KEY")) {
+        if (indexType.equals("KEY") || indexType.equals("UNIQUE")) {
             return;
         }
         throw new IllegalArgumentException("지원하지 않는 인덱스 타입입니다.");

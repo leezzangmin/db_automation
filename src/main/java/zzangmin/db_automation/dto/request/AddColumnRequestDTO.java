@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.springframework.stereotype.Component;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 
@@ -12,7 +11,6 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Component
 public class AddColumnRequestDTO implements DDLRequestDTO {
 
       private String schemaName;

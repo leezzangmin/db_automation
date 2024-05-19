@@ -28,7 +28,8 @@ public class BlockPageManager {
     }
 
     public void handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
-                              List<LayoutBlock> blocks, Map<String, Map<String, ViewState.Value>> values) {
+                              List<LayoutBlock> blocks,
+                                 Map<String, Map<String, ViewState.Value>> values) {
         BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
 
         selectedBlockPage.handleSubmission(blocks, values);
