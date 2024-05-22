@@ -16,6 +16,7 @@ import zzangmin.db_automation.schedule.standardcheck.standardvalue.CommonStandar
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.SlackConstants;
+import zzangmin.db_automation.slackview.globalpage.SelectClusterSchemaTableBlocks;
 import zzangmin.db_automation.validator.DDLValidator;
 
 import java.util.ArrayList;

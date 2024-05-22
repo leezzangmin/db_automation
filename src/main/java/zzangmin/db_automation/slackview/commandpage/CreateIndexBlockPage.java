@@ -15,6 +15,7 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.SlackConstants;
+import zzangmin.db_automation.slackview.globalpage.SelectClusterSchemaTableBlocks;
 import zzangmin.db_automation.validator.DDLValidator;
 
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ public class CreateIndexBlockPage implements BlockPage {
         }
     }
 
-    public List<LayoutBlock> handleAddColumn(List<LayoutBlock> currentBlocks) {
+    private List<LayoutBlock> handleAddColumn(List<LayoutBlock> currentBlocks) {
         int lastInputColumnNameBlockIndex;
         try {
             lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
@@ -208,7 +209,7 @@ public class CreateIndexBlockPage implements BlockPage {
         return Integer.parseInt(blockId);
     }
 
-    public List<LayoutBlock> handleRemoveColumn(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    private List<LayoutBlock> handleRemoveColumn(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         int lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
         currentBlocks.remove(lastInputColumnNameBlockIndex);
         return currentBlocks;
@@ -226,14 +227,5 @@ public class CreateIndexBlockPage implements BlockPage {
         }
         return indexColumnNames;
     }
-
-    private List<LayoutBlock> startMessageBlocks() {
-        return null;
-    }
-
-    private List<LayoutBlock> endMessageBlocks() {
-        return null;
-    }
-
 
 }

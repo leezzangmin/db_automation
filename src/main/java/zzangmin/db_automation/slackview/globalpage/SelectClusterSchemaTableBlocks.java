@@ -1,4 +1,4 @@
-package zzangmin.db_automation.slackview.commandpage;
+package zzangmin.db_automation.slackview.globalpage;
 
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.*;
@@ -16,10 +16,12 @@ import zzangmin.db_automation.service.DescribeService;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.SlackConstants;
+import zzangmin.db_automation.slackview.commandpage.BlockPage;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.actions;
@@ -131,6 +133,26 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
         return blocks;
     }
 
+    public List<LayoutBlock> selectClusterBlocks() {
+        List<LayoutBlock> blocks = new ArrayList<>();
+
+        List<OptionObject> clusterOptions = describeService.findDBMSNames()
+                .getDbmsNames()
+                .stream()
+                .map(dbmsName -> OptionObject.builder()
+                        .text(plainText(dbmsName))
+                        .value(dbmsName)
+                        .build()
+                )
+                .collect(Collectors.toList());
+        StaticSelectElement clusterSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId,
+                clusterOptions,
+                clusterPlaceholder);
+
+        blocks.add(actions(List.of(clusterSelectElement)));
+        return blocks;
+    }
+
     public DatabaseConnectionInfo getDatabaseConnectionInfo(Map<String, Map<String, ViewState.Value>> values) {
         String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
@@ -148,7 +170,15 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
     }
 
     private List<LayoutBlock> handleClusterChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        setSchemaNameOptions(currentBlocks, values);
+        boolean isSchemaBlockPresent = currentBlocks.stream()
+                .filter(b -> b.getBlockId()
+                        .equals(SlackConstants.CommandBlockIds.ClusterSchemaTable.findSchemaSelectsElementActionId))
+                .findAny()
+                .isPresent();
+        if (isSchemaBlockPresent) {
+            setSchemaNameOptions(currentBlocks, values);
+        }
+
         try {
             SlackService.findBlockIndex(currentBlocks, "section", SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
         } catch (Exception e) {
