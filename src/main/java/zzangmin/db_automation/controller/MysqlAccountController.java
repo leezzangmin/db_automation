@@ -12,8 +12,8 @@ import zzangmin.db_automation.dto.response.SchemaNamesResponseDTO;
 @RestController
 public class MysqlAccountController {
 
-    @GetMapping("/account/privilege")
-    public SchemaNamesResponseDTO findAccountPrivilege(DatabaseConnectionInfo databaseConnectionInfo, String accountName) {
-        return describeService.findSchemaNames(databaseConnectionInfo);
-    }
+//    @GetMapping("/account/privilege")
+//    public SchemaNamesResponseDTO findAccountPrivilege(DatabaseConnectionInfo databaseConnectionInfo, String accountName) {
+//        return describeService.findSchemaNames(databaseConnectionInfo);
+//    }
 }

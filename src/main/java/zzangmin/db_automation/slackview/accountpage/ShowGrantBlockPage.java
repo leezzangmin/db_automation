@@ -33,7 +33,7 @@ public class ShowGrantBlockPage implements BlockPage {
 
     private final String selectAccountPlaceholder = "select account";
     private final String showGrantContextLabel = "Grants: ";
-
+    private final String findAccountButtonText = "계정목록조회";
     @Override
     public List<LayoutBlock> generateBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
@@ -44,6 +44,11 @@ public class ShowGrantBlockPage implements BlockPage {
         blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId,
                 accountNameEmptyOption,
                 selectAccountPlaceholder));
+
+        // 계정 목록 조회 버튼
+        BasicBlockFactory.findSubmitButton(SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId,
+                findAccountButtonText,
+                SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId);
 
 //        // 권한 표시 창
 //        blocks.add(BasicBlockFactory.getContextBlock(showGrantContextLabel,
@@ -73,7 +78,7 @@ public class ShowGrantBlockPage implements BlockPage {
 
     @Override
     public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        if (actionId.equals(SlackConstants.CommandBlockIds.)) {
+        if (actionId.equals(SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId)) {
             DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
 
             List<String> accountNames = mysqlAccountService.findAccountNames(selectedDatabaseConnectionInfo);
