@@ -46,10 +46,10 @@ public class ShowGrantBlockPage implements BlockPage {
                 selectAccountPlaceholder));
 
         // 계정 목록 조회 버튼
-        BasicBlockFactory.findSubmitButton(SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId,
+        ActionsBlock submitButton = BasicBlockFactory.findSubmitButton(SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId,
                 findAccountButtonText,
                 SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId);
-
+        blocks.add(submitButton);
 //        // 권한 표시 창
 //        blocks.add(BasicBlockFactory.getContextBlock(showGrantContextLabel,
 //                SlackConstants.CommandBlockIds.ShowGrant.showGrantTextBlockId));
