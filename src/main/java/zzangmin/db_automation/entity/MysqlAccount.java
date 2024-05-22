@@ -37,6 +37,9 @@ public class MysqlAccount {
     @OneToMany(mappedBy = "mysqlAccount", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Privilege> privileges = new ArrayList<>();
 
+    public String getAccountString() {
+        return "'" + this.user + "'@'" + this.host + "'";
+    }
     @Getter
     @Setter
     @ToString

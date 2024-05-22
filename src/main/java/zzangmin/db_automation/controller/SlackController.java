@@ -24,7 +24,7 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.SlackRequestHandler;
-import zzangmin.db_automation.slackview.commandpage.SelectCommandBlocks;
+import zzangmin.db_automation.slackview.globalpage.SelectCommandBlocks;
 import zzangmin.db_automation.slackview.SlackConstants;
 
 import java.io.IOException;

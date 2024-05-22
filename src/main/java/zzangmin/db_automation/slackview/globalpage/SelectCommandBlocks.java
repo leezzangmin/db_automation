@@ -1,4 +1,4 @@
-package zzangmin.db_automation.slackview.commandpage;
+package zzangmin.db_automation.slackview.globalpage;
 
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.*;
@@ -13,6 +13,7 @@ import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.BlockPageManager;
 import zzangmin.db_automation.slackview.SlackConstants;
+import zzangmin.db_automation.slackview.commandpage.BlockPage;
 
 import java.util.ArrayList;
 import java.util.Arrays;

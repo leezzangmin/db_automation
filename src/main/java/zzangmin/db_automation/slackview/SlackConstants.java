@@ -89,6 +89,12 @@ public class SlackConstants {
         public static class RenameTable {
             public static final String renameTableNewTableNameTextInputId = "inputRenameTableNewTableName";
         }
+
+        // show grant
+        public static class ShowGrant {
+            public static final String selectMysqlAccountSelectBlockId = "selectMysqlAccountSelectBlockId";
+            public static final String showGrantTextBlockId = "showGrantTextBlockId";
+        }
     }
 
     public static class FixedBlockIds {

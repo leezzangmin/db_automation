@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.MysqlAccount;
-import zzangmin.db_automation.service.MysqlAccountService;
+import zzangmin.db_automation.service.InternalMysqlAccountService;
 import zzangmin.db_automation.util.ProfileUtil;
 
 import java.util.List;
@@ -16,10 +16,11 @@ import java.util.List;
 @Component
 public class AccountDifferenceChecker {
     private final MysqlClient mysqlClient;
-    private final MysqlAccountService mysqlAccountService;
+    private final InternalMysqlAccountService internalMysqlAccountService;
 
     public String compareAccount(DatabaseConnectionInfo sourceInfo, DatabaseConnectionInfo replicaInfo) {
         StringBuilder differenceResult = new StringBuilder();
+        // TODO
 //        List<MysqlAccount> mysqlAccounts1 = mysqlClient.findMysqlAccounts(sourceInfo);
 //        List<MysqlAccount> mysqlAccounts = mysqlClient.findMysqlAccounts(replicaInfo);
 //        for (MysqlAccount mysqlAccount : mysqlAccounts) {
@@ -32,7 +33,7 @@ public class AccountDifferenceChecker {
     public String compareAccountCrossAccount(DatabaseConnectionInfo databaseConnectionInfo) {
         StringBuilder differenceResult = new StringBuilder();
         List<MysqlAccount> sourceMysqlAccounts = mysqlClient.findMysqlAccounts(databaseConnectionInfo);
-        List<MysqlAccount> replicaMysqlAccounts = mysqlAccountService.findAccounts(databaseConnectionInfo.findServiceName());
+        List<MysqlAccount> replicaMysqlAccounts = internalMysqlAccountService.findAccounts(databaseConnectionInfo.findServiceName());
         for (MysqlAccount sourceMysqlAccount : sourceMysqlAccounts) {
             if (!isAccountExists(sourceMysqlAccount, replicaMysqlAccounts)) {
                 differenceResult.append(String.format("`%s` 환경, `%s` DB에 `%s` 계정이 존재하지 않습니다.\n",
@@ -70,7 +71,7 @@ public class AccountDifferenceChecker {
     public void saveAccount(DatabaseConnectionInfo databaseConnectionInfo) {
         log.info("saveAccount: {}", databaseConnectionInfo);
         List<MysqlAccount> mysqlAccounts = mysqlClient.findMysqlAccounts(databaseConnectionInfo);
-        mysqlAccountService.upsertAccounts(mysqlAccounts);
+        internalMysqlAccountService.upsertAccounts(mysqlAccounts);
     }
 
     private boolean isPrivilegeExists(MysqlAccount.Privilege sourcePrivilege, List<MysqlAccount.Privilege> replicaPrivileges) {
