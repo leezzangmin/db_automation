@@ -2,17 +2,18 @@ package zzangmin.db_automation.slackview.accountpage;
 
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.ActionsBlock;
+import com.slack.api.model.block.Blocks;
 import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.block.composition.BlockCompositions;
 import com.slack.api.model.block.composition.OptionObject;
-import com.slack.api.model.block.element.BlockElement;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.controller.MysqlAccountController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.response.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.InternalMysqlAccountService;
-import zzangmin.db_automation.service.MysqlAccountService;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.SlackConstants;
@@ -29,11 +30,12 @@ import java.util.Map;
 public class ShowGrantBlockPage implements BlockPage {
 
     private final SelectClusterSchemaTableBlocks selectClusterSchemaTableBlocks;
-    private final MysqlAccountService mysqlAccountService;
+    private final MysqlAccountController mysqlAccountController;
+    private final SlackService slackService;
 
     private final String selectAccountPlaceholder = "select account";
-    private final String showGrantContextLabel = "Grants: ";
     private final String findAccountButtonText = "계정목록조회";
+
     @Override
     public List<LayoutBlock> generateBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
@@ -56,7 +58,26 @@ public class ShowGrantBlockPage implements BlockPage {
 
     @Override
     public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values, ViewSubmissionPayload.User slackUser) {
-        String accountName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId);
+        List<LayoutBlock> resultMessageBlocks = new ArrayList<>();
+
+        try {
+            String accountName = SlackService.findCurrentValueFromState(values,
+                    SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId);
+            DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
+            MysqlPrivilegeResponseDTO mysqlPrivilegeResponseDTO = mysqlAccountController.findAccountPrivilege(selectedDatabaseConnectionInfo, accountName, slackUser);
+            log.info("ShowGrant Account: {}", mysqlPrivilegeResponseDTO);
+
+            resultMessageBlocks.add(Blocks.section(section -> section.text(BlockCompositions.plainText("Account Name: " + mysqlPrivilegeResponseDTO.getAccountName()))));
+            for (String privilege : mysqlPrivilegeResponseDTO.getPrivileges()) {
+                resultMessageBlocks.add(Blocks.section(section -> section.text(BlockCompositions.markdownText("• " + privilege))));
+            }
+            slackService.sendBlockMessage(resultMessageBlocks);
+        } catch (Exception e) {
+            log.info("e: {}", e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+
 
     }
 
@@ -77,7 +98,7 @@ public class ShowGrantBlockPage implements BlockPage {
         if (actionId.equals(SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId)) {
             DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
 
-            List<String> accountNames = mysqlAccountService.findAccountNames(selectedDatabaseConnectionInfo);
+            List<String> accountNames = mysqlAccountController.findAccountNames(selectedDatabaseConnectionInfo);
             List<OptionObject> accountNameOptions = BasicBlockFactory.findOptionObjects(accountNames);
             ActionsBlock accountSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId,
                     accountNameOptions,
@@ -88,6 +109,6 @@ public class ShowGrantBlockPage implements BlockPage {
 
             currentBlocks.set(selectAccountBlockIndex, accountSelectBlock);
         }
-        return;
     }
 }
+

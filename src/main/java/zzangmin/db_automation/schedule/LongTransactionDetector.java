@@ -2,7 +2,6 @@ package zzangmin.db_automation.schedule;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
@@ -34,7 +33,7 @@ public class LongTransactionDetector {
                 log.warn("{} 의 HLL이 {} 입니다. 임계치: {}", databaseName, historyListLength, HISTORY_LIST_LENGTH_THRESHOLD);
                 int processlistId = mysqlClient.findLongTransactionProcesslistId(databases.get(databaseName));
                 List<Query> queries = mysqlClient.findQueryInTransaction(databases.get(databaseName), processlistId);
-                slackService.sendMessage(new QueriesInLongTransactionResponseDTO(databaseName, historyListLength, queries).toString());
+                slackService.sendNormalStringMessage(new QueriesInLongTransactionResponseDTO(databaseName, historyListLength, queries).toString());
             }
         }
     }

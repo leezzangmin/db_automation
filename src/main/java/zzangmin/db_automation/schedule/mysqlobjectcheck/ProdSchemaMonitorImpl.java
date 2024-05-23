@@ -3,7 +3,6 @@ package zzangmin.db_automation.schedule.mysqlobjectcheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
@@ -55,7 +54,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
             accountDifferenceChecker.saveAccount(databaseConnectionInfo);
         }
 
-        slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 저장 완료 !\n");
+        slackService.sendNormalStringMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 저장 완료 !\n");
     }
 
 }

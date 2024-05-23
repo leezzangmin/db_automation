@@ -6,18 +6,11 @@ import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.element.*;
-import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
-import com.slack.api.model.view.ViewSubmit;
-import com.slack.api.model.view.ViewTitle;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Service;
-import zzangmin.db_automation.config.SlackConfig;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.SSLHandshakeException;
 import java.util.*;
 
@@ -31,11 +24,11 @@ public class SlackService {
 
     private final MethodsClient slackClient;
 
-    public void sendMessage(String message) {
+    public void sendNormalStringMessage(String message) {
         if (message.isBlank()) {
             return;
         }
-        log.info("slack message: {}", message);
+        log.info("normal slack message: {}", message);
         for (int start = 0; start < message.length(); start += MAX_MESSAGE_SIZE) {
             int end = Math.min(message.length(), start + MAX_MESSAGE_SIZE);
             String messageChunk = message.substring(start, end);
@@ -50,16 +43,44 @@ public class SlackService {
             } catch (SSLHandshakeException sslHandshakeException) {
                 log.info(sslHandshakeException.getMessage());
                 break;
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.info(e.getMessage());
             }
+
             if (chatPostMessageResponse.isOk()) {
                 log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
             } else {
                 log.error("chatPostMessageResponse: {}", chatPostMessageResponse);
             }
         }
+    }
+
+    public void sendBlockMessage(List<LayoutBlock> blocks) {
+        if (blocks.size() < 1) {
+            return;
+        }
+        log.info("block slack message: {}", blocks);
+
+
+        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+                .channel(DEFAULT_CHANNEL_ID)
+                .blocks(blocks)
+                .build();
+        ChatPostMessageResponse chatPostMessageResponse = null;
+        try {
+            chatPostMessageResponse = slackClient.chatPostMessage(request);
+        } catch (SSLHandshakeException sslHandshakeException) {
+            log.info(sslHandshakeException.getMessage());
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        }
+
+        if (chatPostMessageResponse.isOk()) {
+            log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
+        } else {
+            log.error("chatPostMessageResponse: {}", chatPostMessageResponse);
+        }
+
     }
 
     public static int findElementIndex(List<BlockElement> blockElements, String actionId) {
