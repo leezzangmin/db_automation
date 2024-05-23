@@ -393,6 +393,27 @@ public class MysqlClient {
         return mysqlAccounts;
     }
 
+    public List<String> findPrivilegeString(DatabaseConnectionInfo databaseConnectionInfo, String accountName) {
+        List<String> privileges = new ArrayList<>();
+        String showGrantsQuery = "SHOW GRANTS FOR " + accountName;
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(showGrantsQuery)) {
+            log.info("findPrivilegeString: {}", statement);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String privilegeString = resultSet.getString(1);
+                    privileges.add(privilegeString);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return privileges;
+    }
+
     private List<MysqlAccount.Privilege> findPrivilegesForUser(MysqlAccount mysqlAccount, Connection connection) throws SQLException {
         List<MysqlAccount.Privilege> privileges = new ArrayList<>();
         String showGrantsQuery = "SHOW GRANTS FOR '" + mysqlAccount.getUser() + "'@'" + mysqlAccount.getHost() + "'";

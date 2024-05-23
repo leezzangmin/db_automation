@@ -23,4 +23,9 @@ public class MysqlAccountService {
                 .map(account -> account.getAccountString())
                 .collect(Collectors.toList());
     }
+
+    public List<String> findPrivileges(DatabaseConnectionInfo databaseConnectionInfo,
+                                       String accountName) {
+        return mysqlClient.findPrivilegeString(databaseConnectionInfo, accountName);
+    }
 }
