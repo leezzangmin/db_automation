@@ -42,7 +42,7 @@ public class DDLMessageSendAspect {
                 sb.append(((DatabaseConnectionInfo) arg).databaseSummary());
             }
         }
-        slackService.sendMessage(sb.toString());
+        slackService.sendNormalStringMessage(sb.toString());
     }
 
     @AfterReturning(pointcut = "requestMappingMethods() && ddlControllerMethods()", returning = "dto")
@@ -62,7 +62,7 @@ public class DDLMessageSendAspect {
         }
         sb.append("\n");
         sb.append(((DDLResponseDTO) dto).toString());
-        slackService.sendMessage(sb.toString());
+        slackService.sendNormalStringMessage(sb.toString());
     }
 
     @AfterThrowing(pointcut = "requestMappingMethods() && ddlControllerMethods()", throwing = "error")
@@ -83,7 +83,7 @@ public class DDLMessageSendAspect {
         sb.append("\nError Message: ");
         sb.append(error.getMessage());
 
-        slackService.sendMessage(sb.toString());
+        slackService.sendNormalStringMessage(sb.toString());
     }
 
 }

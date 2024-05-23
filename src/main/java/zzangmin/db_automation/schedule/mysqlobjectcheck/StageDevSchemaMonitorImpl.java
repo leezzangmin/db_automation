@@ -3,7 +3,6 @@ package zzangmin.db_automation.schedule.mysqlobjectcheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
@@ -39,7 +38,7 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
 
     //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() {
-        slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 시작 !");
+        slackService.sendNormalStringMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 시작 !");
 
         StringBuilder schemaCheckResult = new StringBuilder();
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
@@ -72,9 +71,9 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
 
         }
         if (schemaCheckResult.isEmpty()) {
-            slackService.sendMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 종료 !");
+            slackService.sendNormalStringMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 종료 !");
             return;
         }
-        slackService.sendMessage(schemaCheckResult.toString());
+        slackService.sendNormalStringMessage(schemaCheckResult.toString());
     }
 }

@@ -43,7 +43,7 @@ public class MysqlAccountController {
         String[] splitAccountName = accountNameReplaced.split("@");
         String user = splitAccountName[0];
         String host = splitAccountName[1];
-        // validate TODO
+        // additional validation TODO
     }
 
 }

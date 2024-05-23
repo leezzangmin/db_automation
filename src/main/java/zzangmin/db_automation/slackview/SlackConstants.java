@@ -93,7 +93,6 @@ public class SlackConstants {
         // show grant
         public static class ShowGrant {
             public static final String selectMysqlAccountSelectBlockId = "selectMysqlAccountSelectBlockId";
-            public static final String showGrantTextBlockId = "showGrantTextBlockId";
             public static final String findAccountListButtonBlockId = "findAccountListButtonBlockId";
         }
     }
