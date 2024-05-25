@@ -170,7 +170,7 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
     }
 
     private List<LayoutBlock> handleClusterChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        boolean c = false;
+        boolean isSchemaBlockPresent = false;
         try {
              SlackService.findBlockIndex(currentBlocks, "actions", SlackConstants.CommandBlockIds.ClusterSchemaTable.findSchemaSelectsElementActionId);
              isSchemaBlockPresent = true;
