@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.*;
+import static com.slack.api.model.block.composition.BlockCompositions.markdownText;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.*;
 
@@ -32,6 +33,14 @@ public class BasicBlockFactory {
                         .emoji(true)
                         .build())
                 .build();
+    }
+
+    public static HeaderBlock findHeaderBlock(String text, String blockId) {
+        HeaderBlock headerBlock = HeaderBlock.builder()
+                .text(plainText(text))
+                .blockId(blockId)
+                .build();
+        return headerBlock;
     }
 
     public static InputBlock findSinglelinePlainTextInput(String id, String label, String placeholder) {
@@ -134,8 +143,14 @@ public class BasicBlockFactory {
                 .build();
     }
 
-    public static SectionBlock getTextSection(String text, String textSectionBlockId) {
+    public static SectionBlock getPlainTextSection(String text, String textSectionBlockId) {
         SectionBlock sectionBlock = section(section -> section.text(plainText(text))
+                .blockId(textSectionBlockId));
+        return sectionBlock;
+    }
+
+    public static SectionBlock getMarkdownTextSection(String text, String textSectionBlockId) {
+        SectionBlock sectionBlock = section(section -> section.text(markdownText(text))
                 .blockId(textSectionBlockId));
         return sectionBlock;
     }
@@ -166,9 +181,8 @@ public class BasicBlockFactory {
 //
 //    }
 
-    public static DividerBlock getDivider(String dividerBlockId) {
+    public static DividerBlock findDividerBlock() {
         DividerBlock divider = divider();
-        divider.setBlockId(dividerBlockId);
         return divider;
     }
 

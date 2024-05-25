@@ -69,9 +69,9 @@ public class ShowGrantBlockPage implements BlockPage {
 
             resultMessageBlocks.add(Blocks.section(section -> section.text(BlockCompositions.plainText("Account Name: " + mysqlPrivilegeResponseDTO.getAccountName()))));
             for (String privilege : mysqlPrivilegeResponseDTO.getPrivileges()) {
-                resultMessageBlocks.add(Blocks.section(section -> section.text(BlockCompositions.markdownText("• " + privilege))));
+                resultMessageBlocks.add(Blocks.section(section -> section.text(BlockCompositions.markdownText("```" + privilege + "```"))));
             }
-            slackService.sendBlockMessage(resultMessageBlocks);
+            //slackService.sendBlockMessage(resultMessageBlocks);
         } catch (Exception e) {
             log.info("e: {}", e.getMessage());
             e.printStackTrace();

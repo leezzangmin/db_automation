@@ -121,6 +121,14 @@ public class SlackConstants {
 
     }
 
+    public static class CommunicationBlockIds {
+        public static final String commandRequestAcceptDenyButtonBlockId = "commandRequestAcceptDenyButtonBlockId";
+        public static final String commandRequestAcceptButtonBlockId = "commandRequestAcceptButtonBlockId";
+        public static final String commandRequestDenyButtonBlockId = "commandRequestDenyButtonBlockId";
+
+        private CommunicationBlockIds() {}
+    }
+
     public static class ErrorBlockIds {
         public static final String errorMessageBlockId = "displayErrorBlockGlobal";
 

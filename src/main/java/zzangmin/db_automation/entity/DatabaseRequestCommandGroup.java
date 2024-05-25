@@ -1,6 +1,7 @@
 package zzangmin.db_automation.entity;
 
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
@@ -54,6 +55,7 @@ public enum DatabaseRequestCommandGroup {
         this.commandTypes = CommandTypes;
     }
 
+    @Getter
     public enum CommandType {
         CREATE_INDEX,
         CREATE_TABLE,

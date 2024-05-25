@@ -1,15 +1,19 @@
 package zzangmin.db_automation.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
+import com.slack.api.model.Attachment;
+import com.slack.api.model.Message;
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.element.*;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import zzangmin.db_automation.util.JsonUtil;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.util.*;
@@ -55,16 +59,29 @@ public class SlackService {
         }
     }
 
-    public void sendBlockMessage(List<LayoutBlock> blocks) {
+    public void sendBlockMessage(List<LayoutBlock> blocks, List<Object> requestMetadatas) throws JsonProcessingException {
         if (blocks.size() < 1) {
             return;
         }
         log.info("block slack message: {}", blocks);
+        Map<String, Object> metadataMap = new HashMap<>();
+        String key = "1";
+        for (Object requestMetadata : requestMetadatas) {
+            String json = JsonUtil.toJson(requestMetadata);
+            metadataMap.put(key, json);
+            key = key + "1";
+        }
 
+        // https://api.slack.com/metadata/using
+        Message.Metadata metadata = Message.Metadata.builder()
+                .eventType("metadataType")
+                .eventPayload(metadataMap)
+                .build();
 
         ChatPostMessageRequest request = ChatPostMessageRequest.builder()
                 .channel(DEFAULT_CHANNEL_ID)
                 .blocks(blocks)
+                .metadata(metadata)
                 .build();
         ChatPostMessageResponse chatPostMessageResponse = null;
         try {
@@ -74,8 +91,8 @@ public class SlackService {
         } catch (Exception e) {
             log.info(e.getMessage());
         }
-
-        if (chatPostMessageResponse.isOk()) {
+        String warning = chatPostMessageResponse.getWarning();
+        if (chatPostMessageResponse != null && chatPostMessageResponse.getWarning() == null && chatPostMessageResponse.isOk()) {
             log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
         } else {
             log.error("chatPostMessageResponse: {}", chatPostMessageResponse);

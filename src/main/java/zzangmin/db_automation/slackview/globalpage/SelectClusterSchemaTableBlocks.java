@@ -21,7 +21,6 @@ import zzangmin.db_automation.slackview.commandpage.BlockPage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.slack.api.model.block.Blocks.actions;
@@ -100,7 +99,7 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
 
         String tableSchemaLabelText = "<Table Schema>";
         ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaContextId);
-        SectionBlock textSection = BasicBlockFactory.getTextSection("choose table first", SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
+        SectionBlock textSection = BasicBlockFactory.getPlainTextSection("choose table first", SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
 
         blocks.add(actions(List.of(clusterSelectElement, schemaSelectElement, tableSelectElement)));
         blocks.add(contextBlock);
@@ -233,7 +232,7 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
         blocks.add(contextBlock);
 
         String tableSchema = describeService.findTableSchema(databaseConnectionInfo, schemaName, tableName);
-        SectionBlock textSection = BasicBlockFactory.getTextSection(tableSchema, SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
+        SectionBlock textSection = BasicBlockFactory.getPlainTextSection(tableSchema, SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
         blocks.add(textSection);
 
         return blocks;
@@ -262,7 +261,7 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
 
     private static void resetTableSchemaSectionBlock(List<LayoutBlock> currentBlocks) {
         int tableSchemaTextSectionIndex = SlackService.findBlockIndex(currentBlocks, "section", SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
-        SectionBlock textSection = BasicBlockFactory.getTextSection("choose table first", SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
+        SectionBlock textSection = BasicBlockFactory.getPlainTextSection("choose table first", SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
         currentBlocks.set(tableSchemaTextSectionIndex, textSection);
     }
 
