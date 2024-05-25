@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zzangmin.db_automation.dto.request.*;
+import zzangmin.db_automation.dto.request.ddl.CreateChangeHistoryRequestDTO;
+import zzangmin.db_automation.dto.request.ddl.DDLRequestDTO;
 import zzangmin.db_automation.entity.ChangeHistory;
 import zzangmin.db_automation.repository.ChangeHistoryRepository;
 

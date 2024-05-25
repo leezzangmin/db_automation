@@ -9,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.request.CreateIndexRequestDTO;
+import zzangmin.db_automation.dto.request.ddl.CreateIndexRequestDTO;
+import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
@@ -90,16 +91,14 @@ public class CreateIndexBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks,
-                                 Map<String, Map<String, ViewState.Value>> values,
-                                 ViewSubmissionPayload.User slackUser) {
+    public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
         String indexName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.createIndexIndexNameTextInputId);
         log.info("indexName: {}", indexName);
 
         String indexType = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.findIndexTypeActionId);
         log.info("indexType: {}", indexType);
 
-        List<String> indexColumnNames = findIndexColumnNames(currentBlocks, values);
+        List<String> indexColumnNames = findIndexColumnNames(values);
         log.info("indexColumnNames: {}", indexColumnNames);
 
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
@@ -116,7 +115,7 @@ public class CreateIndexBlockPage implements BlockPage {
         log.info("createIndexRequestDTO: {}", createIndexRequestDTO);
 
         ddlValidator.validateDDLRequest(selectedDatabaseConnectionInfo, createIndexRequestDTO);
-        ddlController.createIndex(selectedDatabaseConnectionInfo, createIndexRequestDTO, slackUser);
+        return createIndexRequestDTO;
     }
 
     @Override
@@ -215,9 +214,10 @@ public class CreateIndexBlockPage implements BlockPage {
         return currentBlocks;
     }
 
-    private List<String> findIndexColumnNames(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    private List<String> findIndexColumnNames(Map<String, Map<String, ViewState.Value>> values) {
         List<String> indexColumnNames = new ArrayList<>();
-        for (int i = 1;i < findLastInputColumnNameBlockIndex(currentBlocks);i++) {
+
+        for (int i = 1;i < 99999999;i++) {
             try {
                 String columnName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.createIndexColumnNameTextInputId + i);
                 indexColumnNames.add(columnName);
@@ -225,7 +225,31 @@ public class CreateIndexBlockPage implements BlockPage {
                 break;
             }
         }
+
+//        for (int i = 1;i < findLastInputColumnNameBlockIndex(currentBlocks);i++) {
+//            try {
+//                String columnName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.createIndexColumnNameTextInputId + i);
+//                indexColumnNames.add(columnName);
+//            } catch (Exception e) {
+//                break;
+//            }
+//        }
         return indexColumnNames;
     }
 
+    public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
+        List<LayoutBlock> blocks = new ArrayList<>();
+        CreateIndexRequestDTO createIndexRequestDTO = (CreateIndexRequestDTO) requestDTO;
+
+        String sql = createIndexRequestDTO.toSQL();
+        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* ```" + sql + "```",
+                "CreateIndexRequestDTO"));
+
+        return blocks;
+    }
+
+    @Override
+    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        ddlController.createIndex(databaseConnectionInfo, (CreateIndexRequestDTO) requestDTO, slackUserId);
+    }
 }

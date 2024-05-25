@@ -8,7 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.request.RenameTableRequestDTO;
+import zzangmin.db_automation.dto.request.ddl.RenameTableRequestDTO;
+import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -45,9 +46,7 @@ public class RenameTableBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks,
-                                 Map<String, Map<String, ViewState.Value>> values,
-                                 ViewSubmissionPayload.User slackUser) {
+    public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
         DatabaseConnectionInfo databaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
         String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
         String oldTableName = selectClusterSchemaTableBlocks.getTableName(values);
@@ -56,7 +55,8 @@ public class RenameTableBlockPage implements BlockPage {
 
         RenameTableRequestDTO renameTableRequestDTO = new RenameTableRequestDTO(schemaName, oldTableName, newTableName);
         ddlValidator.validateRenameTable(databaseConnectionInfo, renameTableRequestDTO);
-        ddlController.renameTable(databaseConnectionInfo, renameTableRequestDTO, slackUser);
+
+        return renameTableRequestDTO;
     }
 
     @Override
@@ -74,5 +74,23 @@ public class RenameTableBlockPage implements BlockPage {
     @Override
     public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         return;
+    }
+
+    @Override
+    public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
+        List<LayoutBlock> blocks = new ArrayList<>();
+        RenameTableRequestDTO renameTableRequestDTO = (RenameTableRequestDTO) requestDTO;
+
+        String sql = renameTableRequestDTO.toSQL();
+
+
+        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* ```" + sql + "```", "RenameTableBlockPage"));
+
+        return blocks;
+    }
+
+    @Override
+    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        ddlController.renameTable(databaseConnectionInfo, (RenameTableRequestDTO) requestDTO, slackUserId);
     }
 }

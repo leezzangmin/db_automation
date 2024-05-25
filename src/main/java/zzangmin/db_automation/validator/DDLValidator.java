@@ -8,13 +8,11 @@ import zzangmin.db_automation.convention.ColumnConvention;
 import zzangmin.db_automation.convention.CommonConvention;
 import zzangmin.db_automation.convention.IndexConvention;
 import zzangmin.db_automation.convention.TableConvention;
-import zzangmin.db_automation.dto.request.*;
+import zzangmin.db_automation.dto.request.ddl.*;
 import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor

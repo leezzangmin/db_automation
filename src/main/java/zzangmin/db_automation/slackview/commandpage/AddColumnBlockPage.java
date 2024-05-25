@@ -9,7 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.request.AddColumnRequestDTO;
+import zzangmin.db_automation.dto.request.ddl.AddColumnRequestDTO;
+import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.CommonStandard;
@@ -94,9 +95,7 @@ public class AddColumnBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks,
-                                 Map<String, Map<String, ViewState.Value>> values,
-                                 ViewSubmissionPayload.User slackUser) {
+    public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
 
         String columnName = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.AddColumn.addColumnColumnNameTextInputId);
@@ -129,7 +128,8 @@ public class AddColumnBlockPage implements BlockPage {
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, tableName, column);
 
         ddlValidator.validateAddColumn(selectedDatabaseConnectionInfo, addColumnRequestDTO);
-        ddlController.addColumn(selectedDatabaseConnectionInfo, addColumnRequestDTO, slackUser);
+
+        return addColumnRequestDTO;
     }
 
     @Override
@@ -147,5 +147,22 @@ public class AddColumnBlockPage implements BlockPage {
         return SlackConstants.CommandBlockIds
                 .getMembers(SlackConstants.CommandBlockIds.AddColumn.class)
                 .contains(actionId);
+    }
+
+    @Override
+    public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
+        List<LayoutBlock> blocks = new ArrayList<>();
+        AddColumnRequestDTO addColumnRequestDTO = (AddColumnRequestDTO) requestDTO;
+
+        String sql = addColumnRequestDTO.toSQL();
+        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* ```" + sql + "```",
+                "AddColumnRequestDTO"));
+
+        return blocks;
+    }
+
+    @Override
+    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        ddlController.addColumn(databaseConnectionInfo, (AddColumnRequestDTO) requestDTO, slackUserId);
     }
 }

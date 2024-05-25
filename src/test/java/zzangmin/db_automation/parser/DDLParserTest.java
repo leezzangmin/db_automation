@@ -2,7 +2,7 @@ package zzangmin.db_automation.parser;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import zzangmin.db_automation.dto.request.*;
+import zzangmin.db_automation.dto.request.ddl.*;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.Constraint;
 

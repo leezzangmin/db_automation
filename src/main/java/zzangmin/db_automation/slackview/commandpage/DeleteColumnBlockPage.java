@@ -8,7 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.request.DeleteColumnRequestDTO;
+import zzangmin.db_automation.dto.request.ddl.DeleteColumnRequestDTO;
+import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -45,9 +46,7 @@ public class DeleteColumnBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks,
-                                 Map<String, Map<String, ViewState.Value>> values,
-                                 ViewSubmissionPayload.User slackUser) {
+    public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
 
         String columnName = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.DeleteColumn.deleteColumnColumnNameTextInputId);
@@ -58,7 +57,7 @@ public class DeleteColumnBlockPage implements BlockPage {
 
         DeleteColumnRequestDTO deleteColumnRequestDTO = new DeleteColumnRequestDTO(schemaName, tableName, columnName);
         ddlValidator.validateDeleteColumn(selectedDatabaseConnectionInfo, deleteColumnRequestDTO);
-        ddlController.deleteColumn(selectedDatabaseConnectionInfo, deleteColumnRequestDTO, slackUser);
+        return deleteColumnRequestDTO;
     }
 
     @Override
@@ -76,5 +75,21 @@ public class DeleteColumnBlockPage implements BlockPage {
     @Override
     public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         return;
+    }
+
+    @Override
+    public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
+        List<LayoutBlock> blocks = new ArrayList<>();
+        DeleteColumnRequestDTO deleteColumnRequestDTO = (DeleteColumnRequestDTO) requestDTO;
+        String sql = deleteColumnRequestDTO.toSQL();
+        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* ```" + sql + "```",
+                "DeleteColumnRequestDTO"));
+        return blocks;
+    }
+
+    @Override
+    public void execute(DatabaseConnectionInfo selectedDatabaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        DeleteColumnRequestDTO deleteColumnRequestDTO = (DeleteColumnRequestDTO) requestDTO;
+        ddlController.deleteColumn(selectedDatabaseConnectionInfo, deleteColumnRequestDTO, slackUserId);
     }
 }

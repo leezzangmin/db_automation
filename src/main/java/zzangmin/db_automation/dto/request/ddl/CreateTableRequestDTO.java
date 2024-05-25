@@ -1,4 +1,4 @@
-package zzangmin.db_automation.dto.request;
+package zzangmin.db_automation.dto.request.ddl;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
