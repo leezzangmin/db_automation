@@ -1,4 +1,4 @@
-package zzangmin.db_automation.dto.request;
+package zzangmin.db_automation.dto.request.ddl;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -57,7 +57,7 @@ public class CreateTableRequestDTO implements DDLRequestDTO {
     }
 
     @Override
-    public DatabaseRequestCommandGroup.CommandType getCommandType() {
+    public DatabaseRequestCommandGroup.CommandType extractCommandType() {
         return DatabaseRequestCommandGroup.CommandType.CREATE_TABLE;
     }
 

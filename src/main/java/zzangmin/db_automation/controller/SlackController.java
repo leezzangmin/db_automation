@@ -1,5 +1,6 @@
 package zzangmin.db_automation.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
 import com.slack.api.app_backend.util.JsonPayloadTypeDetector;
@@ -9,6 +10,7 @@ import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.views.ViewsUpdateRequest;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.methods.response.views.ViewsUpdateResponse;
+import com.slack.api.model.Message;
 import com.slack.api.model.block.*;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
@@ -20,6 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
+import zzangmin.db_automation.config.DynamicDataSourceProperties;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -42,7 +47,6 @@ public class SlackController {
     private final MethodsClient slackClient;
     private final SlackRequestHandler slackRequestHandler;
     private final SlackService slackService;
-    private final Gson gson;
     private static final JsonPayloadTypeDetector payloadTypeDetector = new JsonPayloadTypeDetector();
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -89,75 +93,6 @@ public class SlackController {
         return ResponseEntity.ok("ok");
     }
 
-    private ResponseEntity<String> handleViewSubmission(ViewSubmissionPayload viewSubmissionPayload) {
-        List<LayoutBlock> blocks = viewSubmissionPayload.getView().getBlocks();
-        ViewState state = viewSubmissionPayload.getView().getState();
-        ViewSubmissionPayload.User slackUser = viewSubmissionPayload.getUser();
-        try {
-            CommandType findCommandType = findCommandType(state);
-            slackRequestHandler.handleSubmission(findCommandType,
-                    blocks,
-                    state.getValues(),
-                    slackUser);
-            List<LayoutBlock> requestBlocks = slackRequestHandler.sendSubmissionRequestMessage(findCommandType, slackUser);
-            slackService.sendBlockMessage(requestBlocks, List.of(findCommandType, state.getValues(), slackUser));
-        } catch (Exception e) {
-            log.info("Exception: {}", e.getMessage());
-            log.info("Exception trace: {}", e.getStackTrace());
-            e.printStackTrace();
-            return ResponseEntity.ok(displayErrorViewJsonString(e, blocks));
-        }
-
-        return ResponseEntity.ok(closeViewJsonString());
-    }
-
-    private List<LayoutBlock> handleBlockAction(BlockActionPayload blockActionPayload) {
-        List<Action> actions = blockActionPayload.getActions();
-
-        // view == null -> message action
-        if (blockActionPayload.getView() == null) {
-            User user = blockActionPayload.getUser();
-
-            for (Action action : actions) {
-                System.out.println("action = " + action);
-                if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
-                    slackRequestHandler.validateRequestAcceptDoer(user);
-
-                    // send accept message
-                    // execute
-
-                    System.out.println("accept!");
-                } else if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
-                    slackRequestHandler.validateRequestAcceptDoer(user);
-
-                    // send deny message
-                    // expire request message
-
-                    System.out.println("deny!");
-                }
-
-            }
-            ViewState state = blockActionPayload.getState();
-            List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
-            for (LayoutBlock block : blocks) {
-                System.out.println("block = " + block);
-            }
-            System.out.println("state = " + state);
-            //blockActionPayload.
-            return blocks;
-        }
-
-        // view != null -> view modal action
-        View view = blockActionPayload.getView();
-        ViewState state = view.getState();
-        List<LayoutBlock> blocks = view.getBlocks();
-        for (Action action : actions) {
-            log.info("action: {}", action);
-            blocks = slackRequestHandler.handleAction(action, blocks, state.getValues());
-        }
-        return blocks;
-    }
-
     @PostMapping(value = "/slack/command/dbselect", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     public void databaseRequestCommand(@RequestParam("token") String token,
                                   @RequestParam("team_id") String teamId,
@@ -195,6 +130,84 @@ public class SlackController {
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
                 .view(BasicBlockFactory.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
+    }
+
+    private ResponseEntity<String> handleViewSubmission(ViewSubmissionPayload viewSubmissionPayload) {
+        List<LayoutBlock> blocks = viewSubmissionPayload.getView().getBlocks();
+        ViewState state = viewSubmissionPayload.getView().getState();
+        ViewSubmissionPayload.User slackUser = viewSubmissionPayload.getUser();
+        try {
+            CommandType findCommandType = findCommandType(state);
+            String selectedDBMSName = SlackService.findCurrentValueFromState(state.getValues(), SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId);
+            DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
+            RequestDTO requestDTO = slackRequestHandler.handleSubmission(findCommandType,
+                    state.getValues());
+            List<LayoutBlock> requestMessageBlocks = slackRequestHandler.sendSubmissionRequestMessage(selectedDatabaseConnectionInfo, findCommandType, slackUser, requestDTO);
+            slackService.sendBlockMessageWithMetadata(selectedDatabaseConnectionInfo, findCommandType, requestMessageBlocks, requestDTO);
+        } catch (Exception e) {
+            log.info("Exception: {}", e.getMessage());
+            log.info("Exception trace: {}", e.getStackTrace());
+            e.printStackTrace();
+            return ResponseEntity.ok(displayErrorViewJsonString(e, blocks));
+        }
+
+        return ResponseEntity.ok(closeViewJsonString());
+    }
+
+    private List<LayoutBlock> handleBlockAction(BlockActionPayload blockActionPayload) throws JsonProcessingException {
+        List<Action> actions = blockActionPayload.getActions();
+
+        // view == null -> message action
+        if (blockActionPayload.getView() == null) {
+            User user = blockActionPayload.getUser();
+            Message message = blockActionPayload.getMessage();
+            Message.Metadata metadata = message.getMetadata();
+            Map<String, Object> eventPayload = metadata.getEventPayload();
+
+            DatabaseConnectionInfo findDatabaseConnectionInfo = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo),
+                    DatabaseConnectionInfo.class);
+            CommandType findCommandType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataCommandType),
+                    CommandType.class);
+            Class findRequestDTOClassType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataClass),
+                    Class.class);
+            RequestDTO findRequestDTO = (RequestDTO) JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestDTO),
+                    findRequestDTOClassType);
+
+
+            for (Action action : actions) {
+
+                if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
+                    slackRequestHandler.validateRequestAcceptDoer(user);
+                    slackRequestHandler.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, user.getId());
+                    // send accept message
+                    // execute
+
+                    System.out.println("accept!");
+                } else if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
+                    slackRequestHandler.validateRequestAcceptDoer(user);
+
+                    // send deny message
+                    // expire request message
+
+                    System.out.println("deny!");
+                }
+
+            }
+            ViewState state = blockActionPayload.getState();
+            List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
+
+            return blocks;
+        }
+
+        // view != null -> view modal action
+        View view = blockActionPayload.getView();
+        ViewState state = view.getState();
+        List<LayoutBlock> blocks = view.getBlocks();
+        for (Action action : actions) {
+            log.info("action: {}", action);
+            blocks = slackRequestHandler.handleAction(action, blocks, state.getValues());
+        }
+        return blocks;
     }
 
     private CommandType findCommandType(ViewState state) {

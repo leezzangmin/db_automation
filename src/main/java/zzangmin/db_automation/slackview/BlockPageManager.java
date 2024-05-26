@@ -1,11 +1,14 @@
 package zzangmin.db_automation.slackview;
 
+import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.slackview.commandpage.BlockPage;
 
@@ -28,13 +31,26 @@ public class BlockPageManager {
         return selectedBlockPage.generateBlocks();
     }
 
-    public void handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
-                                 List<LayoutBlock> blocks,
-                                 Map<String, Map<String, ViewState.Value>> values,
-                                 ViewSubmissionPayload.User slackUser) {
+    public RequestDTO handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
+                                       Map<String, Map<String, ViewState.Value>> values) {
         BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
 
-        selectedBlockPage.handleSubmission(blocks, values, slackUser);
+        return selectedBlockPage.handleSubmission(values);
+    }
+
+    public void execute(DatabaseRequestCommandGroup.CommandType commandType,
+                        DatabaseConnectionInfo databaseConnectionInfo,
+                        RequestDTO requestDTO,
+                        String slackUserId) {
+        BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
+        selectedBlockPage.execute(databaseConnectionInfo, requestDTO, slackUserId);
+    }
+
+    public List<LayoutBlock> handleSubmissionRequestMessage(DatabaseRequestCommandGroup.CommandType commandType,
+                                                            RequestDTO requestDTO) {
+        BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
+
+        return selectedBlockPage.generateRequestMessageBlocks(requestDTO);
     }
 
     public void handleAction(String actionId, List<LayoutBlock> blocks, Map<String, Map<String, ViewState.Value>> values) {

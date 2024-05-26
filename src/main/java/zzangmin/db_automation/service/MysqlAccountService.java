@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.request.account.MysqlPrivilegeRequestDTO;
 import zzangmin.db_automation.entity.MysqlAccount;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public class MysqlAccountService {
     }
 
     public List<String> findPrivileges(DatabaseConnectionInfo databaseConnectionInfo,
-                                       String accountName) {
-        return mysqlClient.findPrivilegeString(databaseConnectionInfo, accountName);
+                                       MysqlPrivilegeRequestDTO requestDTO) {
+        return mysqlClient.findPrivilegeString(databaseConnectionInfo, requestDTO.getAccountName());
     }
 }

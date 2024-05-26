@@ -1,23 +1,18 @@
-package zzangmin.db_automation.dto.request;
+package zzangmin.db_automation.dto.request.ddl;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 
-@ToString
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeleteColumnRequestDTO implements DDLRequestDTO {
-    @NotBlank
+public class RenameColumnRequestDTO implements DDLRequestDTO {
     private String schemaName;
-    @NotBlank
     private String tableName;
-    @NotBlank
-    private String columnName;
+    private String beforeColumnName;
+    private String afterColumnName;
 
     @Override
     public String toSQL() {
@@ -26,14 +21,16 @@ public class DeleteColumnRequestDTO implements DDLRequestDTO {
         sb.append(this.getSchemaName());
         sb.append("`.`");
         sb.append(this.getTableName());
-        sb.append("` DROP COLUMN `");
-        sb.append(this.getColumnName());
+        sb.append("` RENAME COLUMN `");
+        sb.append(this.getBeforeColumnName());
+        sb.append("` TO `");
+        sb.append(this.getAfterColumnName());
         sb.append("`");
         return sb.toString();
     }
 
     @Override
-    public DatabaseRequestCommandGroup.CommandType getCommandType() {
-        return DatabaseRequestCommandGroup.CommandType.DELETE_COLUMN;
+    public DatabaseRequestCommandGroup.CommandType extractCommandType() {
+        return DatabaseRequestCommandGroup.CommandType.RENAME_COLUMN;
     }
 }

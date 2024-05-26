@@ -9,10 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.config.SlackConfig;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,27 +40,41 @@ public class SlackRequestHandler {
         return currentBlocks;
     }
 
-    public void handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
-                                 List<LayoutBlock> currentBlocks,
-                                 Map<String, Map<String,ViewState.Value>> values,
-                                 ViewSubmissionPayload.User slackUser) {
+    public RequestDTO handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
+                                       Map<String, Map<String,ViewState.Value>> values) {
         validateSubmission();
         log.info("<submission> commandType: {}", commandType);
-        blockPageManager.handleSubmission(commandType, currentBlocks, values, slackUser);
+        return blockPageManager.handleSubmission(commandType, values);
     }
 
-    public List<LayoutBlock> sendSubmissionRequestMessage(DatabaseRequestCommandGroup.CommandType commandType,
-                                                          ViewSubmissionPayload.User slackUser) {
+    public void execute(DatabaseRequestCommandGroup.CommandType commandType,
+                        DatabaseConnectionInfo databaseConnectionInfo,
+                        RequestDTO requestDTO,
+                        String slackUserId) {
+        blockPageManager.execute(commandType, databaseConnectionInfo,requestDTO, slackUserId);
+    }
+
+    public List<LayoutBlock> sendSubmissionRequestMessage(DatabaseConnectionInfo databaseConnectionInfo,
+                                                          DatabaseRequestCommandGroup.CommandType commandType,
+                                                          ViewSubmissionPayload.User slackUser,
+                                                          RequestDTO requestDTO) {
         List<LayoutBlock> requestBlocks = new ArrayList<>();
-        String text = ":rocket: Database Request !";
+        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
 
-        requestBlocks.add(BasicBlockFactory.findHeaderBlock(text, "test"));
+        String text = ":rocket: Database Request Has Arrived !";
+
+        requestBlocks.add(BasicBlockFactory.findHeaderBlock(text, "requestblock0"));
+        requestBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
+                "requestblock1"));
         requestBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Command Type:*" + commandType.toString(),
-                "asdf"));
-        requestBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Doer:* <@" + slackUser.getId() + ">",
-                "asdf2"));
-
+                "requestblock2"));
         requestBlocks.add(BasicBlockFactory.findDividerBlock());
+        requestBlocks.addAll(contentBlocks);
+        requestBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Doer:* <@" + slackUser.getId() + ">",
+                "requestblock3"));
+        requestBlocks.add(BasicBlockFactory.findDividerBlock());
+        requestBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Time:* `" + LocalDateTime.now() + "`",
+                "requestblock4"));
         requestBlocks.add(
                 actions(actions -> actions
                         .elements(asElements(

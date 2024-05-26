@@ -1,4 +1,4 @@
-package zzangmin.db_automation.dto.response;
+package zzangmin.db_automation.dto.response.ddl;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

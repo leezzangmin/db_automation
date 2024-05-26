@@ -5,7 +5,6 @@ import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
-import com.slack.api.model.Attachment;
 import com.slack.api.model.Message;
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.element.*;
@@ -13,6 +12,10 @@ import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
+import zzangmin.db_automation.slackview.SlackConstants;
 import zzangmin.db_automation.util.JsonUtil;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -59,22 +62,48 @@ public class SlackService {
         }
     }
 
-    public void sendBlockMessage(List<LayoutBlock> blocks, List<Object> requestMetadatas) throws JsonProcessingException {
+    public void sendBlockMessage(List<LayoutBlock> blocks) {
+        if (blocks.size() < 1) {
+            return;
+        }
+        log.info("block slack message: {}", blocks);
+
+        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+                .channel(DEFAULT_CHANNEL_ID)
+                .blocks(blocks)
+                .build();
+        ChatPostMessageResponse chatPostMessageResponse = null;
+        try {
+            chatPostMessageResponse = slackClient.chatPostMessage(request);
+        } catch (SSLHandshakeException sslHandshakeException) {
+            log.info(sslHandshakeException.getMessage());
+        } catch (Exception e) {
+            log.info(e.getMessage());
+        }
+        if (chatPostMessageResponse != null && chatPostMessageResponse.getWarning() == null && chatPostMessageResponse.isOk()) {
+            log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
+        } else {
+            log.error("chatPostMessageResponse: {}", chatPostMessageResponse);
+        }
+    }
+
+    public void sendBlockMessageWithMetadata(DatabaseConnectionInfo databaseConnectionInfo,
+                                             DatabaseRequestCommandGroup.CommandType commandType,
+                                             List<LayoutBlock> blocks,
+                                             RequestDTO requestDTO) throws JsonProcessingException {
         if (blocks.size() < 1) {
             return;
         }
         log.info("block slack message: {}", blocks);
         Map<String, Object> metadataMap = new HashMap<>();
-        String key = "1";
-        for (Object requestMetadata : requestMetadatas) {
-            String json = JsonUtil.toJson(requestMetadata);
-            metadataMap.put(key, json);
-            key = key + "1";
-        }
+        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo, JsonUtil.toJson(databaseConnectionInfo));
+        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataClass, JsonUtil.toJson(requestDTO.getClass()));
+        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataRequestDTO, JsonUtil.toJson(requestDTO));
+        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataCommandType, JsonUtil.toJson(commandType));
 
         // https://api.slack.com/metadata/using
         Message.Metadata metadata = Message.Metadata.builder()
-                .eventType("metadataType")
+                .eventType(SlackConstants.MetadataKeys.messageMetadataMapTypeName)
                 .eventPayload(metadataMap)
                 .build();
 
@@ -91,13 +120,11 @@ public class SlackService {
         } catch (Exception e) {
             log.info(e.getMessage());
         }
-        String warning = chatPostMessageResponse.getWarning();
         if (chatPostMessageResponse != null && chatPostMessageResponse.getWarning() == null && chatPostMessageResponse.isOk()) {
             log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
         } else {
             log.error("chatPostMessageResponse: {}", chatPostMessageResponse);
         }
-
     }
 
     public static int findElementIndex(List<BlockElement> blockElements, String actionId) {

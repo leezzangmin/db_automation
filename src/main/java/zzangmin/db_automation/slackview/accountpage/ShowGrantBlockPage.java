@@ -12,7 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.MysqlAccountController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.response.MysqlPrivilegeResponseDTO;
+import zzangmin.db_automation.dto.request.account.MysqlPrivilegeRequestDTO;
+import zzangmin.db_automation.dto.request.ddl.RenameTableRequestDTO;
+import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.response.account.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -57,28 +60,16 @@ public class ShowGrantBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values, ViewSubmissionPayload.User slackUser) {
-        List<LayoutBlock> resultMessageBlocks = new ArrayList<>();
+    public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
+        String accountName = SlackService.findCurrentValueFromState(values,
+                SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
 
-        try {
-            String accountName = SlackService.findCurrentValueFromState(values,
-                    SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId);
-            DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
-            MysqlPrivilegeResponseDTO mysqlPrivilegeResponseDTO = mysqlAccountController.findAccountPrivilege(selectedDatabaseConnectionInfo, accountName, slackUser);
-            log.info("ShowGrant Account: {}", mysqlPrivilegeResponseDTO);
+        MysqlPrivilegeRequestDTO mysqlPrivilegeRequestDTO = new MysqlPrivilegeRequestDTO(accountName);
+        log.info("mysqlPrivilegeRequestDTO: {}", mysqlPrivilegeRequestDTO);
 
-            resultMessageBlocks.add(Blocks.section(section -> section.text(BlockCompositions.plainText("Account Name: " + mysqlPrivilegeResponseDTO.getAccountName()))));
-            for (String privilege : mysqlPrivilegeResponseDTO.getPrivileges()) {
-                resultMessageBlocks.add(Blocks.section(section -> section.text(BlockCompositions.markdownText("```" + privilege + "```"))));
-            }
-            //slackService.sendBlockMessage(resultMessageBlocks);
-        } catch (Exception e) {
-            log.info("e: {}", e.getMessage());
-            e.printStackTrace();
-            return;
-        }
-
-
+        mysqlAccountController.validateAccountRequest(selectedDatabaseConnectionInfo, mysqlPrivilegeRequestDTO);
+        return mysqlPrivilegeRequestDTO;
     }
 
     @Override
@@ -109,6 +100,22 @@ public class ShowGrantBlockPage implements BlockPage {
 
             currentBlocks.set(selectAccountBlockIndex, accountSelectBlock);
         }
+    }
+
+    @Override
+    public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
+        List<LayoutBlock> blocks = new ArrayList<>();
+        MysqlPrivilegeRequestDTO mysqlPrivilegeRequestDTO = (MysqlPrivilegeRequestDTO) requestDTO;
+
+
+        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* `" + mysqlPrivilegeRequestDTO.getAccountName() + "`", "RenameTableBlockPage"));
+
+        return blocks;
+    }
+
+    @Override
+    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        MysqlPrivilegeResponseDTO mysqlPrivilegeResponseDTO = mysqlAccountController.findAccountPrivilege(databaseConnectionInfo, (MysqlPrivilegeRequestDTO) requestDTO, slackUserId);
     }
 }
 

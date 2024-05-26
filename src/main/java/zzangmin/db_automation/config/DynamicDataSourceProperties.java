@@ -46,14 +46,14 @@ public class DynamicDataSourceProperties {
         // 각 env에 따른 DatabaseConnectionInfo 분류
         database.forEach(dbInfo -> {
             String serviceValue = dbInfo.getTags().stream()
-                    .filter(tag -> tag.key().equals(TagStandard.getServiceTagKeyName()))
+                    .filter(tag -> tag.getKey().equals(TagStandard.getServiceTagKeyName()))
                     .findFirst()
-                    .map(software.amazon.awssdk.services.rds.model.Tag::value)
+                    .map(t -> t.getValue())
                     .orElse(null);
             String envValue = dbInfo.getTags().stream()
-                    .filter(tag -> tag.key().equals(TagStandard.getEnvironmentTagKeyName()))
+                    .filter(tag -> tag.getKey().equals(TagStandard.getEnvironmentTagKeyName()))
                     .findFirst()
-                    .map(software.amazon.awssdk.services.rds.model.Tag::value)
+                    .map(t -> t.getValue())
                     .orElse(null);
 
             if (serviceValue != null && "prod".equals(envValue)) {

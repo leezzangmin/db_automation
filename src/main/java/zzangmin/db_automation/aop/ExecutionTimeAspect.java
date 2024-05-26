@@ -4,7 +4,7 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.dto.response.DDLResponseDTO;
+import zzangmin.db_automation.dto.response.ddl.DDLResponseDTO;
 
 @Aspect
 @Component

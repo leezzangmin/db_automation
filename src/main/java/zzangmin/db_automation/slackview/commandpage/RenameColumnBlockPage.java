@@ -8,7 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.request.RenameColumnRequestDTO;
+import zzangmin.db_automation.dto.request.ddl.RenameColumnRequestDTO;
+import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -54,9 +55,7 @@ public class RenameColumnBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks,
-                                 Map<String, Map<String, ViewState.Value>> values,
-                                 ViewSubmissionPayload.User slackUser) {
+    public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
 
         String oldColumnName = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.RenameColumn.renameColumnOldColumnNameTextInputId);
@@ -72,8 +71,7 @@ public class RenameColumnBlockPage implements BlockPage {
         RenameColumnRequestDTO renameColumnRequestDTO = new RenameColumnRequestDTO(schemaName, tableName, oldColumnName, newColumnName);
 
         ddlValidator.validateRenameColumn(selectedDatabaseConnectionInfo, renameColumnRequestDTO);
-
-        ddlController.renameColumn(selectedDatabaseConnectionInfo, renameColumnRequestDTO, slackUser);
+        return renameColumnRequestDTO;
     }
 
     @Override
@@ -92,4 +90,20 @@ public class RenameColumnBlockPage implements BlockPage {
     public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         return;
     }
+
+    @Override
+    public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
+        List<LayoutBlock> blocks = new ArrayList<>();
+        RenameColumnRequestDTO renameColumnRequestDTO = (RenameColumnRequestDTO) requestDTO;
+        String sql = renameColumnRequestDTO.toSQL();
+        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* ```" + sql + "```", "renameColumnRequestDTO"));
+        return blocks;
+    }
+
+    @Override
+    public void execute(DatabaseConnectionInfo selectedDatabaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        RenameColumnRequestDTO renameColumnRequestDTO = (RenameColumnRequestDTO) requestDTO;
+        ddlController.renameColumn(selectedDatabaseConnectionInfo, renameColumnRequestDTO, slackUserId);
+    }
+
 }

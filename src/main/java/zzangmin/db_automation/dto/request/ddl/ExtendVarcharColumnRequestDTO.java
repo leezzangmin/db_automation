@@ -1,4 +1,4 @@
-package zzangmin.db_automation.dto.request;
+package zzangmin.db_automation.dto.request.ddl;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -45,7 +45,7 @@ public class ExtendVarcharColumnRequestDTO implements DDLRequestDTO {
     }
 
     @Override
-    public DatabaseRequestCommandGroup.CommandType getCommandType() {
+    public DatabaseRequestCommandGroup.CommandType extractCommandType() {
         return DatabaseRequestCommandGroup.CommandType.EXTEND_VARCHAR_COLUMN;
     }
 }

@@ -8,6 +8,8 @@ import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -41,9 +43,7 @@ public class SelectCommandBlocks implements BlockPage {
     }
 
     @Override
-    public void handleSubmission(List<LayoutBlock> currentBlocks,
-                                 Map<String, Map<String, ViewState.Value>> values,
-                                 ViewSubmissionPayload.User slackUser) {
+    public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
         throw new IllegalArgumentException("미지원 page");
     }
 
@@ -67,6 +67,17 @@ public class SelectCommandBlocks implements BlockPage {
         } else {
             throw new IllegalArgumentException("미지원 actionId: " + actionId);
         }
+    }
+
+    @Override
+    public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
+        throw new IllegalArgumentException("미지원 page");
+    }
+
+    @Override
+    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        throw new IllegalArgumentException("미지원 page");
+
     }
 
     public static List<LayoutBlock> selectCommandGroupAndCommandTypeBlocks() {

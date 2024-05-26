@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.dto.request.DDLRequestDTO;
-import zzangmin.db_automation.dto.response.DDLResponseDTO;
+import zzangmin.db_automation.dto.request.ddl.DDLRequestDTO;
+import zzangmin.db_automation.dto.response.ddl.DDLResponseDTO;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.SlackService;
 
@@ -35,7 +35,7 @@ public class DDLMessageSendAspect {
             if (arg instanceof DDLRequestDTO) {
                 arg = (DDLRequestDTO) arg;
                 sb.append("CommandType: ");
-                sb.append(((DDLRequestDTO) arg).getCommandType());
+                sb.append(((DDLRequestDTO) arg).extractCommandType());
             } else if (arg instanceof DatabaseConnectionInfo) {
                 arg = (DatabaseConnectionInfo) arg;
                 sb.append("connection info:");
@@ -53,7 +53,7 @@ public class DDLMessageSendAspect {
         for (Object arg : args) {
             if (arg instanceof DDLRequestDTO) {
                 sb.append("CommandType: ");
-                sb.append(((DDLRequestDTO) arg).getCommandType());
+                sb.append(((DDLRequestDTO) arg).extractCommandType());
             } else if (arg instanceof DatabaseConnectionInfo) {
                 arg = (DatabaseConnectionInfo) arg;
                 sb.append("connection info:");
@@ -73,7 +73,7 @@ public class DDLMessageSendAspect {
         for (Object arg : args) {
             if (arg instanceof DDLRequestDTO) {
                 sb.append("CommandType: ");
-                sb.append(((DDLRequestDTO) arg).getCommandType());
+                sb.append(((DDLRequestDTO) arg).extractCommandType());
             } else if (arg instanceof DatabaseConnectionInfo) {
                 arg = (DatabaseConnectionInfo) arg;
                 sb.append("connection info:");

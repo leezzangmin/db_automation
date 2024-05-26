@@ -1,13 +1,12 @@
 package zzangmin.db_automation.controller;
 
-import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import zzangmin.db_automation.argumentresolver.TargetDatabase;
-import zzangmin.db_automation.dto.request.*;
-import zzangmin.db_automation.dto.response.*;
+import zzangmin.db_automation.dto.request.ddl.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.dto.response.ddl.*;
 import zzangmin.db_automation.service.ChangeHistoryService;
 import zzangmin.db_automation.service.DDLService;
 import zzangmin.db_automation.validator.DDLValidator;
@@ -33,17 +32,17 @@ public class DDLController {
     @PatchMapping("/ddl/table/name")
     public RenameTableDDLResponseDTO renameTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                              @RequestBody RenameTableRequestDTO ddlRequestDTO,
-                              ViewSubmissionPayload.User slackUser) {
+                              String slackUserId) {
         ddlValidator.validateRenameTable(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.renameTable(databaseConnectionInfo, ddlRequestDTO);
-        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(),
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.extractCommandType(),
                         databaseConnectionInfo.getDatabaseName(),
                         ddlRequestDTO.getSchemaName(),
                         ddlRequestDTO.getOldTableName(),
-                        slackUser.getUsername(),
+                slackUserId,
                         LocalDateTime.now()), ddlRequestDTO);
 
-        return new RenameTableDDLResponseDTO(slackUser.getId(),
+        return new RenameTableDDLResponseDTO(slackUserId,
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getOldTableName(),
@@ -54,17 +53,17 @@ public class DDLController {
     @PutMapping("/ddl/column")
     public AddColumnDDLResponseDTO addColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                              @RequestBody AddColumnRequestDTO ddlRequestDTO,
-                                             ViewSubmissionPayload.User slackUser) {
+                                             String slackUserId) {
         ddlValidator.validateAddColumn(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.addColumn(databaseConnectionInfo, ddlRequestDTO);
-        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(),
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.extractCommandType(),
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
-                slackUser.getUsername(),
+                slackUserId,
                 LocalDateTime.now()), ddlRequestDTO);
 
-        return new AddColumnDDLResponseDTO(slackUser.getId(),
+        return new AddColumnDDLResponseDTO(slackUserId,
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
@@ -75,17 +74,17 @@ public class DDLController {
     @PatchMapping("/ddl/column")
     public AlterColumnDDLResponseDTO alterColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                  @RequestBody AlterColumnRequestDTO ddlRequestDTO,
-                                                 ViewSubmissionPayload.User slackUser) {
+                                                 String slackUserId) {
         ddlValidator.validateAlterColumn(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.alterColumn(databaseConnectionInfo, ddlRequestDTO);
-        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(),
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.extractCommandType(),
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
-                slackUser.getUsername(),
+                slackUserId,
                 LocalDateTime.now()), ddlRequestDTO);
 
-        return new AlterColumnDDLResponseDTO(slackUser.getId(),
+        return new AlterColumnDDLResponseDTO(slackUserId,
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
@@ -95,17 +94,17 @@ public class DDLController {
     @PutMapping("/ddl/index")
     public CreateIndexDDLResponseDTO createIndex(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                  @RequestBody CreateIndexRequestDTO ddlRequestDTO,
-                                                 ViewSubmissionPayload.User slackUser) {
+                                                 String slackUserId) {
         ddlValidator.validateCreateIndex(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.createIndex(databaseConnectionInfo, ddlRequestDTO);
-        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(),
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.extractCommandType(),
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
-                slackUser.getUsername(),
+                slackUserId,
                 LocalDateTime.now()), ddlRequestDTO);
 
-        return new CreateIndexDDLResponseDTO(slackUser.getId(),
+        return new CreateIndexDDLResponseDTO(slackUserId,
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
@@ -116,18 +115,18 @@ public class DDLController {
     @PutMapping("/ddl/table")
     public CreateTableDDLResponseDTO createTable(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                  @RequestBody CreateTableRequestDTO ddlRequestDTO,
-                                                 ViewSubmissionPayload.User slackUser) {
+                                                 String slackUserId) {
         log.info("createTableRequestDTO: {}", ddlRequestDTO);
         ddlValidator.validateCreateTable(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.createTable(databaseConnectionInfo, ddlRequestDTO);
-        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(),
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.extractCommandType(),
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
-                slackUser.getUsername(),
+                slackUserId,
                 LocalDateTime.now()), ddlRequestDTO);
 
-        return new CreateTableDDLResponseDTO(slackUser.getId(),
+        return new CreateTableDDLResponseDTO(slackUserId,
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
@@ -137,17 +136,17 @@ public class DDLController {
     @DeleteMapping("/ddl/column")
     public DeleteColumnDDLResponseDTO deleteColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                    @RequestBody DeleteColumnRequestDTO ddlRequestDTO,
-                                                   ViewSubmissionPayload.User slackUser) {
+                                                   String slackUserId) {
         ddlValidator.validateDeleteColumn(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.deleteColumn(databaseConnectionInfo, ddlRequestDTO);
-        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(),
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.extractCommandType(),
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
-                slackUser.getUsername(),
+                slackUserId,
                 LocalDateTime.now()), ddlRequestDTO);
 
-        return new DeleteColumnDDLResponseDTO(slackUser.getId(),
+        return new DeleteColumnDDLResponseDTO(slackUserId,
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
@@ -158,17 +157,17 @@ public class DDLController {
     @PatchMapping("/ddl/varchar")
     public ExtendVarcharColumnDDLResponseDTO extendVarcharColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                                  @RequestBody ExtendVarcharColumnRequestDTO ddlRequestDTO,
-                                                                 ViewSubmissionPayload.User slackUser) {
+                                                                 String slackUserId) {
         ddlValidator.validateExtendVarchar(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.extendVarcharColumn(databaseConnectionInfo, ddlRequestDTO);
-        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(),
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.extractCommandType(),
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
-                slackUser.getUsername(),
+                slackUserId,
                 LocalDateTime.now()), ddlRequestDTO);
 
-        return new ExtendVarcharColumnDDLResponseDTO(slackUser.getId(),
+        return new ExtendVarcharColumnDDLResponseDTO(slackUserId,
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
@@ -178,17 +177,17 @@ public class DDLController {
     @PatchMapping("/ddl/column/name")
     public RenameColumnDDLResponseDTO renameColumn(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                                    @RequestBody RenameColumnRequestDTO ddlRequestDTO,
-                                                   ViewSubmissionPayload.User slackUser) {
+                                                   String slackUserId) {
         ddlValidator.validateRenameColumn(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.renameColumn(databaseConnectionInfo, ddlRequestDTO);
-        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.getCommandType(),
+        changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.extractCommandType(),
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),
-                slackUser.getUsername(),
+                slackUserId,
                 LocalDateTime.now()), ddlRequestDTO);
 
-        return new RenameColumnDDLResponseDTO(slackUser.getId(),
+        return new RenameColumnDDLResponseDTO(slackUserId,
                 databaseConnectionInfo.getDatabaseName(),
                 ddlRequestDTO.getSchemaName(),
                 ddlRequestDTO.getTableName(),

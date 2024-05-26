@@ -1,4 +1,4 @@
-package zzangmin.db_automation.dto.request;
+package zzangmin.db_automation.dto.request.ddl;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -33,7 +33,7 @@ public class RenameTableRequestDTO implements DDLRequestDTO {
 
 
     @Override
-    public DatabaseRequestCommandGroup.CommandType getCommandType() {
+    public DatabaseRequestCommandGroup.CommandType extractCommandType() {
         return DatabaseRequestCommandGroup.CommandType.RENAME_TABLE;
     }
 }

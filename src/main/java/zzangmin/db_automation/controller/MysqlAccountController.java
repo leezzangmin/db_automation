@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.response.MysqlPrivilegeResponseDTO;
+import zzangmin.db_automation.dto.request.account.AccountRequestDTO;
+import zzangmin.db_automation.dto.request.account.MysqlPrivilegeRequestDTO;
+import zzangmin.db_automation.dto.response.account.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.service.MysqlAccountService;
 
 import java.util.List;
@@ -18,6 +20,10 @@ public class MysqlAccountController {
 
     private final MysqlAccountService mysqlAccountService;
 
+    public void validateAccountRequest(DatabaseConnectionInfo databaseConnectionInfo, AccountRequestDTO requestDTO) {
+
+    }
+
     @GetMapping("/account")
     public List<String> findAccountNames(DatabaseConnectionInfo databaseConnectionInfo) {
         return mysqlAccountService.findAccountNames(databaseConnectionInfo);
@@ -25,11 +31,11 @@ public class MysqlAccountController {
 
     @GetMapping("/account/privilege")
     public MysqlPrivilegeResponseDTO findAccountPrivilege(DatabaseConnectionInfo databaseConnectionInfo,
-                                                          String accountName,
-                                                          ViewSubmissionPayload.User slackUser) {
-        validateAccountName(accountName);
-        List<String> privileges = mysqlAccountService.findPrivileges(databaseConnectionInfo, accountName);
-        return new MysqlPrivilegeResponseDTO(accountName, privileges);
+                                                          MysqlPrivilegeRequestDTO requestDTO,
+                                                          String slackUserId) {
+        validateAccountName(requestDTO.getAccountName());
+        List<String> privileges = mysqlAccountService.findPrivileges(databaseConnectionInfo, requestDTO);
+        return new MysqlPrivilegeResponseDTO(requestDTO.getAccountName(), privileges);
     }
 
     private void validateAccountName(String accountName) {

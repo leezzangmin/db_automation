@@ -11,6 +11,10 @@ public class JsonUtil {
     }
 
     public static <T> T toObject(String jsonString, Class<T> valueType) throws JsonProcessingException {
+        System.out.println("jsonString = " + jsonString);
+        if (jsonString == null) {
+            return null;
+        }
         return objectMapper.readValue(jsonString, valueType);
     }
 
