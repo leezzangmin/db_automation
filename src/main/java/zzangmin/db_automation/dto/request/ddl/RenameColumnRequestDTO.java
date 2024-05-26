@@ -30,7 +30,7 @@ public class RenameColumnRequestDTO implements DDLRequestDTO {
     }
 
     @Override
-    public DatabaseRequestCommandGroup.CommandType getCommandType() {
+    public DatabaseRequestCommandGroup.CommandType extractCommandType() {
         return DatabaseRequestCommandGroup.CommandType.RENAME_COLUMN;
     }
 }

@@ -12,6 +12,7 @@ import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -46,7 +47,9 @@ public class DynamicDataSourceLoader {
                     .url("jdbc:mysql://" + cluster.endpoint())
                     .username(rdsUsername)
                     .password(password)
-                    .tags(tags)
+                    .tags(tags.stream()
+                            .map(t -> new DatabaseConnectionInfo.Tag(t.key(), t.value()))
+                            .collect(Collectors.toList()))
                     .build();
 
             dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
@@ -67,7 +70,9 @@ public class DynamicDataSourceLoader {
                     .url("jdbc:mysql://" + instance.endpoint().address())
                     .username(rdsUsername)
                     .password(password)
-                    .tags(tags)
+                    .tags(tags.stream()
+                            .map(t -> new DatabaseConnectionInfo.Tag(t.key(), t.value()))
+                            .collect(Collectors.toList()))
                     .build();
             dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
         }

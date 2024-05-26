@@ -35,7 +35,7 @@ public class DDLMessageSendAspect {
             if (arg instanceof DDLRequestDTO) {
                 arg = (DDLRequestDTO) arg;
                 sb.append("CommandType: ");
-                sb.append(((DDLRequestDTO) arg).getCommandType());
+                sb.append(((DDLRequestDTO) arg).extractCommandType());
             } else if (arg instanceof DatabaseConnectionInfo) {
                 arg = (DatabaseConnectionInfo) arg;
                 sb.append("connection info:");
@@ -53,7 +53,7 @@ public class DDLMessageSendAspect {
         for (Object arg : args) {
             if (arg instanceof DDLRequestDTO) {
                 sb.append("CommandType: ");
-                sb.append(((DDLRequestDTO) arg).getCommandType());
+                sb.append(((DDLRequestDTO) arg).extractCommandType());
             } else if (arg instanceof DatabaseConnectionInfo) {
                 arg = (DatabaseConnectionInfo) arg;
                 sb.append("connection info:");
@@ -73,7 +73,7 @@ public class DDLMessageSendAspect {
         for (Object arg : args) {
             if (arg instanceof DDLRequestDTO) {
                 sb.append("CommandType: ");
-                sb.append(((DDLRequestDTO) arg).getCommandType());
+                sb.append(((DDLRequestDTO) arg).extractCommandType());
             } else if (arg instanceof DatabaseConnectionInfo) {
                 arg = (DatabaseConnectionInfo) arg;
                 sb.append("connection info:");

@@ -26,7 +26,7 @@ public class DDLValidator {
 
 
     public void validateDDLRequest(DatabaseConnectionInfo databaseConnectionInfo, DDLRequestDTO ddlRequestDTO) {
-        DatabaseRequestCommandGroup.CommandType commandType = ddlRequestDTO.getCommandType();
+        DatabaseRequestCommandGroup.CommandType commandType = ddlRequestDTO.extractCommandType();
         if (commandType.equals(DatabaseRequestCommandGroup.CommandType.ADD_COLUMN)) {
             validateAddColumn(databaseConnectionInfo, (AddColumnRequestDTO) ddlRequestDTO);
             return;

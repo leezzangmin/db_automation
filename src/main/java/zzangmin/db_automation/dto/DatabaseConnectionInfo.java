@@ -1,9 +1,7 @@
 package zzangmin.db_automation.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import lombok.*;
 import software.amazon.awssdk.services.rds.model.Tag;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 
@@ -14,6 +12,7 @@ import java.util.List;
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class DatabaseConnectionInfo {
 
     private String databaseName;
@@ -24,6 +23,13 @@ public class DatabaseConnectionInfo {
     private List<Tag> tags = new ArrayList<>();
 
 
+    @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Tag {
+        private String key;
+        private String value;
+    }
 
 
     public String databaseSummary() {
@@ -35,8 +41,8 @@ public class DatabaseConnectionInfo {
             throw new IllegalStateException(this.databaseName + "DB tag 가 비어있습니다.");
         }
         for (Tag tag : tags) {
-            if (tag.key().equals(TagStandard.getServiceTagKeyName())) {
-                return tag.value();
+            if (tag.getKey().equals(TagStandard.getServiceTagKeyName())) {
+                return tag.getValue();
             }
         }
         throw new IllegalStateException(TagStandard.getStandardTagKeyNames() + "태그가 없습니다. DB명: " + databaseName);

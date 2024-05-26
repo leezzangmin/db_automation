@@ -6,5 +6,5 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 public interface DDLRequestDTO extends RequestDTO {
 
     String toSQL();
-    DatabaseRequestCommandGroup.CommandType getCommandType();
+    DatabaseRequestCommandGroup.CommandType extractCommandType();
 }

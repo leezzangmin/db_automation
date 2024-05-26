@@ -44,7 +44,7 @@ public class AlterColumnRequestDTO implements DDLRequestDTO {
         }
 
         @Override
-        public DatabaseRequestCommandGroup.CommandType getCommandType() {
+        public DatabaseRequestCommandGroup.CommandType extractCommandType() {
                 return DatabaseRequestCommandGroup.CommandType.ALTER_COLUMN;
         }
 }

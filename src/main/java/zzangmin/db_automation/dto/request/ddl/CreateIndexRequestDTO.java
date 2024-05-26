@@ -51,7 +51,7 @@ public class CreateIndexRequestDTO implements DDLRequestDTO {
         }
 
         @Override
-        public DatabaseRequestCommandGroup.CommandType getCommandType() {
+        public DatabaseRequestCommandGroup.CommandType extractCommandType() {
                 return DatabaseRequestCommandGroup.CommandType.CREATE_INDEX;
         }
 }

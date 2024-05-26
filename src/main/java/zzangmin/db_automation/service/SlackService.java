@@ -12,7 +12,10 @@ import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
+import zzangmin.db_automation.slackview.SlackConstants;
 import zzangmin.db_automation.util.JsonUtil;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -84,17 +87,23 @@ public class SlackService {
         }
     }
 
-    public void sendBlockMessageWithMetadata(List<LayoutBlock> blocks, RequestDTO requestDTO) throws JsonProcessingException {
+    public void sendBlockMessageWithMetadata(DatabaseConnectionInfo databaseConnectionInfo,
+                                             DatabaseRequestCommandGroup.CommandType commandType,
+                                             List<LayoutBlock> blocks,
+                                             RequestDTO requestDTO) throws JsonProcessingException {
         if (blocks.size() < 1) {
             return;
         }
         log.info("block slack message: {}", blocks);
         Map<String, Object> metadataMap = new HashMap<>();
-        metadataMap.put("requestDTOKey", JsonUtil.toJson(requestDTO));
+        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo, JsonUtil.toJson(databaseConnectionInfo));
+        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataClass, JsonUtil.toJson(requestDTO.getClass()));
+        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataRequestDTO, JsonUtil.toJson(requestDTO));
+        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataCommandType, JsonUtil.toJson(commandType));
 
         // https://api.slack.com/metadata/using
         Message.Metadata metadata = Message.Metadata.builder()
-                .eventType("requestDTO")
+                .eventType(SlackConstants.MetadataKeys.messageMetadataMapTypeName)
                 .eventPayload(metadataMap)
                 .build();
 

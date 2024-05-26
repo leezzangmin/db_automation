@@ -45,7 +45,7 @@ public class ExtendVarcharColumnRequestDTO implements DDLRequestDTO {
     }
 
     @Override
-    public DatabaseRequestCommandGroup.CommandType getCommandType() {
+    public DatabaseRequestCommandGroup.CommandType extractCommandType() {
         return DatabaseRequestCommandGroup.CommandType.EXTEND_VARCHAR_COLUMN;
     }
 }

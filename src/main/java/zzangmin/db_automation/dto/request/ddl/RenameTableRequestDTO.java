@@ -33,7 +33,7 @@ public class RenameTableRequestDTO implements DDLRequestDTO {
 
 
     @Override
-    public DatabaseRequestCommandGroup.CommandType getCommandType() {
+    public DatabaseRequestCommandGroup.CommandType extractCommandType() {
         return DatabaseRequestCommandGroup.CommandType.RENAME_TABLE;
     }
 }

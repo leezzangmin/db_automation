@@ -135,4 +135,13 @@ public class SlackConstants {
         private ErrorBlockIds() {}
     }
 
+    public static class MetadataKeys {
+        public static final String messageMetadataMapTypeName = "messageMetadataMapTypeNameRequestInfos";
+        public static final String messageMetadataDatabaseConnectionInfo = "messageMetadataDatabaseConnectionInfoKey";
+        public static final String messageMetadataClass = "messageMetadataClassKey";
+        public static final String messageMetadataRequestDTO = "messageMetadataRequestDTOKey";
+        public static final String messageMetadataCommandType = "messageMetadataCommandTypeKey";
+
+    }
+
 }

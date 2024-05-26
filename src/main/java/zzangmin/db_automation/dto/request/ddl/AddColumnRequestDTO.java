@@ -41,7 +41,7 @@ public class AddColumnRequestDTO implements DDLRequestDTO {
       }
 
       @Override
-      public DatabaseRequestCommandGroup.CommandType getCommandType() {
+      public DatabaseRequestCommandGroup.CommandType extractCommandType() {
             return DatabaseRequestCommandGroup.CommandType.ADD_COLUMN;
       }
 }

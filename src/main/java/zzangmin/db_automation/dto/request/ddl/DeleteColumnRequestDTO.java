@@ -33,7 +33,7 @@ public class DeleteColumnRequestDTO implements DDLRequestDTO {
     }
 
     @Override
-    public DatabaseRequestCommandGroup.CommandType getCommandType() {
+    public DatabaseRequestCommandGroup.CommandType extractCommandType() {
         return DatabaseRequestCommandGroup.CommandType.DELETE_COLUMN;
     }
 }
