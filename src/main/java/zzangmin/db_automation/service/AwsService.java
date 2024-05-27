@@ -39,7 +39,6 @@ import static zzangmin.db_automation.schedule.standardcheck.standardvalue.Secret
 public class AwsService {
 
     private final AwsClient awsClient;
-    private final ProfileUtil profileUtil;
     private static final int DURATION_MINUTE = 5;
     private static final int PERIOD_SECONDS = 60 * DURATION_MINUTE;
     private static final String RDS_SERVICE_TYPE = "RDS";
@@ -446,11 +445,11 @@ public class AwsService {
 
     // 환경변수 프로파일이 prod인데 tag의 값이 stage면 false 반환
     private boolean isCurrentEnvHasValidTag(List<Tag> tags) {
-        log.info("tags: {}, profile: {}", tags, profileUtil.CURRENT_ENVIRONMENT_PROFILE);
+        log.info("tags: {}, profile: {}", tags, ProfileUtil.CURRENT_ENVIRONMENT_PROFILE);
 
         for (Tag tag : tags) {
             if (tag.key().equals(TagStandard.getEnvironmentTagKeyName())) {
-                if (tag.value().equals(profileUtil.CURRENT_ENVIRONMENT_PROFILE)) {
+                if (tag.value().equals(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE)) {
                     return true;
                 }
             }
