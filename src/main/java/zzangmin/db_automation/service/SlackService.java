@@ -112,9 +112,11 @@ public class SlackService {
                 .blocks(blocks)
                 .metadata(metadata)
                 .build();
+        System.out.println("request = " + request);
         ChatPostMessageResponse chatPostMessageResponse = null;
         try {
             chatPostMessageResponse = slackClient.chatPostMessage(request);
+            System.out.println("chatPostMessageResponse123 = " + chatPostMessageResponse);
         } catch (SSLHandshakeException sslHandshakeException) {
             log.info(sslHandshakeException.getMessage());
         } catch (Exception e) {

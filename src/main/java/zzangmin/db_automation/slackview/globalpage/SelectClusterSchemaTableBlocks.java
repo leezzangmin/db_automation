@@ -109,7 +109,7 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
                 emptyOption,
                 tablePlaceholder);
 
-        String tableSchemaLabelText = "<Table Schema>";
+        String tableSchemaLabelText = "Table Schema";
         ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaContextId);
         SectionBlock textSection = BasicBlockFactory.getPlainTextSection("choose table first", SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
 

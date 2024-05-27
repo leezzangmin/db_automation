@@ -31,6 +31,10 @@ public class BlockPageManager {
         return selectedBlockPage.generateBlocks();
     }
 
+    public void validateRequest() {
+        // TODO
+    }
+
     public RequestDTO handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
                                        Map<String, Map<String, ViewState.Value>> values) {
         BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);

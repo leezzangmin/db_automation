@@ -10,6 +10,7 @@ import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.ddl.RenameTableRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.response.ddl.RenameTableDDLResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -91,6 +92,6 @@ public class RenameTableBlockPage implements BlockPage {
 
     @Override
     public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
-        ddlController.renameTable(databaseConnectionInfo, (RenameTableRequestDTO) requestDTO, slackUserId);
+        RenameTableDDLResponseDTO renameTableDDLResponseDTO = ddlController.renameTable(databaseConnectionInfo, (RenameTableRequestDTO) requestDTO, slackUserId);
     }
 }

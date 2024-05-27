@@ -1,7 +1,6 @@
 package zzangmin.db_automation.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.Gson;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
 import com.slack.api.app_backend.util.JsonPayloadTypeDetector;
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
@@ -17,12 +16,14 @@ import com.slack.api.model.view.ViewState;
 import com.slack.api.util.json.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
 
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
+import zzangmin.db_automation.config.SlackConfig;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
@@ -31,8 +32,9 @@ import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.SlackRequestHandler;
 import zzangmin.db_automation.slackview.globalpage.SelectCommandBlocks;
 import zzangmin.db_automation.slackview.SlackConstants;
-import zzangmin.db_automation.util.JsonUtil;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.util.*;
 
@@ -59,7 +61,7 @@ public class SlackController {
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
         String decodedPayload = HtmlUtils.htmlUnescape(payload);
-        slackRequestHandler.validateRequest(slackSignature, timestamp, requestBody);
+        validateRequestAuth(slackSignature, timestamp, requestBody);
         log.info("slackCallBack decodedPayload: {}", decodedPayload);
 
         // https://slack.dev/java-slack-sdk/guides/shortcuts -> under the hood
@@ -122,8 +124,7 @@ public class SlackController {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
-        System.out.println("requestBody = " + requestBody);
-        slackRequestHandler.validateRequest(slackSignature, timestamp, requestBody);
+        validateRequestAuth(slackSignature, timestamp, requestBody);
 
         List<LayoutBlock> initialBlocks = new ArrayList<>();
         initialBlocks.addAll(SelectCommandBlocks.selectCommandGroupAndCommandTypeBlocks());
@@ -142,7 +143,7 @@ public class SlackController {
             DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
             RequestDTO requestDTO = slackRequestHandler.handleSubmission(findCommandType,
                     state.getValues());
-            List<LayoutBlock> requestMessageBlocks = slackRequestHandler.sendSubmissionRequestMessage(selectedDatabaseConnectionInfo, findCommandType, slackUser, requestDTO);
+            List<LayoutBlock> requestMessageBlocks = slackRequestHandler.sendSubmissionRequestMessage(selectedDatabaseConnectionInfo, findCommandType, slackUser.getId(), requestDTO);
             slackService.sendBlockMessageWithMetadata(selectedDatabaseConnectionInfo, findCommandType, requestMessageBlocks, requestDTO);
         } catch (Exception e) {
             log.info("Exception: {}", e.getMessage());
@@ -157,49 +158,25 @@ public class SlackController {
     private List<LayoutBlock> handleBlockAction(BlockActionPayload blockActionPayload) throws JsonProcessingException {
         List<Action> actions = blockActionPayload.getActions();
 
-        // view == null -> message action
+        // message action
         if (blockActionPayload.getView() == null) {
             User user = blockActionPayload.getUser();
             Message message = blockActionPayload.getMessage();
-            Message.Metadata metadata = message.getMetadata();
-            Map<String, Object> eventPayload = metadata.getEventPayload();
-
-            DatabaseConnectionInfo findDatabaseConnectionInfo = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo),
-                    DatabaseConnectionInfo.class);
-            CommandType findCommandType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataCommandType),
-                    CommandType.class);
-            Class findRequestDTOClassType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataClass),
-                    Class.class);
-            RequestDTO findRequestDTO = (RequestDTO) JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestDTO),
-                    findRequestDTOClassType);
-
 
             for (Action action : actions) {
-
+                log.info("action: {}", action);
+                validateRequestAcceptDoerAdmin(user.getId());
                 if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
-                    slackRequestHandler.validateRequestAcceptDoer(user);
-                    slackRequestHandler.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, user.getId());
-                    // send accept message
-                    // execute
-
-                    System.out.println("accept!");
+                    slackRequestHandler.handleAccept(message, user.getId());
                 } else if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
-                    slackRequestHandler.validateRequestAcceptDoer(user);
-
-                    // send deny message
-                    // expire request message
-
-                    System.out.println("deny!");
+                    slackRequestHandler.handleDeny(message, user.getId());
                 }
-
             }
-            ViewState state = blockActionPayload.getState();
             List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
-
             return blocks;
         }
 
-        // view != null -> view modal action
+        // view modal action
         View view = blockActionPayload.getView();
         ViewState state = view.getState();
         List<LayoutBlock> blocks = view.getBlocks();
@@ -209,6 +186,44 @@ public class SlackController {
         }
         return blocks;
     }
+
+    /**
+     * 특정 유저(admin)만 request 를 승인/반려 할 수 있음.
+     *
+     */
+    private void validateRequestAcceptDoerAdmin(String slackUserId) {
+        if (!SlackConfig.slackAdminUserIds.contains(slackUserId)) {
+            throw new IllegalArgumentException("해당 user 가 처리할 수 없는 action 입니다.");
+        }
+    }
+
+    private void validateRequestAuth(String slackSignature, String timestamp, String requestBody) {
+        SecretKeySpec secretKey = new SecretKeySpec(SlackConfig.slackAppSigningSecret.getBytes(), "HmacSHA256");
+        if (requestBody.contains(SlackConfig.verificationToken)) {
+            return;
+        }
+
+        try {
+            StringBuilder baseString = new StringBuilder();
+            baseString.append("v0:");
+            baseString.append(timestamp);
+            baseString.append(":");
+            baseString.append(requestBody);
+
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secretKey);
+            byte[] hash = mac.doFinal(baseString.toString().getBytes());
+
+            String mySignature = "v0=" + Hex.encodeHexString(hash);
+            if (!mySignature.equals(slackSignature)) {
+                throw new IllegalArgumentException("http 요청 검증 실패");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("http 요청 검증 실패");
+        }
+    }
+
 
     private CommandType findCommandType(ViewState state) {
         String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
