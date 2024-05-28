@@ -23,29 +23,28 @@ import java.util.Map;
 public class AwsClient {
 
     private static final Region defaultRegion = Region.AP_NORTHEAST_2;
-    private final AwsCredentialsProvider awsCredentialsProvider = DefaultCredentialsProvider.create();
+//    private final AwsCredentialsProvider awsCredentialsProvider = DefaultCredentialsProvider.create();
+    private final ProfileFile profiles = ProfileFile.builder()
+        .content(Paths.get(System.getProperty("user.home"), ".aws", "credentials"))
+        .type(ProfileFile.Type.CREDENTIALS)
+        .build();
 
-    @Bean
-    public RdsClient getRdsClient() {
-        RdsClient rdsClient = RdsClient.builder()
-                .credentialsProvider(awsCredentialsProvider)
-                .region(defaultRegion)
-                .build();
-        return rdsClient;
-    }
+//    @Bean
+//    public RdsClient getRdsClient() {
+//        RdsClient rdsClient = RdsClient.builder()
+//                .credentialsProvider(awsCredentialsProvider)
+//                .region(defaultRegion)
+//                .build();
+//        return rdsClient;
+//    }
 
     @Bean
     public List<RdsClient> getRdsClients() {
         List<RdsClient> rdsClients = new ArrayList<>();
 
-        ProfileFile profiles = ProfileFile.builder()
-                .content(Paths.get(System.getProperty("user.home"), ".aws", "credentials"))
-                .type(ProfileFile.Type.CREDENTIALS)
-                .build();
-        Map<String, Profile> profiles1 = profiles.profiles();
+        Map<String, Profile> profileMap = profiles.profiles();
 
-        for (String profileName : profiles1.keySet()) {
-
+        for (String profileName : profileMap.keySet()) {
             AwsCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder()
                     .profileFile(profiles)
                     .profileName(profileName)
@@ -62,33 +61,65 @@ public class AwsClient {
     }
 
     @Bean
-    public SecretsManagerClient getSecretManagerClient() {
-        SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
-                .credentialsProvider(awsCredentialsProvider)
-                .region(defaultRegion)
-                .build();
+    public List<SecretsManagerClient> getSecretManagerClients() {
+        List<SecretsManagerClient> secretsManagerClients = new ArrayList<>();
 
-        return secretsManagerClient;
+        Map<String, Profile> profileMap = profiles.profiles();
+
+        for (String profileName : profileMap.keySet()) {
+            AwsCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder()
+                    .profileFile(profiles)
+                    .profileName(profileName)
+                    .build();
+            SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
+                    .credentialsProvider(credentialsProvider)
+                    .region(defaultRegion)
+                    .build();
+            secretsManagerClients.add(secretsManagerClient);
+        }
+        return secretsManagerClients;
     }
 
     @Bean
-    public CloudWatchClient getCloudWatchClient() {
-        CloudWatchClient cloudWatchClient = CloudWatchClient.builder()
-                .credentialsProvider(awsCredentialsProvider)
-                .region(defaultRegion)
-                .build();
+    public List<CloudWatchClient> getCloudWatchClients() {
 
-        return cloudWatchClient;
+        List<CloudWatchClient> cloudWatchClients = new ArrayList<>();
+
+        Map<String, Profile> profileMap = profiles.profiles();
+
+        for (String profileName : profileMap.keySet()) {
+            AwsCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder()
+                    .profileFile(profiles)
+                    .profileName(profileName)
+                    .build();
+            CloudWatchClient cloudWatchClient = CloudWatchClient.builder()
+                    .credentialsProvider(credentialsProvider)
+                    .region(defaultRegion)
+                    .build();
+            cloudWatchClients.add(cloudWatchClient);
+        }
+
+        return cloudWatchClients;
     }
 
     @Bean
-    public PiClient getPerformanceInsightClient() {
-        PiClient performanceInsightClient = PiClient.builder()
-                .credentialsProvider(awsCredentialsProvider)
-                .region(defaultRegion)
-                .build();
+    public List<PiClient> getPerformanceInsightClients() {
+        List<PiClient> piClients = new ArrayList<>();
 
-        return performanceInsightClient;
+        Map<String, Profile> profileMap = profiles.profiles();
+
+        for (String profileName : profileMap.keySet()) {
+            AwsCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder()
+                    .profileFile(profiles)
+                    .profileName(profileName)
+                    .build();
+            PiClient performanceInsightClient = PiClient.builder()
+                    .credentialsProvider(credentialsProvider)
+                    .region(defaultRegion)
+                    .build();
+            piClients.add(performanceInsightClient);
+        }
+        return piClients;
     }
 
 }
