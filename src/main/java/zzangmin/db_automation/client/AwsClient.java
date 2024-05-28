@@ -1,9 +1,8 @@
 package zzangmin.db_automation.client;
 
-import org.springframework.context.annotation.Bean;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.profiles.Profile;
 import software.amazon.awssdk.profiles.ProfileFile;
@@ -12,36 +11,30 @@ import software.amazon.awssdk.services.rds.RdsClient;
 import software.amazon.awssdk.services.cloudwatch.CloudWatchClient;
 import software.amazon.awssdk.services.pi.PiClient;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
+import software.amazon.awssdk.services.sts.StsClient;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityRequest;
+import software.amazon.awssdk.services.sts.model.GetCallerIdentityResponse;
 
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Component
 public class AwsClient {
 
     private static final Region defaultRegion = Region.AP_NORTHEAST_2;
-//    private final AwsCredentialsProvider awsCredentialsProvider = DefaultCredentialsProvider.create();
     private final ProfileFile profiles = ProfileFile.builder()
         .content(Paths.get(System.getProperty("user.home"), ".aws", "credentials"))
         .type(ProfileFile.Type.CREDENTIALS)
         .build();
 
-//    @Bean
-//    public RdsClient getRdsClient() {
-//        RdsClient rdsClient = RdsClient.builder()
-//                .credentialsProvider(awsCredentialsProvider)
-//                .region(defaultRegion)
-//                .build();
-//        return rdsClient;
-//    }
+    private final Map<String, RdsClient> accountIdRdsClients = new HashMap<>();
+    private final Map<String, SecretsManagerClient> accountIdSecretsManagerClients = new HashMap<>();
+    private final Map<String, CloudWatchClient> accountIdCloudWatchClients = new HashMap<>();
+    private final Map<String, PiClient> accountIdPiClients = new HashMap<>();
 
-    @Bean
-    public List<RdsClient> getRdsClients() {
-        List<RdsClient> rdsClients = new ArrayList<>();
-
+    @PostConstruct
+    public void initAwsClients() {
         Map<String, Profile> profileMap = profiles.profiles();
 
         for (String profileName : profileMap.keySet()) {
@@ -50,76 +43,77 @@ public class AwsClient {
                     .profileName(profileName)
                     .build();
 
-            RdsClient rdsClient = RdsClient.builder()
+            String accountId = getAwsAccountId(credentialsProvider);
+
+            accountIdRdsClients.put(accountId, RdsClient.builder()
                     .credentialsProvider(credentialsProvider)
                     .region(defaultRegion)
-                    .build();
+                    .build());
 
-            rdsClients.add(rdsClient);
-        }
-        return rdsClients;
-    }
-
-    @Bean
-    public List<SecretsManagerClient> getSecretManagerClients() {
-        List<SecretsManagerClient> secretsManagerClients = new ArrayList<>();
-
-        Map<String, Profile> profileMap = profiles.profiles();
-
-        for (String profileName : profileMap.keySet()) {
-            AwsCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder()
-                    .profileFile(profiles)
-                    .profileName(profileName)
-                    .build();
-            SecretsManagerClient secretsManagerClient = SecretsManagerClient.builder()
+            accountIdSecretsManagerClients.put(accountId, SecretsManagerClient.builder()
                     .credentialsProvider(credentialsProvider)
                     .region(defaultRegion)
-                    .build();
-            secretsManagerClients.add(secretsManagerClient);
-        }
-        return secretsManagerClients;
-    }
+                    .build());
 
-    @Bean
-    public List<CloudWatchClient> getCloudWatchClients() {
-
-        List<CloudWatchClient> cloudWatchClients = new ArrayList<>();
-
-        Map<String, Profile> profileMap = profiles.profiles();
-
-        for (String profileName : profileMap.keySet()) {
-            AwsCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder()
-                    .profileFile(profiles)
-                    .profileName(profileName)
-                    .build();
-            CloudWatchClient cloudWatchClient = CloudWatchClient.builder()
+            accountIdCloudWatchClients.put(accountId, CloudWatchClient.builder()
                     .credentialsProvider(credentialsProvider)
                     .region(defaultRegion)
-                    .build();
-            cloudWatchClients.add(cloudWatchClient);
-        }
+                    .build());
 
-        return cloudWatchClients;
-    }
-
-    @Bean
-    public List<PiClient> getPerformanceInsightClients() {
-        List<PiClient> piClients = new ArrayList<>();
-
-        Map<String, Profile> profileMap = profiles.profiles();
-
-        for (String profileName : profileMap.keySet()) {
-            AwsCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder()
-                    .profileFile(profiles)
-                    .profileName(profileName)
-                    .build();
-            PiClient performanceInsightClient = PiClient.builder()
+            accountIdPiClients.put(accountId, PiClient.builder()
                     .credentialsProvider(credentialsProvider)
                     .region(defaultRegion)
-                    .build();
-            piClients.add(performanceInsightClient);
+                    .build());
         }
-        return piClients;
     }
 
+    public Optional<RdsClient> getRdsClient(String accountId) {
+        return Optional.ofNullable(accountIdRdsClients.get(accountId));
+    }
+
+    public Optional<SecretsManagerClient> getSecretsManagerClient(String accountId) {
+        return Optional.ofNullable(accountIdSecretsManagerClients.get(accountId));
+    }
+
+    public Optional<CloudWatchClient> getCloudWatchClient(String accountId) {
+        return Optional.ofNullable(accountIdCloudWatchClients.get(accountId));
+    }
+
+    public Optional<PiClient> getPiClient(String accountId) {
+        return Optional.ofNullable(accountIdPiClients.get(accountId));
+    }
+
+    public List<RdsClient> findAllRdsClients() {
+        return accountIdRdsClients.values()
+                .stream()
+                .toList();
+    }
+
+    public List<SecretsManagerClient> findAllSecretManagerClients() {
+        return accountIdSecretsManagerClients.values()
+                .stream()
+                .toList();
+    }
+
+    public List<CloudWatchClient> findAllCloudWatchClients() {
+        return accountIdCloudWatchClients.values()
+                .stream()
+                .toList();
+    }
+
+    public List<PiClient> findAllPerformanceInsightClients() {
+        return accountIdPiClients.values()
+                .stream()
+                .toList();
+    }
+
+    private String getAwsAccountId(AwsCredentialsProvider credentialsProvider) {
+        StsClient stsClient = StsClient.builder()
+                .credentialsProvider(credentialsProvider)
+                .region(Region.AWS_GLOBAL)
+                .build();
+
+        GetCallerIdentityResponse response = stsClient.getCallerIdentity(GetCallerIdentityRequest.builder().build());
+        return response.account();
+    }
 }

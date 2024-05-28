@@ -91,6 +91,23 @@ public class AwsService {
         throw new IllegalStateException("Writer masterUsername not found");
     }
 
+    public String findClusterMasterUserName2(String databaseIdentifier) {
+        log.info("findClusterMasterUserName databaseIdentifier: {}", databaseIdentifier);
+        List<RdsClient> rdsClients = awsClient.findAllRdsClients();
+        for (RdsClient rdsClient : rdsClients) {
+            DescribeDbInstancesResponse instancesResponse = rdsClient.describeDBInstances();
+            for (DBInstance dbInstance : instancesResponse.dbInstances()) {
+                log.info("dbInstance: {}", dbInstance);
+                List<String> readReplicaDBInstanceIdentifiers = dbInstance.readReplicaDBInstanceIdentifiers();
+                if (!readReplicaDBInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier())
+                        && dbInstance.dbInstanceIdentifier().startsWith(databaseIdentifier)) {
+                    return dbInstance.masterUsername();
+                }
+            }
+        }
+        throw new IllegalStateException("Writer masterUsername not found");
+    }
+
     public List<Parameter> findClusterParameterGroupParameters(String parameterGroupName) {
         RdsClient rdsClient = awsClient.getRdsClient();
 
@@ -210,16 +227,12 @@ public class AwsService {
     }
 
     public List<DBInstance> findAllInstanceInfo() {
-        //RdsClient rdsClient = awsClient.getRdsClient();
         List<DBInstance> standaloneInstances = new ArrayList<>();
         List<RdsClient> rdsClients = awsClient.getRdsClients();
         for (RdsClient rdsClient : rdsClients) {
             DescribeDbInstancesResponse describeDbInstancesResponse = rdsClient.describeDBInstances();
             standaloneInstances.addAll(findValidInstances(describeDbInstancesResponse));
         }
-//        DescribeDbInstancesResponse describeDbInstancesResponse = rdsClient.describeDBInstances();
-//
-//        List<DBInstance> standaloneInstances = findValidInstances(describeDbInstancesResponse);
         log.info("standaloneInstances: {}", standaloneInstances);
         return standaloneInstances;
     }
@@ -250,11 +263,6 @@ public class AwsService {
             DescribeDbClustersResponse clustersResponse = findValidClusters(describeDbClustersResponse);
             dbClusters.addAll(clustersResponse.dbClusters());
         }
-//        DescribeDbClustersResponse describeDbClustersResponse = awsClient.getRdsClient()
-//                .describeDBClusters();
-//        DescribeDbClustersResponse clustersResponse = findValidClusters(describeDbClustersResponse);
-//
-//        List<DBCluster> dbClusters = clustersResponse.dbClusters();
         log.info("clusters: {}", dbClusters);
         return dbClusters;
     }
