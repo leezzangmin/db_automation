@@ -87,7 +87,11 @@ public class DynamicDataSourceProperties {
             throw new IllegalStateException("로드한 대상 DB가 없습니다.");
         }
         for (DatabaseConnectionInfo databaseConnectionInfo : databases.values()) {
-            mysqlClient.healthCheck(databaseConnectionInfo);
+            try {
+                mysqlClient.healthCheck(databaseConnectionInfo);
+            } catch (Exception e) {
+                log.error("헬스체크 실패: {}, {}", databaseConnectionInfo, e.getMessage());
+            }
         }
     }
 

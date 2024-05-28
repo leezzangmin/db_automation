@@ -174,7 +174,6 @@ public class AwsService {
             valueResponse = secretManagerClient.getSecretValue(valueRequest);
         } catch (Exception e) {
             throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName]-[PROFILE]" + DB_CREDENTIAL_POSTPIX);        }
-
         try {
             username = new JSONObject(valueResponse.secretString())
                     .getString("username");
@@ -211,10 +210,16 @@ public class AwsService {
     }
 
     public List<DBInstance> findAllInstanceInfo() {
-        RdsClient rdsClient = awsClient.getRdsClient();
-        DescribeDbInstancesResponse describeDbInstancesResponse = rdsClient.describeDBInstances();
-
-        List<DBInstance> standaloneInstances = findValidInstances(describeDbInstancesResponse);
+        //RdsClient rdsClient = awsClient.getRdsClient();
+        List<DBInstance> standaloneInstances = new ArrayList<>();
+        List<RdsClient> rdsClients = awsClient.getRdsClients();
+        for (RdsClient rdsClient : rdsClients) {
+            DescribeDbInstancesResponse describeDbInstancesResponse = rdsClient.describeDBInstances();
+            standaloneInstances.addAll(findValidInstances(describeDbInstancesResponse));
+        }
+//        DescribeDbInstancesResponse describeDbInstancesResponse = rdsClient.describeDBInstances();
+//
+//        List<DBInstance> standaloneInstances = findValidInstances(describeDbInstancesResponse);
         log.info("standaloneInstances: {}", standaloneInstances);
         return standaloneInstances;
     }
@@ -237,11 +242,19 @@ public class AwsService {
     }
 
     public List<DBCluster> findAllClusterInfo() {
-        DescribeDbClustersResponse describeDbClustersResponse = awsClient.getRdsClient()
-                .describeDBClusters();
-        DescribeDbClustersResponse clustersResponse = findValidClusters(describeDbClustersResponse);
+        List<DBCluster> dbClusters = new ArrayList<>();
 
-        List<DBCluster> dbClusters = clustersResponse.dbClusters();
+        List<RdsClient> rdsClients = awsClient.getRdsClients();
+        for (RdsClient rdsClient : rdsClients) {
+            DescribeDbClustersResponse describeDbClustersResponse = rdsClient.describeDBClusters();
+            DescribeDbClustersResponse clustersResponse = findValidClusters(describeDbClustersResponse);
+            dbClusters.addAll(clustersResponse.dbClusters());
+        }
+//        DescribeDbClustersResponse describeDbClustersResponse = awsClient.getRdsClient()
+//                .describeDBClusters();
+//        DescribeDbClustersResponse clustersResponse = findValidClusters(describeDbClustersResponse);
+//
+//        List<DBCluster> dbClusters = clustersResponse.dbClusters();
         log.info("clusters: {}", dbClusters);
         return dbClusters;
     }

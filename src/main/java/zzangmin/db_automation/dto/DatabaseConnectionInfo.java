@@ -1,8 +1,6 @@
 package zzangmin.db_automation.dto;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import lombok.*;
-import software.amazon.awssdk.services.rds.model.Tag;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 
 import java.util.ArrayList;
@@ -15,6 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class DatabaseConnectionInfo {
 
+    private String accountName;
     private String databaseName;
     private String driverClassName;
     private String url;
