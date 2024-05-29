@@ -19,10 +19,10 @@ public class DescribeController {
 
     private final DescribeService describeService;
 
-    @GetMapping("/describe/dbmsNames")
-    public DBMSNamesResponseDTO describeDBMSNames() {
-        return describeService.findDBMSNames();
-    }
+//    @GetMapping("/describe/dbmsNames")
+//    public DBMSNamesResponseDTO describeDBMSNames() {
+//        return describeService.findDBMSNames();
+//    }
 
     @GetMapping("/describe/dbms/schemaNames")
     public SchemaNamesResponseDTO describeSchemaNames(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo) {
