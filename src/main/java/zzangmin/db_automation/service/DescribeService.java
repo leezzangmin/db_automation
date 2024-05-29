@@ -3,7 +3,6 @@ package zzangmin.db_automation.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.rds.model.DBCluster;
-import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.response.*;
@@ -21,19 +20,32 @@ import java.util.stream.Collectors;
 @Service
 public class DescribeService {
 
-    public static final List<String> schemaBlackList = List.of("information_schema", "mysql", "performance_schema", "sys", "dba", "back_office", "test_schema", "innodb");
+    public static final List<String> schemaBlackList = List.of("information_schema",
+            "mysql",
+            "performance_schema",
+            "sys",
+            "dba",
+            "back_office",
+            "test_schema",
+            "innodb");
 
     private final AwsService awsService;
     private final MysqlClient mysqlClient;
     private final ChangeHistoryRepository changeHistoryRepository;
 
     public RdsClustersResponseDTO findClustersInfo() {
-        List<DBCluster> dbClusters = awsService.findAllClusterInfo();
+        Map<String, List<DBCluster>> dbClusters = awsService.findAllClusterInfo();
+        List<DBCluster> clusterResult = new ArrayList<>();
         List<Map<String, Long>> rdsInfo = new ArrayList<>();
-        dbClusters.stream()
-                .map(i -> i.getValueForField("DBClusterIdentifier", String.class).get())
-                .forEach(i -> rdsInfo.add(awsService.findAllInstanceMetricsInfo(i)));
-        return RdsClustersResponseDTO.of(dbClusters, rdsInfo);
+        for (String accountId : dbClusters.keySet()) {
+            List<DBCluster> accountDbClusters = dbClusters.get(accountId);
+
+            accountDbClusters.stream()
+                    .map(i -> i.getValueForField("DBClusterIdentifier", String.class).get())
+                    .forEach(i -> rdsInfo.add(awsService.findAllInstanceMetricsInfo(accountId, i)));
+            clusterResult.addAll(accountDbClusters);
+        }
+        return RdsClustersResponseDTO.of(clusterResult, rdsInfo);
     }
 
     // 클러스터의 서비스용 스키마의 테이블 목록(용량, 등)
@@ -55,10 +67,8 @@ public class DescribeService {
     }
 
     public DBMSNamesResponseDTO findDBMSNames() {
-        List<String> dbmsNames = DynamicDataSourceProperties.getDatabases()
-                .keySet()
-                .stream()
-                .collect(Collectors.toList());
+        List<String> dbmsNames = new ArrayList<>(DynamicDataSourceProperties.findAllDatabases()
+                .keySet());
         return new DBMSNamesResponseDTO(dbmsNames);
     }
 

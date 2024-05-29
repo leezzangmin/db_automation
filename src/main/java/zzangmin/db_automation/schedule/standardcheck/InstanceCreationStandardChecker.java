@@ -7,6 +7,7 @@ import zzangmin.db_automation.schedule.standardcheck.standardvalue.InstanceCreat
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @RequiredArgsConstructor
@@ -17,17 +18,22 @@ public class InstanceCreationStandardChecker {
 
     public String checkInstanceCreationStandard() {
         StringBuilder sb = new StringBuilder();
-        List<DBInstance> dbInstances = awsService.findAllInstanceInfo();
-        for (DBInstance dbInstance : dbInstances) {
-            Set<String> instanceStandardNames = InstanceCreationStandard.instanceCreationStandards.keySet();
-            for (String instanceStandardName : instanceStandardNames) {
-                String value = String.valueOf(dbInstance.getValueForField(instanceStandardName, Object.class)
-                        .orElseThrow(() -> new IllegalArgumentException("해당 필드가 존재하지 않습니다." + instanceStandardName)));
-                if (!InstanceCreationStandard.findStandardValue(instanceStandardName).equals(value)) {
-                    sb.append(String.format("\nInstance Name: %s, 비표준 설정명: %s, 표준값: %s, 현재값: %s", dbInstance.dbInstanceIdentifier(), instanceStandardName, InstanceCreationStandard.findStandardValue(instanceStandardName), value));
+        Map<String, List<DBInstance>> dbInstances = awsService.findAllInstanceInfo();
+        for (String accountId : dbInstances.keySet()) {
+            List<DBInstance> accountDbInstances = dbInstances.get(accountId);
+            for (DBInstance dbInstance : accountDbInstances) {
+                Set<String> instanceStandardNames = InstanceCreationStandard.instanceCreationStandards.keySet();
+                for (String instanceStandardName : instanceStandardNames) {
+                    String value = String.valueOf(dbInstance.getValueForField(instanceStandardName, Object.class)
+                            .orElseThrow(() -> new IllegalArgumentException("해당 필드가 존재하지 않습니다." + instanceStandardName)));
+                    if (!InstanceCreationStandard.findStandardValue(instanceStandardName).equals(value)) {
+                        sb.append(String.format("\naccountId: `%s` Instance Name: %s, 비표준 설정명: %s, 표준값: %s, 현재값: %s", accountId, dbInstance.dbInstanceIdentifier(), instanceStandardName, InstanceCreationStandard.findStandardValue(instanceStandardName), value));
+                    }
                 }
             }
         }
+
+
         return sb.toString();
     }
 }

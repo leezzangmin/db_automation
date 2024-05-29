@@ -41,7 +41,7 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
         slackService.sendNormalStringMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 시작 !");
 
         StringBuilder schemaCheckResult = new StringBuilder();
-        Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
+        Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.findAllDatabases();
         for (String databaseName : databases.keySet()) {
             DatabaseConnectionInfo databaseConnectionInfo = databases.get(databaseName);
 

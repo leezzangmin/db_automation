@@ -1,6 +1,5 @@
 package zzangmin.db_automation.slackview.globalpage;
 
-import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.block.element.*;

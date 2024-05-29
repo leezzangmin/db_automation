@@ -18,6 +18,7 @@ import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueRequest;
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import zzangmin.db_automation.client.AwsClient;
+import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.SecretManagerStandard;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.ParameterGroupStandard;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
@@ -44,55 +45,65 @@ public class AwsService {
     private static final String RDS_SERVICE_TYPE = "RDS";
     private static final int MIN_RECORD_SIZE = 20;
 
+    public Map<String, Map<String, String>> findDbParameterGroupNames() {
+        Map<String,Map<String, String>> accountIdParameterGroupNames = new HashMap<>();
 
+        Map<String, List<DBInstance>> dbInstances = findAllInstanceInfo();
+        for (String accountId : dbInstances.keySet()) {
+            Map<String, String> parameterGroupNames = new HashMap<>();
 
-    public List<String> findDbParameterGroupNames() {
-        List<String> dbParameterGroupNames = new ArrayList<>();
-
-        List<DBInstance> dbInstances = findAllInstanceInfo();
-
-        for (DBInstance dbInstance : dbInstances) {
-            List<DBParameterGroupStatus> dbParameterGroupStatuses = dbInstance.dbParameterGroups();
-            for (DBParameterGroupStatus dbParameterGroupStatus : dbParameterGroupStatuses) {
-                String dbParameterGroupName = dbParameterGroupStatus.dbParameterGroupName();
-                dbParameterGroupNames.add(dbParameterGroupName);
+            List<DBInstance> accountDbInstances = dbInstances.get(accountId);
+            for (DBInstance accountDbInstance : accountDbInstances) {
+                String parameterGroupName = accountDbInstance.dbParameterGroups()
+                        .stream()
+                        .map(group -> group.dbParameterGroupName())
+                        .collect(Collectors.toList())
+                        .get(0); // 하나의 instance 에는 하나의 pg만 적용 가능
+                parameterGroupNames.put(accountDbInstance.dbInstanceIdentifier(), parameterGroupName);
             }
+            accountIdParameterGroupNames.put(accountId, parameterGroupNames);
         }
-        return dbParameterGroupNames;
+        return accountIdParameterGroupNames;
     }
 
-    public List<String> findClusterParameterGroupNames() {
-        List<String> clusterParameterGroupNames = new ArrayList<>();
+    public Map<String, Map<String, String>> findClusterParameterGroupNames() {
+        Map<String,Map<String, String>> accountIdParameterGroupNames = new HashMap<>();
 
-        List<DBCluster> dbClusters = findAllClusterInfo();
+        Map<String, List<DBCluster>> dbClusters = findAllClusterInfo();
+        for (String accountId : dbClusters.keySet()) {
+            Map<String, String> parameterGroupNames = new HashMap<>();
 
-        for (DBCluster dbCluster : dbClusters) {
-            String clusterParameterGroupName = dbCluster.dbClusterParameterGroup();
-            clusterParameterGroupNames.add(clusterParameterGroupName);
+            List<DBCluster> accountDbClusters = dbClusters.get(accountId);
+            for (DBCluster accountDbCluster : accountDbClusters) {
+                parameterGroupNames.put(accountDbCluster.dbClusterIdentifier(), accountDbCluster.dbClusterParameterGroup());
+            }
+            accountIdParameterGroupNames.put(accountId, parameterGroupNames);
         }
-        return clusterParameterGroupNames;
+        return accountIdParameterGroupNames;
     }
 
-    public String findClusterMasterUserName(String databaseIdentifier) {
+    public String findClusterMasterUserName(DatabaseConnectionInfo databaseConnectionInfo) {
         /**
          * writer 의 masterUsername return
          */
-        log.info("findClusterMasterUserName databaseIdentifier: {}", databaseIdentifier);
-        DescribeDbInstancesResponse instancesResponse = awsClient.getRdsClient()
+        log.info("findClusterMasterUserName databaseIdentifier: {}", databaseConnectionInfo);
+        DescribeDbInstancesResponse instancesResponse = awsClient.getRdsClient(databaseConnectionInfo.getAccountId())
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 rds client가 없습니다."))
                 .describeDBInstances();
         for (DBInstance dbInstance : instancesResponse.dbInstances()) {
             log.info("dbInstance: {}", dbInstance);
             List<String> readReplicaDBInstanceIdentifiers = dbInstance.readReplicaDBInstanceIdentifiers();
             if (!readReplicaDBInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier())
-                    && dbInstance.dbInstanceIdentifier().startsWith(databaseIdentifier)) {
+                    && dbInstance.dbInstanceIdentifier().startsWith(databaseConnectionInfo.getDatabaseName())) {
                 return dbInstance.masterUsername();
             }
         }
         throw new IllegalStateException("Writer masterUsername not found");
     }
 
-    public List<Parameter> findClusterParameterGroupParameters(String parameterGroupName) {
-        RdsClient rdsClient = awsClient.getRdsClient();
+    public List<Parameter> findClusterParameterGroupParameters(String accountId, String parameterGroupName) {
+        RdsClient rdsClient = awsClient.getRdsClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 rds client가 없습니다."));
 
         DescribeDbClusterParametersResponse describeDbClusterParametersResponse = rdsClient.describeDBClusterParameters(
                 DescribeDbClusterParametersRequest.builder()
@@ -112,8 +123,9 @@ public class AwsService {
         return dbParameters;
     }
 
-    public List<Parameter> findDbParameterGroupParameters(String parameterGroupName) {
-        RdsClient rdsClient = awsClient.getRdsClient();
+    public List<Parameter> findDbParameterGroupParameters(String accountId, String parameterGroupName) {
+        RdsClient rdsClient = awsClient.getRdsClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 rds client가 없습니다."));
 
         DescribeDbParametersResponse describeDbParametersResponse = rdsClient.describeDBParameters(
                 DescribeDbParametersRequest.builder()
@@ -133,14 +145,15 @@ public class AwsService {
         return dbParameters;
     }
 
-    public String findRdsPassword(String serviceNameTagValue) {
-        String secretName = SecretManagerStandard.generateStandardSecretManagerName(serviceNameTagValue, ProfileUtil.CURRENT_ENVIRONMENT_PROFILE);
+    public String findRdsPassword(String accountId, String serviceName, String env) {
+        String secretName = SecretManagerStandard.generateStandardSecretManagerName(serviceName, env);
         log.info("secretName: {}", secretName);
 
         String password;
         GetSecretValueResponse valueResponse;
 
-        SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient();
+        SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 secretManager client가 없습니다."));
         GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
                 .secretId(secretName)
                 .build();
@@ -160,13 +173,14 @@ public class AwsService {
         return password;
     }
 
-    public String findRdsUsername(String serviceNameTagValue) {
-        String secretName = SecretManagerStandard.generateStandardSecretManagerName(serviceNameTagValue, ProfileUtil.CURRENT_ENVIRONMENT_PROFILE);
+    public String findRdsUsername(String accountId, String serviceNameTagValue, String env) {
+        String secretName = SecretManagerStandard.generateStandardSecretManagerName(serviceNameTagValue, env);
         log.info("secretName: {}", secretName);
         String username;
         GetSecretValueResponse valueResponse;
 
-        SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient();
+        SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 secretManager client가 없습니다."));
         GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
                 .secretId(secretName)
                 .build();
@@ -174,7 +188,6 @@ public class AwsService {
             valueResponse = secretManagerClient.getSecretValue(valueRequest);
         } catch (Exception e) {
             throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName]-[PROFILE]" + DB_CREDENTIAL_POSTPIX);        }
-
         try {
             username = new JSONObject(valueResponse.secretString())
                     .getString("username");
@@ -186,8 +199,9 @@ public class AwsService {
         return username;
     }
 
-    public Map<String, Double> findRdsPeakCpuAndMemoryUsage(String databaseIdentifier) {
-        CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient();
+    public Map<String, Double> findRdsPeakCpuAndMemoryUsage(String accountId, String databaseIdentifier) {
+        CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 cw client가 없습니다."));
         Instant endTime = Instant.now();
         Instant startTime = endTime.minus(Duration.ofMinutes(DURATION_MINUTE));
 
@@ -210,11 +224,16 @@ public class AwsService {
         return peakValues;
     }
 
-    public List<DBInstance> findAllInstanceInfo() {
-        RdsClient rdsClient = awsClient.getRdsClient();
-        DescribeDbInstancesResponse describeDbInstancesResponse = rdsClient.describeDBInstances();
+    public Map<String, List<DBInstance>> findAllInstanceInfo() {
+        Map<String, List<DBInstance>> standaloneInstances = new HashMap<>();
 
-        List<DBInstance> standaloneInstances = findValidInstances(describeDbInstancesResponse);
+        Map<String, RdsClient> rdsClients = awsClient.findAllRdsClients();
+        for (String accountId : rdsClients.keySet()) {
+            RdsClient rdsClient = rdsClients.get(accountId);
+            DescribeDbInstancesResponse describeDbInstancesResponse = rdsClient.describeDBInstances();
+            List<DBInstance> validInstances = findValidInstances(describeDbInstancesResponse);
+            standaloneInstances.put(accountId, validInstances);
+        }
         log.info("standaloneInstances: {}", standaloneInstances);
         return standaloneInstances;
     }
@@ -236,12 +255,18 @@ public class AwsService {
         return standaloneInstances;
     }
 
-    public List<DBCluster> findAllClusterInfo() {
-        DescribeDbClustersResponse describeDbClustersResponse = awsClient.getRdsClient()
-                .describeDBClusters();
-        DescribeDbClustersResponse clustersResponse = findValidClusters(describeDbClustersResponse);
+    public Map<String, List<DBCluster>> findAllClusterInfo() {
+        Map<String, List<DBCluster>> dbClusters = new HashMap<>();
 
-        List<DBCluster> dbClusters = clustersResponse.dbClusters();
+        Map<String, RdsClient> rdsClients = awsClient.findAllRdsClients();
+        for (String accountId : rdsClients.keySet()) {
+            RdsClient rdsClient = rdsClients.get(accountId);
+            DescribeDbClustersResponse describeDbClustersResponse = rdsClient.describeDBClusters();
+            DescribeDbClustersResponse clustersResponse = findValidClusters(describeDbClustersResponse);
+            List<DBCluster> accountClusters = clustersResponse.dbClusters();
+            dbClusters.put(accountId, accountClusters);
+        }
+
         log.info("clusters: {}", dbClusters);
         return dbClusters;
     }
@@ -257,14 +282,16 @@ public class AwsService {
         return clustersResponse;
     }
 
-    public Map<String, Long> findAllInstanceMetricsInfo(String databaseIdentifier) {
-        CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient();
-        PiClient performanceInsightClient = awsClient.getPerformanceInsightClient();
+    public Map<String, Long> findAllInstanceMetricsInfo(String accountId, String databaseIdentifier) {
+        CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 cw client가 없습니다."));
+        PiClient performanceInsightClient = awsClient.getPerformanceInsightClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 pi client가 없습니다."));
         Instant endTime = Instant.now();
         Instant startTime = endTime.minus(Duration.ofMinutes(DURATION_MINUTE));
 
         // TODO: 프리티어에서는 performance insights 사용 불가능, (DbiResourceId 로 변경)
-        GetResourceMetricsRequest piRequest = generateAverageActiveSessionsRequest(findWriterInstanceDbiResourceId(databaseIdentifier));
+        GetResourceMetricsRequest piRequest = generateAverageActiveSessionsRequest(findWriterInstanceDbiResourceId(accountId, databaseIdentifier));
         GetResourceMetricsResponse getResourceMetricsResponse = performanceInsightClient.getResourceMetrics(piRequest);
         Double averageActiveSession = getResourceMetricsResponse.metricList().get(0).dataPoints().get(0).value();
 
@@ -428,9 +455,10 @@ public class AwsService {
                 .build();
     }
 
-    private String findWriterInstanceDbiResourceId(String databaseIdentifier) {
+    private String findWriterInstanceDbiResourceId(String accountId, String databaseIdentifier) {
         log.info("databaseIdentifier: {}", databaseIdentifier);
-        DescribeDbInstancesResponse instancesResponse = awsClient.getRdsClient()
+        DescribeDbInstancesResponse instancesResponse = awsClient.getRdsClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 rds client가 없습니다."))
                 .describeDBInstances();
         for (DBInstance dbInstance : instancesResponse.dbInstances()) {
             log.info("dbInstance: {}", dbInstance);

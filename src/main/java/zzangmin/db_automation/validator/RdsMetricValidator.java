@@ -14,8 +14,8 @@ public class RdsMetricValidator {
     private final static Map<String, Double> METRIC_THRESHOLD = Map.of("cpuUsage", 70.0, "freeableMemory", 999999999999999.9999);
     private final AwsService awsService;
 
-    public void validateMetricStable(String databaseIdentifier) {
-        Map<String, Double> rdsPeakCpuAndMemoryUsage = awsService.findRdsPeakCpuAndMemoryUsage(databaseIdentifier);
+    public void validateMetricStable(String accountId, String databaseIdentifier) {
+        Map<String, Double> rdsPeakCpuAndMemoryUsage = awsService.findRdsPeakCpuAndMemoryUsage(accountId, databaseIdentifier);
         for (String metricName : rdsPeakCpuAndMemoryUsage.keySet()) {
             Double currentMetric = rdsPeakCpuAndMemoryUsage.get(metricName);
             Double standardMetric = METRIC_THRESHOLD.get(metricName);

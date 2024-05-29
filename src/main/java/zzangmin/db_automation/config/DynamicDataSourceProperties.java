@@ -21,19 +21,31 @@ public class DynamicDataSourceProperties {
 
     private static Map<String, DatabaseConnectionInfo> databases = new ConcurrentHashMap<>();
 
-    public static DatabaseConnectionInfo findByDbName(String dbName) {
-        if (dbName == null || dbName == "") {
-            throw new IllegalArgumentException("DB 명이 제공되지 않았습니다.");
+    public static DatabaseConnectionInfo findByDbIdentifier(String dbIdentifier) {
+        if (dbIdentifier == null || dbIdentifier == "") {
+            throw new IllegalArgumentException("DBMS identifier 가 제공되지 않았습니다.");
         }
-        return databases.get(dbName);
+        return databases.get(dbIdentifier);
     }
 
     // 같은 패키지에 속한 DynamicDataSourceLoader 에서만 접근 가능한 메서드 (package-private)
-    void addDatabase(String dbName, DatabaseConnectionInfo databaseConnectionInfo) {
-        databases.put(dbName, databaseConnectionInfo);
+    void addDatabase(String dbIdentifier, DatabaseConnectionInfo databaseConnectionInfo) {
+        databases.put(dbIdentifier, databaseConnectionInfo);
     }
 
-    public static Map<String, DatabaseConnectionInfo> getDatabases() {
+    public static Map<String, DatabaseConnectionInfo> findAllInstances() {
+        return new HashMap<String, DatabaseConnectionInfo>(databases);
+    }
+
+    public static Map<String, DatabaseConnectionInfo> findAllClusters() {
+        Map<String, DatabaseConnectionInfo> clusters = new HashMap<>();
+        for (String dbName : databases.keySet()) {
+
+        }
+        return new HashMap<String, DatabaseConnectionInfo>(databases);
+    }
+
+    public static Map<String, DatabaseConnectionInfo> findAllDatabases() {
         return new HashMap<String, DatabaseConnectionInfo>(databases);
     }
 
@@ -45,17 +57,8 @@ public class DynamicDataSourceProperties {
 
         // 각 env에 따른 DatabaseConnectionInfo 분류
         database.forEach(dbInfo -> {
-            String serviceValue = dbInfo.getTags().stream()
-                    .filter(tag -> tag.getKey().equals(TagStandard.getServiceTagKeyName()))
-                    .findFirst()
-                    .map(t -> t.getValue())
-                    .orElse(null);
-            String envValue = dbInfo.getTags().stream()
-                    .filter(tag -> tag.getKey().equals(TagStandard.getEnvironmentTagKeyName()))
-                    .findFirst()
-                    .map(t -> t.getValue())
-                    .orElse(null);
-
+            String serviceValue = dbInfo.getServiceName();
+            String envValue = dbInfo.getEnvironment();
             if (serviceValue != null && "prod".equals(envValue)) {
                 prodMap.put(serviceValue, dbInfo);
             } else if (serviceValue != null && "stage".equals(envValue)) {
@@ -87,7 +90,11 @@ public class DynamicDataSourceProperties {
             throw new IllegalStateException("로드한 대상 DB가 없습니다.");
         }
         for (DatabaseConnectionInfo databaseConnectionInfo : databases.values()) {
-            mysqlClient.healthCheck(databaseConnectionInfo);
+            try {
+                mysqlClient.healthCheck(databaseConnectionInfo);
+            } catch (Exception e) {
+                log.error("헬스체크 실패: {}, {}", databaseConnectionInfo, e.getMessage());
+            }
         }
     }
 

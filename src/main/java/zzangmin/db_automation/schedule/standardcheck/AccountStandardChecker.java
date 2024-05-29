@@ -24,13 +24,13 @@ public class AccountStandardChecker {
     public String checkAccountStandard() {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
-        List<DatabaseConnectionInfo> databaseConnectionInfos = DynamicDataSourceProperties.getDatabases()
+        List<DatabaseConnectionInfo> databaseConnectionInfos = DynamicDataSourceProperties.findAllDatabases()
                 .values()
                 .stream()
                 .collect(Collectors.toList());
         for (DatabaseConnectionInfo databaseConnectionInfo : databaseConnectionInfos) {
             log.info("databaseConnectionInfo: {}", databaseConnectionInfo);
-            String masterUsername = awsService.findClusterMasterUserName(databaseConnectionInfo.getDatabaseName());
+            String masterUsername = awsService.findClusterMasterUserName(databaseConnectionInfo);
             List<MysqlAccount> mysqlAccounts = mysqlClient.findMysqlAccounts(databaseConnectionInfo)
                     .stream()
                     .filter(account -> !AccountStandard.getAccountBlackList()

@@ -36,6 +36,7 @@ dependencies {
 	implementation 'software.amazon.awssdk:rds:2.25.39'
 	implementation 'software.amazon.awssdk:pi:2.25.39'
 	implementation 'software.amazon.awssdk:secretsmanager:2.25.39'
+	implementation 'software.amazon.awssdk:sts:2.25.39'
 	implementation 'software.amazon.awssdk:core:2.25.39'
 
 	implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'

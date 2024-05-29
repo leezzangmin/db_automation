@@ -57,15 +57,14 @@ public class DDLValidator {
         validateIsSchemaExists(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
     public void validateAddColumn(DatabaseConnectionInfo databaseConnectionInfo, AddColumnRequestDTO addColumnRequestDTO) {
         validateAddColumnHasAutoIncrementOption(addColumnRequestDTO.getColumn());
         ColumnConvention.validateColumnConvention(addColumnRequestDTO.getColumn());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
-        tableStatusValidator.validateTableSize(databaseConnectionInfo, addColumnRequestDTO.getSchemaName(), addColumnRequestDTO.getTableName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());        tableStatusValidator.validateTableSize(databaseConnectionInfo, addColumnRequestDTO.getSchemaName(), addColumnRequestDTO.getTableName());
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
@@ -75,7 +74,7 @@ public class DDLValidator {
         validateIsExistTableName(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
         validateIsIndexExists(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName(), createIndexRequestDTO.getColumnNames());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         validateIsLongQueryExists(databaseConnectionInfo);
         validateCreateIndexType(createIndexRequestDTO.getIndexType());
     }
@@ -86,8 +85,7 @@ public class DDLValidator {
         ColumnConvention.validateExtendVarcharConvention(column, extendVarcharColumnRequestDTO.getExtendSize());
         validateIsSchemaExists(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
-        validateIsLongQueryExists(databaseConnectionInfo);
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());        validateIsLongQueryExists(databaseConnectionInfo);
     }
 
     public void validateCreateTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) {
@@ -95,7 +93,7 @@ public class DDLValidator {
         TableConvention.validateTableConvention(table);
         validateIsSchemaExists(databaseConnectionInfo, createTableRequestDTO.getSchemaName());
         validateIsNotExistTableName(databaseConnectionInfo, createTableRequestDTO.getSchemaName(), createTableRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
     }
 
     public void validateDeleteColumn(DatabaseConnectionInfo databaseConnectionInfo, DeleteColumnRequestDTO deleteColumnRequestDTO) {
@@ -103,7 +101,7 @@ public class DDLValidator {
         validateIsExistTableName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
         validateIsExistColumnName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName(), deleteColumnRequestDTO.getColumnName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
@@ -112,7 +110,7 @@ public class DDLValidator {
         validateIsSchemaExists(databaseConnectionInfo, ddlRequestDTO.getSchemaName());
         validateIsExistColumnName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), ddlRequestDTO.getBeforeColumnName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
@@ -122,7 +120,7 @@ public class DDLValidator {
         validateIsExistTableName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getOldTableName());
         validateIsNotExistTableName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getNewTableName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getOldTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
