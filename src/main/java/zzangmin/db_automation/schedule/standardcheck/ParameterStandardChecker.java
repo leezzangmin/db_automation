@@ -30,20 +30,29 @@ public class ParameterStandardChecker {
                 List<Parameter> clusterParameters = awsService.findClusterParameterGroupParameters(accountId, parameterGroupNames.get(clusterIdentifier));
                 for (Parameter parameter : clusterParameters) {
                     if (!ParameterGroupStandard.findStandardValue(parameter.parameterName()).equals(parameter.parameterValue())) {
-                        sb.append(String.format("\nCluster Parameter Group Name: %s, 비표준 파라미터명: %s, 표준값: %s, 현재값: %s", parameterGroupName, parameter.parameterName(), ParameterGroupStandard.findStandardValue(parameter.parameterName()), parameter.parameterValue()));
+                        sb.append(String.format("\nCluster Parameter Group Name: %s, 비표준 파라미터명: %s, 표준값: %s, 현재값: %s",
+                                parameterGroupNames.get(clusterIdentifier),
+                                parameter.parameterName(),
+                                ParameterGroupStandard.findStandardValue(parameter.parameterName()),
+                                parameter.parameterValue())
+                        );
                     }
                 }
             }
         }
 
-
         for (String accountId : accountIdInstanceParameterGroupNames.keySet()) {
             Map<String, String> parameterGroupNames = accountIdInstanceParameterGroupNames.get(accountId);
-            for (String clusterIdentifier : parameterGroupNames.keySet()) {
-                List<Parameter> clusterParameters = awsService.findDbParameterGroupParameters(accountId, parameterGroupNames.get(clusterIdentifier));
-                for (Parameter parameter : clusterParameters) {
+            for (String instanceIdentifier : parameterGroupNames.keySet()) {
+                List<Parameter> instanceParameters = awsService.findDbParameterGroupParameters(accountId, parameterGroupNames.get(instanceIdentifier));
+                for (Parameter parameter : instanceParameters) {
                     if (!ParameterGroupStandard.findStandardValue(parameter.parameterName()).equals(parameter.parameterValue())) {
-                        sb.append(String.format("\nCluster Parameter Group Name: %s, 비표준 파라미터명: %s, 표준값: %s, 현재값: %s", parameterGroupName, parameter.parameterName(), ParameterGroupStandard.findStandardValue(parameter.parameterName()), parameter.parameterValue()));
+                        sb.append(String.format("\ninstance Parameter Group Name: %s, 비표준 파라미터명: %s, 표준값: %s, 현재값: %s",
+                                parameterGroupNames.get(instanceIdentifier),
+                                parameter.parameterName(),
+                                ParameterGroupStandard.findStandardValue(parameter.parameterName()),
+                                parameter.parameterValue())
+                        );
                     }
                 }
             }

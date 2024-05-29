@@ -9,6 +9,7 @@ import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -21,33 +22,39 @@ public class TagStandardChecker {
 
     public String checkTagStandard() {
         StringBuilder tagStandardResult = new StringBuilder();
-
         List<String> standardTagKeyNames = TagStandard.standardTagKeyNames;
-        List<DBCluster> dbClusters = awsService.findAllClusterInfo();
-        List<DBInstance> instancesResponse = awsService.findAllInstanceInfo();
+        Map<String, List<DBCluster>> dbClusters = awsService.findAllClusterInfo();
+        for (String accountId : dbClusters.keySet()) {
+            List<DBCluster> accountDbClusters = dbClusters.get(accountId);
+            for (DBCluster cluster : accountDbClusters) {
+                List<String> clusterTagKeys = cluster.tagList()
+                        .stream()
+                        .map(tag -> tag.key())
+                        .collect(Collectors.toList());
+                for (String tagName : standardTagKeyNames) {
+                    if (!clusterTagKeys.contains(tagName)) {
+                        tagStandardResult.append(String.format("accountId: %s, %s 클러스터에 %s 태그가 존재하지 않습니다.\n", accountId, cluster.dbClusterIdentifier(), tagName));
+                    }
+                }
+            }
+        }
 
-        for (DBCluster cluster : dbClusters) {
-            List<String> clusterTagKeys = cluster.tagList()
-                    .stream()
-                    .map(tag -> tag.key())
-                    .collect(Collectors.toList());
-            for (String tagName : standardTagKeyNames) {
-                if (!clusterTagKeys.contains(tagName)) {
-                    tagStandardResult.append(String.format("%s 클러스터에 %s 태그가 존재하지 않습니다.\n", cluster.dbClusterIdentifier(), tagName));
+        Map<String, List<DBInstance>> dbInstances = awsService.findAllInstanceInfo();
+        for (String accountId : dbInstances.keySet()) {
+            List<DBInstance> accountDbInstances = dbInstances.get(accountId);
+            for (DBInstance dbInstance : accountDbInstances) {
+                List<String> instanceTagKeys = dbInstance.tagList()
+                        .stream()
+                        .map(tag -> tag.key())
+                        .collect(Collectors.toList());
+                for (String tagName : standardTagKeyNames) {
+                    if (!instanceTagKeys.contains(tagName)) {
+                        tagStandardResult.append(String.format("accountId: %s, %s 인스턴스에 %s 태그가 존재하지 않습니다.\n", accountId, dbInstance.dbInstanceIdentifier(), tagName));
+                    }
                 }
             }
         }
-        for (DBInstance dbInstance : instancesResponse) {
-            List<String> instanceTagKeys = dbInstance.tagList()
-                    .stream()
-                    .map(tag -> tag.key())
-                    .collect(Collectors.toList());
-            for (String tagName : standardTagKeyNames) {
-                if (!instanceTagKeys.contains(tagName)) {
-                    tagStandardResult.append(String.format("%s 인스턴스에 %s 태그가 존재하지 않습니다.\n", dbInstance.dbInstanceIdentifier(), tagName));
-                }
-            }
-        }
+
         return tagStandardResult.toString();
     }
 

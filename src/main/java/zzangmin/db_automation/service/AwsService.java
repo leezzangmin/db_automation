@@ -145,14 +145,15 @@ public class AwsService {
         return dbParameters;
     }
 
-    public String findRdsPassword(String serviceNameTagValue) {
-        String secretName = SecretManagerStandard.generateStandardSecretManagerName(serviceNameTagValue, ProfileUtil.CURRENT_ENVIRONMENT_PROFILE);
+    public String findRdsPassword(String accountId, String serviceName, String env) {
+        String secretName = SecretManagerStandard.generateStandardSecretManagerName(serviceName, env);
         log.info("secretName: {}", secretName);
 
         String password;
         GetSecretValueResponse valueResponse;
 
-        SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient();
+        SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 secretManager client가 없습니다."));
         GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
                 .secretId(secretName)
                 .build();
@@ -172,13 +173,14 @@ public class AwsService {
         return password;
     }
 
-    public String findRdsUsername(String serviceNameTagValue) {
-        String secretName = SecretManagerStandard.generateStandardSecretManagerName(serviceNameTagValue, ProfileUtil.CURRENT_ENVIRONMENT_PROFILE);
+    public String findRdsUsername(String accountId, String serviceNameTagValue, String env) {
+        String secretName = SecretManagerStandard.generateStandardSecretManagerName(serviceNameTagValue, env);
         log.info("secretName: {}", secretName);
         String username;
         GetSecretValueResponse valueResponse;
 
-        SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient();
+        SecretsManagerClient secretManagerClient = awsClient.getSecretManagerClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 secretManager client가 없습니다."));
         GetSecretValueRequest valueRequest = GetSecretValueRequest.builder()
                 .secretId(secretName)
                 .build();
@@ -197,8 +199,9 @@ public class AwsService {
         return username;
     }
 
-    public Map<String, Double> findRdsPeakCpuAndMemoryUsage(String databaseIdentifier) {
-        CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient();
+    public Map<String, Double> findRdsPeakCpuAndMemoryUsage(String accountId, String databaseIdentifier) {
+        CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 cw client가 없습니다."));
         Instant endTime = Instant.now();
         Instant startTime = endTime.minus(Duration.ofMinutes(DURATION_MINUTE));
 
@@ -279,14 +282,16 @@ public class AwsService {
         return clustersResponse;
     }
 
-    public Map<String, Long> findAllInstanceMetricsInfo(String databaseIdentifier) {
-        CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient();
-        PiClient performanceInsightClient = awsClient.getPerformanceInsightClient();
+    public Map<String, Long> findAllInstanceMetricsInfo(String accountId, String databaseIdentifier) {
+        CloudWatchClient cloudWatchClient = awsClient.getCloudWatchClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 cw client가 없습니다."));
+        PiClient performanceInsightClient = awsClient.getPerformanceInsightClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 pi client가 없습니다."));
         Instant endTime = Instant.now();
         Instant startTime = endTime.minus(Duration.ofMinutes(DURATION_MINUTE));
 
         // TODO: 프리티어에서는 performance insights 사용 불가능, (DbiResourceId 로 변경)
-        GetResourceMetricsRequest piRequest = generateAverageActiveSessionsRequest(findWriterInstanceDbiResourceId(databaseIdentifier));
+        GetResourceMetricsRequest piRequest = generateAverageActiveSessionsRequest(findWriterInstanceDbiResourceId(accountId, databaseIdentifier));
         GetResourceMetricsResponse getResourceMetricsResponse = performanceInsightClient.getResourceMetrics(piRequest);
         Double averageActiveSession = getResourceMetricsResponse.metricList().get(0).dataPoints().get(0).value();
 
@@ -450,9 +455,10 @@ public class AwsService {
                 .build();
     }
 
-    private String findWriterInstanceDbiResourceId(String databaseIdentifier) {
+    private String findWriterInstanceDbiResourceId(String accountId, String databaseIdentifier) {
         log.info("databaseIdentifier: {}", databaseIdentifier);
-        DescribeDbInstancesResponse instancesResponse = awsClient.getRdsClient()
+        DescribeDbInstancesResponse instancesResponse = awsClient.getRdsClient(accountId)
+                .orElseThrow(() -> new IllegalArgumentException("accountId 에 해당하는 rds client가 없습니다."))
                 .describeDBInstances();
         for (DBInstance dbInstance : instancesResponse.dbInstances()) {
             log.info("dbInstance: {}", dbInstance);

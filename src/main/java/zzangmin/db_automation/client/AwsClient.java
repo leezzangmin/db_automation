@@ -71,7 +71,7 @@ public class AwsClient {
         return Optional.ofNullable(accountIdRdsClients.get(accountId));
     }
 
-    public Optional<SecretsManagerClient> getSecretsManagerClient(String accountId) {
+    public Optional<SecretsManagerClient> getSecretManagerClient(String accountId) {
         return Optional.ofNullable(accountIdSecretsManagerClients.get(accountId));
     }
 
@@ -79,7 +79,7 @@ public class AwsClient {
         return Optional.ofNullable(accountIdCloudWatchClients.get(accountId));
     }
 
-    public Optional<PiClient> getPiClient(String accountId) {
+    public Optional<PiClient> getPerformanceInsightClient(String accountId) {
         return Optional.ofNullable(accountIdPiClients.get(accountId));
     }
 

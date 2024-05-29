@@ -38,7 +38,7 @@ public class RdsMetricDetector {
         for (String databaseName : targetDatabases.keySet()) {
             DatabaseConnectionInfo databaseConnectionInfo = targetDatabases.get(databaseName);
             try {
-                rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getDatabaseName());
+                rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
             } catch (Exception e) {
                 killDDLExecutingSession(databaseConnectionInfo);
                 endCheck(databaseConnectionInfo);
