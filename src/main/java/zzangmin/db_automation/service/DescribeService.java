@@ -66,10 +66,13 @@ public class DescribeService {
         return rdsClusterSchemaTablesResponseDTOs;
     }
 
-    public DBMSNamesResponseDTO findDBMSNames() {
-        List<String> dbmsNames = new ArrayList<>(DynamicDataSourceProperties.findAllDatabases()
-                .keySet());
-        return new DBMSNamesResponseDTO(dbmsNames);
+    public DBMSNamesResponseDTO findDBMSNames(String accountId, String environment) {
+        List<String> databaseNames = DynamicDataSourceProperties.findDatabasesByAccountIdAndEnvironment(accountId, environment)
+                .stream()
+                .map(d -> d.getDatabaseName())
+                .collect(Collectors.toList());
+
+        return new DBMSNamesResponseDTO(databaseNames);
     }
 
     public TableInfoResponseDTO findTableInfo(DatabaseConnectionInfo databaseConnectionInfo, String schemaName, String tableName) {

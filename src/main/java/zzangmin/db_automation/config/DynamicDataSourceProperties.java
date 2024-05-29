@@ -9,8 +9,10 @@ import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -33,16 +35,12 @@ public class DynamicDataSourceProperties {
         databases.put(dbIdentifier, databaseConnectionInfo);
     }
 
-    public static Map<String, DatabaseConnectionInfo> findAllInstances() {
-        return new HashMap<String, DatabaseConnectionInfo>(databases);
-    }
-
-    public static Map<String, DatabaseConnectionInfo> findAllClusters() {
-        Map<String, DatabaseConnectionInfo> clusters = new HashMap<>();
-        for (String dbName : databases.keySet()) {
-
-        }
-        return new HashMap<String, DatabaseConnectionInfo>(databases);
+    public static List<DatabaseConnectionInfo> findDatabasesByAccountIdAndEnvironment(String accountId, String environment) {
+        return databases.values()
+                .stream()
+                .filter(d -> d.getAccountId().equals(accountId))
+                .filter(d -> d.getEnvironment().equals(environment))
+                .collect(Collectors.toList());
     }
 
     public static Map<String, DatabaseConnectionInfo> findAllDatabases() {
