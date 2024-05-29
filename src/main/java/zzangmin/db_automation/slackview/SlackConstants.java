@@ -45,6 +45,10 @@ public class SlackConstants {
 
 
         public static class ClusterSchemaTable {
+
+            public static final String findAccountSelectsElementActionId = "findAccountSelectsElementActionId";
+            public static final String findEnvironmentSelectsElementActionId = "findEnvironmentSelectsElementActionId";
+
             public static final String findClusterSelectsElementActionId = "selectClusterName";
             public static final String findTableSelectsElementActionId = "selectTableName";
             public static final String findSchemaSelectsElementActionId = "selectSchemaName";
