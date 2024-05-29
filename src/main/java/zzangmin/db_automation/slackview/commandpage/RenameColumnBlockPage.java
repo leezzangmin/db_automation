@@ -1,6 +1,5 @@
 package zzangmin.db_automation.slackview.commandpage;
 
-import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -63,9 +62,9 @@ public class RenameColumnBlockPage implements BlockPage {
         String newColumnName = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.RenameColumn.renameColumnNewColumnNameTextInputId);
 
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
-        String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
-        String tableName = selectClusterSchemaTableBlocks.getTableName(values);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
+        String schemaName = selectClusterSchemaTableBlocks.findSchemaName(values);
+        String tableName = selectClusterSchemaTableBlocks.findTableName(values);
 
 
         RenameColumnRequestDTO renameColumnRequestDTO = new RenameColumnRequestDTO(schemaName, tableName, oldColumnName, newColumnName);

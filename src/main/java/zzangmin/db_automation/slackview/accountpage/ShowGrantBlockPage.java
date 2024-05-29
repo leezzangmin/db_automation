@@ -1,10 +1,7 @@
 package zzangmin.db_automation.slackview.accountpage;
 
-import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.ActionsBlock;
-import com.slack.api.model.block.Blocks;
 import com.slack.api.model.block.LayoutBlock;
-import com.slack.api.model.block.composition.BlockCompositions;
 import com.slack.api.model.block.composition.OptionObject;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +10,6 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.MysqlAccountController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.account.MysqlPrivilegeRequestDTO;
-import zzangmin.db_automation.dto.request.ddl.RenameTableRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.account.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
@@ -63,7 +59,7 @@ public class ShowGrantBlockPage implements BlockPage {
     public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
         String accountName = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId);
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
 
         MysqlPrivilegeRequestDTO mysqlPrivilegeRequestDTO = new MysqlPrivilegeRequestDTO(accountName);
         log.info("mysqlPrivilegeRequestDTO: {}", mysqlPrivilegeRequestDTO);
@@ -87,7 +83,7 @@ public class ShowGrantBlockPage implements BlockPage {
     @Override
     public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         if (actionId.equals(SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId)) {
-            DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
+            DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
 
             List<String> accountNames = mysqlAccountController.findAccountNames(selectedDatabaseConnectionInfo);
             List<OptionObject> accountNameOptions = BasicBlockFactory.findOptionObjects(accountNames);
