@@ -37,7 +37,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
 
     //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() throws Exception {
-        Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.getDatabases();
+        Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.findAllDatabases();
         for (String databaseName : databases.keySet()) {
             DatabaseConnectionInfo databaseConnectionInfo = databases.get(databaseName);
             List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)

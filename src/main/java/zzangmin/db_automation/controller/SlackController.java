@@ -140,7 +140,7 @@ public class SlackController {
         try {
             CommandType findCommandType = findCommandType(state);
             String selectedDBMSName = SlackService.findCurrentValueFromState(state.getValues(), SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId);
-            DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbName(selectedDBMSName);
+            DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbIdentifier(selectedDBMSName);
             RequestDTO requestDTO = slackRequestHandler.handleSubmission(findCommandType,
                     state.getValues());
             List<LayoutBlock> requestMessageBlocks = slackRequestHandler.sendSubmissionRequestMessage(selectedDatabaseConnectionInfo, findCommandType, slackUser.getId(), requestDTO);

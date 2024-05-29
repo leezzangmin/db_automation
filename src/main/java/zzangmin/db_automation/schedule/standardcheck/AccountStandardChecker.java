@@ -8,7 +8,7 @@ import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.MysqlAccount;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.AccountStandard;
-//import zzangmin.db_automation.service.AwsService;
+import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,35 +19,35 @@ import java.util.stream.Collectors;
 public class AccountStandardChecker {
 
     private final MysqlClient mysqlClient;
-//    private final AwsService awsService;
+    private final AwsService awsService;
 
     public String checkAccountStandard() {
         StringBuilder sb = new StringBuilder();
-//        sb.append("\n");
-//        List<DatabaseConnectionInfo> databaseConnectionInfos = DynamicDataSourceProperties.getDatabases()
-//                .values()
-//                .stream()
-//                .collect(Collectors.toList());
-//        for (DatabaseConnectionInfo databaseConnectionInfo : databaseConnectionInfos) {
-//            log.info("databaseConnectionInfo: {}", databaseConnectionInfo);
-//            String masterUsername = awsService.findClusterMasterUserName(databaseConnectionInfo.getDatabaseName());
-//            List<MysqlAccount> mysqlAccounts = mysqlClient.findMysqlAccounts(databaseConnectionInfo)
-//                    .stream()
-//                    .filter(account -> !AccountStandard.getAccountBlackList()
-//                            .contains(account.getUser()))
-//                    .filter((account -> !account.getUser().equals(masterUsername)))
-//                    .collect(Collectors.toList());
-//            for (MysqlAccount mysqlAccount : mysqlAccounts) {
-//                sb.append(checkPrivilege(mysqlAccount));
-//                if (AccountStandard.isAccountHostPercentAllow()) {
-//                    sb.append(checkHost(mysqlAccount));
-//                }
-//            }
-//            if (AccountStandard.isMasterUserEnable()) {
-//                sb.append(checkMasterUserExists(masterUsername, mysqlAccounts, databaseConnectionInfo));
-//            }
-//        }
-//        log.info("account standard check result: {}", sb.toString());
+        sb.append("\n");
+        List<DatabaseConnectionInfo> databaseConnectionInfos = DynamicDataSourceProperties.findAllDatabases()
+                .values()
+                .stream()
+                .collect(Collectors.toList());
+        for (DatabaseConnectionInfo databaseConnectionInfo : databaseConnectionInfos) {
+            log.info("databaseConnectionInfo: {}", databaseConnectionInfo);
+            String masterUsername = awsService.findClusterMasterUserName(databaseConnectionInfo);
+            List<MysqlAccount> mysqlAccounts = mysqlClient.findMysqlAccounts(databaseConnectionInfo)
+                    .stream()
+                    .filter(account -> !AccountStandard.getAccountBlackList()
+                            .contains(account.getUser()))
+                    .filter((account -> !account.getUser().equals(masterUsername)))
+                    .collect(Collectors.toList());
+            for (MysqlAccount mysqlAccount : mysqlAccounts) {
+                sb.append(checkPrivilege(mysqlAccount));
+                if (AccountStandard.isAccountHostPercentAllow()) {
+                    sb.append(checkHost(mysqlAccount));
+                }
+            }
+            if (AccountStandard.isMasterUserEnable()) {
+                sb.append(checkMasterUserExists(masterUsername, mysqlAccounts, databaseConnectionInfo));
+            }
+        }
+        log.info("account standard check result: {}", sb.toString());
         return sb.toString();
     }
 

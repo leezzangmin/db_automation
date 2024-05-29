@@ -83,28 +83,22 @@ public class AwsClient {
         return Optional.ofNullable(accountIdPiClients.get(accountId));
     }
 
-    public List<RdsClient> findAllRdsClients() {
-        return accountIdRdsClients.values()
-                .stream()
-                .toList();
+    public Map<String, RdsClient> findAllRdsClients() {
+        return new HashMap<String, RdsClient>(accountIdRdsClients);
     }
 
-    public List<SecretsManagerClient> findAllSecretManagerClients() {
-        return accountIdSecretsManagerClients.values()
-                .stream()
-                .toList();
+    public Map<String, SecretsManagerClient> findAllSecretManagerClients() {
+        return new HashMap<String, SecretsManagerClient>(accountIdSecretsManagerClients);
     }
 
-    public List<CloudWatchClient> findAllCloudWatchClients() {
-        return accountIdCloudWatchClients.values()
-                .stream()
-                .toList();
+    public Map<String, CloudWatchClient> findAllCloudWatchClients() {
+        return new HashMap<String, CloudWatchClient>(accountIdCloudWatchClients);
+
     }
 
-    public List<PiClient> findAllPerformanceInsightClients() {
-        return accountIdPiClients.values()
-                .stream()
-                .toList();
+    public Map<String, PiClient> findAllPerformanceInsightClients() {
+        return new HashMap<String, PiClient>(accountIdPiClients);
+
     }
 
     private String getAwsAccountId(AwsCredentialsProvider credentialsProvider) {
@@ -113,6 +107,7 @@ public class AwsClient {
                 .region(Region.AWS_GLOBAL)
                 .build();
 
+        // https://docs.aws.amazon.com/cli/latest/reference/sts/get-caller-identity.html
         GetCallerIdentityResponse response = stsClient.getCallerIdentity(GetCallerIdentityRequest.builder().build());
         return response.account();
     }

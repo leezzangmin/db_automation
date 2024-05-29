@@ -8,6 +8,7 @@ import zzangmin.db_automation.schedule.standardcheck.standardvalue.ParameterGrou
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -18,27 +19,32 @@ public class ParameterStandardChecker {
 
     public String checkParameterStandard() {
         StringBuilder sb = new StringBuilder();
-        List<String> clusterParameterGroupNames = awsService.findClusterParameterGroupNames();
-        List<String> dbParameterGroupNames = awsService.findDbParameterGroupNames();
-        log.info("dbParameterGroupNames: {}", dbParameterGroupNames);
-        log.info("clusterParameterGroupNames: {}", clusterParameterGroupNames);
+        Map<String, Map<String, String>> accountIdClusterParameterGroupNames = awsService.findClusterParameterGroupNames();
+        Map<String, Map<String, String>> accountIdInstanceParameterGroupNames = awsService.findDbParameterGroupNames();
+        log.info("accountIdInstanceParameterGroupNames: {}", accountIdInstanceParameterGroupNames);
+        log.info("accountIdClusterParameterGroupNames: {}", accountIdClusterParameterGroupNames);
 
-        for (String parameterGroupName : clusterParameterGroupNames) {
-            List<Parameter> clusterParameters = awsService.findClusterParameterGroupParameters(parameterGroupName);
-
-            for (Parameter parameter : clusterParameters) {
-                if (!ParameterGroupStandard.findStandardValue(parameter.parameterName()).equals(parameter.parameterValue())) {
-                    sb.append(String.format("\nCluster Parameter Group Name: %s, 비표준 파라미터명: %s, 표준값: %s, 현재값: %s", parameterGroupName, parameter.parameterName(), ParameterGroupStandard.findStandardValue(parameter.parameterName()), parameter.parameterValue()));
+        for (String accountId : accountIdClusterParameterGroupNames.keySet()) {
+            Map<String, String> parameterGroupNames = accountIdClusterParameterGroupNames.get(accountId);
+            for (String clusterIdentifier : parameterGroupNames.keySet()) {
+                List<Parameter> clusterParameters = awsService.findClusterParameterGroupParameters(accountId, parameterGroupNames.get(clusterIdentifier));
+                for (Parameter parameter : clusterParameters) {
+                    if (!ParameterGroupStandard.findStandardValue(parameter.parameterName()).equals(parameter.parameterValue())) {
+                        sb.append(String.format("\nCluster Parameter Group Name: %s, 비표준 파라미터명: %s, 표준값: %s, 현재값: %s", parameterGroupName, parameter.parameterName(), ParameterGroupStandard.findStandardValue(parameter.parameterName()), parameter.parameterValue()));
+                    }
                 }
             }
         }
 
-        for (String parameterGroupName : dbParameterGroupNames) {
-            List<Parameter> dbParameters = awsService.findDbParameterGroupParameters(parameterGroupName);
 
-            for (Parameter parameter : dbParameters) {
-                if (!ParameterGroupStandard.findStandardValue(parameter.parameterName()).equals(parameter.parameterValue())) {
-                    sb.append(String.format("\nDB Parameter Group Name: %s, 비표준 파라미터명: %s, 표준값: %s, 현재값: %s", parameterGroupName, parameter.parameterName(), ParameterGroupStandard.findStandardValue(parameter.parameterName()), parameter.parameterValue()));
+        for (String accountId : accountIdInstanceParameterGroupNames.keySet()) {
+            Map<String, String> parameterGroupNames = accountIdInstanceParameterGroupNames.get(accountId);
+            for (String clusterIdentifier : parameterGroupNames.keySet()) {
+                List<Parameter> clusterParameters = awsService.findDbParameterGroupParameters(accountId, parameterGroupNames.get(clusterIdentifier));
+                for (Parameter parameter : clusterParameters) {
+                    if (!ParameterGroupStandard.findStandardValue(parameter.parameterName()).equals(parameter.parameterValue())) {
+                        sb.append(String.format("\nCluster Parameter Group Name: %s, 비표준 파라미터명: %s, 표준값: %s, 현재값: %s", parameterGroupName, parameter.parameterName(), ParameterGroupStandard.findStandardValue(parameter.parameterName()), parameter.parameterValue()));
+                    }
                 }
             }
         }

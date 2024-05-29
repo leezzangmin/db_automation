@@ -3,7 +3,6 @@ package zzangmin.db_automation.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.rds.model.DBCluster;
-import software.amazon.awssdk.services.rds.model.DescribeDbClustersResponse;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.response.*;
@@ -55,10 +54,8 @@ public class DescribeService {
     }
 
     public DBMSNamesResponseDTO findDBMSNames() {
-        List<String> dbmsNames = DynamicDataSourceProperties.getDatabases()
-                .keySet()
-                .stream()
-                .collect(Collectors.toList());
+        List<String> dbmsNames = new ArrayList<>(DynamicDataSourceProperties.findAllDatabases()
+                .keySet());
         return new DBMSNamesResponseDTO(dbmsNames);
     }
 

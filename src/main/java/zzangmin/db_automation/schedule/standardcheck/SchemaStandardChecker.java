@@ -25,7 +25,7 @@ public class SchemaStandardChecker {
     public String checkSchemaStandard() {
         StringBuilder sb = new StringBuilder();
         sb.append("\n");
-        List<DatabaseConnectionInfo> databaseConnectionInfos = DynamicDataSourceProperties.getDatabases().values().stream().collect(Collectors.toList());
+        List<DatabaseConnectionInfo> databaseConnectionInfos = DynamicDataSourceProperties.findAllDatabases().values().stream().collect(Collectors.toList());
 
         for (DatabaseConnectionInfo databaseConnectionInfo : databaseConnectionInfos) {
             List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
