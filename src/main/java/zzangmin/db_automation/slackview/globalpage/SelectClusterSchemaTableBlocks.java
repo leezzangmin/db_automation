@@ -32,6 +32,8 @@ import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 public class SelectClusterSchemaTableBlocks implements BlockPage {
     private final DescribeService describeService;
 
+    private final String accountPlaceholder = "select account";
+    private final String environmentPlaceHolder = "select environment";
     private final String clusterPlaceholder = "select cluster";
     private final String schemaPlaceholder = "select schema";
     private final String tablePlaceholder = "select table";
@@ -60,7 +62,11 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
 
     @Override
     public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        if (actionId.equals(SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId)) {
+        if (actionId.equals(SlackConstants.CommandBlockIds.ClusterSchemaTable.findAccountSelectsElementActionId)) {
+            handleAccountChange(currentBlocks, values);
+        } else if (actionId.equals(SlackConstants.CommandBlockIds.ClusterSchemaTable.findEnvironmentSelectsElementActionId)) {
+            handleEnvironmentChange(currentBlocks, values);
+        } else if (actionId.equals(SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId)) {
             handleClusterChange(currentBlocks, values);
         } else if (actionId.equals(SlackConstants.CommandBlockIds.ClusterSchemaTable.findSchemaSelectsElementActionId)) {
             handleSchemaChange(currentBlocks, values);
@@ -84,20 +90,31 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
 
     public List<LayoutBlock> selectClusterSchemaTableBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
+        List<OptionObject> emptyOption = BasicBlockFactory.generateEmptyOptionObjects();
 
-        List<OptionObject> clusterOptions = describeService.findDBMSNames()
-                .getDbmsNames()
+        List<OptionObject> accountIdOptions = DynamicDataSourceProperties.findAllDatabases()
+                .values()
                 .stream()
-                .map(dbmsName -> OptionObject.builder()
-                        .text(plainText(dbmsName))
-                        .value(dbmsName)
+                .map(d -> d.getAccountId())
+                .distinct()
+                .map(accountId -> OptionObject.builder()
+                        .text(plainText(accountId))
+                        .value(accountId)
                         .build())
                 .collect(Collectors.toList());
+
+        StaticSelectElement accountSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findAccountSelectsElementActionId,
+                accountIdOptions,
+                accountPlaceholder);
+
+        StaticSelectElement environmentSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findEnvironmentSelectsElementActionId,
+                emptyOption,
+                environmentPlaceHolder);
+
         StaticSelectElement clusterSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId,
-                clusterOptions,
+                emptyOption,
                 clusterPlaceholder);
 
-        List<OptionObject> emptyOption = BasicBlockFactory.generateEmptyOptionObjects();
         StaticSelectElement schemaSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findSchemaSelectsElementActionId,
                 emptyOption,
                 schemaPlaceholder);
@@ -110,7 +127,7 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
         ContextBlock contextBlock = BasicBlockFactory.getContextBlock(tableSchemaLabelText, SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaContextId);
         SectionBlock textSection = BasicBlockFactory.getPlainTextSection("choose table first", SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
 
-        blocks.add(actions(List.of(clusterSelectElement, schemaSelectElement, tableSelectElement)));
+        blocks.add(actions(List.of(accountSelectElement, environmentSelectElement, clusterSelectElement, schemaSelectElement, tableSelectElement)));
         blocks.add(contextBlock);
         blocks.add(textSection);
         return blocks;
@@ -119,69 +136,167 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
     public List<LayoutBlock> selectClusterSchemaBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
 
-        List<OptionObject> clusterOptions = describeService.findDBMSNames()
-                .getDbmsNames()
+        List<OptionObject> emptyOption = BasicBlockFactory.generateEmptyOptionObjects();
+        List<OptionObject> accountIdOptions = DynamicDataSourceProperties.findAllDatabases()
+                .values()
                 .stream()
-                .map(dbmsName -> OptionObject.builder()
-                        .text(plainText(dbmsName))
-                        .value(dbmsName)
-                        .build()
-                )
+                .map(d -> d.getAccountId())
+                .distinct()
+                .map(accountId -> OptionObject.builder()
+                        .text(plainText(accountId))
+                        .value(accountId)
+                        .build())
                 .collect(Collectors.toList());
+
+        StaticSelectElement accountSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findAccountSelectsElementActionId,
+                accountIdOptions,
+                accountPlaceholder);
+
+        StaticSelectElement environmentSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findEnvironmentSelectsElementActionId,
+                emptyOption,
+                accountPlaceholder);
+
         StaticSelectElement clusterSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId,
-                clusterOptions,
+                emptyOption,
                 clusterPlaceholder);
 
-        List<OptionObject> emptyOption = BasicBlockFactory.generateEmptyOptionObjects();
         StaticSelectElement schemaSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findSchemaSelectsElementActionId,
                 emptyOption,
                 schemaPlaceholder);
 
-        blocks.add(actions(List.of(clusterSelectElement, schemaSelectElement)));
+        blocks.add(actions(List.of(accountSelectElement, environmentSelectElement, clusterSelectElement, schemaSelectElement)));
         return blocks;
     }
 
     public List<LayoutBlock> selectClusterBlocks() {
         List<LayoutBlock> blocks = new ArrayList<>();
-
-        List<OptionObject> clusterOptions = describeService.findDBMSNames()
-                .getDbmsNames()
+        List<OptionObject> emptyOption = BasicBlockFactory.generateEmptyOptionObjects();
+        List<OptionObject> accountIdOptions = DynamicDataSourceProperties.findAllDatabases()
+                .values()
                 .stream()
-                .map(dbmsName -> OptionObject.builder()
-                        .text(plainText(dbmsName))
-                        .value(dbmsName)
-                        .build()
-                )
+                .map(d -> d.getAccountId())
+                .distinct()
+                .map(accountId -> OptionObject.builder()
+                        .text(plainText(accountId))
+                        .value(accountId)
+                        .build())
                 .collect(Collectors.toList());
+
+        StaticSelectElement accountSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findAccountSelectsElementActionId,
+                accountIdOptions,
+                accountPlaceholder);
+
+        StaticSelectElement environmentSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findEnvironmentSelectsElementActionId,
+                emptyOption,
+                accountPlaceholder);
+
         StaticSelectElement clusterSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId,
-                clusterOptions,
+                emptyOption,
                 clusterPlaceholder);
 
-        blocks.add(actions(List.of(clusterSelectElement)));
+        blocks.add(actions(List.of(accountSelectElement, environmentSelectElement, clusterSelectElement)));
         return blocks;
     }
 
-    public DatabaseConnectionInfo getDatabaseConnectionInfo(Map<String, Map<String, ViewState.Value>> values) {
+    public String findAccountId(Map<String, Map<String, ViewState.Value>> values) {
+
+        return "todo";
+    }
+
+    public String findEnvironment(Map<String, Map<String, ViewState.Value>> values) {
+
+        return "todo";
+    }
+
+    public DatabaseConnectionInfo findDatabaseConnectionInfo(Map<String, Map<String, ViewState.Value>> values) {
         String selectedDBMSName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbIdentifier(selectedDBMSName);
         return selectedDatabaseConnectionInfo;
     }
 
-    public String getSchemaName(Map<String, Map<String, ViewState.Value>> values) {
+    public String findSchemaName(Map<String, Map<String, ViewState.Value>> values) {
         String schemaName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.ClusterSchemaTable.findSchemaSelectsElementActionId);
         return schemaName;
     }
 
-    public String getTableName(Map<String, Map<String, ViewState.Value>> values) {
+    public String findTableName(Map<String, Map<String, ViewState.Value>> values) {
         String tableName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.ClusterSchemaTable.findTableSelectsElementActionId);
         return tableName;
+    }
+
+    private List<LayoutBlock> handleAccountChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        String accountId = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.ClusterSchemaTable.findAccountSelectsElementActionId);
+        log.info("accountId: {}", accountId);
+
+        List<OptionObject> environmentNameOptions = DynamicDataSourceProperties.findAllDatabases()
+                .values()
+                .stream()
+                .filter(d -> d.getAccountId().equals(accountId))
+                .map(d -> d.getEnvironment())
+                .distinct()
+                .map(environmentName -> OptionObject.builder()
+                        .text(plainText(environmentName))
+                        .value(environmentName)
+                        .build())
+                .collect(Collectors.toList());
+        log.info("environmentNameOptions: {}", environmentNameOptions);
+
+        StaticSelectElement environmentSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findEnvironmentSelectsElementActionId,
+                environmentNameOptions,
+                environmentPlaceHolder);
+
+        int environmentSelectBlockIndex = SlackService.findBlockIndex(currentBlocks,
+                "actions",
+                SlackConstants.CommandBlockIds.ClusterSchemaTable.findEnvironmentSelectsElementActionId);
+        ActionsBlock actionsBlock = (ActionsBlock) currentBlocks.get(environmentSelectBlockIndex);
+        List<BlockElement> elements = actionsBlock.getElements();
+
+        int environmentElementIndex = SlackService.findElementIndex(elements, SlackConstants.CommandBlockIds.ClusterSchemaTable.findEnvironmentSelectsElementActionId);
+        elements.set(environmentElementIndex, environmentSelectElement);
+        actionsBlock.setElements(elements);
+        currentBlocks.set(environmentSelectBlockIndex, actionsBlock);
+        return currentBlocks;
+    }
+
+    private List<LayoutBlock> handleEnvironmentChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        String accountId = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.ClusterSchemaTable.findAccountSelectsElementActionId);
+        String environment = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.ClusterSchemaTable.findEnvironmentSelectsElementActionId);
+
+        log.info("accountId: {}", accountId);
+        log.info("environment: {}", environment);
+
+        List<OptionObject> clusterOptions = describeService.findDBMSNames(accountId, environment)
+                .getDbmsNames()
+                .stream()
+                .map(dbmsName -> OptionObject.builder()
+                                .text(plainText(dbmsName))
+                                .value(dbmsName)
+                        .build())
+                .collect(Collectors.toList());
+        log.info("clusterOptions: {}", clusterOptions);
+
+        StaticSelectElement clusterSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId,
+                clusterOptions,
+                clusterPlaceholder);
+
+        int clusterSelectBlockIndex = SlackService.findBlockIndex(currentBlocks,
+                "actions",
+                SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId);
+        ActionsBlock actionsBlock = (ActionsBlock) currentBlocks.get(clusterSelectBlockIndex);
+        List<BlockElement> elements = actionsBlock.getElements();
+
+        int clusterElementIndex = SlackService.findElementIndex(elements, SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId);
+        elements.set(clusterElementIndex, clusterSelectElement);
+        actionsBlock.setElements(elements);
+        currentBlocks.set(clusterSelectBlockIndex, actionsBlock);
+        return currentBlocks;
     }
 
     private List<LayoutBlock> handleClusterChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         boolean isSchemaBlockPresent = false;
         try {
-             SlackService.findBlockIndex(currentBlocks, "actions", SlackConstants.CommandBlockIds.ClusterSchemaTable.findSchemaSelectsElementActionId);
-             isSchemaBlockPresent = true;
+            SlackService.findBlockIndex(currentBlocks, "actions", SlackConstants.CommandBlockIds.ClusterSchemaTable.findSchemaSelectsElementActionId);
+            isSchemaBlockPresent = true;
         } catch (IllegalArgumentException e) {}
 
         log.info("isSchemaBlockPresent: {}", isSchemaBlockPresent);
@@ -268,7 +383,7 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
         currentBlocks.set(schemaSelectBlockIndex, actionsBlock);
     }
 
-    private static void resetTableSchemaSectionBlock(List<LayoutBlock> currentBlocks) {
+    private void resetTableSchemaSectionBlock(List<LayoutBlock> currentBlocks) {
         int tableSchemaTextSectionIndex = SlackService.findBlockIndex(currentBlocks, "section", SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
         SectionBlock textSection = BasicBlockFactory.getPlainTextSection("choose table first", SlackConstants.CommandBlockIds.ClusterSchemaTable.tableSchemaTextId);
         currentBlocks.set(tableSchemaTextSectionIndex, textSection);
@@ -287,7 +402,7 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
         StaticSelectElement tableSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findTableSelectsElementActionId,
                 tableNameOptions,
                 tablePlaceholder);
-//
+
         ActionsBlock actionsBlock = (ActionsBlock) currentBlocks.get(selectTableNameBlockIndex);
         List<BlockElement> elements = actionsBlock.getElements();
 

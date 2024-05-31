@@ -22,16 +22,6 @@ public class DatabaseConnectionInfo {
     private String url;
     private String username;
     private String password;
-//    private List<Tag> tags = new ArrayList<>();
-
-
-//    @Getter
-//    @AllArgsConstructor
-//    @NoArgsConstructor
-//    public static class Tag {
-//        private String key;
-//        private String value;
-//    }
 
     public enum DatabaseType {
         CLUSTER,

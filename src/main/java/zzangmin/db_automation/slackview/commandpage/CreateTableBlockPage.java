@@ -75,8 +75,8 @@ public class CreateTableBlockPage implements BlockPage {
         }
         log.info("createTableRequestDTO: {}", createTableStatementSQL);
 
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
-        String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
+        String schemaName = selectClusterSchemaTableBlocks.findSchemaName(values);
 
         createTableRequestDTO.setSchemaName(schemaName);
         ddlValidator.validateCreateTable(selectedDatabaseConnectionInfo, createTableRequestDTO);

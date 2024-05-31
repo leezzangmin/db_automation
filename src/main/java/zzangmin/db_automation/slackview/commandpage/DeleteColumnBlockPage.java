@@ -1,6 +1,5 @@
 package zzangmin.db_automation.slackview.commandpage;
 
-import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -51,9 +50,9 @@ public class DeleteColumnBlockPage implements BlockPage {
         String columnName = SlackService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.DeleteColumn.deleteColumnColumnNameTextInputId);
 
-        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.getDatabaseConnectionInfo(values);
-        String schemaName = selectClusterSchemaTableBlocks.getSchemaName(values);
-        String tableName = selectClusterSchemaTableBlocks.getTableName(values);
+        DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
+        String schemaName = selectClusterSchemaTableBlocks.findSchemaName(values);
+        String tableName = selectClusterSchemaTableBlocks.findTableName(values);
 
         DeleteColumnRequestDTO deleteColumnRequestDTO = new DeleteColumnRequestDTO(schemaName, tableName, columnName);
         ddlValidator.validateDeleteColumn(selectedDatabaseConnectionInfo, deleteColumnRequestDTO);
