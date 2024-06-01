@@ -1,6 +1,7 @@
 
-# AWS Multi-Account + MSA 기반 MySQL DBMS 운영 자동화 백오피스 프로젝트
+# AWS Multi-Account + MSA 기반 MySQL DBMS 운영 자동화 플랫폼 엔지니어링
 
+[프로젝트가 설명된 포스팅 링크](https://leezzangmin.tistory.com/63)
 ****  
 
 
@@ -40,51 +41,8 @@
 ****  
 
 ## 시연 영상 및 샘플
-
-### 1. DDL 실행 동영상
-(시연 영상 외의 컬럼 삭제, 변경, Rename, Varchar 확장 등의 연산도 지원)
-<details>  
-<summary>테이블 생성</summary>
-<div markdown="1">
-
-![create_table_2](https://github.com/leezzangmin/db_automation/assets/64303390/0637f01f-fe97-47fd-a98c-541d7842e1e2)
-
-
-</div>
-</details><br>
-
-
-<details>  
-<summary>컬럼 추가</summary>
-<div markdown="1">
-
-![add_column](https://github.com/leezzangmin/db_automation/assets/64303390/54a65461-f53a-468c-8efd-aea417530730)
-
-
-</div>
-</details><br>
-
-<details>  
-<summary>인덱스 생성</summary>
-<div markdown="1">
-
-![create_index](https://github.com/leezzangmin/db_automation/assets/64303390/5b6a5e4d-1c45-42aa-8a89-c715c14b896c)
-
-</div>
-</details>
-
-<br>
-
-### 2. DB 상태 조회
-<details>
-<summary>시연 동영상</summary>
-<div markdown="1">
-    
-![describe](https://github.com/leezzangmin/db_automation/assets/64303390/5d8d8f62-a902-4360-9344-a37d37eecbe8)
-
-</div>
-</details>
-<br>
+2배속 시청 권장
+[샘플](https://github.com/leezzangmin/db_automation/assets/64303390/cfa4b930-92c8-4c9e-bcb7-94ecbcd8f234)
 
 
 ### 3. DB 표준 검사 샘플
@@ -170,17 +128,16 @@
 
 ## 사용 기술 및 도구
 - Java 17 & SpringBoot 3 & Junit
-- JDBC & MySQL8(Aurora3)
 - AWS SDK (for java)
-- React
-- Slack
+- Slack API, SDK (interactivity + block kit)
 
 ## 실행 방법
-- npm 설치 (node.js 설치)
-- 환경변수에 `SLACK_WEBHOOK_URL` 설정
+- 환경변수에  설정
+  - ENCRYPT_KEY, SLACK_TOKEN, SLACK_APP_SIGNING_SECRET, SLACK_DEFAULT_CHANNEL_ID, SLACK_VERIFICATION_TOKEN, SLACK_ADMIN_USER_IDS
 - application.properties 파일에 inhouse용 DB 접속 정보 기재 필요
 - 실행하는 환경에서 aws configure 사전 수행 필요
-  - 해당 롤에 rds, secret manager, cloudwatch 권한 필요
+  - 해당 롤에 rds, secret manager, cloudwatch, performance insights 권한 필요
+  - profile name이 겹치지 않게 여러 프로필 설정 가능
 - Database credential 은 aws Secret Manager에 등록 필요
   - postfix 는 `-db-credential` 로 지정
 - 클러스터 필수 설정 태그
@@ -189,10 +146,13 @@
 - profiles 설정 필요 (dev, stage, prod 등)
 - schema.sql 스크립트 미리 수행
 - performance_schema 활성화
-- `ENCRYPT_KEY` 환경변수 설정 필요 (16 byte)
+- slack app 설정 및 https 도메인 활성화 필요
+  - slash comamnd 등록 (SlackController.java -> databaseRequestCommand())
+  - interactivity enable
+  - callback url 설정
+  - slack channel 에 bot add
 
-## API 명세
-- 
+
 
 [//]: # (- metadata 만 변경하는 작업은 즉시 실행&#40;리스트업 필요&#41;)
 
