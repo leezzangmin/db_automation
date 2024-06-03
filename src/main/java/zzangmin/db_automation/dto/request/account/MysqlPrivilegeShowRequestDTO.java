@@ -11,12 +11,20 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MysqlPrivilegeRequestDTO implements AccountRequestDTO {
+public class MysqlPrivilegeShowRequestDTO implements AccountRequestDTO {
     @NotBlank
-    private String accountName;
+    private String accountName; // test_account@10.199.0.0/255.255.254.0
 
     @Override
-    public DatabaseRequestCommandGroup.CommandType getCommandType() {
+    public DatabaseRequestCommandGroup.CommandType extractCommandType() {
         return DatabaseRequestCommandGroup.CommandType.SHOW_GRANTS;
+    }
+
+    @Override
+    public String toSQL() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("SHOW GRANTS FOR ");
+        sb.append(this.getAccountName());
+        return sb.toString();
     }
 }

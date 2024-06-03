@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.MysqlAccountController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.request.account.MysqlPrivilegeRequestDTO;
+import zzangmin.db_automation.dto.request.account.MysqlPrivilegeShowRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.account.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
@@ -61,11 +61,11 @@ public class ShowGrantBlockPage implements BlockPage {
                 SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
 
-        MysqlPrivilegeRequestDTO mysqlPrivilegeRequestDTO = new MysqlPrivilegeRequestDTO(accountName);
-        log.info("mysqlPrivilegeRequestDTO: {}", mysqlPrivilegeRequestDTO);
+        MysqlPrivilegeShowRequestDTO mysqlPrivilegeShowRequestDTO = new MysqlPrivilegeShowRequestDTO(accountName);
+        log.info("mysqlPrivilegeRequestDTO: {}", mysqlPrivilegeShowRequestDTO);
 
-        mysqlAccountController.validateAccountRequest(selectedDatabaseConnectionInfo, mysqlPrivilegeRequestDTO);
-        return mysqlPrivilegeRequestDTO;
+        mysqlAccountController.validateAccountRequest(selectedDatabaseConnectionInfo, mysqlPrivilegeShowRequestDTO);
+        return mysqlPrivilegeShowRequestDTO;
     }
 
     @Override
@@ -101,17 +101,17 @@ public class ShowGrantBlockPage implements BlockPage {
     @Override
     public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
         List<LayoutBlock> blocks = new ArrayList<>();
-        MysqlPrivilegeRequestDTO mysqlPrivilegeRequestDTO = (MysqlPrivilegeRequestDTO) requestDTO;
+        MysqlPrivilegeShowRequestDTO mysqlPrivilegeShowRequestDTO = (MysqlPrivilegeShowRequestDTO) requestDTO;
 
 
-        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* `" + mysqlPrivilegeRequestDTO.getAccountName() + "`", "RenameTableBlockPage"));
+        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* `" + mysqlPrivilegeShowRequestDTO.getAccountName() + "`", "RenameTableBlockPage"));
 
         return blocks;
     }
 
     @Override
     public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
-        MysqlPrivilegeResponseDTO mysqlPrivilegeResponseDTO = mysqlAccountController.findAccountPrivilege(databaseConnectionInfo, (MysqlPrivilegeRequestDTO) requestDTO, slackUserId);
+        MysqlPrivilegeResponseDTO mysqlPrivilegeResponseDTO = mysqlAccountController.findAccountPrivilege(databaseConnectionInfo, (MysqlPrivilegeShowRequestDTO) requestDTO, slackUserId);
     }
 }
 
