@@ -2,7 +2,6 @@ package zzangmin.db_automation.slackview;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatUpdateRequest;
 import com.slack.api.methods.response.chat.ChatUpdateResponse;
@@ -12,7 +11,6 @@ import com.slack.api.model.block.SectionBlock;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.Hex;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.config.SlackConfig;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
@@ -21,8 +19,6 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.util.JsonUtil;
 
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,14 +45,19 @@ public class SlackRequestHandler {
         return currentBlocks;
     }
 
-    public List<LayoutBlock> sendSubmissionRequestMessage(DatabaseConnectionInfo databaseConnectionInfo,
-                                                          DatabaseRequestCommandGroup.CommandType commandType,
-                                                          String slackUserId,
-                                                          RequestDTO requestDTO) {
+    public List<LayoutBlock> findSubmissionRequestMessageBlocks(DatabaseConnectionInfo databaseConnectionInfo,
+                                                                DatabaseRequestCommandGroup.CommandType commandType,
+                                                                String slackUserId,
+                                                                RequestDTO requestDTO,
+                                                                String requestUUID) {
         List<LayoutBlock> requestBlocks = new ArrayList<>();
 
         // 헤더
         requestBlocks.add(BasicBlockFactory.findHeaderBlock(":rocket: Database Request Has Arrived !", "requestblock0"));
+
+        // 요청 ID
+        requestBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
+                "requestblock233"));
 
         // Target DB 정보
         requestBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
@@ -121,6 +122,7 @@ public class SlackRequestHandler {
                 Class.class);
         RequestDTO findRequestDTO = (RequestDTO) JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestDTO),
                 findRequestDTOClassType);
+        String findRequestUUID = (String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestUUID);
 
 
         // update slack request message (승인/반려 버튼 삭제)
@@ -140,8 +142,13 @@ public class SlackRequestHandler {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        sendRequestStartMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
-        blockPageManager.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
+
+        sendRequestStartMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID);
+        try {
+            blockPageManager.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
+        } catch (Exception e) {
+            sendRequestEndMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
+        }
     }
 
     public void handleDeny(Message requestMessage, String slackUserId) throws JsonProcessingException {
@@ -182,11 +189,17 @@ public class SlackRequestHandler {
     }
 
     private void sendRequestStartMessage(DatabaseRequestCommandGroup.CommandType commandType,
-                                                      DatabaseConnectionInfo databaseConnectionInfo,
-                                                      RequestDTO requestDTO,
-                                                      String slackUserId) {
+                                         DatabaseConnectionInfo databaseConnectionInfo,
+                                         RequestDTO requestDTO,
+                                         String slackUserId,
+                                         String requestUUID) {
         List<LayoutBlock> startMessageBlocks = new ArrayList<>();
         startMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":ghost: Request Accepted !", "RequestAccepted"));
+
+        // 요청 ID
+        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
+                "requestblock233"));
+
         // Target DB 정보
         startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
                 "requestblock1"));

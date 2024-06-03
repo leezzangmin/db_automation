@@ -145,6 +145,7 @@ public class SlackConstants {
         public static final String messageMetadataClass = "messageMetadataClassKey";
         public static final String messageMetadataRequestDTO = "messageMetadataRequestDTOKey";
         public static final String messageMetadataCommandType = "messageMetadataCommandTypeKey";
+        public static final String messageMetadataRequestUUID = "messageMetadataRequestUUIDKey";
 
     }
 

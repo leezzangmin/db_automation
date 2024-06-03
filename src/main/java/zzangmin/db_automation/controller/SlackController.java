@@ -134,6 +134,7 @@ public class SlackController {
     }
 
     private ResponseEntity<String> handleViewSubmission(ViewSubmissionPayload viewSubmissionPayload) {
+        String requestUUID = UUID.randomUUID().toString();
         List<LayoutBlock> blocks = viewSubmissionPayload.getView().getBlocks();
         ViewState state = viewSubmissionPayload.getView().getState();
         ViewSubmissionPayload.User slackUser = viewSubmissionPayload.getUser();
@@ -143,8 +144,8 @@ public class SlackController {
             DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbIdentifier(selectedDBMSName);
             RequestDTO requestDTO = slackRequestHandler.handleSubmission(findCommandType,
                     state.getValues());
-            List<LayoutBlock> requestMessageBlocks = slackRequestHandler.sendSubmissionRequestMessage(selectedDatabaseConnectionInfo, findCommandType, slackUser.getId(), requestDTO);
-            slackService.sendBlockMessageWithMetadata(selectedDatabaseConnectionInfo, findCommandType, requestMessageBlocks, requestDTO);
+            List<LayoutBlock> requestMessageBlocks = slackRequestHandler.findSubmissionRequestMessageBlocks(selectedDatabaseConnectionInfo, findCommandType, slackUser.getId(), requestDTO, requestUUID);
+            slackService.sendBlockMessageWithMetadata(selectedDatabaseConnectionInfo, findCommandType, requestMessageBlocks, requestDTO, requestUUID);
         } catch (Exception e) {
             log.info("Exception: {}", e.getMessage());
             log.info("Exception trace: {}", e.getStackTrace());

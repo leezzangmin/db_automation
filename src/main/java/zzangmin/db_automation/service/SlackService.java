@@ -90,7 +90,8 @@ public class SlackService {
     public void sendBlockMessageWithMetadata(DatabaseConnectionInfo databaseConnectionInfo,
                                              DatabaseRequestCommandGroup.CommandType commandType,
                                              List<LayoutBlock> blocks,
-                                             RequestDTO requestDTO) throws JsonProcessingException {
+                                             RequestDTO requestDTO,
+                                             String requestUUID) throws JsonProcessingException {
         if (blocks.size() < 1) {
             return;
         }
@@ -100,6 +101,7 @@ public class SlackService {
         metadataMap.put(SlackConstants.MetadataKeys.messageMetadataClass, JsonUtil.toJson(requestDTO.getClass()));
         metadataMap.put(SlackConstants.MetadataKeys.messageMetadataRequestDTO, JsonUtil.toJson(requestDTO));
         metadataMap.put(SlackConstants.MetadataKeys.messageMetadataCommandType, JsonUtil.toJson(commandType));
+        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataRequestUUID, requestUUID);
 
         // https://api.slack.com/metadata/using
         Message.Metadata metadata = Message.Metadata.builder()
@@ -112,11 +114,9 @@ public class SlackService {
                 .blocks(blocks)
                 .metadata(metadata)
                 .build();
-        System.out.println("request = " + request);
         ChatPostMessageResponse chatPostMessageResponse = null;
         try {
             chatPostMessageResponse = slackClient.chatPostMessage(request);
-            System.out.println("chatPostMessageResponse123 = " + chatPostMessageResponse);
         } catch (SSLHandshakeException sslHandshakeException) {
             log.info(sslHandshakeException.getMessage());
         } catch (Exception e) {
