@@ -115,7 +115,9 @@ public class DDLValidator {
     }
 
     public void validateRenameTable(DatabaseConnectionInfo databaseConnectionInfo, RenameTableRequestDTO ddlRequestDTO) {
+        CommonConvention.validateReservedWord(ddlRequestDTO.getNewTableName());
         CommonConvention.validateSnakeCase(ddlRequestDTO.getNewTableName());
+        CommonConvention.validateLowerCaseString(ddlRequestDTO.getNewTableName());
         validateIsSchemaExists(databaseConnectionInfo, ddlRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getOldTableName());
         validateIsNotExistTableName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getNewTableName());

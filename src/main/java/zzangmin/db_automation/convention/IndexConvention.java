@@ -14,7 +14,9 @@ public class IndexConvention {
 
     public static void validateIndexConvention(Constraint constraint) {
         if (!constraint.getConstraintType().equals(Constraint.ConstraintType.PRIMARY)) {
+            CommonConvention.validateReservedWord(constraint.getKeyName());
             CommonConvention.validateSnakeCase(constraint.getKeyName());
+            CommonConvention.validateLowerCaseString(constraint.getKeyName());
             validateConstraintNamingConvention(constraint.getKeyName(), constraint.getKeyColumnNames());
         }
         validateDuplicateColumnConvention(constraint.getKeyColumnNames());

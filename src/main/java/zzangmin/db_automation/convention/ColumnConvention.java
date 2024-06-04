@@ -17,6 +17,7 @@ public class ColumnConvention {
     }
 
     public static void validateColumnNamingConvention(String columnName) {
+        CommonConvention.validateReservedWord(columnName);
         CommonConvention.validateSnakeCase(columnName);
         CommonConvention.validateLowerCaseString(columnName);
     }
