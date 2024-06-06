@@ -23,7 +23,7 @@ public class SlackConfig {
     public static final int MAX_MESSAGE_SIZE = 10000;
 
     @Autowired
-    public void setSlackAppSigningSecret(@Value("${slack.token}") String slackBotToken,
+    public void setSlackAppSigningSecret(@Value("${slack.bot-token}") String slackBotToken,
                                          @Value("${slack.app-signing-secret}")String slackAppSigningSecret,
                                          @Value("${slack.default-channel-id}")String DEFAULT_CHANNEL_ID,
                                          @Value("${slack.verification-token}")String verificationToken,
