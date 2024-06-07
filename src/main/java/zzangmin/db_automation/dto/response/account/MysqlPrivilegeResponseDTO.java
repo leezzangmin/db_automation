@@ -2,7 +2,6 @@ package zzangmin.db_automation.dto.response.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.ToString;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class MysqlPrivilegeResponseDTO {
         sb.append("권한목록: \n");
         for (String privilege : this.privileges) {
             sb.append(privilege);
-            sb.append("\n");
+            sb.append(";\n");
         }
         return sb.toString();
     }
