@@ -30,7 +30,6 @@ public class ShowGrantBlockPage implements BlockPage {
 
     private final SelectClusterSchemaTableBlocks selectClusterSchemaTableBlocks;
     private final MysqlAccountController mysqlAccountController;
-    private final SlackService slackService;
 
     private final String selectAccountPlaceholder = "select account";
     private final String findAccountButtonText = "계정목록조회";
@@ -40,17 +39,18 @@ public class ShowGrantBlockPage implements BlockPage {
         List<LayoutBlock> blocks = new ArrayList<>();
         blocks.addAll(selectClusterSchemaTableBlocks.selectClusterBlocks());
 
+        // 계정 목록 조회 버튼
+        ActionsBlock submitButton = BasicBlockFactory.findSubmitButton(SlackConstants.CommandBlockIds.ShowGrant.showGrantFindAccountListButtonBlockId,
+                findAccountButtonText,
+                SlackConstants.CommandBlockIds.ShowGrant.showGrantFindAccountListButtonBlockId);
+        blocks.add(submitButton);
+
+
         // 계정 선택
         List<OptionObject> accountNameEmptyOption = BasicBlockFactory.generateEmptyOptionObjects();
-        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId,
+        blocks.add(BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.ShowGrant.showGrantSelectMysqlAccountSelectBlockId,
                 accountNameEmptyOption,
                 selectAccountPlaceholder));
-
-        // 계정 목록 조회 버튼
-        ActionsBlock submitButton = BasicBlockFactory.findSubmitButton(SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId,
-                findAccountButtonText,
-                SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId);
-        blocks.add(submitButton);
 
         return blocks;
     }
@@ -58,7 +58,7 @@ public class ShowGrantBlockPage implements BlockPage {
     @Override
     public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
         String accountName = SlackService.findCurrentValueFromState(values,
-                SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId);
+                SlackConstants.CommandBlockIds.ShowGrant.showGrantSelectMysqlAccountSelectBlockId);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
 
         MysqlPrivilegeShowRequestDTO mysqlPrivilegeShowRequestDTO = new MysqlPrivilegeShowRequestDTO(accountName);
@@ -82,17 +82,17 @@ public class ShowGrantBlockPage implements BlockPage {
 
     @Override
     public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        if (actionId.equals(SlackConstants.CommandBlockIds.ShowGrant.findAccountListButtonBlockId)) {
+        if (actionId.equals(SlackConstants.CommandBlockIds.ShowGrant.showGrantFindAccountListButtonBlockId)) {
             DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
 
             List<String> accountNames = mysqlAccountController.findAccountNames(selectedDatabaseConnectionInfo);
             List<OptionObject> accountNameOptions = BasicBlockFactory.findOptionObjects(accountNames);
-            ActionsBlock accountSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId,
+            ActionsBlock accountSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.ShowGrant.showGrantSelectMysqlAccountSelectBlockId,
                     accountNameOptions,
                     selectAccountPlaceholder);
             int selectAccountBlockIndex = SlackService.findBlockIndex(currentBlocks,
                     "actions",
-                    SlackConstants.CommandBlockIds.ShowGrant.selectMysqlAccountSelectBlockId);
+                    SlackConstants.CommandBlockIds.ShowGrant.showGrantSelectMysqlAccountSelectBlockId);
 
             currentBlocks.set(selectAccountBlockIndex, accountSelectBlock);
         }
