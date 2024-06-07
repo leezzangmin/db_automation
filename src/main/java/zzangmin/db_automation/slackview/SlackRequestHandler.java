@@ -291,7 +291,7 @@ public class SlackRequestHandler {
                                        String requestUUID,
                                        String executeResult) {
         List<LayoutBlock> endMessageBlocks = new ArrayList<>();
-        endMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":x: Request Execution Failed !", "RequestExecuteFailed"));
+        endMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":checkered_flag: Request Execution Completed !", "RequestExecuteFailed"));
 
         // 요청 ID
         endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
