@@ -71,16 +71,16 @@ public class TableConvention {
     }
 
     private static void checkTableOptionConvention(String tableEngine, String tableCharset, String tableCollate, String tableComment) {
-        if (!tableEngine.equals(ENGINE_TYPE)) {
+        if (tableEngine == null || !tableEngine.equals(ENGINE_TYPE)) {
             throw new IllegalArgumentException("테이블 엔진은 다음과 같아야합니다: " + ENGINE_TYPE);
         }
-        if (!tableCharset.equals(CHARSET)) {
+        if (tableCharset == null || !tableCharset.equals(CHARSET)) {
             throw new IllegalArgumentException("테이블 캐릭터셋은 다음과 같아야합니다: " + CHARSET);
         }
-        if (!tableCollate.equals(COLLATE)) {
+        if (tableCollate == null || !tableCollate.equals(COLLATE)) {
             throw new IllegalArgumentException("테이블 콜레이션은 다음과 같아야합니다: " + COLLATE);
         }
-        if (Objects.isNull(tableComment) || tableComment.isBlank() || tableComment.isEmpty()) {
+        if (tableComment == null || tableComment.isBlank() || tableComment.isEmpty()) {
             throw new IllegalArgumentException("테이블 코멘트가 존재하지 않습니다.");
         }
     }
