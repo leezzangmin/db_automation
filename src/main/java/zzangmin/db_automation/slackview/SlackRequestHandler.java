@@ -316,7 +316,7 @@ public class SlackRequestHandler {
         endMessageBlocks.add(BasicBlockFactory.findDividerBlock());
 
         // 작업 종료 시간
-        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Start Time:* `" + LocalDateTime.now() + "`",
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Finish Time:* `" + LocalDateTime.now() + "`",
                 "endblock5"));
 
         slackService.sendBlockMessage(endMessageBlocks);
