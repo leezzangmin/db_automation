@@ -74,9 +74,8 @@ public class SelectCommandBlocks implements BlockPage {
     }
 
     @Override
-    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+    public String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
         throw new IllegalArgumentException("미지원 page");
-
     }
 
     public static List<LayoutBlock> selectCommandGroupAndCommandTypeBlocks() {
