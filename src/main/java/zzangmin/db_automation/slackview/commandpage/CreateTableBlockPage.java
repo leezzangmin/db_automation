@@ -106,9 +106,9 @@ public class CreateTableBlockPage implements BlockPage {
     @Override
     public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
         List<LayoutBlock> blocks = new ArrayList<>();
-        RenameTableRequestDTO renameTableRequestDTO = (RenameTableRequestDTO) requestDTO;
+        CreateTableRequestDTO createTableRequestDTO = (CreateTableRequestDTO) requestDTO;
 
-        String sql = renameTableRequestDTO.toSQL();
+        String sql = createTableRequestDTO.toSQL();
 
 
         blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* ```" + sql + "```", "RenameTableBlockPage"));
