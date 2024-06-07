@@ -10,6 +10,7 @@ import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.ddl.AddColumnRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.response.ddl.AddColumnDDLResponseDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.CommonStandard;
@@ -161,7 +162,8 @@ public class AddColumnBlockPage implements BlockPage {
     }
 
     @Override
-    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
-        ddlController.addColumn(databaseConnectionInfo, (AddColumnRequestDTO) requestDTO, slackUserId);
+    public String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        AddColumnDDLResponseDTO addColumnDDLResponseDTO = ddlController.addColumn(databaseConnectionInfo, (AddColumnRequestDTO) requestDTO, slackUserId);
+        return addColumnDDLResponseDTO.getCreateStatement();
     }
 }

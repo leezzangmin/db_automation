@@ -9,6 +9,7 @@ import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.ddl.RenameColumnRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.response.ddl.RenameColumnDDLResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -100,9 +101,10 @@ public class RenameColumnBlockPage implements BlockPage {
     }
 
     @Override
-    public void execute(DatabaseConnectionInfo selectedDatabaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+    public String execute(DatabaseConnectionInfo selectedDatabaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
         RenameColumnRequestDTO renameColumnRequestDTO = (RenameColumnRequestDTO) requestDTO;
-        ddlController.renameColumn(selectedDatabaseConnectionInfo, renameColumnRequestDTO, slackUserId);
+        RenameColumnDDLResponseDTO renameColumnDDLResponseDTO = ddlController.renameColumn(selectedDatabaseConnectionInfo, renameColumnRequestDTO, slackUserId);
+        return renameColumnDDLResponseDTO.getCreateStatement();
     }
 
 }

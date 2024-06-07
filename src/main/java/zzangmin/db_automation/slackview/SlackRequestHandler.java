@@ -146,8 +146,8 @@ public class SlackRequestHandler {
         sendRequestAcceptMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID);
         try {
             sendRequestExecuteStartMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID);
-            blockPageManager.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
-            sendRequestEndMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
+            String executeResult = blockPageManager.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
+            sendRequestEndMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, findRequestUUID, executeResult);
         } catch (Exception e) {
             sendRequestFailMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID, e.getMessage());
         }
@@ -288,8 +288,36 @@ public class SlackRequestHandler {
     private void sendRequestEndMessage(DatabaseRequestCommandGroup.CommandType commandType,
                                        DatabaseConnectionInfo databaseConnectionInfo,
                                        RequestDTO requestDTO,
-                                       String slackUserId) {
+                                       String requestUUID,
+                                       String executeResult) {
         List<LayoutBlock> endMessageBlocks = new ArrayList<>();
+        endMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":x: Request Execution Failed !", "RequestExecuteFailed"));
+
+        // 요청 ID
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
+                "endblock1"));
+
+        // Target DB 정보
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
+                "endblock2"));
+
+        // 요청 커맨드 종류
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Command Type:*" + commandType.toString(),
+                "endblock3"));
+        endMessageBlocks.add(BasicBlockFactory.findDividerBlock());
+
+        // 요청 내용
+        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
+        endMessageBlocks.addAll(contentBlocks);
+
+        // 요청 종료 보고 내용
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Result:*\n ```" + executeResult + "```",
+                "endblock4"));
+        endMessageBlocks.add(BasicBlockFactory.findDividerBlock());
+
+        // 작업 종료 시간
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Start Time:* `" + LocalDateTime.now() + "`",
+                "endblock5"));
 
         slackService.sendBlockMessage(endMessageBlocks);
     }

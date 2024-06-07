@@ -10,6 +10,7 @@ import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.ddl.CreateIndexRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.response.ddl.CreateIndexDDLResponseDTO;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
@@ -248,7 +249,8 @@ public class CreateIndexBlockPage implements BlockPage {
     }
 
     @Override
-    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
-        ddlController.createIndex(databaseConnectionInfo, (CreateIndexRequestDTO) requestDTO, slackUserId);
+    public String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        CreateIndexDDLResponseDTO createIndexDDLResponseDTO = ddlController.createIndex(databaseConnectionInfo, (CreateIndexRequestDTO) requestDTO, slackUserId);
+        return createIndexDDLResponseDTO.getCreateStatement();
     }
 }

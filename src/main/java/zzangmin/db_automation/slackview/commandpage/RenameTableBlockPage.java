@@ -90,7 +90,8 @@ public class RenameTableBlockPage implements BlockPage {
     }
 
     @Override
-    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+    public String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
         RenameTableDDLResponseDTO renameTableDDLResponseDTO = ddlController.renameTable(databaseConnectionInfo, (RenameTableRequestDTO) requestDTO, slackUserId);
+        return renameTableDDLResponseDTO.getCreateStatement();
     }
 }

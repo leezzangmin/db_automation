@@ -110,8 +110,9 @@ public class ShowGrantBlockPage implements BlockPage {
     }
 
     @Override
-    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+    public String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
         MysqlPrivilegeResponseDTO mysqlPrivilegeResponseDTO = mysqlAccountController.findAccountPrivilege(databaseConnectionInfo, (MysqlPrivilegeShowRequestDTO) requestDTO, slackUserId);
+        return mysqlPrivilegeResponseDTO.toString();
     }
 }
 

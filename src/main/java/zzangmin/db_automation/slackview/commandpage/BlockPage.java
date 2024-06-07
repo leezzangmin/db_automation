@@ -20,5 +20,5 @@ public interface BlockPage {
     boolean supportsActionId(String actionId);
     void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values);
     List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO);
-    void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId);
+    String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId);
 }

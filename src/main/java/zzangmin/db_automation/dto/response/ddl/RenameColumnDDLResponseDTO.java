@@ -7,8 +7,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class RenameColumnDDLResponseDTO extends DDLResponseDTO {
 
-
-    // 실행자 ex) ckdals1234@gmail.com
     private String executeDoer;
     private String databaseInstanceName;
     private String schemaName;
