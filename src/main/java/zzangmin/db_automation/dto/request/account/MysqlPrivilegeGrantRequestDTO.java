@@ -37,7 +37,7 @@ public class MysqlPrivilegeGrantRequestDTO implements AccountRequestDTO {
         }
         sb.deleteCharAt(sb.lastIndexOf(","));
 
-        sb.append(" ON");
+        sb.append(" ON ");
         sb.append(target);
         sb.append(" TO ");
         sb.append(accountName);

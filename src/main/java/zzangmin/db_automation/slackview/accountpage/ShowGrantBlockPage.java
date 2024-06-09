@@ -95,6 +95,8 @@ public class ShowGrantBlockPage implements BlockPage {
                     SlackConstants.CommandBlockIds.ShowGrant.showGrantSelectMysqlAccountSelectBlockId);
 
             currentBlocks.set(selectAccountBlockIndex, accountSelectBlock);
+        } else {
+            throw new IllegalArgumentException("ShowGrantBlock Invalid actionId: " + actionId);
         }
     }
 
@@ -104,7 +106,7 @@ public class ShowGrantBlockPage implements BlockPage {
         MysqlPrivilegeShowRequestDTO mysqlPrivilegeShowRequestDTO = (MysqlPrivilegeShowRequestDTO) requestDTO;
 
 
-        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* `" + mysqlPrivilegeShowRequestDTO.getAccountName() + "`", "RenameTableBlockPage"));
+        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* `" + mysqlPrivilegeShowRequestDTO.toSQL() + "`", "ShowGrantBlockPage"));
 
         return blocks;
     }

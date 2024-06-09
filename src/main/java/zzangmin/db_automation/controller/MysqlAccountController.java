@@ -9,6 +9,7 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.account.AccountRequestDTO;
 import zzangmin.db_automation.dto.request.account.MysqlPrivilegeGrantRequestDTO;
 import zzangmin.db_automation.dto.request.account.MysqlPrivilegeShowRequestDTO;
+import zzangmin.db_automation.dto.response.account.MysqlPrivilegeGrantResponseDTO;
 import zzangmin.db_automation.dto.response.account.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.service.MysqlAccountService;
 
@@ -40,13 +41,12 @@ public class MysqlAccountController {
     }
 
     @PostMapping("/account/privilege")
-    public String grantAccountPrivilege(DatabaseConnectionInfo databaseConnectionInfo,
+    public MysqlPrivilegeGrantResponseDTO grantAccountPrivilege(DatabaseConnectionInfo databaseConnectionInfo,
                                         MysqlPrivilegeGrantRequestDTO requestDTO,
                                         String slackUserId) {
         validateAccountName(requestDTO.getAccountName());
-
-
-        return null;
+        List<String> privileges = mysqlAccountService.grantPrivilege(databaseConnectionInfo, requestDTO);
+        return new MysqlPrivilegeGrantResponseDTO(requestDTO.getAccountName(), privileges);
     }
 
     private void validateAccountName(String accountName) {

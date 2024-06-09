@@ -11,6 +11,9 @@ import zzangmin.db_automation.controller.MysqlAccountController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.request.account.MysqlPrivilegeGrantRequestDTO;
+import zzangmin.db_automation.dto.request.account.MysqlPrivilegeShowRequestDTO;
+import zzangmin.db_automation.dto.response.account.MysqlPrivilegeGrantResponseDTO;
+import zzangmin.db_automation.dto.response.account.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -31,10 +34,10 @@ public class GrantBlockPage implements BlockPage {
     private final SelectClusterSchemaTableBlocks selectClusterSchemaTableBlocks;
     private final MysqlAccountController mysqlAccountController;
 
-    private final String selectAccountPlaceholder = "select account";
+    private final String selectAccountPlaceholder = "Select account";
     private final String findAccountButtonText = "계정목록조회";
-    private final String grantDCLInputLabel = "GRANT Statement: ";
-    private final String grantDCLPlaceholder = "GRANT SELECT, INSERT, DROP ON test_db_name.* TO `test_user`@`localhost`";
+    private final String grantDCLInputLabel = "Privileges: ";
+    private final String grantDCLPlaceholder = "SELECT, INSERT, DROP";
     private final String grantTargetInputLabel = "Target :";
     private final String grantTargetPlaceholder = "`test_db`.`test_table`";
 
@@ -85,26 +88,50 @@ public class GrantBlockPage implements BlockPage {
 
     @Override
     public boolean supportsCommandType(DatabaseRequestCommandGroup.CommandType commandType) {
-        return false;
+        return DatabaseRequestCommandGroup.CommandType.GRANT_PRIVILEGE.equals(commandType);
     }
 
     @Override
     public boolean supportsActionId(String actionId) {
-        return false;
+        return SlackConstants.CommandBlockIds
+                .getMembers(SlackConstants.CommandBlockIds.Grant.class)
+                .contains(actionId);
     }
 
     @Override
     public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        if (actionId.equals(SlackConstants.CommandBlockIds.Grant.grantFindAccountListButtonBlockId)) {
+            DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
 
+            List<String> accountNames = mysqlAccountController.findAccountNames(selectedDatabaseConnectionInfo);
+            List<OptionObject> accountNameOptions = BasicBlockFactory.findOptionObjects(accountNames);
+            ActionsBlock accountSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.Grant.grantSelectMysqlAccountSelectBlockId,
+                    accountNameOptions,
+                    selectAccountPlaceholder);
+            int selectAccountBlockIndex = SlackService.findBlockIndex(currentBlocks,
+                    "actions",
+                    SlackConstants.CommandBlockIds.Grant.grantSelectMysqlAccountSelectBlockId);
+
+            currentBlocks.set(selectAccountBlockIndex, accountSelectBlock);
+        } else {
+            throw new IllegalArgumentException("GrantBlock Invalid actionId: " + actionId);
+        }
     }
 
     @Override
     public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
-        return null;
+        List<LayoutBlock> blocks = new ArrayList<>();
+        MysqlPrivilegeGrantRequestDTO mysqlPrivilegeGrantRequestDTO = (MysqlPrivilegeGrantRequestDTO) requestDTO;
+
+
+        blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* `" + mysqlPrivilegeGrantRequestDTO.toSQL() + "`", "GrantBlockPage"));
+
+        return blocks;
     }
 
     @Override
     public String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
-        return null;
+        MysqlPrivilegeGrantResponseDTO mysqlPrivilegeGrantResponseDTO = mysqlAccountController.grantAccountPrivilege(databaseConnectionInfo, (MysqlPrivilegeGrantRequestDTO) requestDTO, slackUserId);
+        return mysqlPrivilegeGrantResponseDTO.toString();
     }
 }

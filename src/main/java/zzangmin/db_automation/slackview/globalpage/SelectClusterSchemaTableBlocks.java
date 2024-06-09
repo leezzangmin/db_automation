@@ -187,7 +187,7 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
 
         StaticSelectElement environmentSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findEnvironmentSelectsElementActionId,
                 emptyOption,
-                accountPlaceholder);
+                environmentPlaceHolder);
 
         StaticSelectElement clusterSelectElement = BasicBlockFactory.findStaticSelectsElement(SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId,
                 emptyOption,
