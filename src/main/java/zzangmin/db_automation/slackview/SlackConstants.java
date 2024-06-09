@@ -96,8 +96,16 @@ public class SlackConstants {
 
         // show grant
         public static class ShowGrant {
-            public static final String selectMysqlAccountSelectBlockId = "selectMysqlAccountSelectBlockId";
-            public static final String findAccountListButtonBlockId = "findAccountListButtonBlockId";
+            public static final String showGrantSelectMysqlAccountSelectBlockId = "showGrantSelectMysqlAccountSelectBlockId";
+            public static final String showGrantFindAccountListButtonBlockId = "showGrantFindAccountListButtonBlockId";
+        }
+
+        // grant
+        public static class Grant {
+            public static final String grantSelectMysqlAccountSelectBlockId = "grantSelectMysqlAccountSelectBlockId";
+            public static final String grantFindAccountListButtonBlockId = "grantFindAccountListButtonBlockId";
+            public static final String grantPrivilegeInputId = "grantPrivilegeInputId";
+            public static final String grantTargetInputId = "grantTargetInputId";
         }
     }
 

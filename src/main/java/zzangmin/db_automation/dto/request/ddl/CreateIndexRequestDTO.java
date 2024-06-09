@@ -37,7 +37,11 @@ public class CreateIndexRequestDTO implements DDLRequestDTO {
                 sb.append(this.getSchemaName());
                 sb.append("`.`");
                 sb.append(this.getTableName());
-                sb.append("` ADD INDEX `");
+                if (this.getIndexType().equals("UNIQUE")) {
+                        sb.append("` ADD UNIQUE INDEX `");
+                } else {
+                        sb.append("` ADD INDEX `");
+                }
                 sb.append(this.getIndexName());
                 sb.append("` (");
                 for (String columnName : this.getColumnNames()) {

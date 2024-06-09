@@ -42,12 +42,13 @@ public class BlockPageManager {
         return selectedBlockPage.handleSubmission(values);
     }
 
-    public void execute(DatabaseRequestCommandGroup.CommandType commandType,
+    public String execute(DatabaseRequestCommandGroup.CommandType commandType,
                         DatabaseConnectionInfo databaseConnectionInfo,
                         RequestDTO requestDTO,
                         String slackUserId) {
         BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
-        selectedBlockPage.execute(databaseConnectionInfo, requestDTO, slackUserId);
+        String executeResult = selectedBlockPage.execute(databaseConnectionInfo, requestDTO, slackUserId);
+        return executeResult;
     }
 
     public List<LayoutBlock> handleSubmissionRequestMessage(DatabaseRequestCommandGroup.CommandType commandType,

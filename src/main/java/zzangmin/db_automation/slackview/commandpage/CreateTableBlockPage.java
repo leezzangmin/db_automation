@@ -10,6 +10,7 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.ddl.CreateTableRequestDTO;
 import zzangmin.db_automation.dto.request.ddl.RenameTableRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.response.ddl.CreateTableDDLResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -105,9 +106,9 @@ public class CreateTableBlockPage implements BlockPage {
     @Override
     public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
         List<LayoutBlock> blocks = new ArrayList<>();
-        RenameTableRequestDTO renameTableRequestDTO = (RenameTableRequestDTO) requestDTO;
+        CreateTableRequestDTO createTableRequestDTO = (CreateTableRequestDTO) requestDTO;
 
-        String sql = renameTableRequestDTO.toSQL();
+        String sql = createTableRequestDTO.toSQL();
 
 
         blocks.add(BasicBlockFactory.getMarkdownTextSection("*Request Content:* ```" + sql + "```", "RenameTableBlockPage"));
@@ -116,6 +117,8 @@ public class CreateTableBlockPage implements BlockPage {
     }
 
     @Override
-    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
-        ddlController.createTable(databaseConnectionInfo, (CreateTableRequestDTO) requestDTO, slackUserId);    }
+    public String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        CreateTableDDLResponseDTO createTableDDLResponseDTO = ddlController.createTable(databaseConnectionInfo, (CreateTableRequestDTO) requestDTO, slackUserId);
+        return createTableDDLResponseDTO.getCreateStatement();
+    }
 }

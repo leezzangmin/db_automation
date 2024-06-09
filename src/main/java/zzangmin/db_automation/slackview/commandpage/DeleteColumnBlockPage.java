@@ -9,6 +9,7 @@ import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.ddl.DeleteColumnRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.response.ddl.DeleteColumnDDLResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
@@ -87,8 +88,9 @@ public class DeleteColumnBlockPage implements BlockPage {
     }
 
     @Override
-    public void execute(DatabaseConnectionInfo selectedDatabaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+    public String execute(DatabaseConnectionInfo selectedDatabaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
         DeleteColumnRequestDTO deleteColumnRequestDTO = (DeleteColumnRequestDTO) requestDTO;
-        ddlController.deleteColumn(selectedDatabaseConnectionInfo, deleteColumnRequestDTO, slackUserId);
+        DeleteColumnDDLResponseDTO deleteColumnDDLResponseDTO = ddlController.deleteColumn(selectedDatabaseConnectionInfo, deleteColumnRequestDTO, slackUserId);
+        return deleteColumnDDLResponseDTO.getCreateStatement();
     }
 }

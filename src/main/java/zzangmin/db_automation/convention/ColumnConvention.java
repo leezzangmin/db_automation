@@ -43,7 +43,7 @@ public class ColumnConvention {
             column.injectVarcharLength();
         }
         if (column.getType().contains("char") || column.getType().contains("CHAR") || column.getType().contains("text") || column.getType().contains("TEXT")) {
-            if (!column.getCollate().equals(COLLATE)) {
+            if (column.getCollate() == null || !column.getCollate().equals(COLLATE)) {
                 throw new IllegalArgumentException(column.getName() + " 의 COLLATE 가 " + COLLATE + " 이 아닙니다.");
             }
         }

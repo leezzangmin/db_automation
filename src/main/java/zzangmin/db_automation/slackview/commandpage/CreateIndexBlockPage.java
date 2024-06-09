@@ -10,6 +10,7 @@ import zzangmin.db_automation.controller.DDLController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.ddl.CreateIndexRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.response.ddl.CreateIndexDDLResponseDTO;
 import zzangmin.db_automation.entity.Constraint;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
@@ -184,18 +185,6 @@ public class CreateIndexBlockPage implements BlockPage {
  * "multi_users_select", "multi_conversations_select",
  * "multi_channels_select", "multi_external_select", "datetimepicker"
  */
-//        return actions(actions -> actions
-//                .elements(asElements(
-//                        button(b -> b.text(plainText(pt -> pt.emoji(true).text("승인")))
-//                                .value("deliveryTip.getSeq().toString()")
-//                                .style("primary")
-//                                .text(plainText("ddd"))
-//                                .actionId("aaa")
-//                        ),
-//                        BasicBlockFactory.findSinglelinePlainTextInput2("asdf", "dfdf", "pp")
-//                ))
-//        );
-
         return BasicBlockFactory.findSinglelinePlainTextInput(SlackConstants.CommandBlockIds.CreateIndex.createIndexColumnNameTextInputId + 1,
                 inputIndexColumnNameLabel + 1,
                 createIndexColumnPlaceHolder);
@@ -248,7 +237,8 @@ public class CreateIndexBlockPage implements BlockPage {
     }
 
     @Override
-    public void execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
-        ddlController.createIndex(databaseConnectionInfo, (CreateIndexRequestDTO) requestDTO, slackUserId);
+    public String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        CreateIndexDDLResponseDTO createIndexDDLResponseDTO = ddlController.createIndex(databaseConnectionInfo, (CreateIndexRequestDTO) requestDTO, slackUserId);
+        return createIndexDDLResponseDTO.getCreateStatement();
     }
 }

@@ -3,10 +3,13 @@ package zzangmin.db_automation.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.account.AccountRequestDTO;
+import zzangmin.db_automation.dto.request.account.MysqlPrivilegeGrantRequestDTO;
 import zzangmin.db_automation.dto.request.account.MysqlPrivilegeShowRequestDTO;
+import zzangmin.db_automation.dto.response.account.MysqlPrivilegeGrantResponseDTO;
 import zzangmin.db_automation.dto.response.account.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.service.MysqlAccountService;
 
@@ -35,6 +38,15 @@ public class MysqlAccountController {
         validateAccountName(requestDTO.getAccountName());
         List<String> privileges = mysqlAccountService.findPrivileges(databaseConnectionInfo, requestDTO);
         return new MysqlPrivilegeResponseDTO(requestDTO.getAccountName(), privileges);
+    }
+
+    @PostMapping("/account/privilege")
+    public MysqlPrivilegeGrantResponseDTO grantAccountPrivilege(DatabaseConnectionInfo databaseConnectionInfo,
+                                        MysqlPrivilegeGrantRequestDTO requestDTO,
+                                        String slackUserId) {
+        validateAccountName(requestDTO.getAccountName());
+        List<String> privileges = mysqlAccountService.grantPrivilege(databaseConnectionInfo, requestDTO);
+        return new MysqlPrivilegeGrantResponseDTO(requestDTO.getAccountName(), privileges);
     }
 
     private void validateAccountName(String accountName) {
