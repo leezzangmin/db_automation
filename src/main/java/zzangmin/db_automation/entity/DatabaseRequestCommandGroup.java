@@ -44,6 +44,9 @@ public enum DatabaseRequestCommandGroup {
                     CommandType.GRANT_PRIVILEGE,
                     CommandType.REVOKE_PRIVILEGE,
                     CommandType.SHOW_GRANTS)),
+    SESSION("session",
+            List.of(CommandType.KILL_SESSION,
+                    CommandType.SHOW_SESSION)),
     EMPTY("없음",
             List.of(CommandType.EMPTY));
 
@@ -84,6 +87,8 @@ public enum DatabaseRequestCommandGroup {
         GRANT_PRIVILEGE,
         REVOKE_PRIVILEGE,
         SHOW_GRANTS,
+        KILL_SESSION,
+        SHOW_SESSION,
         EMPTY
     }
 
