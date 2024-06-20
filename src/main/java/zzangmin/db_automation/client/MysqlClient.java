@@ -41,7 +41,7 @@ public class MysqlClient {
                 databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
-            log.info("findTableNames: {}", statement);
+            log.info("findGlobalVariables: {}", statement);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
                     String variableName = resultSet.getString("Variable_name");
@@ -53,6 +53,40 @@ public class MysqlClient {
             throw new RuntimeException(e.getMessage());
         }
         return globalVariables;
+    }
+
+    public List<String> findInstalledPluginsAndComponentNames(DatabaseConnectionInfo databaseConnectionInfo) {
+        List<String> installedNames = new ArrayList<>();
+
+        String pluginSQL = "SELECT PLUGIN_NAME FROM INFORMATION_SCHEMA.PLUGINS WHERE PLUGIN_STATUS LIKE 'ACTIVE'";
+        String componentSQL = "SELECT component_urn FROM mysql.COMPONENT";
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword())) {
+
+            try (PreparedStatement pluginStatement = connection.prepareStatement(pluginSQL);
+                 ResultSet pluginResultSet = pluginStatement.executeQuery()) {
+                log.info("findInstalledPluginsAndComponents - Plugins: {}", pluginStatement);
+                while (pluginResultSet.next()) {
+                    installedNames.add(pluginResultSet.getString("PLUGIN_NAME"));
+                }
+            }
+
+            try (PreparedStatement componentStatement = connection.prepareStatement(componentSQL);
+                 ResultSet componentResultSet = componentStatement.executeQuery()) {
+                log.info("findInstalledPluginsAndComponents - Components: {}", componentStatement);
+                while (componentResultSet.next()) {
+                    installedNames.add(componentResultSet.getString("component_urn"));
+                }
+            } catch (SQLException e) {
+                log.warn("findInstalledPluginsAndComponents - Components table not found: {}", e.getMessage());
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
+        return installedNames;
     }
 
     public List<String> findTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
