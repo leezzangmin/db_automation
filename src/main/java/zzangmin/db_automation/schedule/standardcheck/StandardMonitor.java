@@ -18,6 +18,7 @@ public class StandardMonitor {
     private final SchemaStandardChecker schemaStandardChecker;
     private final TagStandardChecker tagStandardChecker;
     private final AccountStandardChecker accountStandardChecker;
+    private final PluginComponentStandardChecker pluginComponentStandardChecker;
     private final SlackService slackService;
 
     //@Scheduled(fixedDelay = STANDARD_CHECK_DELAY)
@@ -30,6 +31,7 @@ public class StandardMonitor {
         String schemaStandardResult = schemaStandardChecker.checkSchemaStandard();
         String tagStandardResult = tagStandardChecker.checkTagStandard();
         String accountStandardResult = accountStandardChecker.checkAccountStandard();
+        String pluginComponentStandardResult = pluginComponentStandardChecker.checkPluginComponentStandard();
 
         standardCheckResult.append(parameterCheckResult);
         standardCheckResult.append(clusterCreationStandardResult);
@@ -37,6 +39,7 @@ public class StandardMonitor {
         standardCheckResult.append(schemaStandardResult);
         standardCheckResult.append(tagStandardResult);
         standardCheckResult.append(accountStandardResult);
+        standardCheckResult.append(pluginComponentStandardResult);
         log.info("standard check finish");
         slackService.sendNormalStringMessage(standardCheckResult.toString());
     }
