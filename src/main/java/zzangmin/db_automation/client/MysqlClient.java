@@ -31,6 +31,30 @@ public class MysqlClient {
         }
     }
 
+    public Map<String, String> findGlobalVariables(DatabaseConnectionInfo databaseConnectionInfo, List<String> variableNames) {
+        Map<String, String> globalVariables = new HashMap<>();
+
+        String SQL = "SHOW GLOBAL VARIABLES WHERE Variable_name IN (?)";
+        String variableString = "('" + String.join("','", variableNames) + "')";
+        SQL += variableString;
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            log.info("findTableNames: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String variableName = resultSet.getString("Variable_name");
+                    String value = resultSet.getString("Value");
+                    globalVariables.put(variableName, value);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return globalVariables;
+    }
+
     public List<String> findTableNames(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         String SQL = "SELECT table_name FROM information_schema.tables WHERE TABLE_TYPE !='VIEW' AND table_schema = ?";
         List<String> tableNames = new ArrayList<>();
