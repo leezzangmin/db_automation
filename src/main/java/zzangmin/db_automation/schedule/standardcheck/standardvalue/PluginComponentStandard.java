@@ -7,8 +7,8 @@ import java.util.Map;
 public class PluginComponentStandard {
     public final static Map<String, String> pluginComponentStandardValues = new HashMap<>();
 
-    public final static List<String> essentialPluginComponents = List.of("validate_password");
-
+    public final static List<String> essentialPluginComponentNames = List.of("validate_password");
+// component -> 'file://component_validate_password'
 
     static {
         pluginComponentStandardValues.put("validate_password_check_user_name", "ON");
