@@ -107,6 +107,10 @@ public class SlackConstants {
             public static final String grantPrivilegeInputId = "grantPrivilegeInputId";
             public static final String grantTargetInputId = "grantTargetInputId";
         }
+
+        public static class SelectQuery {
+            public static final String selectSQLTextInputId = "inputSelectSQL";
+        }
     }
 
     public static class FixedBlockIds {

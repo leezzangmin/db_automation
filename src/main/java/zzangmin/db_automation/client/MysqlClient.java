@@ -31,6 +31,34 @@ public class MysqlClient {
         }
     }
 
+    public List<Map<String, Object>> executeSelectQuery(DatabaseConnectionInfo databaseConnectionInfo, String sql) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            log.info("executeSelectQuery: {}", statement);
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+
+            while (resultSet.next()) {
+                Map<String, Object> row = new HashMap<>();
+                for (int i = 1; i <= columnCount; i++) {
+                    String columnName = metaData.getColumnName(i);
+                    Object columnValue = resultSet.getObject(i);
+                    row.put(columnName, columnValue);
+                }
+                result.add(row);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage());
+        }
+        return result;
+    }
+
     public Map<String, String> findGlobalVariables(DatabaseConnectionInfo databaseConnectionInfo, List<String> variableNames) {
         Map<String, String> globalVariables = new HashMap<>();
 

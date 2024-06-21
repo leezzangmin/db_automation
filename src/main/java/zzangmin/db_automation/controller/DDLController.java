@@ -23,8 +23,8 @@ public class DDLController {
     private final DDLValidator ddlValidator;
 
     @GetMapping("/ddl/validate")
-    public String validCommand(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
-                               @RequestBody DDLRequestDTO ddlRequestDTO) {
+    public String validateCommand(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+                                  @RequestBody DDLRequestDTO ddlRequestDTO) {
         ddlValidator.validateDDLRequest(databaseConnectionInfo, ddlRequestDTO);
         return "ok";
     }
@@ -36,11 +36,11 @@ public class DDLController {
         ddlValidator.validateRenameTable(databaseConnectionInfo, ddlRequestDTO);
         String createTableStatement = ddlService.renameTable(databaseConnectionInfo, ddlRequestDTO);
         changeHistoryService.addChangeHistory(new CreateChangeHistoryRequestDTO(ddlRequestDTO.extractCommandType(),
-                        databaseConnectionInfo.getDatabaseName(),
-                        ddlRequestDTO.getSchemaName(),
-                        ddlRequestDTO.getOldTableName(),
+                databaseConnectionInfo.getDatabaseName(),
+                ddlRequestDTO.getSchemaName(),
+                ddlRequestDTO.getOldTableName(),
                 slackUserId,
-                        LocalDateTime.now()), ddlRequestDTO);
+                LocalDateTime.now()), ddlRequestDTO);
 
         return new RenameTableDDLResponseDTO(slackUserId,
                 databaseConnectionInfo.getDatabaseName(),

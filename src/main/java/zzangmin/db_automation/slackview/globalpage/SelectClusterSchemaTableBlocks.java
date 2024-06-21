@@ -16,7 +16,7 @@ import zzangmin.db_automation.service.DescribeService;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.SlackConstants;
-import zzangmin.db_automation.slackview.commandpage.BlockPage;
+import zzangmin.db_automation.slackview.BlockPage;
 
 import java.util.ArrayList;
 import java.util.List;

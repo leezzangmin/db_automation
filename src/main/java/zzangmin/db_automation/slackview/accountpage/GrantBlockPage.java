@@ -11,14 +11,12 @@ import zzangmin.db_automation.controller.MysqlAccountController;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.request.account.MysqlPrivilegeGrantRequestDTO;
-import zzangmin.db_automation.dto.request.account.MysqlPrivilegeShowRequestDTO;
 import zzangmin.db_automation.dto.response.account.MysqlPrivilegeGrantResponseDTO;
-import zzangmin.db_automation.dto.response.account.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.slackview.BasicBlockFactory;
 import zzangmin.db_automation.slackview.SlackConstants;
-import zzangmin.db_automation.slackview.commandpage.BlockPage;
+import zzangmin.db_automation.slackview.BlockPage;
 import zzangmin.db_automation.slackview.globalpage.SelectClusterSchemaTableBlocks;
 
 import java.util.ArrayList;
