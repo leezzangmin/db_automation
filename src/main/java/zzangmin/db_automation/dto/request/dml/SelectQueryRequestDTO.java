@@ -4,9 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.parser.JSqlParser;
+import net.sf.jsqlparser.statement.select.Select;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 
 import java.util.List;
+import java.util.StringJoiner;
 
 @ToString
 @Getter
@@ -21,6 +26,26 @@ public class SelectQueryRequestDTO implements DMLRequestDTO {
     private List<String> joins;
     private String where;
     private List<String> orderBy;
+    private int limit;
+
+//    public static SelectQueryRequestDTO of(String SQL) throws JSQLParserException {
+//        Select select = (Select) CCJSqlParserUtil.parse(SQL);
+//        select.getSelectBody().getOffset().
+//
+//        SelectQueryRequestDTO selectQueryRequestDTO = new SelectQueryRequestDTO();
+//
+//        selectQueryRequestDTO.setSchemaName(parse.getSelectBody().getFromItem().toString());
+//        selectQueryRequestDTO.setSelectItems(parse.getSelectItems().toString());
+//
+//        selectQueryRequestDTO.setFromItem(parse.getSelectBody().getFromItem().toString());
+//
+//        selectQueryRequestDTO.setJoins(parse.getSelectBody().getJoins().toString());
+//        selectQueryRequestDTO.setWhere(parse.getSelectBody().getWhere().toString());
+//        selectQueryRequestDTO.setOrderBy(parse.getSelectBody().getOrderByElements().toString());
+//
+//        return selectQueryRequestDTO;
+//
+//    }
 
     @Override
     public String toString() {
@@ -33,6 +58,7 @@ public class SelectQueryRequestDTO implements DMLRequestDTO {
                 '}';
     }
 
+    @Override
     public String toSQL() {
         StringBuilder sql = new StringBuilder();
 
@@ -70,15 +96,12 @@ public class SelectQueryRequestDTO implements DMLRequestDTO {
         }
 
         return sql.toString();
+    }
 
     @Override
     public DatabaseRequestCommandGroup.CommandType extractCommandType() {
         return DatabaseRequestCommandGroup.CommandType.SELECT;
     }
 
-    @Override
-    public String toSQL() {
-        return this.SQL;
-    }
 
 }
