@@ -6,7 +6,6 @@ import lombok.*;
 @Getter
 @EqualsAndHashCode
 @NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class Event {
 }
