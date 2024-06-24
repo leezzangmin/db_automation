@@ -29,19 +29,15 @@ public class DatabaseConnectionInfoFactory {
 
     public DatabaseConnectionInfo createDatabaseConnectionInfo() {
         return DatabaseConnectionInfo.builder()
+                .environment("stage")
+                .accountId("123123")
+                .serviceName("order")
+                .databaseType(DatabaseConnectionInfo.DatabaseType.CLUSTER)
                 .databaseName("inhouse")
                 .driverClassName(driverClassName)
                 .url(url)
                 .username(username)
                 .password(password)
-                .tags(List.of(Tag.builder()
-                        .key(TagStandard.getServiceTagKeyName())
-                        .value("test")
-                        .build(),
-                        Tag.builder()
-                        .key(TagStandard.getEnvironmentTagKeyName())
-                        .value("test")
-                        .build()))
                 .build();
     }
 }
