@@ -46,8 +46,7 @@ class MetadataLockDetectorTest {
     void checkMetadataLock_WithTargetDatabases() {
         // given
 
-        DatabaseConnectionInfo databaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", "asdf", null);
-        metadataLockDetector.startCheck(databaseConnectionInfo);
+        DatabaseConnectionInfo databaseConnectionInfo = new DatabaseConnectionInfo("prod", "123", "shop", DatabaseConnectionInfo.DatabaseType.CLUSTER, "dbname", "admin", "com.mysql.cj.jdbc.Driver", "123*", null);
         List<MetadataLockHolder> metadataLockHolders = new ArrayList<>();
         metadataLockHolders.add(new MetadataLockHolder(null, null, null, null, null, 1, 1, null, 3));
         metadataLockHolders.add(new MetadataLockHolder(null, null, null, null, null, 2, 2, null, 2));
@@ -66,7 +65,8 @@ class MetadataLockDetectorTest {
     @Test
     void endCheck_RemovesTargetDatabase() throws Exception {
         // given
-        DatabaseConnectionInfo databaseConnectionInfo = new DatabaseConnectionInfo("zzangmin-db", "com.mysql.cj.jdbc.Driver", "jdbc:mysql://zzangmin-db.codf49uhek24.ap-northeast-2.rds.amazonaws.com", "admin", "asdf", null);
+        DatabaseConnectionInfo databaseConnectionInfo = new DatabaseConnectionInfo("prod", "123", "shop", DatabaseConnectionInfo.DatabaseType.CLUSTER, "dbname", "admin", "com.mysql.cj.jdbc.Driver", "123*", null);
+
         metadataLockDetector.startCheck(databaseConnectionInfo);
 
         // when

@@ -35,8 +35,8 @@ class DatabaseDifferenceCheckerTest {
     @Test
     void testCompareDatabase() {
         // given
-        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
-        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
+        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "123", "shop", DatabaseConnectionInfo.DatabaseType.CLUSTER, "dbname", "admin", "com.mysql.cj.jdbc.Driver", "123*", null);
+        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("stage", "123", "shop", DatabaseConnectionInfo.DatabaseType.CLUSTER, "dbname", "admin", "com.mysql.cj.jdbc.Driver", "123*", null);
         when(mysqlClient.findSchemaNames(any())).thenReturn(List.of("test_schema123"));
         when(mysqlClient.findCreateDatabaseStatement(any(),any())).thenReturn(Optional.of("create database"));
 
@@ -52,8 +52,8 @@ class DatabaseDifferenceCheckerTest {
     @Test
     void testDifferentCompareDatabase() {
         // given
-        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
-        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("inhouse", "com.mysql.cj.jdbc.Driver", "testendpoint1", "admin", "123*", null);
+        DatabaseConnectionInfo prod = new DatabaseConnectionInfo("prod", "123", "shop", DatabaseConnectionInfo.DatabaseType.CLUSTER, "dbname", "admin", "com.mysql.cj.jdbc.Driver", "123*", null);
+        DatabaseConnectionInfo stage = new DatabaseConnectionInfo("stage", "123", "shop", DatabaseConnectionInfo.DatabaseType.CLUSTER, "dbname", "admin", "com.mysql.cj.jdbc.Driver", "123*", null);
 
         when(mysqlClient.findSchemaNames(any())).thenReturn(List.of("test_schema123"));
         when(mysqlClient.findCreateDatabaseStatement(eq(prod),any())).thenReturn(Optional.of("create database fff;"));
