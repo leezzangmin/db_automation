@@ -1,7 +1,11 @@
 package zzangmin.db_automation;
 
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.util.TablesNamesFinder;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -10,12 +14,6 @@ public class PracticeTest {
 
     @Test
     public void test() throws Exception {
-        String createTableSQL = "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER ON `upbitcare`.* TO `upbitcare_user`@`10.191.0.0/255.255.0.0`;\n";
-        //GrantValidator grantValidator = new GrantValidator();
-        //CCJSqlParserManager ccjSqlParserManager = new CCJSqlParserManager();
-        //Grant grant = (Grant) ccjSqlParserManager.parse(new StringReader(createTableSQL));
-        Statement statement = CCJSqlParserUtil.parse(createTableSQL);
-        System.out.println("statement = " + statement);
         List<String> MYSQL_RESERVED_WORDS = List.of(
                 "ACCESSIBLE", "ADD", "ALL", "ALTER", "ANALYZE",
                 "AND", "AS", "ASC", "ASENSITIVE", "BEFORE", "BETWEEN",
@@ -67,6 +65,48 @@ public class PracticeTest {
                 "OF", "OVER", "PERCENT_RANK", "RANK", "RECURSIVE", "ROW_NUMBER", "SYSTEM", "WINDOW"
         );
         System.out.println("MYSQL_RESERVED_WORDS.size() = " + MYSQL_RESERVED_WORDS.size());
+    }
+
+    @Test
+    public void test2() throws Exception {
+        String selectSQL = "SELECT * FROM `upbitcare` as a inner join asdf as " +
+                "BB on a.id=BB.id and a.id=1" +
+                " WHERE `a.id` = 1 or BB.dfe like '%asdf%' group by a.id order by bb.id,a.name offset 1 limit 1,1;";
+        Select select = (Select) CCJSqlParserUtil.parse(selectSQL);
+        System.out.println("select = " + select);
+        Offset offset = select.getOffset();
+        System.out.println("offset = " + offset);
+        Limit limit = select.getLimit();
+        System.out.println("limit = " + limit);
+        Fetch fetch = select.getFetch();
+        System.out.println("fetch = " + fetch);
+
+        PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
+        TablesNamesFinder tablesNamesFinder = new TablesNamesFinder() {
+            @Override
+            public void visit(PlainSelect plainSelect) {
+                System.out.println("plainselect -> " + plainSelect.toString());
+                for (SelectItem item : plainSelect.getSelectItems()) {
+                    System.out.println(item.toString());
+                }
+                super.visit(plainSelect);
+            }
+        };
+        List<String> tableList = tablesNamesFinder.getTableList((Statement) select);
+        System.out.println("tableList = " + tableList);
+
+        Expression where = plainSelect.getWhere();
+        System.out.println("where = " + where);
+        Expression having = plainSelect.getHaving();
+        System.out.println("having = " + having);
+        List<Join> joins = plainSelect.getJoins();
+        for (Join join : joins) {
+            System.out.println("join = " + join);
+        }
+        List<OrderByElement> orderByElements = plainSelect.getOrderByElements();
+        for (OrderByElement orderByElement : orderByElements) {
+            System.out.println("orderByElement = " + orderByElement);
+        }
     }
 
 }
