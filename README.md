@@ -41,8 +41,9 @@
 ****  
 
 ## 시연 영상 및 샘플
-2배속 시청 권장
-[샘플](https://github.com/leezzangmin/db_automation/assets/64303390/cfa4b930-92c8-4c9e-bcb7-94ecbcd8f234)
+
+[샘플](https://github.com/leezzangmin/db_automation/assets/64303390/da03e152-6d7e-4cb3-aadc-8c9a5cdc02c7)
+
 
 
 ### 3. DB 표준 검사 샘플
