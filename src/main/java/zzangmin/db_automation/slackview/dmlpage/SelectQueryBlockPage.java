@@ -51,24 +51,15 @@ public class SelectQueryBlockPage implements BlockPage {
     public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
         String selectSQL = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.SelectQuery.selectSQLTextInputId);
         log.info("selectSQL: {}", selectSQL);
-        SelectQueryRequestDTO selectQueryRequestDTO;
-        try {
-            selectQueryRequestDTO = SelectQueryRequestDTO.of(createTableStatementSQL);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
-            throw new IllegalArgumentException(e.getMessage());
-        }
-        log.info("selectQueryRequestDTO: {}", selectQueryRequestDTO);
 
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
         String schemaName = selectClusterSchemaTableBlocks.findSchemaName(values);
 
-        schemaName.setSchemaName(schemaName);
-        ddlValidator.validateCreateTable(selectedDatabaseConnectionInfo, createTableRequestDTO);
+        SelectQueryRequestDTO selectQueryRequestDTO = new SelectQueryRequestDTO(schemaName, selectSQL);
+        log.info("selectQueryRequestDTO: {}", selectQueryRequestDTO);
 
-        return createTableRequestDTO;
+        dmlController.validate(selectedDatabaseConnectionInfo, selectQueryRequestDTO);
+        return selectQueryRequestDTO;
     }
 
     @Override
