@@ -2,6 +2,10 @@ package zzangmin.db_automation.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.JSQLParserException;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.Select;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,16 +23,20 @@ public class DMLController {
     private final DMLService dmlService;
 
     @GetMapping("/dml/validate")
-    public String validate(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
+    public void validate(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                @RequestBody DMLRequestDTO dmlRequestDTO) {
-        // todo: validation
-        return "ok";
+        if (dmlRequestDTO instanceof SelectQueryRequestDTO) {
+            validateSelect(((SelectQueryRequestDTO) dmlRequestDTO).getSQL());
+            return;
+        }
+        throw new IllegalArgumentException("validation 미구현 requestDto");
     }
 
     @GetMapping("/dml/select")
     public SelectQueryResponseDTO select(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                          @RequestBody SelectQueryRequestDTO dmlRequestDTO,
                                          String slackUserId) {
+        validateSelect(dmlRequestDTO.getSQL());
         String resultJson = dmlService.select(databaseConnectionInfo, dmlRequestDTO);
 
         return new SelectQueryResponseDTO(slackUserId,
@@ -36,4 +44,19 @@ public class DMLController {
                 dmlRequestDTO.getSchemaName(),
                 resultJson);
     }
+
+
+    private void validateSelect(String selectSQL) {
+        try {
+            Statement statement = CCJSqlParserUtil.parse(selectSQL);
+            if (statement instanceof Select) {
+                throw new IllegalArgumentException("Invalid SQL !");
+            } else {
+                throw new IllegalArgumentException("Select 가 아닙니다 !");
+            }
+        } catch (JSQLParserException e) {
+            throw new IllegalArgumentException("Invalid SQL !");
+        }
+    }
+
 }
