@@ -7,6 +7,9 @@ import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
 import com.slack.api.model.Message;
 import com.slack.api.model.block.*;
+import com.slack.api.model.block.composition.MarkdownTextObject;
+import com.slack.api.model.block.composition.PlainTextObject;
+import com.slack.api.model.block.composition.TextObject;
 import com.slack.api.model.block.element.*;
 import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
@@ -61,13 +64,57 @@ public class SlackService {
             }
         }
     }
-
     public void sendBlockMessage(List<LayoutBlock> blocks) {
         if (blocks.size() < 1) {
             return;
         }
         log.info("block slack message: {}", blocks);
 
+        List<LayoutBlock> truncatedBlocks = new ArrayList<>();
+        for (LayoutBlock block : blocks) {
+            if (block instanceof SectionBlock) {
+                SectionBlock sectionBlock = (SectionBlock) block;
+                TextObject text = sectionBlock.getText();
+                if (text instanceof PlainTextObject || text instanceof MarkdownTextObject) {
+                    String originalText = text.getText();
+                    while (originalText.length() > 3000) {
+                        String partText = originalText.substring(0, 3000);
+                        originalText = originalText.substring(3000);
+                        if (text instanceof PlainTextObject) {
+                            truncatedBlocks.add(SectionBlock.builder().text(PlainTextObject.builder().text(partText).build()).build());
+                        } else {
+                            truncatedBlocks.add(SectionBlock.builder().text(MarkdownTextObject.builder().text(partText).build()).build());
+                        }
+                    }
+                    if (text instanceof PlainTextObject) {
+                        truncatedBlocks.add(SectionBlock.builder().text(PlainTextObject.builder().text(originalText).build()).build());
+                    } else {
+                        truncatedBlocks.add(SectionBlock.builder().text(MarkdownTextObject.builder().text(originalText).build()).build());
+                    }
+                } else {
+                    truncatedBlocks.add(block);
+                }
+            } else {
+                truncatedBlocks.add(block);
+            }
+        }
+
+        List<List<LayoutBlock>> chunkedBlocks = chunkBlocks(truncatedBlocks, 50);
+
+        for (List<LayoutBlock> chunk : chunkedBlocks) {
+            sendChunkedBlockMessage(chunk);
+        }
+    }
+
+    private List<List<LayoutBlock>> chunkBlocks(List<LayoutBlock> blocks, int chunkSize) {
+        List<List<LayoutBlock>> chunkedBlocks = new ArrayList<>();
+        for (int i = 0; i < blocks.size(); i += chunkSize) {
+            chunkedBlocks.add(new ArrayList<>(blocks.subList(i, Math.min(blocks.size(), i + chunkSize))));
+        }
+        return chunkedBlocks;
+    }
+
+    private void sendChunkedBlockMessage(List<LayoutBlock> blocks) {
         ChatPostMessageRequest request = ChatPostMessageRequest.builder()
                 .channel(DEFAULT_CHANNEL_ID)
                 .blocks(blocks)
@@ -86,6 +133,31 @@ public class SlackService {
             log.error("chatPostMessageResponse: {}", chatPostMessageResponse);
         }
     }
+
+//    public void sendBlockMessage(List<LayoutBlock> blocks) {
+//        if (blocks.size() < 1) {
+//            return;
+//        }
+//        log.info("block slack message: {}", blocks);
+//
+//        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
+//                .channel(DEFAULT_CHANNEL_ID)
+//                .blocks(blocks)
+//                .build();
+//        ChatPostMessageResponse chatPostMessageResponse = null;
+//        try {
+//            chatPostMessageResponse = slackClient.chatPostMessage(request);
+//        } catch (SSLHandshakeException sslHandshakeException) {
+//            log.info(sslHandshakeException.getMessage());
+//        } catch (Exception e) {
+//            log.info(e.getMessage());
+//        }
+//        if (chatPostMessageResponse != null && chatPostMessageResponse.getWarning() == null && chatPostMessageResponse.isOk()) {
+//            log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
+//        } else {
+//            log.error("chatPostMessageResponse: {}", chatPostMessageResponse);
+//        }
+//    }
 
     public void sendBlockMessageWithMetadata(DatabaseConnectionInfo databaseConnectionInfo,
                                              DatabaseRequestCommandGroup.CommandType commandType,
