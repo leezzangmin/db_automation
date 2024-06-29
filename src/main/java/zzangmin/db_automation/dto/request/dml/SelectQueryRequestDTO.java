@@ -14,11 +14,11 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 public class SelectQueryRequestDTO implements DMLRequestDTO {
 
     private String schemaName;
-    private String SQL;
+    private String sql;
 
     @Override
     public String toSQL() {
-        return SQL;
+        return sql;
     }
 
     @Override

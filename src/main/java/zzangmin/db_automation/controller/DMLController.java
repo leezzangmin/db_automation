@@ -26,7 +26,7 @@ public class DMLController {
     public void validate(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                @RequestBody DMLRequestDTO dmlRequestDTO) {
         if (dmlRequestDTO instanceof SelectQueryRequestDTO) {
-            validateSelect(((SelectQueryRequestDTO) dmlRequestDTO).getSQL());
+            validateSelect(((SelectQueryRequestDTO) dmlRequestDTO).getSql());
             return;
         }
         throw new IllegalArgumentException("validation 미구현 requestDto");
@@ -36,7 +36,7 @@ public class DMLController {
     public SelectQueryResponseDTO select(@TargetDatabase DatabaseConnectionInfo databaseConnectionInfo,
                                          @RequestBody SelectQueryRequestDTO dmlRequestDTO,
                                          String slackUserId) {
-        validateSelect(dmlRequestDTO.getSQL());
+        validateSelect(dmlRequestDTO.getSql());
         String resultJson = dmlService.select(databaseConnectionInfo, dmlRequestDTO);
 
         return new SelectQueryResponseDTO(slackUserId,
