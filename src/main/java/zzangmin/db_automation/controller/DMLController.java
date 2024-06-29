@@ -50,7 +50,7 @@ public class DMLController {
         try {
             Statement statement = CCJSqlParserUtil.parse(selectSQL);
             if (statement instanceof Select) {
-                throw new IllegalArgumentException("Invalid SQL !");
+                return;
             } else {
                 throw new IllegalArgumentException("Select 가 아닙니다 !");
             }
