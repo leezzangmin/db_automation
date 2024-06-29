@@ -1,4 +1,4 @@
-package zzangmin.db_automation.slackview;
+package zzangmin.db_automation.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;

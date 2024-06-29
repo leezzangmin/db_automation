@@ -1,4 +1,4 @@
-package zzangmin.db_automation.slackview.globalpage;
+package zzangmin.db_automation.view.globalpage;
 
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;
@@ -14,9 +14,9 @@ import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.DescribeService;
 import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.SlackConstants;
-import zzangmin.db_automation.slackview.BlockPage;
+import zzangmin.db_automation.view.BasicBlockFactory;
+import zzangmin.db_automation.view.SlackConstants;
+import zzangmin.db_automation.view.BlockPage;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -28,10 +28,10 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.SlackRequestHandler;
-import zzangmin.db_automation.slackview.globalpage.SelectCommandBlocks;
-import zzangmin.db_automation.slackview.SlackConstants;
+import zzangmin.db_automation.view.BasicBlockFactory;
+import zzangmin.db_automation.view.SlackRequestHandler;
+import zzangmin.db_automation.view.globalpage.SelectCommandBlocks;
+import zzangmin.db_automation.view.SlackConstants;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;

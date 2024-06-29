@@ -1,4 +1,4 @@
-package zzangmin.db_automation.slackview;
+package zzangmin.db_automation.view;
 
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.OptionObject;

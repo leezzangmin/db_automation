@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.slackview.SlackConstants;
+import zzangmin.db_automation.view.SlackConstants;
 import zzangmin.db_automation.util.JsonUtil;
 
 import javax.net.ssl.SSLHandshakeException;

@@ -1,4 +1,4 @@
-package zzangmin.db_automation.slackview.accountpage;
+package zzangmin.db_automation.view.accountpage;
 
 import com.slack.api.model.block.ActionsBlock;
 import com.slack.api.model.block.LayoutBlock;
@@ -14,10 +14,10 @@ import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.account.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
-import zzangmin.db_automation.slackview.BasicBlockFactory;
-import zzangmin.db_automation.slackview.SlackConstants;
-import zzangmin.db_automation.slackview.BlockPage;
-import zzangmin.db_automation.slackview.globalpage.SelectClusterSchemaTableBlocks;
+import zzangmin.db_automation.view.BasicBlockFactory;
+import zzangmin.db_automation.view.SlackConstants;
+import zzangmin.db_automation.view.BlockPage;
+import zzangmin.db_automation.view.globalpage.SelectClusterSchemaTableBlocks;
 
 import java.util.ArrayList;
 import java.util.List;
