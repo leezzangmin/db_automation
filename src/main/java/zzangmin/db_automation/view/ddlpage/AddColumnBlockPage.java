@@ -1,4 +1,4 @@
-package zzangmin.db_automation.view.commandpage;
+package zzangmin.db_automation.view.ddlpage;
 
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.composition.OptionObject;
