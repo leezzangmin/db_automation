@@ -18,16 +18,10 @@ import java.util.Map;
 public class DMLService {
 
     private final MysqlClient mysqlClient;
-    private final ObjectMapper objectMapper;
 
-    public String select(DatabaseConnectionInfo databaseConnectionInfo, SelectQueryRequestDTO selectQueryRequestDTO) {
+
+    public List<Map<String, Object>> select(DatabaseConnectionInfo databaseConnectionInfo, SelectQueryRequestDTO selectQueryRequestDTO) {
         List<Map<String, Object>> result = mysqlClient.executeSelectQuery(databaseConnectionInfo, selectQueryRequestDTO.toSQL());
-        try {
-            objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
-            return objectMapper.writeValueAsString(result);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error converting result to JSON", e);
-        }
+        return result;
     }
 }

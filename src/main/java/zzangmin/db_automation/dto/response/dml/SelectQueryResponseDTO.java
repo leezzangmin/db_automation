@@ -11,5 +11,6 @@ public class SelectQueryResponseDTO {
     private String executeDoer;
     private String databaseInstanceName;
     private String schemaName;
+    private int recordCount;
     private String resultJson;
 }
