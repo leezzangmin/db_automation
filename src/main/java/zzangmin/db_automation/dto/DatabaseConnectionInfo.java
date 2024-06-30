@@ -11,7 +11,6 @@ public class DatabaseConnectionInfo {
 
     private String environment; // ex) dev, stage, prod, alpha, beta, local, on-prem, test
     private String accountId; // (AWS) account ID
-    @Getter
     private String serviceName; // ex) order, cart, event, etc..
     private DatabaseType databaseType; // cluster, instance, serverless, on-premise
     private String databaseName; // db identifier
