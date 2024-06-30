@@ -48,7 +48,7 @@ public class ViewDifferenceChecker {
 
     public void saveViews(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) throws Exception {
         log.info("database: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("serviceName: {}", serviceName);
 
         for (String schemaName : schemaNames) {
@@ -62,7 +62,7 @@ public class ViewDifferenceChecker {
     public String compareViewCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         StringBuilder differenceResult = new StringBuilder();
         log.info("compareViewCrossAccount database: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("compareViewCrossAccount serviceName: {}", serviceName);
 
         Map<String, View> prodViews = schemaObjectService.findViews(serviceName, schemaName)

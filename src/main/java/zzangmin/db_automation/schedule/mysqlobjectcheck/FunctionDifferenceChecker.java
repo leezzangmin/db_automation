@@ -54,7 +54,7 @@ public class FunctionDifferenceChecker {
 
     public void saveFunctions(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) throws Exception {
         log.info("database: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("serviceName: {}", serviceName);
 
         for (String schemaName : schemaNames) {
@@ -68,7 +68,7 @@ public class FunctionDifferenceChecker {
     public String compareFunctionCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         StringBuilder differenceResult = new StringBuilder();
         log.info("compareFunctionCrossAccount database: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("compareFunctionCrossAccount serviceName: {}", serviceName);
 
         Map<String, Function> prodFunctions = schemaObjectService.findFunctions(serviceName, schemaName)

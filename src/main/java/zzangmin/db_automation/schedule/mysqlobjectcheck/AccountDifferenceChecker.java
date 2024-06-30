@@ -33,12 +33,12 @@ public class AccountDifferenceChecker {
     public String compareAccountCrossAccount(DatabaseConnectionInfo databaseConnectionInfo) {
         StringBuilder differenceResult = new StringBuilder();
         List<MysqlAccount> sourceMysqlAccounts = mysqlClient.findMysqlAccounts(databaseConnectionInfo);
-        List<MysqlAccount> replicaMysqlAccounts = internalMysqlAccountService.findAccounts(databaseConnectionInfo.findServiceName());
+        List<MysqlAccount> replicaMysqlAccounts = internalMysqlAccountService.findAccounts(databaseConnectionInfo.getServiceName());
         for (MysqlAccount sourceMysqlAccount : sourceMysqlAccounts) {
             if (!isAccountExists(sourceMysqlAccount, replicaMysqlAccounts)) {
                 differenceResult.append(String.format("`%s` 환경, `%s` DB에 `%s` 계정이 존재하지 않습니다.\n",
                         ProfileUtil.CURRENT_ENVIRONMENT_PROFILE,
-                        databaseConnectionInfo.findServiceName(),
+                        databaseConnectionInfo.getServiceName(),
                         sourceMysqlAccount.getUser()));
                 continue;
             }
@@ -47,7 +47,7 @@ public class AccountDifferenceChecker {
             if (sourcePrivileges.size() != replicaPrivileges.size()) {
                 differenceResult.append(String.format("`%s` 환경, `%s` DB에 `%s` 계정 권한 개수가 다릅니다. `%s` <-> `%s`\n",
                         ProfileUtil.CURRENT_ENVIRONMENT_PROFILE,
-                        databaseConnectionInfo.findServiceName(),
+                        databaseConnectionInfo.getServiceName(),
                         sourceMysqlAccount.getUser(),
                         sourcePrivileges.size(),
                         replicaPrivileges.size()));
@@ -56,7 +56,7 @@ public class AccountDifferenceChecker {
                 if (!isPrivilegeExists(sourcePrivilege, replicaPrivileges)) {
                     differenceResult.append(String.format("`%s` 환경, `%s` DB, `%s` 계정에 `%s` TO %s.%s 권한이 존재하지 않습니다.\n",
                             ProfileUtil.CURRENT_ENVIRONMENT_PROFILE,
-                            databaseConnectionInfo.findServiceName(),
+                            databaseConnectionInfo.getServiceName(),
                             sourceMysqlAccount.getUser(),
                             sourcePrivilege.getPermissionType(),
                             sourcePrivilege.getDatabaseName(),

@@ -51,7 +51,7 @@ public class ProcedureDifferenceChecker {
 
     public void saveProcedures(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) throws Exception {
         log.info("database: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("serviceName: {}", serviceName);
 
         for (String schemaName : schemaNames) {
@@ -65,7 +65,7 @@ public class ProcedureDifferenceChecker {
     public String compareProcedureCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         StringBuilder differenceResult = new StringBuilder();
         log.info("compareProcedureCrossAccount database: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("compareProcedureCrossAccount serviceName: {}", serviceName);
 
         Map<String, Procedure> prodProcedures = schemaObjectService.findProcedures(serviceName, schemaName)

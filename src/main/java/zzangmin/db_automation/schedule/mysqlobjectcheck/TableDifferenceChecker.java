@@ -50,7 +50,7 @@ public class TableDifferenceChecker {
 
     public void saveTable(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) throws Exception {
         log.info("database: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("serviceName: {}", serviceName);
 
         for (String schemaName : schemaNames) {
@@ -64,7 +64,7 @@ public class TableDifferenceChecker {
     public String compareTableCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         StringBuilder differenceResult = new StringBuilder();
         log.info("compareTableCrossAccount database: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("compareTableCrossAccount serviceName: {}", serviceName);
         List<String> currentTableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
 

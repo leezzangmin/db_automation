@@ -463,7 +463,7 @@ public class MysqlClient {
                 String user = resultSet.getString("User");
                 String host = resultSet.getString("Host");
                 MysqlAccount mysqlAccount = MysqlAccount.builder()
-                        .serviceName(databaseConnectionInfo.findServiceName())
+                        .serviceName(databaseConnectionInfo.getServiceName())
                         .user(user)
                         .host(host)
                         .build();

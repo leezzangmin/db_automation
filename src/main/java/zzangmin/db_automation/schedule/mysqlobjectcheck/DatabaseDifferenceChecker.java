@@ -54,7 +54,7 @@ public class DatabaseDifferenceChecker {
 
     public String compareDatabaseCrossAccount(DatabaseConnectionInfo databaseConnectionInfo) {
         StringBuilder differenceResult = new StringBuilder();
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         Map<String, String> prodDatabases = schemaObjectService.findDatabases(serviceName);
         log.info("prodDatabases: {}, \nprodDatabaseKeys: {}", prodDatabases, prodDatabases.keySet());
         Map<String, String> currentDatabases = mysqlClient.findSchemaNames(databaseConnectionInfo)
@@ -82,7 +82,7 @@ public class DatabaseDifferenceChecker {
 
     public void saveDatabase(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) throws Exception {
         log.info("saveDatabase: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("serviceName: {}", serviceName);
         Map<String, String> schemaCreateStatements = schemaNames.stream()
                 .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))

@@ -52,7 +52,7 @@ public class TriggerDifferenceChecker {
 
     public void saveTriggers(DatabaseConnectionInfo databaseConnectionInfo, List<String> schemaNames) throws Exception {
         log.info("database: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("serviceName: {}", serviceName);
 
         for (String schemaName : schemaNames) {
@@ -66,7 +66,7 @@ public class TriggerDifferenceChecker {
     public String compareTriggerCrossAccount(DatabaseConnectionInfo databaseConnectionInfo, String schemaName) {
         StringBuilder differenceResult = new StringBuilder();
         log.info("compareTriggerCrossAccount database: {}", databaseConnectionInfo);
-        String serviceName = databaseConnectionInfo.findServiceName();
+        String serviceName = databaseConnectionInfo.getServiceName();
         log.info("compareTriggerCrossAccount serviceName: {}", serviceName);
 
         Map<String, Trigger> prodTriggers = schemaObjectService.findTriggers(serviceName, schemaName)
