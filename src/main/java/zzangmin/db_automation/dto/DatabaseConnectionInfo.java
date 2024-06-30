@@ -16,7 +16,8 @@ public class DatabaseConnectionInfo {
     private DatabaseType databaseType; // cluster, instance, serverless, on-premise
     private String databaseName; // db identifier
     private String driverClassName;
-    private String url;
+    private String writerEndpoint;
+    private String readerEndpoint;
     private String username;
     private String password;
 
@@ -28,7 +29,7 @@ public class DatabaseConnectionInfo {
     }
 
     public String databaseSummary() {
-        return this.databaseName + " (" + this.url + ")\n";
+        return this.databaseName + " (" + this.writerEndpoint + ")\n";
     }
 
 }
