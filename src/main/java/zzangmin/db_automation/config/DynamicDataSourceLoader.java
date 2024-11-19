@@ -25,6 +25,9 @@ public class DynamicDataSourceLoader {
     private final DynamicDataSourceProperties dynamicDataSourceProperties;
     private final AwsService awsService;
 
+    private final static String DRIVER_CLASS_NAME = "com.mysql.cj.jdbc.Driver";
+    private final static String ENDPOINT_DRIVER_PREFIX = "jdbc:mysql://";
+
     @PostConstruct
     public void loadDynamicDataSources() {
         Map<String, List<DBCluster>> clusters = awsService.findAllClusterInfo();
@@ -57,8 +60,9 @@ public class DynamicDataSourceLoader {
                         .serviceName(serviceNameTag.value())
                         .databaseType(DatabaseConnectionInfo.DatabaseType.CLUSTER)
                         .databaseName(dbName)
-                        .driverClassName("com.mysql.cj.jdbc.Driver")
-                        .url("jdbc:mysql://" + accountCluster.endpoint())
+                        .driverClassName(DRIVER_CLASS_NAME)
+                        .writerEndpoint(ENDPOINT_DRIVER_PREFIX + accountCluster.endpoint())
+                        .readerEndpoint(ENDPOINT_DRIVER_PREFIX + accountCluster.readerEndpoint())
                         .username(rdsUsername)
                         .password(password)
                         .build();
@@ -93,8 +97,9 @@ public class DynamicDataSourceLoader {
                         .serviceName(serviceNameTag.value())
                         .databaseType(DatabaseConnectionInfo.DatabaseType.INSTANCE)
                         .databaseName(dbName)
-                        .driverClassName("com.mysql.cj.jdbc.Driver")
-                        .url("jdbc:mysql://" + accountInstance.endpoint().address())
+                        .driverClassName(DRIVER_CLASS_NAME)
+                        .writerEndpoint(ENDPOINT_DRIVER_PREFIX + accountInstance.endpoint().address())
+                        .readerEndpoint(ENDPOINT_DRIVER_PREFIX + accountInstance.endpoint().address())
                         .username(rdsUsername)
                         .password(password)
                         .build();

@@ -20,7 +20,7 @@ public class MysqlClient {
     public void executeSQL(DatabaseConnectionInfo databaseConnectionInfo, String SQL) {
         log.info("SQL: {}", SQL);
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getWriterEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
             log.info("executeSQL: {}", statement);
             statement.setQueryTimeout(COMMAND_TIMEOUT_SECONDS);
@@ -35,7 +35,7 @@ public class MysqlClient {
         List<Map<String, Object>> result = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(sql);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -66,7 +66,7 @@ public class MysqlClient {
         String variableString = "('" + String.join("','", variableNames) + "')";
         SQL += variableString;
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             log.info("findGlobalVariables: {}", statement);
@@ -90,7 +90,7 @@ public class MysqlClient {
         String componentSQL = "SELECT component_urn FROM mysql.COMPONENT";
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword())) {
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword())) {
 
             try (PreparedStatement pluginStatement = connection.prepareStatement(pluginSQL);
                  ResultSet pluginResultSet = pluginStatement.executeQuery()) {
@@ -122,7 +122,7 @@ public class MysqlClient {
         List<String> tableNames = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             statement.setString(1, schemaName);
@@ -144,7 +144,7 @@ public class MysqlClient {
         List<String> schemaNames = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(SQL)) {
             log.info("findSchemaNames: {}", SQL);
@@ -166,7 +166,7 @@ public class MysqlClient {
         List<MysqlProcess> longQueries = new ArrayList<>();
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                    databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
 
             Statement statement = connection.createStatement();
             log.info("findLongQueries: {}", statement);
@@ -195,7 +195,7 @@ public class MysqlClient {
         String createDatabaseStatement = "";
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(),
+                databaseConnectionInfo.getReaderEndpoint(),
                 databaseConnectionInfo.getUsername(),
                 databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL);
@@ -217,7 +217,7 @@ public class MysqlClient {
         String createTableStatement = "";
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(),
+                databaseConnectionInfo.getReaderEndpoint(),
                 databaseConnectionInfo.getUsername(),
                 databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL);
@@ -239,7 +239,7 @@ public class MysqlClient {
                 "FROM INFORMATION_SCHEMA.TABLES " +
                 "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
             statement.setString(1, schemaName);
             statement.setString(2, tableName);
@@ -273,7 +273,7 @@ public class MysqlClient {
 
         List<TableStatus> tableStatuses = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
             statement.setString(1, schemaName);
             log.info("findTableStatuses: {}", statement);
@@ -306,7 +306,7 @@ public class MysqlClient {
                 "WHERE TABLE_SCHEMA = '" + schemaName + "' AND TABLE_NAME = '" + tableName + "' ORDER BY INDEX_NAME, SEQ_IN_INDEX";
         try {
             Connection connection = DriverManager.getConnection(
-                    databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                    databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
 
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(SQL);
@@ -359,7 +359,7 @@ public class MysqlClient {
         List<Column> columns = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             statement.setString(1, schemaName);
@@ -407,7 +407,7 @@ public class MysqlClient {
                 "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?";
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             statement.setString(1, schemaName);
@@ -455,7 +455,7 @@ public class MysqlClient {
         String SQL = "SELECT USER,HOST FROM mysql.user";
         List<MysqlAccount> mysqlAccounts = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -483,7 +483,7 @@ public class MysqlClient {
         List<String> privileges = new ArrayList<>();
         String showGrantsQuery = "SHOW GRANTS FOR " + accountName;
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(showGrantsQuery)) {
             log.info("findPrivilegeString: {}", statement);
 
@@ -548,7 +548,7 @@ public class MysqlClient {
 
         List<MetadataLockHolder> metadataLockHolders = new ArrayList<>();
 
-        try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+        try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL);
              ResultSet resultSet = statement.executeQuery()) {
 
@@ -574,7 +574,7 @@ public class MysqlClient {
 
     public void killSession(DatabaseConnectionInfo databaseConnectionInfo, long sessionId) {
         String SQL = "KILL " + sessionId;
-        try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(),
+        try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getReaderEndpoint(),
                 databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              Statement statement = connection.createStatement()) {
             statement.executeUpdate(SQL);
@@ -587,7 +587,7 @@ public class MysqlClient {
     public Optional<MysqlProcess> findDDLExecutingSession(DatabaseConnectionInfo databaseConnectionInfo) {
         String SQL = "SELECT * FROM INFORMATION_SCHEMA.PROCESSLIST WHERE COMMAND = 'Query' AND INFO LIKE 'ALTER%' OR INFO LIKE 'CREATE%' OR INFO LIKE 'DROP%'";
         Optional<MysqlProcess> mysqlProcesses = Optional.empty();
-        try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getUrl(),
+        try (Connection connection = DriverManager.getConnection(databaseConnectionInfo.getReaderEndpoint(),
                 databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL);
              ResultSet resultSet = statement.executeQuery()) {
@@ -614,7 +614,7 @@ public class MysqlClient {
         List<String> functionNames = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             statement.setString(1, schemaName);
@@ -649,7 +649,7 @@ public class MysqlClient {
         List<Function> functions = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             statement.setString(1, schemaName);
@@ -699,7 +699,7 @@ public class MysqlClient {
         List<Procedure> procedures = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             statement.setString(1, schemaName);
@@ -747,7 +747,7 @@ public class MysqlClient {
         List<Trigger> triggers = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             statement.setString(1, schemaName);
@@ -790,7 +790,7 @@ public class MysqlClient {
         List<View> views = new ArrayList<>();
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
 
             statement.setString(1, schemaName);
@@ -813,7 +813,6 @@ public class MysqlClient {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
-
         return views;
     }
 
@@ -838,7 +837,7 @@ public class MysqlClient {
         findIndexSQL += tableNamesStr;
 
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(findTableAndColumnSQL)) {
 
             statement.setString(1, schemaName);
@@ -940,11 +939,9 @@ public class MysqlClient {
                     }
                 }
 
-
             } catch (SQLException e) {
                 throw new RuntimeException(e.getMessage());
             }
-
             for (String tableName : tables.keySet()) {
                 Table table = tables.get(tableName);
                 table.addColumns(tableColumns.get(tableName));
@@ -955,7 +952,6 @@ public class MysqlClient {
                                 .stream()
                                 .toList());
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
@@ -971,7 +967,7 @@ public class MysqlClient {
                 "ORDER BY PROCESSLIST_TIME DESC limit 1;";
         int processlistId = -1;
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(SQL)) {
             log.info("findLongTransactionProcesslistId: {}", SQL);
@@ -1009,7 +1005,7 @@ public class MysqlClient {
 
         List<Query> queries = new ArrayList();
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
             statement.setString(1, String.valueOf(processlistId));
             log.info("findQueryInTransaction: {}", statement);
@@ -1035,7 +1031,7 @@ public class MysqlClient {
         String SQL = "SELECT COUNT FROM INFORMATION_SCHEMA.INNODB_METRICS WHERE NAME = 'trx_rseg_history_len'";
         long historyListLength = -1L;
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              Statement statement = connection.createStatement();
              ResultSet resultSet = statement.executeQuery(SQL)) {
             log.info("findHistoryListLength: {}", SQL);
@@ -1056,7 +1052,7 @@ public class MysqlClient {
         log.info("health check start: {}", databaseConnectionInfo.getDatabaseName());
         String SQL = "SELECT 1 FROM DUAL";
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
             log.info("healthCheck: {}", statement);
             statement.setQueryTimeout(HEALTHCHECK_TIMEOUT_SECONDS);
