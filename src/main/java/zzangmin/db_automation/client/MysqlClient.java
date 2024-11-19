@@ -927,7 +927,6 @@ public class MysqlClient {
                     } else {
                         tableConstraints.put(tableName, new HashMap<>(Map.of(indexName, constraint)));
                     }
-
                 }
 
                 for (String tableName : keyColumnNames.keySet()) {

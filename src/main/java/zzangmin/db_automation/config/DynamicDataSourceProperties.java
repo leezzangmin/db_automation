@@ -24,7 +24,7 @@ public class DynamicDataSourceProperties {
     private static Map<String, DatabaseConnectionInfo> databases = new ConcurrentHashMap<>();
 
     public static DatabaseConnectionInfo findByDbIdentifier(String dbIdentifier) {
-        if (dbIdentifier == null || dbIdentifier == "") {
+        if (dbIdentifier == null || dbIdentifier.isEmpty()) {
             throw new IllegalArgumentException("DBMS identifier 가 제공되지 않았습니다.");
         }
         return databases.get(dbIdentifier);
@@ -84,7 +84,7 @@ public class DynamicDataSourceProperties {
     }
 
     public void validateDatabases() {
-        if (databases.values().size() == 0) {
+        if (databases.values().isEmpty()) {
             throw new IllegalStateException("로드한 대상 DB가 없습니다.");
         }
         for (DatabaseConnectionInfo databaseConnectionInfo : databases.values()) {

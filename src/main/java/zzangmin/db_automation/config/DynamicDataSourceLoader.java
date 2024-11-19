@@ -12,6 +12,7 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +34,66 @@ public class DynamicDataSourceLoader {
         Map<String, List<DBCluster>> clusters = awsService.findAllClusterInfo();
         Map<String, List<DBInstance>> instances = awsService.findAllInstanceInfo();
 
+        Map<String, DatabaseConnectionInfo> clusterMap = loadAwsClusters(clusters);
+        Map<String, DatabaseConnectionInfo> instanceMap = loadAwsInstances(instances);
+        Map<String, DatabaseConnectionInfo> dbMap = loadIdcInstances();
+
+        clusterMap.forEach(dynamicDataSourceProperties::addDatabase);
+        instanceMap.forEach(dynamicDataSourceProperties::addDatabase);
+        dbMap.forEach(dynamicDataSourceProperties::addDatabase);
+
+        dynamicDataSourceProperties.validateDatabases();
+        dynamicDataSourceProperties.logDatabases();
+    }
+
+    private Map<String, DatabaseConnectionInfo> loadIdcInstances() {
+        Map<String, DatabaseConnectionInfo> dbMap = new HashMap<>();
+
+        return dbMap;
+    }
+
+    private Map<String, DatabaseConnectionInfo> loadAwsInstances(Map<String, List<DBInstance>> instances) {
+        Map<String, DatabaseConnectionInfo> instanceMap = new HashMap<>();
+        for (String accountId : instances.keySet()) {
+            List<DBInstance> accountInstances = instances.get(accountId);
+            for (DBInstance accountInstance : accountInstances) {
+                String dbName = accountInstance.dbInstanceIdentifier();
+                List<Tag> tags = accountInstance.tagList();
+                if (!isValidTags(dbName, tags)) {
+                    continue;
+                }
+                Tag serviceNameTag = tags.stream()
+                        .filter(tag -> tag.key().equals(TagStandard.SERVICE_TAG_KEY_NAME))
+                        .findFirst()
+                        .orElseThrow(IllegalStateException::new);
+                Tag environmentTag = tags.stream()
+                        .filter(tag -> tag.key().equals(TagStandard.ENVIRONMENT_TAG_KEY_NAME))
+                        .findFirst()
+                        .orElseThrow(IllegalStateException::new);
+
+                String rdsUsername = awsService.findRdsUsername(accountId, serviceNameTag.value(), environmentTag.value());
+                String password = awsService.findRdsPassword(accountId, serviceNameTag.value(), environmentTag.value());
+
+                DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
+                        .environment(environmentTag.value())
+                        .accountId(accountId)
+                        .serviceName(serviceNameTag.value())
+                        .databaseType(DatabaseConnectionInfo.DatabaseType.INSTANCE)
+                        .databaseName(dbName)
+                        .driverClassName(DRIVER_CLASS_NAME)
+                        .writerEndpoint(ENDPOINT_DRIVER_PREFIX + accountInstance.endpoint().address())
+                        .readerEndpoint(ENDPOINT_DRIVER_PREFIX + accountInstance.endpoint().address())
+                        .username(rdsUsername)
+                        .password(password)
+                        .build();
+                instanceMap.put(dbName, databaseConnectionInfo);
+            }
+        }
+        return instanceMap;
+    }
+
+    private Map<String, DatabaseConnectionInfo> loadAwsClusters(Map<String, List<DBCluster>> clusters) {
+        Map<String, DatabaseConnectionInfo> clusterMap = new HashMap<>();
         for (String accountId : clusters.keySet()) {
             List<DBCluster> accountClusters = clusters.get(accountId);
             for (DBCluster accountCluster : accountClusters) {
@@ -66,49 +127,10 @@ public class DynamicDataSourceLoader {
                         .username(rdsUsername)
                         .password(password)
                         .build();
-
-                dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
+                clusterMap.put(dbName, databaseConnectionInfo);
             }
         }
-
-        for (String accountId : instances.keySet()) {
-            List<DBInstance> accountInstances = instances.get(accountId);
-            for (DBInstance accountInstance : accountInstances) {
-                String dbName = accountInstance.dbInstanceIdentifier();
-                List<Tag> tags = accountInstance.tagList();
-                if (!isValidTags(dbName, tags)) {
-                    continue;
-                }
-                Tag serviceNameTag = tags.stream()
-                        .filter(tag -> tag.key().equals(TagStandard.SERVICE_TAG_KEY_NAME))
-                        .findFirst()
-                        .orElseThrow(IllegalStateException::new);
-                Tag environmentTag = tags.stream()
-                        .filter(tag -> tag.key().equals(TagStandard.ENVIRONMENT_TAG_KEY_NAME))
-                        .findFirst()
-                        .orElseThrow(IllegalStateException::new);
-
-                String rdsUsername = awsService.findRdsUsername(accountId, serviceNameTag.value(), environmentTag.value());
-                String password = awsService.findRdsPassword(accountId, serviceNameTag.value(), environmentTag.value());
-
-                DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
-                        .environment(environmentTag.value())
-                        .accountId(accountId)
-                        .serviceName(serviceNameTag.value())
-                        .databaseType(DatabaseConnectionInfo.DatabaseType.INSTANCE)
-                        .databaseName(dbName)
-                        .driverClassName(DRIVER_CLASS_NAME)
-                        .writerEndpoint(ENDPOINT_DRIVER_PREFIX + accountInstance.endpoint().address())
-                        .readerEndpoint(ENDPOINT_DRIVER_PREFIX + accountInstance.endpoint().address())
-                        .username(rdsUsername)
-                        .password(password)
-                        .build();
-                dynamicDataSourceProperties.addDatabase(dbName, databaseConnectionInfo);
-            }
-        }
-
-        dynamicDataSourceProperties.validateDatabases();
-        dynamicDataSourceProperties.logDatabases();
+        return clusterMap;
     }
 
     private boolean isValidTags(String dbName, List<Tag> tags) {

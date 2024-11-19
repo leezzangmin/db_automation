@@ -73,7 +73,7 @@ public class CommonConvention {
     );
 
     public static void validateSnakeCase(String str) {
-        if (str == null || str == "" || str == " ") {
+        if (str == null || str.isEmpty() || str.equals(" ")) {
             throw new IllegalArgumentException("문자열이 null 입니다.");
         }
         if (!SNAKE_CASE_PATTERN.matcher(str).matches()) {
@@ -82,7 +82,7 @@ public class CommonConvention {
     }
 
     public static void validateLowerCaseString(String str) {
-        if (str == null || str == "" || str == " ") {
+        if (str == null || str.isEmpty() || str.equals(" ")) {
             throw new IllegalArgumentException("문자열이 null 입니다.");
         }
         if (!PURE_LOWER_CASE_PATTER.matcher(str).matches()) {
@@ -91,7 +91,7 @@ public class CommonConvention {
     }
 
     public static void validateReservedWord(String str) {
-        if (str == null || str == "" || str == " ") {
+        if (str == null || str.isEmpty() || str.equals(" ")) {
             throw new IllegalArgumentException("문자열이 null 입니다.");
         }
         if (MYSQL_RESERVED_WORDS.contains(str)) {

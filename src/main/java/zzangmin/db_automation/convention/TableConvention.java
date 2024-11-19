@@ -32,9 +32,7 @@ public class TableConvention {
     }
 
     private static void checkNamingConvention(Set<Column> columns, Set<Constraint> constraints, String tableName) {
-        CommonConvention.validateReservedWord(tableName);
-        CommonConvention.validateSnakeCase(tableName);
-        CommonConvention.validateLowerCaseString(tableName);
+        ColumnConvention.validateColumnNamingConvention(tableName);
         for (Column column : columns) {
             CommonConvention.validateReservedWord(column.getName());
             CommonConvention.validateSnakeCase(column.getName());
