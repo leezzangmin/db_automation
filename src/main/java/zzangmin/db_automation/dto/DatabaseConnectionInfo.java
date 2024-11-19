@@ -17,6 +17,7 @@ public class DatabaseConnectionInfo {
     private String driverClassName;
     private String writerEndpoint;
     private String readerEndpoint;
+    private int port;
     private String username;
     private String password;
 

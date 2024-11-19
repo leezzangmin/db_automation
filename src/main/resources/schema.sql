@@ -50,3 +50,17 @@ CREATE TABLE IF NOT EXISTS back_office.mysql_account_privilege(
     object_name varchar(255) not null comment '대상 object(table,view,function,trigger,procedure 등) 이름',
     permission_type varchar(255) not null comment '권한 타입 (SELECT, INSERT, UPDATE, DELETE, ALL, USAGE 등)'
 );
+
+CREATE TABLE IF NOT EXISTS back_office.monitor_target_db(
+    id bigint primary key auto_increment comment '아이디',
+    environment varchar(64) not null comment '환경 (dev,stage,prod)',
+    service_name varchar(64) not null comment '서비스명(도메인명)',
+    database_type varchar(64) not null comment '데이터베이스 타입(cluster, instance, serverless, onprem 등',
+    database_name varchar(255) not null comment '데이터베이스 identifier',
+    database_driver varchar(255) not null comment '데이터베이스 드라이버클래스명 ex(jdbc)',
+    writer_endpoint varchar(255) not null comment '데이터베이스 write/read url',
+    reader_endpoint varchar(255) not null comment '데이터베이스 read url',
+    port int not null comment '데이터베이스 포트 ex.3306',
+    username varchar(64) not null comment '모니터링 DB 유저 계정명',
+    password varchar(64) not null comment '모니터링 DB 유저 패스워드'
+);
