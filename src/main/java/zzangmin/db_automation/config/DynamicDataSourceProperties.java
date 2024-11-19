@@ -2,10 +2,11 @@ package zzangmin.db_automation.config;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
+import zzangmin.db_automation.service.DataSourceService;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,8 +21,17 @@ import java.util.stream.Collectors;
 public class DynamicDataSourceProperties {
 
     private final MysqlClient mysqlClient;
+    private final DataSourceService dataSourceService;
 
     private static Map<String, DatabaseConnectionInfo> databases = new ConcurrentHashMap<>();
+
+    // @Scheduled(fixedDelay = 10000)
+    public void syncMonitorTargetDatabases() {
+        List<DatabaseConnectionInfo> monitorTargetDbs = dataSourceService.findMonitorTargetDbs();
+        this.databases.clear();
+
+        monitorTargetDbs.forEach(db -> {addDatabase(db.getDatabaseName(), db);});
+    }
 
     public static DatabaseConnectionInfo findByDbIdentifier(String dbIdentifier) {
         if (dbIdentifier == null || dbIdentifier.isEmpty()) {
@@ -95,6 +105,5 @@ public class DynamicDataSourceProperties {
             }
         }
     }
-
 
 }

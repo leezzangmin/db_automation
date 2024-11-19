@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.entity.MonitorTargetDb;
 import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
@@ -36,20 +37,20 @@ public class DynamicDataSourceLoader {
 
         Map<String, DatabaseConnectionInfo> clusterMap = loadAwsClusters(clusters);
         Map<String, DatabaseConnectionInfo> instanceMap = loadAwsInstances(instances);
-        Map<String, DatabaseConnectionInfo> dbMap = loadIdcInstances();
+        Map<String, DatabaseConnectionInfo> onPremiseMap = loadOnPremiseInstances();
 
         clusterMap.forEach(dynamicDataSourceProperties::addDatabase);
         instanceMap.forEach(dynamicDataSourceProperties::addDatabase);
-        dbMap.forEach(dynamicDataSourceProperties::addDatabase);
+        onPremiseMap.forEach(dynamicDataSourceProperties::addDatabase);
 
         dynamicDataSourceProperties.validateDatabases();
         dynamicDataSourceProperties.logDatabases();
     }
 
-    private Map<String, DatabaseConnectionInfo> loadIdcInstances() {
-        Map<String, DatabaseConnectionInfo> dbMap = new HashMap<>();
+    private Map<String, DatabaseConnectionInfo> loadOnPremiseInstances() {
+        Map<String, DatabaseConnectionInfo> onPremiseMap = new HashMap<>();
 
-        return dbMap;
+        return onPremiseMap;
     }
 
     private Map<String, DatabaseConnectionInfo> loadAwsInstances(Map<String, List<DBInstance>> instances) {
@@ -78,7 +79,7 @@ public class DynamicDataSourceLoader {
                         .environment(environmentTag.value())
                         .accountId(accountId)
                         .serviceName(serviceNameTag.value())
-                        .databaseType(DatabaseConnectionInfo.DatabaseType.INSTANCE)
+                        .databaseType(MonitorTargetDb.DatabaseType.INSTANCE)
                         .databaseName(dbName)
                         .driverClassName(DRIVER_CLASS_NAME)
                         .writerEndpoint(ENDPOINT_DRIVER_PREFIX + accountInstance.endpoint().address())
@@ -119,7 +120,7 @@ public class DynamicDataSourceLoader {
                         .environment(environmentTag.value())
                         .accountId(accountId)
                         .serviceName(serviceNameTag.value())
-                        .databaseType(DatabaseConnectionInfo.DatabaseType.CLUSTER)
+                        .databaseType(MonitorTargetDb.DatabaseType.CLUSTER)
                         .databaseName(dbName)
                         .driverClassName(DRIVER_CLASS_NAME)
                         .writerEndpoint(ENDPOINT_DRIVER_PREFIX + accountCluster.endpoint())
