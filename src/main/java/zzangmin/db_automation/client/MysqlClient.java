@@ -1051,7 +1051,7 @@ public class MysqlClient {
         log.info("health check start: {}", databaseConnectionInfo.getDatabaseName());
         String SQL = "SELECT 1 FROM DUAL";
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.getReaderEndpoint(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                "jdbc:mysql://" + databaseConnectionInfo.getReaderEndpoint() + ":" + databaseConnectionInfo.getPort(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
             log.info("healthCheck: {}", statement);
             statement.setQueryTimeout(HEALTHCHECK_TIMEOUT_SECONDS);
