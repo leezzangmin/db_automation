@@ -57,26 +57,33 @@ public class DDLValidator {
         validateIsSchemaExists(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+            rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        }
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
     public void validateAddColumn(DatabaseConnectionInfo databaseConnectionInfo, AddColumnRequestDTO addColumnRequestDTO) {
         validateAddColumnHasAutoIncrementOption(addColumnRequestDTO.getColumn());
         ColumnConvention.validateColumnConvention(addColumnRequestDTO.getColumn());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());        tableStatusValidator.validateTableSize(databaseConnectionInfo, addColumnRequestDTO.getSchemaName(), addColumnRequestDTO.getTableName());
+        tableStatusValidator.validateTableSize(databaseConnectionInfo, addColumnRequestDTO.getSchemaName(), addColumnRequestDTO.getTableName());
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+            rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        }
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
     public void validateCreateIndex(DatabaseConnectionInfo databaseConnectionInfo, CreateIndexRequestDTO createIndexRequestDTO) {
         IndexConvention.validateIndexConvention(createIndexRequestDTO.toConstraint());
+        validateCreateIndexType(createIndexRequestDTO.getIndexType());
         validateIsSchemaExists(databaseConnectionInfo, createIndexRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
         validateIsIndexExists(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName(), createIndexRequestDTO.getColumnNames());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+            rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        }
         validateIsLongQueryExists(databaseConnectionInfo);
-        validateCreateIndexType(createIndexRequestDTO.getIndexType());
     }
 
     public void validateExtendVarchar(DatabaseConnectionInfo databaseConnectionInfo, ExtendVarcharColumnRequestDTO extendVarcharColumnRequestDTO) {
@@ -85,7 +92,9 @@ public class DDLValidator {
         ColumnConvention.validateExtendVarcharConvention(column, extendVarcharColumnRequestDTO.getExtendSize());
         validateIsSchemaExists(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());        validateIsLongQueryExists(databaseConnectionInfo);
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+            rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        }
     }
 
     public void validateCreateTable(DatabaseConnectionInfo databaseConnectionInfo, CreateTableRequestDTO createTableRequestDTO) {
@@ -93,7 +102,9 @@ public class DDLValidator {
         TableConvention.validateTableConvention(table);
         validateIsSchemaExists(databaseConnectionInfo, createTableRequestDTO.getSchemaName());
         validateIsNotExistTableName(databaseConnectionInfo, createTableRequestDTO.getSchemaName(), createTableRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+            rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        }
     }
 
     public void validateDeleteColumn(DatabaseConnectionInfo databaseConnectionInfo, DeleteColumnRequestDTO deleteColumnRequestDTO) {
@@ -101,7 +112,9 @@ public class DDLValidator {
         validateIsExistTableName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
         validateIsExistColumnName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName(), deleteColumnRequestDTO.getColumnName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+            rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        }
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
@@ -110,7 +123,9 @@ public class DDLValidator {
         validateIsSchemaExists(databaseConnectionInfo, ddlRequestDTO.getSchemaName());
         validateIsExistColumnName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), ddlRequestDTO.getBeforeColumnName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+            rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        }
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
@@ -122,7 +137,9 @@ public class DDLValidator {
         validateIsExistTableName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getOldTableName());
         validateIsNotExistTableName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getNewTableName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getOldTableName());
-        rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+            rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
+        }
         validateIsLongQueryExists(databaseConnectionInfo);
     }
 
@@ -223,7 +240,7 @@ public class DDLValidator {
     }
 
     private void validateCreateIndexType(String indexType) {
-        if (indexType == null || indexType == "" || indexType == " ") {
+        if (indexType == null || indexType.isEmpty() || indexType.equals(" ")) {
             throw new IllegalArgumentException("인덱스 type 이 null 입니다.");
         }
         if (indexType.equals("KEY") || indexType.equals("UNIQUE")) {
