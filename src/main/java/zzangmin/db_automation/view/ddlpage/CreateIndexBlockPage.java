@@ -137,6 +137,8 @@ public class CreateIndexBlockPage implements BlockPage {
             handleAddColumn(currentBlocks);
         } else if (actionId.equals(SlackConstants.CommandBlockIds.CreateIndex.createIndexRemoveColumnButtonId)) {
             handleRemoveColumn(currentBlocks, values);
+        } else if (actionId.equals(SlackConstants.CommandBlockIds.CreateIndex.findIndexTypeActionId)) {
+          log.info("actionId: {}", actionId);
         } else {
             throw new IllegalArgumentException("미지원 actionId: " + actionId);
         }
