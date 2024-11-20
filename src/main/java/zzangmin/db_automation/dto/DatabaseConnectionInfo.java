@@ -28,6 +28,9 @@ public class DatabaseConnectionInfo {
     }
 
     public String generateReadOnlyConnectionUrl() {
+        if (this.readerEndpoint.startsWith("jdbc:mysql://")) {
+            return this.readerEndpoint;
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("jdbc:mysql://");
         sb.append(this.readerEndpoint);
@@ -38,6 +41,9 @@ public class DatabaseConnectionInfo {
     }
 
     public String generateWriterConnectionUrl() {
+        if (this.writerEndpoint.startsWith("jdbc:mysql://")) {
+            return this.writerEndpoint;
+        }
         StringBuilder sb = new StringBuilder();
         sb.append("jdbc:mysql://");
         sb.append(this.readerEndpoint);
