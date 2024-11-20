@@ -45,7 +45,9 @@ public enum DatabaseRequestCommandGroup {
                     CommandType.SHOW_GRANTS)),
     SESSION("session",
             List.of(CommandType.KILL_SESSION,
-                    CommandType.SHOW_SESSION)),
+                    CommandType.SHOW_SESSION,
+                    CommandType.SHOW_SESSION_QUERIES
+                    )),
     EMPTY("없음",
             List.of(CommandType.EMPTY));
 
@@ -88,6 +90,7 @@ public enum DatabaseRequestCommandGroup {
         SHOW_GRANTS,
         KILL_SESSION,
         SHOW_SESSION,
+        SHOW_SESSION_QUERIES,
         EMPTY
     }
 

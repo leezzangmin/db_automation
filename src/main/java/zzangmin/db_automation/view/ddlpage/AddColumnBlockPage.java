@@ -13,7 +13,7 @@ import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.ddl.AddColumnDDLResponseDTO;
 import zzangmin.db_automation.entity.Column;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.CommonStandard;
+import zzangmin.db_automation.standardvalue.CommonStandard;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPage;

@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.DBCluster;
 import software.amazon.awssdk.services.rds.model.DBInstance;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
+import zzangmin.db_automation.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;

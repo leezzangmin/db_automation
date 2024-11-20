@@ -1,4 +1,4 @@
-package zzangmin.db_automation.schedule.standardcheck.standardvalue;
+package zzangmin.db_automation.standardvalue;
 
 import java.util.HashMap;
 import java.util.List;
@@ -11,14 +11,14 @@ public class AccountStandard {
     public final static String accountHostPercentAllowKey = "accountHostPercentAllow";
 
     // app 계정 허용 권한 목록
-    private final static List<String> applicationAccountAllowedPrivileges = List.of("USAGE",
+    public final static List<String> applicationAccountAllowedPrivileges = List.of("USAGE",
             "SELECT",
             "INSERT",
             "UPDATE",
             "DELETE",
             "EXECUTE");
     // 검사 비대상 계정명 목록
-    private final static List<String> accountBlackList = List.of("rdsadmin",
+    public final static List<String> accountBlackList = List.of("rdsadmin",
             "mysql.infoschema",
             "mysql.sys",
             "mysql.session",

@@ -19,20 +19,19 @@ import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueReques
 import software.amazon.awssdk.services.secretsmanager.model.GetSecretValueResponse;
 import zzangmin.db_automation.client.AwsClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.SecretManagerStandard;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.ParameterGroupStandard;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
+import zzangmin.db_automation.standardvalue.SecretManagerStandard;
+import zzangmin.db_automation.standardvalue.ParameterGroupStandard;
+import zzangmin.db_automation.standardvalue.TagStandard;
 import zzangmin.db_automation.util.ProfileUtil;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static zzangmin.db_automation.schedule.standardcheck.standardvalue.SecretManagerStandard.DB_CREDENTIAL_POSTPIX;
+import static zzangmin.db_automation.standardvalue.SecretManagerStandard.DB_CREDENTIAL_POSTPIX;
 
 @Slf4j
 @RequiredArgsConstructor

@@ -3,7 +3,7 @@ package zzangmin.db_automation.schedule.standardcheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.DBInstance;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.InstanceCreationStandard;
+import zzangmin.db_automation.standardvalue.InstanceCreationStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;

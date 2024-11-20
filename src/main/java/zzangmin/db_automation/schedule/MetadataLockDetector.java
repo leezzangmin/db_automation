@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.entity.MetadataLockHolder;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.standardvalue.LongQueryStandard;
 
 import java.util.List;
 import java.util.Map;
@@ -17,8 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MetadataLockDetector {
 
     private Map<String, DatabaseConnectionInfo> targetDatabases = new ConcurrentHashMap<>();
-    private static final int METADATA_LOCK_THRESHOLD_SECONDS = 3;
-    private static final int METADATA_LOCK_CHECK_DELAY_MS = 1000;
     private final MysqlClient mysqlClient;
 
     public void startCheck(DatabaseConnectionInfo databaseConnectionInfo) {
@@ -44,7 +43,7 @@ public class MetadataLockDetector {
 
     private void killLongMetadataLockHolder(DatabaseConnectionInfo databaseConnectionInfo, List<MetadataLockHolder> metadataLockHolders) {
         for (MetadataLockHolder metadataLockHolder : metadataLockHolders) {
-            if (metadataLockHolder.getProcesslistTime() >= METADATA_LOCK_THRESHOLD_SECONDS) {
+            if (metadataLockHolder.getProcesslistTime() >= LongQueryStandard.METADATA_LOCK_THRESHOLD_SECONDS) {
                 long sessionId = metadataLockHolder.getProcesslistId();
                 mysqlClient.killSession(databaseConnectionInfo, sessionId);
             }

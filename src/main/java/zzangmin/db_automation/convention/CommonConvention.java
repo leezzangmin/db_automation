@@ -1,7 +1,7 @@
 package zzangmin.db_automation.convention;
 
 
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.CommonStandard;
+import zzangmin.db_automation.standardvalue.CommonStandard;
 
 import java.util.List;
 import java.util.Set;

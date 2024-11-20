@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.Parameter;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.ParameterGroupStandard;
+import zzangmin.db_automation.standardvalue.ParameterGroupStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;

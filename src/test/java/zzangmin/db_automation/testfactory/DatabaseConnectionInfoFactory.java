@@ -2,12 +2,7 @@ package zzangmin.db_automation.testfactory;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.services.rds.model.Tag;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Component

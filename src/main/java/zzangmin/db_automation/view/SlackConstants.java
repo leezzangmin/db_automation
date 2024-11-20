@@ -82,7 +82,6 @@ public class SlackConstants {
             public static final String deleteColumnColumnNameTextInputId = "inputDeleteColumnColumnName";
         }
 
-
         // rename column
         public static class RenameColumn {
             public static final String renameColumnOldColumnNameTextInputId = "inputRenameColumnOldColumnName";
@@ -137,6 +136,30 @@ public class SlackConstants {
 
     }
 
+    public static class SessionBlockIds {
+
+        private SessionBlockIds() {}
+
+        public static boolean isMember(String id) {
+            Field[] fields = SlackConstants.SessionBlockIds.class.getDeclaredFields();
+            for (Field field : fields) {
+                try {
+                    String fieldValue = (String) field.get(null);
+                    if (id.equals(fieldValue) || id.startsWith(fieldValue)) {
+                        return true;
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            return false;
+        }
+
+        public static final String asdf = "selectDatabaseRequestCommandGroup";
+        public static final String dd = "selectDatabaseRequestCommandType";
+
+    }
+
     public static class CommunicationBlockIds {
         public static final String commandRequestAcceptDenyButtonBlockId = "commandRequestAcceptDenyButtonBlockId";
         public static final String commandRequestAcceptButtonBlockId = "commandRequestAcceptButtonBlockId";
@@ -158,7 +181,6 @@ public class SlackConstants {
         public static final String messageMetadataRequestDTO = "messageMetadataRequestDTOKey";
         public static final String messageMetadataCommandType = "messageMetadataCommandTypeKey";
         public static final String messageMetadataRequestUUID = "messageMetadataRequestUUIDKey";
-
     }
 
 }

@@ -11,6 +11,7 @@ import zzangmin.db_automation.convention.TableConvention;
 import zzangmin.db_automation.dto.request.ddl.*;
 import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.standardvalue.LongQueryStandard;
 
 import java.util.List;
 
@@ -19,7 +20,6 @@ import java.util.List;
 @Component
 public class DDLValidator {
 
-    private static final int LONG_QUERY_SECONDS_THRESHOLD = 3;
     private final MysqlClient mysqlClient;
     private final RdsMetricValidator rdsMetricValidator;
     private final TableStatusValidator tableStatusValidator;
@@ -195,7 +195,7 @@ public class DDLValidator {
     }
 
     private void validateIsLongQueryExists(DatabaseConnectionInfo databaseConnectionInfo) {
-        List<MysqlProcess> longQueries = mysqlClient.findLongQueries(databaseConnectionInfo, LONG_QUERY_SECONDS_THRESHOLD);
+        List<MysqlProcess> longQueries = mysqlClient.findLongQueries(databaseConnectionInfo, LongQueryStandard.LONG_QUERY_SECONDS_THRESHOLD);
         log.info("longQueries = " + longQueries);
         if (longQueries.size() != 0) {
             throw new IllegalStateException("실행중인 long query 가 존재합니다.");

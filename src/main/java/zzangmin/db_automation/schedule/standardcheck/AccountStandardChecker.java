@@ -7,7 +7,7 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.MysqlAccount;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.AccountStandard;
+import zzangmin.db_automation.standardvalue.AccountStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.List;
