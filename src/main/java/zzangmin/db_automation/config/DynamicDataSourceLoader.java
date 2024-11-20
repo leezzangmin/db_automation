@@ -96,6 +96,7 @@ public class DynamicDataSourceLoader {
                         .driverClassName(DRIVER_CLASS_NAME)
                         .writerEndpoint(ENDPOINT_DRIVER_PREFIX + accountInstance.endpoint().address())
                         .readerEndpoint(ENDPOINT_DRIVER_PREFIX + accountInstance.endpoint().address())
+                        .port(accountInstance.dbInstancePort())
                         .username(rdsUsername)
                         .password(password)
                         .build();
@@ -139,6 +140,7 @@ public class DynamicDataSourceLoader {
                         .readerEndpoint(ENDPOINT_DRIVER_PREFIX + accountCluster.readerEndpoint())
                         .username(rdsUsername)
                         .password(password)
+                        .port(accountCluster.port())
                         .build();
                 clusterMap.put(dbName, databaseConnectionInfo);
             }
