@@ -27,6 +27,26 @@ public class DatabaseConnectionInfo {
         return this.databaseName + " (" + this.writerEndpoint + ")\n";
     }
 
+    public String generateReadOnlyConnectionUrl() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("jdbc:mysql://");
+        sb.append(this.readerEndpoint);
+        sb.append(":");
+        sb.append(this.port);
+        sb.append("/");
+        return sb.toString();
+    }
+
+    public String generateWriterConnectionUrl() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("jdbc:mysql://");
+        sb.append(this.readerEndpoint);
+        sb.append(":");
+        sb.append(this.port);
+        sb.append("/");
+        return sb.toString();
+    }
+
     public static DatabaseConnectionInfo of(MonitorTargetDb monitorTargetDb) {
         return new DatabaseConnectionInfo(monitorTargetDb.getEnvironment(),
                 monitorTargetDb.getAccountId(),

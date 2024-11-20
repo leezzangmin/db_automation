@@ -23,6 +23,7 @@ public class DynamicDataSourceProperties {
     private final MysqlClient mysqlClient;
     private final DataSourceService dataSourceService;
 
+    // DatabaseConnectionInfo.getDatabaseName(), DatabasConnectionInfo - Map
     private static Map<String, DatabaseConnectionInfo> databases = new ConcurrentHashMap<>();
 
     // @Scheduled(fixedDelay = 10000)

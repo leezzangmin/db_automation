@@ -49,7 +49,7 @@ public class DynamicDataSourceLoader {
 
     private Map<String, DatabaseConnectionInfo> loadOnPremiseInstances() {
         Map<String, DatabaseConnectionInfo> onPremiseMap = new HashMap<>();
-        onPremiseMap.put("test_onpremise", new DatabaseConnectionInfo(
+        onPremiseMap.put("shop-01", new DatabaseConnectionInfo(
                 "stage",
                 "test",
                 "shop",
