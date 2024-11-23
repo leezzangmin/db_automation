@@ -29,9 +29,10 @@ import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.view.BasicBlockFactory;
-import zzangmin.db_automation.view.SlackRequestHandler;
+import zzangmin.db_automation.view.BlockPageManager;
 import zzangmin.db_automation.view.globalpage.SelectCommandBlocks;
 import zzangmin.db_automation.view.SlackConstants;
+import zzangmin.db_automation.view.slackrequestpage.SlackRequestMessagePage;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -47,7 +48,9 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 public class SlackController {
 
     private final MethodsClient slackClient;
-    private final SlackRequestHandler slackRequestHandler;
+
+    private final BlockPageManager blockPageManager;
+
     private final SlackService slackService;
     private static final JsonPayloadTypeDetector payloadTypeDetector = new JsonPayloadTypeDetector();
 
@@ -124,10 +127,12 @@ public class SlackController {
         log.info("requestBody: {}", requestBody);
         log.info("slackSignature: {}", slackSignature);
         log.info("timestamp: {}", timestamp);
+
         validateRequestAuth(slackSignature, timestamp, requestBody);
 
         List<LayoutBlock> initialBlocks = new ArrayList<>();
         initialBlocks.addAll(SelectCommandBlocks.selectCommandGroupAndCommandTypeBlocks());
+
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
                 .view(BasicBlockFactory.findGlobalRequestModalView(initialBlocks)));
         log.info("viewsOpenResponse: {}", viewsOpenResponse);
@@ -142,9 +147,15 @@ public class SlackController {
             CommandType findCommandType = findCommandType(state);
             String selectedDBMSName = SlackService.findCurrentValueFromState(state.getValues(), SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId);
             DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbIdentifier(selectedDBMSName);
-            RequestDTO requestDTO = slackRequestHandler.handleSubmission(findCommandType,
+            RequestDTO requestDTO = blockPageManager.handleSubmission(findCommandType,
                     state.getValues());
-            List<LayoutBlock> requestMessageBlocks = slackRequestHandler.findSubmissionRequestMessageBlocks(selectedDatabaseConnectionInfo, findCommandType, slackUser.getId(), requestDTO, requestUUID);
+            List<LayoutBlock> requestMessageBlocks = SlackRequestMessagePage.findSubmissionRequestMessageBlocks(selectedDatabaseConnectionInfo,
+                    findCommandType,
+                    slackUser.getId(),
+                    requestDTO,
+                    requestUUID,
+                    blockPageManager.handleSubmissionRequestMessage(findCommandType, requestDTO));
+
             slackService.sendBlockMessageWithMetadata(selectedDatabaseConnectionInfo, findCommandType, requestMessageBlocks, requestDTO, requestUUID);
         } catch (Exception e) {
             log.info("Exception: {}", e.getMessage());
@@ -163,17 +174,20 @@ public class SlackController {
         if (blockActionPayload.getView() == null) {
             User user = blockActionPayload.getUser();
             Message message = blockActionPayload.getMessage();
+            List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
+            // TODO: ??
+            ViewState state = blockActionPayload.getState();
 
             for (Action action : actions) {
                 log.info("action: {}", action);
-                validateRequestAcceptDoerAdmin(user.getId());
-                if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
-                    slackRequestHandler.handleAccept(message, user.getId());
-                } else if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
-                    slackRequestHandler.handleDeny(message, user.getId());
-                }
+                slackService.validateRequestAcceptDoerAdmin(user.getId());
+                blockPageManager.handleAction(action.getActionId(), blocks, state.getValues());
+//                if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
+//                    slackRequestHandler.handleAccept(message, user.getId());
+//                } else if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
+//                    slackRequestHandler.handleDeny(message, user.getId());
+//                }
             }
-            List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
             return blocks;
         }
 
@@ -183,19 +197,9 @@ public class SlackController {
         List<LayoutBlock> blocks = view.getBlocks();
         for (Action action : actions) {
             log.info("action: {}", action);
-            blocks = slackRequestHandler.handleAction(action, blocks, state.getValues());
+            blocks = blockPageManager.handleAction(action.getActionId(), blocks, state.getValues());
         }
         return blocks;
-    }
-
-    /**
-     * 특정 유저(admin)만 request 를 승인/반려 할 수 있음.
-     *
-     */
-    private void validateRequestAcceptDoerAdmin(String slackUserId) {
-        if (!SlackConfig.slackAdminUserIds.contains(slackUserId)) {
-            throw new IllegalArgumentException("해당 user 가 처리할 수 없는 action 입니다.");
-        }
     }
 
     private void validateRequestAuth(String slackSignature, String timestamp, String requestBody) {
@@ -224,7 +228,6 @@ public class SlackController {
             throw new IllegalArgumentException("http 요청 검증 실패");
         }
     }
-
 
     private CommandType findCommandType(ViewState state) {
         String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);

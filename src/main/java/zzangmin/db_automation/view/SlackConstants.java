@@ -165,6 +165,20 @@ public class SlackConstants {
         public static final String commandRequestAcceptButtonBlockId = "commandRequestAcceptButtonBlockId";
         public static final String commandRequestDenyButtonBlockId = "commandRequestDenyButtonBlockId";
 
+        public static boolean isMember(String id) {
+            Field[] fields = SlackConstants.CommunicationBlockIds.class.getDeclaredFields();
+            for (Field field : fields) {
+                try {
+                    String fieldValue = (String) field.get(null);
+                    if (id.equals(fieldValue) || id.startsWith(fieldValue)) {
+                        return true;
+                    }
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            return false;
+        }
         private CommunicationBlockIds() {}
     }
 

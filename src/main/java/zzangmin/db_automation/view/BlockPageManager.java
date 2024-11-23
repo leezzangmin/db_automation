@@ -22,16 +22,14 @@ public class BlockPageManager {
         this.blockPages = blockPages;
     }
 
+    // 커맨드타입에 해당하는 view block page 클래스를 찾아서 generate 된 view를 리턴
     public List<LayoutBlock> generateBlocks(DatabaseRequestCommandGroup.CommandType commandType) {
         BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
 
         return selectedBlockPage.generateBlocks();
     }
 
-    public void validateRequest() {
-        // TODO
-    }
-
+    // 각 커맨드타입에 맞는 view modal page 클래스에서 제출 액션을 핸들링
     public RequestDTO handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
                                        Map<String, Map<String, ViewState.Value>> values) {
         BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
@@ -39,6 +37,7 @@ public class BlockPageManager {
         return selectedBlockPage.handleSubmission(values);
     }
 
+    // 각 view block page 클래스의 execute (실제 커맨드 실행)
     public String execute(DatabaseRequestCommandGroup.CommandType commandType,
                         DatabaseConnectionInfo databaseConnectionInfo,
                         RequestDTO requestDTO,
@@ -55,9 +54,11 @@ public class BlockPageManager {
         return selectedBlockPage.generateRequestMessageBlocks(requestDTO);
     }
 
-    public void handleAction(String actionId, List<LayoutBlock> blocks, Map<String, Map<String, ViewState.Value>> values) {
+    // 각 클래스에서 block action 을 컨트롤할 수 있도록 라우팅
+    public List<LayoutBlock> handleAction(String actionId, List<LayoutBlock> blocks, Map<String, Map<String, ViewState.Value>> values) {
         BlockPage selectedBlockPage = findBlockPageByActionId(actionId);
         selectedBlockPage.handleAction(actionId, blocks, values);
+        return blocks;
     }
 
     private BlockPage findBlockPageByCommandType(DatabaseRequestCommandGroup.CommandType commandType) {

@@ -1,8 +1,6 @@
-package zzangmin.db_automation.view;
+package zzangmin.db_automation.view.slackrequestpage;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
-import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatUpdateRequest;
 import com.slack.api.methods.response.chat.ChatUpdateResponse;
 import com.slack.api.model.Message;
@@ -18,6 +16,9 @@ import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.util.JsonUtil;
+import zzangmin.db_automation.view.BasicBlockFactory;
+import zzangmin.db_automation.view.BlockPage;
+import zzangmin.db_automation.view.SlackConstants;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,27 +30,61 @@ import static com.slack.api.model.block.composition.BlockCompositions.plainText;
 import static com.slack.api.model.block.element.BlockElements.asElements;
 import static com.slack.api.model.block.element.BlockElements.button;
 
-
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class SlackRequestHandler {
+public class SlackRequestMessagePage implements BlockPage {
 
-    private final BlockPageManager blockPageManager;
-    private final MethodsClient slackClient;
-    private final SlackService slackService;
-
-    public List<LayoutBlock> handleAction(BlockActionPayload.Action action, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        String actionId = action.getActionId();
-        blockPageManager.handleAction(actionId, currentBlocks, values);
-        return currentBlocks;
+    @Override
+    public List<LayoutBlock> generateBlocks() {
+        throw new IllegalArgumentException("미지원 page");
     }
 
-    public List<LayoutBlock> findSubmissionRequestMessageBlocks(DatabaseConnectionInfo databaseConnectionInfo,
+    @Override
+    public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
+        throw new IllegalArgumentException("미지원 page");
+    }
+
+    @Override
+    public boolean supportsCommandType(DatabaseRequestCommandGroup.CommandType commandType) {
+        return false;
+    }
+
+    @Override
+    public boolean supportsActionId(String actionId) {
+        return SlackConstants.CommunicationBlockIds
+                .isMember(actionId);
+    }
+
+    @Override
+    public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
+            // handleCommandGroupChange(currentBlocks, values);
+            handleAccept();
+        } else if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
+            // handleCommandTypeChange(currentBlocks, values);
+            handleDeny();
+        } else {
+            throw new IllegalArgumentException("미지원 actionId: " + actionId);
+        }
+    }
+
+    @Override
+    public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
+        throw new IllegalArgumentException("미지원 page");
+    }
+
+    @Override
+    public String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId) {
+        throw new IllegalArgumentException("미지원 page");
+    }
+
+    public static List<LayoutBlock> findSubmissionRequestMessageBlocks(DatabaseConnectionInfo databaseConnectionInfo,
                                                                 DatabaseRequestCommandGroup.CommandType commandType,
                                                                 String slackUserId,
                                                                 RequestDTO requestDTO,
-                                                                String requestUUID) {
+                                                                String requestUUID,
+                                                                List<LayoutBlock> contentBlocks) {
         List<LayoutBlock> requestBlocks = new ArrayList<>();
 
         // 헤더
@@ -69,7 +104,6 @@ public class SlackRequestHandler {
         requestBlocks.add(BasicBlockFactory.findDividerBlock());
 
         // 요청 내용
-        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
         requestBlocks.addAll(contentBlocks);
 
         // 요청자 slack id 멘션
@@ -100,15 +134,146 @@ public class SlackRequestHandler {
         return requestBlocks;
     }
 
-    public RequestDTO handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
-                                       Map<String, Map<String,ViewState.Value>> values) {
-        blockPageManager.validateRequest();
-        log.info("<submission> commandType: {}", commandType);
-        return blockPageManager.handleSubmission(commandType, values);
+    public static void sendRequestFailMessage(DatabaseRequestCommandGroup.CommandType commandType, DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId, String requestUUID, String exceptionMessage) {
+        List<LayoutBlock> failMessageBlocks = new ArrayList<>();
+        failMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":x: Request Execution Failed !", "RequestExecuteFailed"));
+
+        // 요청 ID
+        failMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
+                "requestblock100"));
+
+        // Target DB 정보
+        failMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
+                "requestblock101"));
+
+        // 요청 커맨드 종류
+        failMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Command Type:*" + commandType.toString(),
+                "requestblock102"));
+        failMessageBlocks.add(BasicBlockFactory.findDividerBlock());
+
+        // 요청 내용
+        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
+        failMessageBlocks.addAll(contentBlocks);
+
+        // 작업 실패 이유
+        failMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Due to:*" + exceptionMessage,
+                "requestblock103"));
+        failMessageBlocks.add(BasicBlockFactory.findDividerBlock());
+
+        // 작업 실패 시간
+        failMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Start Time:* `" + LocalDateTime.now() + "`",
+                "requestblock104"));
+        slackService.sendBlockMessage(failMessageBlocks);
     }
 
-    public void handleAccept(Message requestMessage, String slackUserId) throws JsonProcessingException {
-        List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
+    public static void sendRequestExecuteStartMessage(DatabaseRequestCommandGroup.CommandType commandType, DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId, String requestUUID) {
+        List<LayoutBlock> startMessageBlocks = new ArrayList<>();
+        startMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":arrow_forward: Request Execution Started !", "RequestExecuteStarted"));
+
+        // 요청 ID
+        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
+                "requestblock100"));
+
+        // Target DB 정보
+        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
+                "requestblock101"));
+
+        // 요청 커맨드 종류
+        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Command Type:*" + commandType.toString(),
+                "requestblock102"));
+        startMessageBlocks.add(BasicBlockFactory.findDividerBlock());
+
+        // 요청 내용
+        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
+        startMessageBlocks.addAll(contentBlocks);
+
+        // 작업 시작 시간
+        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Start Time:* `" + LocalDateTime.now() + "`",
+                "requestblock104"));
+        slackService.sendBlockMessage(startMessageBlocks);
+    }
+
+    public static void sendRequestAcceptMessage(DatabaseRequestCommandGroup.CommandType commandType,
+                                                DatabaseConnectionInfo databaseConnectionInfo,
+                                                RequestDTO requestDTO,
+                                                String slackUserId,
+                                                String requestUUID) {
+        List<LayoutBlock> startMessageBlocks = new ArrayList<>();
+        startMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":ghost: Request Accepted !", "RequestAccepted"));
+
+        // 요청 ID
+        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
+                "requestblock233"));
+
+        // Target DB 정보
+        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
+                "requestblock1"));
+
+        // 요청 커맨드 종류
+        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Command Type:*" + commandType.toString(),
+                "requestblock2"));
+        startMessageBlocks.add(BasicBlockFactory.findDividerBlock());
+
+        // 요청 내용
+        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
+        startMessageBlocks.addAll(contentBlocks);
+
+        // 승인자 slack id 멘션
+        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Accepted By:* <@" + slackUserId + ">",
+                "requestblock3"));
+        startMessageBlocks.add(BasicBlockFactory.findDividerBlock());
+
+        // 승인 시간
+        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Accepted Time:* `" + LocalDateTime.now() + "`",
+                "requestblock4"));
+        slackService.sendBlockMessage(startMessageBlocks);
+    }
+
+    public static void sendRequestEndMessage(DatabaseRequestCommandGroup.CommandType commandType,
+                                             DatabaseConnectionInfo databaseConnectionInfo,
+                                             RequestDTO requestDTO,
+                                             String requestUUID,
+                                             String executeResult) {
+        List<LayoutBlock> endMessageBlocks = new ArrayList<>();
+        endMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":checkered_flag: Request Execution Completed !", "RequestExecuteFailed"));
+
+        // 요청 ID
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
+                "endblock1"));
+
+        // Target DB 정보
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
+                "endblock2"));
+
+        // 요청 커맨드 종류
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Command Type:*" + commandType.toString(),
+                "endblock3"));
+        endMessageBlocks.add(BasicBlockFactory.findDividerBlock());
+
+        // 요청 내용
+        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
+        endMessageBlocks.addAll(contentBlocks);
+
+        // 요청 종료 보고 내용
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Result:*\n ```" + executeResult + "```",
+                "endblock4"));
+        endMessageBlocks.add(BasicBlockFactory.findDividerBlock());
+
+        // 작업 종료 시간
+        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Finish Time:* `" + LocalDateTime.now() + "`",
+                "endblock5"));
+
+        slackService.sendBlockMessage(endMessageBlocks);
+    }
+
+//    public RequestDTO handleSubmission(DatabaseRequestCommandGroup.CommandType commandType,
+//                                       Map<String, Map<String, ViewState.Value>> values) {
+//        blockPageManager.validateRequest();
+//        log.info("<submission> commandType: {}", commandType);
+//        return blockPageManager.handleSubmission(commandType, values);
+//    }
+
+    private void handleAccept(List<LayoutBlock> requestBlocks, Message requestMessage, String slackUserId) throws JsonProcessingException {
         resetAcceptDenyButtonBlock(requestBlocks, "approve");
 
         // fetch data from message metadata
@@ -153,66 +318,7 @@ public class SlackRequestHandler {
         }
     }
 
-    private void sendRequestFailMessage(DatabaseRequestCommandGroup.CommandType commandType, DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId, String requestUUID, String exceptionMessage) {
-        List<LayoutBlock> failMessageBlocks = new ArrayList<>();
-        failMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":x: Request Execution Failed !", "RequestExecuteFailed"));
-
-        // 요청 ID
-        failMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
-                "requestblock100"));
-
-        // Target DB 정보
-        failMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
-                "requestblock101"));
-
-        // 요청 커맨드 종류
-        failMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Command Type:*" + commandType.toString(),
-                "requestblock102"));
-        failMessageBlocks.add(BasicBlockFactory.findDividerBlock());
-
-        // 요청 내용
-        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
-        failMessageBlocks.addAll(contentBlocks);
-
-        // 작업 실패 이유
-        failMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Due to:*" + exceptionMessage,
-                "requestblock103"));
-        failMessageBlocks.add(BasicBlockFactory.findDividerBlock());
-
-        // 작업 실패 시간
-        failMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Start Time:* `" + LocalDateTime.now() + "`",
-                "requestblock104"));
-        slackService.sendBlockMessage(failMessageBlocks);
-    }
-
-    private void sendRequestExecuteStartMessage(DatabaseRequestCommandGroup.CommandType commandType, DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId, String requestUUID) {
-        List<LayoutBlock> startMessageBlocks = new ArrayList<>();
-        startMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":arrow_forward: Request Execution Started !", "RequestExecuteStarted"));
-
-        // 요청 ID
-        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
-                "requestblock100"));
-
-        // Target DB 정보
-        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
-                "requestblock101"));
-
-        // 요청 커맨드 종류
-        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Command Type:*" + commandType.toString(),
-                "requestblock102"));
-        startMessageBlocks.add(BasicBlockFactory.findDividerBlock());
-
-        // 요청 내용
-        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
-        startMessageBlocks.addAll(contentBlocks);
-
-        // 작업 시작 시간
-        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Start Time:* `" + LocalDateTime.now() + "`",
-                "requestblock104"));
-        slackService.sendBlockMessage(startMessageBlocks);
-    }
-
-    public void handleDeny(Message requestMessage, String slackUserId) throws JsonProcessingException {
+    private void handleDeny(Message requestMessage, String slackUserId) throws JsonProcessingException {
         List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
         resetAcceptDenyButtonBlock(requestBlocks, "deny");
 
@@ -247,79 +353,6 @@ public class SlackRequestHandler {
             e.printStackTrace();
         }
         sendRequestDenyMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
-    }
-
-    private void sendRequestAcceptMessage(DatabaseRequestCommandGroup.CommandType commandType,
-                                          DatabaseConnectionInfo databaseConnectionInfo,
-                                          RequestDTO requestDTO,
-                                          String slackUserId,
-                                          String requestUUID) {
-        List<LayoutBlock> startMessageBlocks = new ArrayList<>();
-        startMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":ghost: Request Accepted !", "RequestAccepted"));
-
-        // 요청 ID
-        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
-                "requestblock233"));
-
-        // Target DB 정보
-        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
-                "requestblock1"));
-
-        // 요청 커맨드 종류
-        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Command Type:*" + commandType.toString(),
-                "requestblock2"));
-        startMessageBlocks.add(BasicBlockFactory.findDividerBlock());
-
-        // 요청 내용
-        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
-        startMessageBlocks.addAll(contentBlocks);
-
-        // 승인자 slack id 멘션
-        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Accepted By:* <@" + slackUserId + ">",
-                "requestblock3"));
-        startMessageBlocks.add(BasicBlockFactory.findDividerBlock());
-
-        // 승인 시간
-        startMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Accepted Time:* `" + LocalDateTime.now() + "`",
-                "requestblock4"));
-        slackService.sendBlockMessage(startMessageBlocks);
-    }
-
-    private void sendRequestEndMessage(DatabaseRequestCommandGroup.CommandType commandType,
-                                       DatabaseConnectionInfo databaseConnectionInfo,
-                                       RequestDTO requestDTO,
-                                       String requestUUID,
-                                       String executeResult) {
-        List<LayoutBlock> endMessageBlocks = new ArrayList<>();
-        endMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":checkered_flag: Request Execution Completed !", "RequestExecuteFailed"));
-
-        // 요청 ID
-        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
-                "endblock1"));
-
-        // Target DB 정보
-        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
-                "endblock2"));
-
-        // 요청 커맨드 종류
-        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Command Type:*" + commandType.toString(),
-                "endblock3"));
-        endMessageBlocks.add(BasicBlockFactory.findDividerBlock());
-
-        // 요청 내용
-        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
-        endMessageBlocks.addAll(contentBlocks);
-
-        // 요청 종료 보고 내용
-        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Result:*\n ```" + executeResult + "```",
-                "endblock4"));
-        endMessageBlocks.add(BasicBlockFactory.findDividerBlock());
-
-        // 작업 종료 시간
-        endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Finish Time:* `" + LocalDateTime.now() + "`",
-                "endblock5"));
-
-        slackService.sendBlockMessage(endMessageBlocks);
     }
 
     private void sendRequestDenyMessage(DatabaseRequestCommandGroup.CommandType commandType,

@@ -143,6 +143,8 @@ public class SelectCommandBlocks implements BlockPage {
         String selectedCommandTypeName = SlackService.findCurrentValueFromState(values, SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
         DatabaseRequestCommandGroup.CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
         removeCommandBlocks(currentBlocks);
+
+        // TODO: blockPageManager 의존성 제거
         currentBlocks.addAll(blockPageManager.generateBlocks(findCommandType));
 
         return currentBlocks;
