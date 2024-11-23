@@ -64,8 +64,9 @@ public class SlackService {
             }
         }
     }
+
     public void sendBlockMessage(List<LayoutBlock> blocks) {
-        if (blocks.size() < 1) {
+        if (blocks.isEmpty()) {
             return;
         }
         log.info("block slack message: {}", blocks);
@@ -134,37 +135,12 @@ public class SlackService {
         }
     }
 
-//    public void sendBlockMessage(List<LayoutBlock> blocks) {
-//        if (blocks.size() < 1) {
-//            return;
-//        }
-//        log.info("block slack message: {}", blocks);
-//
-//        ChatPostMessageRequest request = ChatPostMessageRequest.builder()
-//                .channel(DEFAULT_CHANNEL_ID)
-//                .blocks(blocks)
-//                .build();
-//        ChatPostMessageResponse chatPostMessageResponse = null;
-//        try {
-//            chatPostMessageResponse = slackClient.chatPostMessage(request);
-//        } catch (SSLHandshakeException sslHandshakeException) {
-//            log.info(sslHandshakeException.getMessage());
-//        } catch (Exception e) {
-//            log.info(e.getMessage());
-//        }
-//        if (chatPostMessageResponse != null && chatPostMessageResponse.getWarning() == null && chatPostMessageResponse.isOk()) {
-//            log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
-//        } else {
-//            log.error("chatPostMessageResponse: {}", chatPostMessageResponse);
-//        }
-//    }
-
     public void sendBlockMessageWithMetadata(DatabaseConnectionInfo databaseConnectionInfo,
                                              DatabaseRequestCommandGroup.CommandType commandType,
                                              List<LayoutBlock> blocks,
                                              RequestDTO requestDTO,
                                              String requestUUID) throws JsonProcessingException {
-        if (blocks.size() < 1) {
+        if (blocks.isEmpty()) {
             return;
         }
         log.info("block slack message: {}", blocks);
