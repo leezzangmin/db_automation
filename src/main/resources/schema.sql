@@ -65,4 +65,12 @@ CREATE TABLE IF NOT EXISTS back_office.monitor_target_db(
     username varchar(64) not null comment '모니터링 DB 유저 계정명',
     password varchar(64) not null comment '모니터링 DB 유저 패스워드',
     is_monitor_target tinyint not null comment '모니터링 대상 여부 yn'
-);
+) COMMENT '모니터링 대상 DB 정보';
+
+
+CREATE TABLE IF NOT EXISTS back_office.slack_user(
+    id              bigint primary key auto_increment comment '아이디',
+    user_slack_id   varchar(32) not null comment '슬랙 아이디 ex.U04282C8DDX',
+    user_type       varchar(32) not null comment '슬랙 유저 타입 ex.admin, normal, ...',
+    expire_datetime datetime    not null comment '유저 만료 시간'
+) comment '슬랙 유저 정보';
