@@ -67,10 +67,26 @@ CREATE TABLE IF NOT EXISTS back_office.monitor_target_db(
     is_monitor_target tinyint not null comment '모니터링 대상 여부 yn'
 ) COMMENT '모니터링 대상 DB 정보';
 
-
 CREATE TABLE IF NOT EXISTS back_office.slack_user(
     id              bigint primary key auto_increment comment '아이디',
     user_slack_id   varchar(32) not null comment '슬랙 아이디 ex.U04282C8DDX',
+    user_slack_name varchar(64) not null comment '슬랙 유저명 ex.홍길동(DBA)',
     user_type       varchar(32) not null comment '슬랙 유저 타입 ex.admin, normal, ...',
     expire_datetime datetime    not null comment '유저 만료 시간'
 ) comment '슬랙 유저 정보';
+
+CREATE TABLE IF NOT EXISTS back_office.db_request(
+    id bigint primary key auto_increment comment '아이디',
+    request_user_slack_id varchar(32) not null comment '요청 유저 슬랙 아이디 ex.U04282C8DDX',
+    request_metadata mediumtext not null comment '요청 메타데이터(대상 DB 정보, 커맨드타입, Slack 블록, requestDTO, requestUUID',
+    request_datetime datetime not null comment '요청 시간',
+    is_complete tinyint not null comment '완료 여부'
+) comment 'DB 요청 정보';
+
+CREATE TABLE IF NOT EXISTS back_office.db_request_acceptor(
+    id bigint primary key auto_increment comment '아이디',
+    db_request_id bigint not null comment 'DB 요청 정보 아이디',
+    response_slack_user_id varchar(32) not null comment '아이디',
+    response_type varchar(32) not null comment '응답 타입 ex.accept,decline',
+    response_datetime datetime not null comment '응답 시간'
+) comment 'DB 요청 승인자';
