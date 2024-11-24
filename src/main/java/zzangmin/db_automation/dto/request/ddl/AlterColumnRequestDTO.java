@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import zzangmin.db_automation.entity.Column;
+import zzangmin.db_automation.entity.mysqlobject.Column;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 
 @ToString

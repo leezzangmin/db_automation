@@ -8,7 +8,7 @@ import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.response.*;
 import zzangmin.db_automation.dto.response.RdsClusterSchemaTablesResponseDTO.TableInfo;
 import zzangmin.db_automation.entity.ChangeHistory;
-import zzangmin.db_automation.entity.Column;
+import zzangmin.db_automation.entity.mysqlobject.Column;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.repository.ChangeHistoryRepository;
 

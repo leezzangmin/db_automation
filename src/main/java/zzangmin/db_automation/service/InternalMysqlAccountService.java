@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import zzangmin.db_automation.entity.MysqlAccount;
+import zzangmin.db_automation.entity.mysqlobject.MysqlAccount;
 import zzangmin.db_automation.repository.MysqlAccountRepository;
 import zzangmin.db_automation.repository.PrivilegeRepository;
 

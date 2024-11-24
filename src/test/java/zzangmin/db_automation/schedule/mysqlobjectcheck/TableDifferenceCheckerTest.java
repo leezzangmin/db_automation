@@ -8,8 +8,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.Table;
+import zzangmin.db_automation.entity.mysqlobject.Column;
+import zzangmin.db_automation.entity.mysqlobject.Table;
 import zzangmin.db_automation.service.SchemaObjectService;
 import zzangmin.db_automation.testfactory.EntityFactory;
 

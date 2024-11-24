@@ -1,9 +1,9 @@
 package zzangmin.db_automation.testfactory;
 
 
-import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.Constraint;
-import zzangmin.db_automation.entity.Table;
+import zzangmin.db_automation.entity.mysqlobject.Column;
+import zzangmin.db_automation.entity.mysqlobject.Constraint;
+import zzangmin.db_automation.entity.mysqlobject.Table;
 
 import java.util.*;
 

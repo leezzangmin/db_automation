@@ -1,4 +1,4 @@
-package zzangmin.db_automation.entity;
+package zzangmin.db_automation.entity.mysqlobject;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;

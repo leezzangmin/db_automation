@@ -3,7 +3,7 @@ package zzangmin.db_automation.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
-import zzangmin.db_automation.entity.Query;
+import zzangmin.db_automation.entity.mysqlobject.Query;
 
 import java.util.List;
 

@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 import zzangmin.db_automation.entity.ChangeHistory;
-import zzangmin.db_automation.entity.Column;
+import zzangmin.db_automation.entity.mysqlobject.Column;
 
 import java.util.List;
 

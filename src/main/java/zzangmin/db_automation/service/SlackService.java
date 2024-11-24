@@ -175,6 +175,7 @@ public class SlackService {
                 .blocks(blocks)
                 .metadata(metadata)
                 .build();
+
         ChatPostMessageResponse chatPostMessageResponse = null;
         try {
             chatPostMessageResponse = slackClient.chatPostMessage(request);

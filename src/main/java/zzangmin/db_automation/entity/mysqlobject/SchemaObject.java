@@ -1,4 +1,4 @@
-package zzangmin.db_automation.entity;
+package zzangmin.db_automation.entity.mysqlobject;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -24,4 +24,15 @@ public class SchemaObject {
     public void update(SchemaObject newSchemaObject) {
         this.encryptedJsonString = newSchemaObject.getEncryptedJsonString();
     }
+
+    public enum SchemaObjectType {
+        TABLE,
+        FUNCTION,
+        PROCEDURE,
+        TRIGGER,
+        VIEW,
+        DATABASE,
+        ACCOUNT
+    }
+
 }

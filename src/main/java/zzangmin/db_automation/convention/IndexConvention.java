@@ -1,6 +1,6 @@
 package zzangmin.db_automation.convention;
 
-import zzangmin.db_automation.entity.Constraint;
+import zzangmin.db_automation.entity.mysqlobject.Constraint;
 
 import java.util.HashSet;
 import java.util.List;

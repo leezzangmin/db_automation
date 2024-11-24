@@ -3,8 +3,8 @@ package zzangmin.db_automation.parser;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import zzangmin.db_automation.dto.request.ddl.*;
-import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.Constraint;
+import zzangmin.db_automation.entity.mysqlobject.Column;
+import zzangmin.db_automation.entity.mysqlobject.Constraint;
 
 import java.util.LinkedHashSet;
 import java.util.List;

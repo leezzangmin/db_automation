@@ -11,6 +11,10 @@ import zzangmin.db_automation.convention.TableConvention;
 import zzangmin.db_automation.dto.request.ddl.*;
 import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.entity.mysqlobject.Column;
+import zzangmin.db_automation.entity.mysqlobject.Constraint;
+import zzangmin.db_automation.entity.mysqlobject.MysqlProcess;
+import zzangmin.db_automation.entity.mysqlobject.Table;
 import zzangmin.db_automation.standardvalue.LongQueryStandard;
 
 import java.util.List;
@@ -57,7 +61,7 @@ public class DDLValidator {
         validateIsSchemaExists(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, alterColumnRequestDTO.getSchemaName(), alterColumnRequestDTO.getTableName());
-        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDatabase.DatabaseType.ON_PREMISE)) {
             rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         }
         validateIsLongQueryExists(databaseConnectionInfo);
@@ -67,7 +71,7 @@ public class DDLValidator {
         validateAddColumnHasAutoIncrementOption(addColumnRequestDTO.getColumn());
         ColumnConvention.validateColumnConvention(addColumnRequestDTO.getColumn());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, addColumnRequestDTO.getSchemaName(), addColumnRequestDTO.getTableName());
-        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDatabase.DatabaseType.ON_PREMISE)) {
             rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         }
         validateIsLongQueryExists(databaseConnectionInfo);
@@ -80,7 +84,7 @@ public class DDLValidator {
         validateIsExistTableName(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
         validateIsIndexExists(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName(), createIndexRequestDTO.getColumnNames());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, createIndexRequestDTO.getSchemaName(), createIndexRequestDTO.getTableName());
-        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDatabase.DatabaseType.ON_PREMISE)) {
             rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         }
         validateIsLongQueryExists(databaseConnectionInfo);
@@ -92,7 +96,7 @@ public class DDLValidator {
         ColumnConvention.validateExtendVarcharConvention(column, extendVarcharColumnRequestDTO.getExtendSize());
         validateIsSchemaExists(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName());
         validateIsExistTableName(databaseConnectionInfo, extendVarcharColumnRequestDTO.getSchemaName(), extendVarcharColumnRequestDTO.getTableName());
-        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDatabase.DatabaseType.ON_PREMISE)) {
             rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         }
     }
@@ -102,7 +106,7 @@ public class DDLValidator {
         TableConvention.validateTableConvention(table);
         validateIsSchemaExists(databaseConnectionInfo, createTableRequestDTO.getSchemaName());
         validateIsNotExistTableName(databaseConnectionInfo, createTableRequestDTO.getSchemaName(), createTableRequestDTO.getTableName());
-        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDatabase.DatabaseType.ON_PREMISE)) {
             rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         }
     }
@@ -112,7 +116,7 @@ public class DDLValidator {
         validateIsExistTableName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
         validateIsExistColumnName(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName(), deleteColumnRequestDTO.getColumnName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, deleteColumnRequestDTO.getSchemaName(), deleteColumnRequestDTO.getTableName());
-        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDatabase.DatabaseType.ON_PREMISE)) {
             rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         }
         validateIsLongQueryExists(databaseConnectionInfo);
@@ -123,7 +127,7 @@ public class DDLValidator {
         validateIsSchemaExists(databaseConnectionInfo, ddlRequestDTO.getSchemaName());
         validateIsExistColumnName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName(), ddlRequestDTO.getBeforeColumnName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getTableName());
-        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDatabase.DatabaseType.ON_PREMISE)) {
             rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         }
         validateIsLongQueryExists(databaseConnectionInfo);
@@ -137,7 +141,7 @@ public class DDLValidator {
         validateIsExistTableName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getOldTableName());
         validateIsNotExistTableName(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getNewTableName());
         tableStatusValidator.validateTableSize(databaseConnectionInfo, ddlRequestDTO.getSchemaName(), ddlRequestDTO.getOldTableName());
-        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDb.DatabaseType.ON_PREMISE)) {
+        if (!databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDatabase.DatabaseType.ON_PREMISE)) {
             rdsMetricValidator.validateMetricStable(databaseConnectionInfo.getAccountId(), databaseConnectionInfo.getDatabaseName());
         }
         validateIsLongQueryExists(databaseConnectionInfo);

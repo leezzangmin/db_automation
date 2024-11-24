@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.entity.MonitorTargetDb;
+import zzangmin.db_automation.entity.MonitorTargetDatabase;
 import zzangmin.db_automation.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
@@ -53,7 +53,7 @@ public class DynamicDataSourceLoader {
                 "stage",
                 "test",
                 "shop",
-                MonitorTargetDb.DatabaseType.ON_PREMISE,
+                MonitorTargetDatabase.DatabaseType.ON_PREMISE,
                 "shop-01",
                 DRIVER_CLASS_NAME,
                 "127.0.0.1",
@@ -92,7 +92,7 @@ public class DynamicDataSourceLoader {
                         .environment(environmentTag.value())
                         .accountId(accountId)
                         .serviceName(serviceNameTag.value())
-                        .databaseType(MonitorTargetDb.DatabaseType.INSTANCE)
+                        .databaseType(MonitorTargetDatabase.DatabaseType.INSTANCE)
                         .databaseName(dbName)
                         .driverClassName(DRIVER_CLASS_NAME)
                         .writerEndpoint(ENDPOINT_DRIVER_PREFIX + accountInstance.endpoint().address())
@@ -134,7 +134,7 @@ public class DynamicDataSourceLoader {
                         .environment(environmentTag.value())
                         .accountId(accountId)
                         .serviceName(serviceNameTag.value())
-                        .databaseType(MonitorTargetDb.DatabaseType.CLUSTER)
+                        .databaseType(MonitorTargetDatabase.DatabaseType.CLUSTER)
                         .databaseName(dbName)
                         .driverClassName(DRIVER_CLASS_NAME)
                         .writerEndpoint(ENDPOINT_DRIVER_PREFIX + accountCluster.endpoint())

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.convention.CommonConvention;
 import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.entity.mysqlobject.*;
 
 import java.sql.*;
 import java.util.*;

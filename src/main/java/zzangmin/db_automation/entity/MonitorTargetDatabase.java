@@ -2,7 +2,6 @@ package zzangmin.db_automation.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import net.sf.jsqlparser.util.validation.feature.DatabaseType;
 
 @ToString
 @Getter
@@ -10,7 +9,7 @@ import net.sf.jsqlparser.util.validation.feature.DatabaseType;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class MonitorTargetDb {
+public class MonitorTargetDatabase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

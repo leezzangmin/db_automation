@@ -11,7 +11,7 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.ddl.AddColumnRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.ddl.AddColumnDDLResponseDTO;
-import zzangmin.db_automation.entity.Column;
+import zzangmin.db_automation.entity.mysqlobject.Column;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.standardvalue.CommonStandard;
 import zzangmin.db_automation.service.SlackService;

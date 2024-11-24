@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.entity.MysqlAccount;
+import zzangmin.db_automation.entity.mysqlobject.MysqlAccount;
 import zzangmin.db_automation.service.InternalMysqlAccountService;
 import zzangmin.db_automation.util.ProfileUtil;
 

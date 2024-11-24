@@ -130,8 +130,7 @@ public class SlackController {
 
         validateRequestAuth(slackSignature, timestamp, requestBody);
 
-        List<LayoutBlock> initialBlocks = new ArrayList<>();
-        initialBlocks.addAll(SelectCommandBlocks.selectCommandGroupAndCommandTypeBlocks());
+        List<LayoutBlock> initialBlocks = SelectCommandBlocks.selectCommandGroupAndCommandTypeBlocks();
 
         ViewsOpenResponse viewsOpenResponse = slackClient.viewsOpen(r -> r.triggerId(triggerId)
                 .view(BasicBlockFactory.findGlobalRequestModalView(initialBlocks)));
@@ -152,7 +151,6 @@ public class SlackController {
             List<LayoutBlock> requestMessageBlocks = SlackRequestMessagePage.findSubmissionRequestMessageBlocks(selectedDatabaseConnectionInfo,
                     findCommandType,
                     slackUser.getId(),
-                    requestDTO,
                     requestUUID,
                     blockPageManager.handleSubmissionRequestMessage(findCommandType, requestDTO));
 
@@ -178,11 +176,6 @@ public class SlackController {
                 log.info("action: {}", action);
                 slackService.validateRequestAcceptDoerAdmin(user.getId());
                 blocks = blockPageManager.handleAction(action.getActionId(), user.getId(), blockActionPayload.getMessage());
-//                if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
-//                    slackRequestHandler.handleAccept(message, user.getId());
-//                } else if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
-//                    slackRequestHandler.handleDeny(message, user.getId());
-//                }
             }
             return blocks;
         }
@@ -228,8 +221,7 @@ public class SlackController {
 
     private CommandType findCommandType(ViewState state) {
         String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
-        CommandType findCommandType = DatabaseRequestCommandGroup.findCommandTypeByCommandTypeName(selectedCommandTypeName);
-        return findCommandType;
+        return DatabaseRequestCommandGroup.findCommandTypeByCommandTypeName(selectedCommandTypeName);
     }
 
     private void updateView(List<LayoutBlock> blocks, View view) throws IOException, SlackApiException {

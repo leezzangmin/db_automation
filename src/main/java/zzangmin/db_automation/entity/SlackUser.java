@@ -20,6 +20,7 @@ public class SlackUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String userSlackId;
+    private String userSlackName;
     private String userType;
     private LocalDateTime expireDateTime;
 }

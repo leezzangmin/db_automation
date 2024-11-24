@@ -1,4 +1,4 @@
-package zzangmin.db_automation.entity;
+package zzangmin.db_automation.entity.mysqlobject;
 
 import lombok.Getter;
 import lombok.ToString;

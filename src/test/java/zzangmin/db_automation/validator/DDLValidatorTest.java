@@ -7,8 +7,8 @@ import org.springframework.test.context.ActiveProfiles;
 import zzangmin.db_automation.dto.request.ddl.*;
 import zzangmin.db_automation.testfactory.DatabaseConnectionInfoFactory;
 import zzangmin.db_automation.client.MysqlClient;
-import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.Constraint;
+import zzangmin.db_automation.entity.mysqlobject.Column;
+import zzangmin.db_automation.entity.mysqlobject.Constraint;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 import java.sql.Connection;

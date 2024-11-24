@@ -7,7 +7,7 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.response.QueriesInLongTransactionResponseDTO;
-import zzangmin.db_automation.entity.Query;
+import zzangmin.db_automation.entity.mysqlobject.Query;
 import zzangmin.db_automation.service.SlackService;
 
 import java.util.List;

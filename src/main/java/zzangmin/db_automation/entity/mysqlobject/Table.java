@@ -1,13 +1,11 @@
-package zzangmin.db_automation.entity;
+package zzangmin.db_automation.entity.mysqlobject;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import zzangmin.db_automation.util.ProfileUtil;
 
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 @ToString
 @Getter

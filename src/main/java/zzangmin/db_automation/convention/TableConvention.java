@@ -1,11 +1,10 @@
 package zzangmin.db_automation.convention;
 
-import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.Constraint;
-import zzangmin.db_automation.entity.Table;
+import zzangmin.db_automation.entity.mysqlobject.Column;
+import zzangmin.db_automation.entity.mysqlobject.Constraint;
+import zzangmin.db_automation.entity.mysqlobject.Table;
 
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import static zzangmin.db_automation.convention.CommonConvention.*;

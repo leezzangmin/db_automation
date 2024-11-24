@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.convention.TableConvention;
-import zzangmin.db_automation.entity.Table;
+import zzangmin.db_automation.entity.mysqlobject.Table;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
 

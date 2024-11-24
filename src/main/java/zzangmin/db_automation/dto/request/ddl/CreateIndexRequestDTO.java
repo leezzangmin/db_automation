@@ -2,7 +2,7 @@ package zzangmin.db_automation.dto.request.ddl;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import zzangmin.db_automation.entity.Constraint;
+import zzangmin.db_automation.entity.mysqlobject.Constraint;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 
 import java.util.List;

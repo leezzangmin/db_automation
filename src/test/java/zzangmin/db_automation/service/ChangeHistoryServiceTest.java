@@ -13,7 +13,7 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.request.ddl.AddColumnRequestDTO;
 import zzangmin.db_automation.dto.request.ddl.CreateChangeHistoryRequestDTO;
 import zzangmin.db_automation.entity.ChangeHistory;
-import zzangmin.db_automation.entity.Column;
+import zzangmin.db_automation.entity.mysqlobject.Column;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 import java.time.LocalDateTime;

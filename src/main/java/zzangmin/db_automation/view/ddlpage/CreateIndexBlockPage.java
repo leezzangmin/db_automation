@@ -11,7 +11,7 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.ddl.CreateIndexRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.ddl.CreateIndexDDLResponseDTO;
-import zzangmin.db_automation.entity.Constraint;
+import zzangmin.db_automation.entity.mysqlobject.Constraint;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.view.BasicBlockFactory;

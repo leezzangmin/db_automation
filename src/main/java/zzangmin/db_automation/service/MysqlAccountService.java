@@ -7,7 +7,7 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.account.MysqlPrivilegeGrantRequestDTO;
 import zzangmin.db_automation.dto.request.account.MysqlPrivilegeShowRequestDTO;
-import zzangmin.db_automation.entity.MysqlAccount;
+import zzangmin.db_automation.entity.mysqlobject.MysqlAccount;
 
 import java.util.List;
 import java.util.stream.Collectors;

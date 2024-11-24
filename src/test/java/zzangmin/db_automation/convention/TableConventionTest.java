@@ -3,17 +3,13 @@ package zzangmin.db_automation.convention;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import zzangmin.db_automation.entity.Column;
-import zzangmin.db_automation.entity.Constraint;
-import zzangmin.db_automation.entity.Table;
+import zzangmin.db_automation.entity.mysqlobject.Column;
+import zzangmin.db_automation.entity.mysqlobject.Constraint;
+import zzangmin.db_automation.entity.mysqlobject.Table;
 
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 
 class TableConventionTest {

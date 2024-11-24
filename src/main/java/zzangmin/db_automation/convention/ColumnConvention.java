@@ -1,7 +1,7 @@
 package zzangmin.db_automation.convention;
 
 
-import zzangmin.db_automation.entity.Column;
+import zzangmin.db_automation.entity.mysqlobject.Column;
 
 import static zzangmin.db_automation.convention.CommonConvention.*;
 
