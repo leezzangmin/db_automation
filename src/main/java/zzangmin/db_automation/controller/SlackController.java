@@ -173,15 +173,11 @@ public class SlackController {
         // message action
         if (blockActionPayload.getView() == null) {
             User user = blockActionPayload.getUser();
-            Message message = blockActionPayload.getMessage();
-            List<LayoutBlock> blocks = blockActionPayload.getMessage().getBlocks();
-            // TODO: ??
-            ViewState state = blockActionPayload.getState();
-
+            List<LayoutBlock> blocks = new ArrayList<>();
             for (Action action : actions) {
                 log.info("action: {}", action);
                 slackService.validateRequestAcceptDoerAdmin(user.getId());
-                blockPageManager.handleAction(action.getActionId(), blocks, state.getValues());
+                blocks = blockPageManager.handleAction(action.getActionId(), user.getId(), blockActionPayload.getMessage());
 //                if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
 //                    slackRequestHandler.handleAccept(message, user.getId());
 //                } else if (action.getActionId().equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
@@ -194,6 +190,7 @@ public class SlackController {
         // view modal action
         View view = blockActionPayload.getView();
         ViewState state = view.getState();
+        Map<String, Map<String, ViewState.Value>> values = state.getValues();
         List<LayoutBlock> blocks = view.getBlocks();
         for (Action action : actions) {
             log.info("action: {}", action);

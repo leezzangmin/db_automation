@@ -1,5 +1,6 @@
 package zzangmin.db_automation.view;
 
+import com.slack.api.model.Message;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
@@ -15,7 +16,12 @@ public interface BlockPage {
     RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values);
     boolean supportsCommandType(DatabaseRequestCommandGroup.CommandType commandType);
     boolean supportsActionId(String actionId);
-    void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values);
+    void handleViewAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values);
+
+    default void handleMessageAction(String actionId, String userId, Message message) {
+        throw new IllegalStateException("default 메서드 호출, 세부 클래스에서 구현을 작성하세요.");
+    }
+
     List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO);
     String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId);
 }

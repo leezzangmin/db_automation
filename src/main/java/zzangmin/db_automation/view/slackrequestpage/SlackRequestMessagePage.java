@@ -57,13 +57,21 @@ public class SlackRequestMessagePage implements BlockPage {
     }
 
     @Override
-    public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleViewAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+        throw new IllegalArgumentException("View Action 미지원 page");
+
+    }
+
+    @Override
+    public void handleMessageAction(String actionId, String userId, Message message) {
         if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
             // handleCommandGroupChange(currentBlocks, values);
-            handleAccept();
+
+            handleAccept(message, userId);
+
         } else if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
             // handleCommandTypeChange(currentBlocks, values);
-            handleDeny();
+            handleDeny(message, userId);
         } else {
             throw new IllegalArgumentException("미지원 actionId: " + actionId);
         }
@@ -273,20 +281,30 @@ public class SlackRequestMessagePage implements BlockPage {
 //        return blockPageManager.handleSubmission(commandType, values);
 //    }
 
-    private void handleAccept(List<LayoutBlock> requestBlocks, Message requestMessage, String slackUserId) throws JsonProcessingException {
+    private void handleAccept(Message requestMessage, String slackUserId) {
+        List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
         resetAcceptDenyButtonBlock(requestBlocks, "approve");
 
         // fetch data from message metadata
         Message.Metadata metadata = requestMessage.getMetadata();
         Map<String, Object> eventPayload = metadata.getEventPayload();
-        DatabaseConnectionInfo findDatabaseConnectionInfo = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo),
-                DatabaseConnectionInfo.class);
-        DatabaseRequestCommandGroup.CommandType findCommandType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataCommandType),
-                DatabaseRequestCommandGroup.CommandType.class);
-        Class findRequestDTOClassType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataClass),
-                Class.class);
-        RequestDTO findRequestDTO = (RequestDTO) JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestDTO),
-                findRequestDTOClassType);
+
+        DatabaseConnectionInfo findDatabaseConnectionInfo;
+        DatabaseRequestCommandGroup.CommandType findCommandType;
+        RequestDTO findRequestDTO;
+        try {
+            findDatabaseConnectionInfo = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo),
+                    DatabaseConnectionInfo.class);
+            findCommandType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataCommandType),
+                    DatabaseRequestCommandGroup.CommandType.class);
+            Class findRequestDTOClassType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataClass),
+                    Class.class);
+            findRequestDTO = (RequestDTO) JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestDTO),
+                    findRequestDTOClassType);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("JsonProcess 오류");
+        }
         String findRequestUUID = (String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestUUID);
 
 
@@ -318,22 +336,30 @@ public class SlackRequestMessagePage implements BlockPage {
         }
     }
 
-    private void handleDeny(Message requestMessage, String slackUserId) throws JsonProcessingException {
+    private void handleDeny(Message requestMessage, String slackUserId) {
         List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
         resetAcceptDenyButtonBlock(requestBlocks, "deny");
 
         // fetch data from message metadata
         Message.Metadata metadata = requestMessage.getMetadata();
         Map<String, Object> eventPayload = metadata.getEventPayload();
-        DatabaseConnectionInfo findDatabaseConnectionInfo = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo),
-                DatabaseConnectionInfo.class);
-        DatabaseRequestCommandGroup.CommandType findCommandType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataCommandType),
-                DatabaseRequestCommandGroup.CommandType.class);
-        Class findRequestDTOClassType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataClass),
-                Class.class);
-        RequestDTO findRequestDTO = (RequestDTO) JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestDTO),
-                findRequestDTOClassType);
 
+        DatabaseConnectionInfo findDatabaseConnectionInfo;
+        DatabaseRequestCommandGroup.CommandType findCommandType;
+        RequestDTO findRequestDTO;
+        try {
+            findDatabaseConnectionInfo = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo),
+                    DatabaseConnectionInfo.class);
+            findCommandType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataCommandType),
+                    DatabaseRequestCommandGroup.CommandType.class);
+            Class findRequestDTOClassType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataClass),
+                    Class.class);
+            findRequestDTO = (RequestDTO) JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestDTO),
+                    findRequestDTOClassType);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("JsonProcess 오류");
+        }
 
         // update slack request message (승인/반려 버튼 삭제)
         ChatUpdateRequest request = ChatUpdateRequest.builder()

@@ -1,5 +1,6 @@
 package zzangmin.db_automation.view;
 
+import com.slack.api.model.Message;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +58,14 @@ public class BlockPageManager {
     // 각 클래스에서 block action 을 컨트롤할 수 있도록 라우팅
     public List<LayoutBlock> handleAction(String actionId, List<LayoutBlock> blocks, Map<String, Map<String, ViewState.Value>> values) {
         BlockPage selectedBlockPage = findBlockPageByActionId(actionId);
-        selectedBlockPage.handleAction(actionId, blocks, values);
+        selectedBlockPage.handleViewAction(actionId, blocks, values);
         return blocks;
+    }
+
+    public List<LayoutBlock> handleAction(String actionId, String userId, Message message) {
+        BlockPage selectedBlockPage = findBlockPageByActionId(actionId);
+        selectedBlockPage.handleMessageAction(actionId, userId, message);
+        return message.getBlocks();
     }
 
     private BlockPage findBlockPageByCommandType(DatabaseRequestCommandGroup.CommandType commandType) {

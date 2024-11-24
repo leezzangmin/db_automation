@@ -61,7 +61,7 @@ public class SelectClusterSchemaTableBlocks implements BlockPage {
     }
 
     @Override
-    public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleViewAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         if (actionId.equals(SlackConstants.CommandBlockIds.ClusterSchemaTable.findAccountSelectsElementActionId)) {
             handleAccountChange(currentBlocks, values);
         } else if (actionId.equals(SlackConstants.CommandBlockIds.ClusterSchemaTable.findEnvironmentSelectsElementActionId)) {

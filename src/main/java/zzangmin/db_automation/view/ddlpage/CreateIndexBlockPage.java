@@ -132,7 +132,7 @@ public class CreateIndexBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleViewAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
         if (actionId.equals(SlackConstants.CommandBlockIds.CreateIndex.createIndexAddColumnButtonId)) {
             handleAddColumn(currentBlocks);
         } else if (actionId.equals(SlackConstants.CommandBlockIds.CreateIndex.createIndexRemoveColumnButtonId)) {

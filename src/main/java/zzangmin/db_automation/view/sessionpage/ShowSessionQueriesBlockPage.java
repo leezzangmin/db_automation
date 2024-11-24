@@ -50,7 +50,7 @@ public class ShowSessionQueriesBlockPage implements BlockPage {
     }
 
     @Override
-    public void handleAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
+    public void handleViewAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
 
     }
 
