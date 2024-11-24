@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS back_office.mysql_account_privilege(
     permission_type varchar(255) not null comment '권한 타입 (SELECT, INSERT, UPDATE, DELETE, ALL, USAGE 등)'
 );
 
-CREATE TABLE IF NOT EXISTS back_office.monitor_target_db(
+CREATE TABLE IF NOT EXISTS back_office.monitor_target_database(
     id bigint primary key auto_increment comment '아이디',
     account_id varchar(64) not null comment 'account_id AWS',
     environment varchar(64) not null comment '환경 (dev,stage,prod)',
@@ -77,14 +77,14 @@ CREATE TABLE IF NOT EXISTS back_office.slack_user(
 
 CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
     id bigint primary key auto_increment comment '아이디',
-    monitor_target_db_id bigint not null comment '모니터링 대상 DB 아이디',
+    monitor_target_database_id bigint not null comment '모니터링 대상 DB 아이디',
     request_user_slack_id varchar(32) not null comment '요청 유저 슬랙 아이디 ex.U04282C8DDX',
 
     command_type varchar(64) not null comment '요청 타입 ex) `add index`',
     request_dto_class_type varchar(64) not null comment '요청 DTO 클래스 타입',
     request_dto mediumtext not null comment '요청 DTO',
 
-    request_metadata_uuid char(16) not null comment '요청 메타데이터 uuid',
+    request_uuid char(16) not null comment '요청 메타데이터 uuid',
 
     request_sql text null comment '요청 sql / 요청 내용',
 

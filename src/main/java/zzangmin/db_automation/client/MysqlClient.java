@@ -3,7 +3,6 @@ package zzangmin.db_automation.client;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.convention.CommonConvention;
-import zzangmin.db_automation.entity.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.mysqlobject.*;
 

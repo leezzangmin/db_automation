@@ -153,15 +153,16 @@ public class SlackService {
                                              List<LayoutBlock> blocks,
                                              RequestDTO requestDTO,
                                              String requestUUID) throws JsonProcessingException {
+        // TODO: 메타데이터 평문 -> 암호화
         if (blocks.isEmpty()) {
             return;
         }
         log.info("block slack message: {}", blocks);
         Map<String, Object> metadataMap = new HashMap<>();
-        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo, JsonUtil.toJson(databaseConnectionInfo));
-        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataClass, JsonUtil.toJson(requestDTO.getClass()));
-        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataRequestDTO, JsonUtil.toJson(requestDTO));
-        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataCommandType, JsonUtil.toJson(commandType));
+//        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo, JsonUtil.toJson(databaseConnectionInfo));
+//        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataClass, JsonUtil.toJson(requestDTO.getClass()));
+//        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataRequestDTO, JsonUtil.toJson(requestDTO));
+//        metadataMap.put(SlackConstants.MetadataKeys.messageMetadataCommandType, JsonUtil.toJson(commandType));
         metadataMap.put(SlackConstants.MetadataKeys.messageMetadataRequestUUID, requestUUID);
 
         // https://api.slack.com/metadata/using

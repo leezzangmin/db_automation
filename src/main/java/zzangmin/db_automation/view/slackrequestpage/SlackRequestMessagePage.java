@@ -13,6 +13,10 @@ import zzangmin.db_automation.config.SlackConfig;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
+import zzangmin.db_automation.entity.MonitorTargetDatabase;
+import zzangmin.db_automation.entity.SlackDatabaseRequest;
+import zzangmin.db_automation.repository.MonitorTargetDatabaseRepository;
+import zzangmin.db_automation.repository.SlackDatabaseRequestRepository;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.util.JsonUtil;
 import zzangmin.db_automation.view.BasicBlockFactory;
@@ -34,7 +38,8 @@ import static com.slack.api.model.block.element.BlockElements.button;
 @Component
 public class SlackRequestMessagePage implements BlockPage {
 
-
+    private final SlackDatabaseRequestRepository slackDatabaseRequestRepository;
+    private final MonitorTargetDatabaseRepository monitorTargetDatabaseRepository;
 
     @Override
     public List<LayoutBlock> generateBlocks() {
@@ -283,34 +288,32 @@ public class SlackRequestMessagePage implements BlockPage {
         List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
         resetAcceptDenyButtonBlock(requestBlocks, "approve");
 
-        // fetch data from message metadata
-        Message.Metadata metadata = requestMessage.getMetadata();
-        Map<String, Object> eventPayload = metadata.getEventPayload();
-
         /**
-         * metadata에서 조회 key를 가져옴
-         * key로 db_request 테이블에서 데이터 조회 (requestDTO, Class, commandType, databaseconnectionInfo)
+         * message metadata에서 조회 key로 uuid 가져옴
+         * key로 db_request 테이블에서 데이터 조회 (uuid 조건)
          * 조회해온 데이터를 아래 변수 필드에 대입
          */
+        Message.Metadata metadata = requestMessage.getMetadata();
+        Map<String, Object> eventPayload = metadata.getEventPayload();
+        String findRequestUUID = (String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestUUID);
 
-        DatabaseConnectionInfo findDatabaseConnectionInfo;
-        DatabaseRequestCommandGroup.CommandType findCommandType;
+        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findByRequestUUID(findRequestUUID)
+                .orElseThrow(() -> new IllegalStateException(findRequestUUID + ": 해당 UUID의 Database Request가 없습니다."));
+        MonitorTargetDatabase monitorTargetDatabase = monitorTargetDatabaseRepository.findById(slackDatabaseRequest.getMonitorTargetDatabaseId())
+                .orElseThrow(() -> new IllegalStateException(slackDatabaseRequest.getMonitorTargetDatabaseId() + ": 해당 ID의 모니터링 대상 DB가 없습니다."));
+
+        DatabaseConnectionInfo findDatabaseConnectionInfo = DatabaseConnectionInfo.of(monitorTargetDatabase);
+        DatabaseRequestCommandGroup.CommandType findCommandType = slackDatabaseRequest.getCommandType();
+
         RequestDTO findRequestDTO;
         try {
-            findDatabaseConnectionInfo = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo),
-                    DatabaseConnectionInfo.class);
-            findCommandType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataCommandType),
-                    DatabaseRequestCommandGroup.CommandType.class);
-            Class findRequestDTOClassType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataClass),
-                    Class.class);
-            findRequestDTO = (RequestDTO) JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestDTO),
+            Class findRequestDTOClassType = Class.forName(slackDatabaseRequest.getRequestDTOClassType());
+            findRequestDTO = (RequestDTO) JsonUtil.toObject((String) slackDatabaseRequest.getRequestDTO(),
                     findRequestDTOClassType);
         } catch (Exception e) {
             e.printStackTrace();
             throw new IllegalArgumentException("JsonProcess 오류");
         }
-        String findRequestUUID = (String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestUUID);
-
 
         // update slack request message (승인/반려 버튼 삭제)
         ChatUpdateRequest request = ChatUpdateRequest.builder()

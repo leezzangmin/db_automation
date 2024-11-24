@@ -3,7 +3,7 @@ package zzangmin.db_automation.validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
-import zzangmin.db_automation.entity.TableStatus;
+import zzangmin.db_automation.entity.mysqlobject.TableStatus;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 
 import static zzangmin.db_automation.convention.CommonConvention.TABLE_BYTE_SIZE_THRESHOLD;

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class DatabaseRequest {
+public class SlackDatabaseRequest {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,7 +21,7 @@ public class DatabaseRequest {
     private DatabaseRequestCommandGroup.CommandType commandType;
     private String requestDTOClassType;
     private String requestDTO;
-    private String requestMetadataUUID;
+    private String requestUUID;
     private String requestSQL;
     private String requestDescription;
     private LocalDateTime requestDatetime;
