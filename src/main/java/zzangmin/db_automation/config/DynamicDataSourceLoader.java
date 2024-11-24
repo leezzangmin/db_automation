@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.*;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.MonitorTargetDb;
-import zzangmin.db_automation.schedule.standardcheck.standardvalue.TagStandard;
+import zzangmin.db_automation.standardvalue.TagStandard;
 import zzangmin.db_automation.service.AwsService;
 
 import java.util.HashMap;
@@ -84,9 +84,10 @@ public class DynamicDataSourceLoader {
                         .findFirst()
                         .orElseThrow(IllegalStateException::new);
 
-                String rdsUsername = awsService.findRdsUsername(accountId, serviceNameTag.value(), environmentTag.value());
-                String password = awsService.findRdsPassword(accountId, serviceNameTag.value(), environmentTag.value());
-
+//                String rdsUsername = awsService.findRdsUsername(accountId, serviceNameTag.value(), environmentTag.value());
+//                String password = awsService.findRdsPassword(accountId, serviceNameTag.value(), environmentTag.value());
+                String rdsUsername = "admin";
+                String password = "Cromysql5128*";
                 DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                         .environment(environmentTag.value())
                         .accountId(accountId)

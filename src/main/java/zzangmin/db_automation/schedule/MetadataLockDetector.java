@@ -17,6 +17,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class MetadataLockDetector {
 
+    private static final int METADATA_LOCK_CHECK_DELAY_MS = 1000;
+
     private Map<String, DatabaseConnectionInfo> targetDatabases = new ConcurrentHashMap<>();
     private final MysqlClient mysqlClient;
 
