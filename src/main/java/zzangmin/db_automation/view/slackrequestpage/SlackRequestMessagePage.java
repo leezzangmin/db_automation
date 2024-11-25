@@ -70,17 +70,6 @@ public class SlackRequestMessagePage implements BlockPage {
     }
 
     @Override
-    public void handleMessageAction(String actionId, String userId, Message message) {
-//        if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
-//            handleAccept(message, userId);
-//        } else if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
-//            handleDeny(message, userId);
-//        } else {
-//            throw new IllegalArgumentException("미지원 actionId: " + actionId);
-//        }
-    }
-
-    @Override
     public List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO) {
         throw new IllegalArgumentException("미지원 page");
     }

@@ -82,7 +82,6 @@ public class BlockPageManager {
                 .build();
         slackService.sendChatUpdateRequest(chatUpdateRequest);
 
-        selectedBlockPage.handleMessageAction(actionId, userId, message);
         return message.getBlocks();
     }
 

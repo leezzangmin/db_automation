@@ -18,10 +18,6 @@ public interface BlockPage {
     boolean supportsActionId(String actionId);
     void handleViewAction(String actionId, List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values);
 
-    default void handleMessageAction(String actionId, String userId, Message message) {
-        throw new IllegalStateException("default 메서드 호출, 세부 클래스에서 구현을 작성하세요.");
-    }
-
     List<LayoutBlock> generateRequestMessageBlocks(RequestDTO requestDTO);
     String execute(DatabaseConnectionInfo databaseConnectionInfo, RequestDTO requestDTO, String slackUserId);
 }
