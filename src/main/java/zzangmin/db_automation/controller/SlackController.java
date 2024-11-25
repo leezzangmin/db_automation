@@ -9,7 +9,6 @@ import com.slack.api.methods.SlackApiException;
 import com.slack.api.methods.request.views.ViewsUpdateRequest;
 import com.slack.api.methods.response.views.ViewsOpenResponse;
 import com.slack.api.methods.response.views.ViewsUpdateResponse;
-import com.slack.api.model.Message;
 import com.slack.api.model.block.*;
 import com.slack.api.model.view.View;
 import com.slack.api.model.view.ViewState;
@@ -26,7 +25,10 @@ import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.config.SlackConfig;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.request.SlackDatabaseIntegratedDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
+import zzangmin.db_automation.entity.SlackDatabaseRequest;
+import zzangmin.db_automation.service.SlackDatabaseRequestService;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPageManager;
@@ -48,6 +50,7 @@ import static zzangmin.db_automation.entity.DatabaseRequestCommandGroup.*;
 public class SlackController {
 
     private final MethodsClient slackClient;
+    private final SlackDatabaseRequestService slackDatabaseRequestService;
 
     private final BlockPageManager blockPageManager;
 
@@ -154,11 +157,19 @@ public class SlackController {
                     requestUUID,
                     blockPageManager.handleSubmissionRequestMessage(findCommandType, requestDTO));
 
+            SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestService.saveSlackDatabaseRequest(new SlackDatabaseIntegratedDTO(selectedDatabaseConnectionInfo,
+                    slackUser.getId(),
+                    findCommandType,
+                    requestDTO.getClass().toString(),
+                    requestDTO,
+                    requestUUID,
+                    requestDTO.extractCommandContent(),
+                    "sample"));
+
             slackService.sendBlockMessageWithMetadata(selectedDatabaseConnectionInfo, findCommandType, requestMessageBlocks, requestDTO, requestUUID);
         } catch (Exception e) {
             log.info("Exception: {}", e.getMessage());
             log.info("Exception trace: {}", e.getStackTrace());
-            e.printStackTrace();
             return ResponseEntity.ok(displayErrorViewJsonString(e, blocks));
         }
 
@@ -175,7 +186,7 @@ public class SlackController {
             for (Action action : actions) {
                 log.info("action: {}", action);
                 slackService.validateRequestAcceptDoerAdmin(user.getId());
-                blocks = blockPageManager.handleAction(action.getActionId(), user.getId(), blockActionPayload.getMessage());
+                blocks = blockPageManager.handleMessageAction(action.getActionId(), user.getId(), blockActionPayload.getMessage());
             }
             return blocks;
         }
@@ -187,7 +198,7 @@ public class SlackController {
         List<LayoutBlock> blocks = view.getBlocks();
         for (Action action : actions) {
             log.info("action: {}", action);
-            blocks = blockPageManager.handleAction(action.getActionId(), blocks, state.getValues());
+            blocks = blockPageManager.handleViewAction(action.getActionId(), blocks, state.getValues());
         }
         return blocks;
     }

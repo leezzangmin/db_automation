@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface SlackDatabaseRequestRepository extends JpaRepository<SlackDatabaseRequest, Long> {
 
-    Optional<SlackDatabaseRequest> findByRequestUUID(String requestUUID);
+    Optional<SlackDatabaseRequest> findOneByRequestUUID(String requestUUID);
 }

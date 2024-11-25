@@ -4,4 +4,8 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 
 public interface RequestDTO {
     DatabaseRequestCommandGroup.CommandType extractCommandType();
+
+    default String extractCommandContent() {
+        return "TODO";
+    }
 }

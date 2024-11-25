@@ -3,8 +3,10 @@ package zzangmin.db_automation.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.slack.api.methods.MethodsClient;
 import com.slack.api.methods.request.chat.ChatPostMessageRequest;
+import com.slack.api.methods.request.chat.ChatUpdateRequest;
 import com.slack.api.methods.response.chat.ChatPostMessageResponse;
 
+import com.slack.api.methods.response.chat.ChatUpdateResponse;
 import com.slack.api.model.Message;
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.MarkdownTextObject;
@@ -118,6 +120,22 @@ public class SlackService {
         for (List<LayoutBlock> chunk : chunkedBlocks) {
             sendChunkedBlockMessage(chunk);
         }
+    }
+
+    public ChatUpdateResponse sendChatUpdateRequest(ChatUpdateRequest chatUpdateRequest) {
+        ChatUpdateResponse chatUpdateResponse = null;
+        try {
+            chatUpdateResponse = slackClient.chatUpdate(chatUpdateRequest);
+            if (chatUpdateResponse.isOk()) {
+                log.info("chatUpdateResponse: {}", chatUpdateResponse);
+            } else {
+                log.error("chatUpdateResponse: {}", chatUpdateResponse);
+            }
+        } catch (Exception e) {
+            log.info(chatUpdateRequest + ": 메세지 업데이트 실패");
+            throw new IllegalArgumentException(e.getMessage());
+        }
+        return chatUpdateResponse;
     }
 
     private List<List<LayoutBlock>> chunkBlocks(List<LayoutBlock> blocks, int chunkSize) {

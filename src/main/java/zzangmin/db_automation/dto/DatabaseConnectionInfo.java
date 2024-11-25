@@ -68,4 +68,20 @@ public class DatabaseConnectionInfo {
                 );
     }
 
+    public MonitorTargetDatabase toMonitorTargetDatabase() {
+        return new MonitorTargetDatabase(null,
+                this.accountId,
+                this.environment,
+                this.serviceName,
+                this.databaseType,
+                this.databaseName,
+                this.driverClassName,
+                this.writerEndpoint,
+                this.readerEndpoint,
+                this.port,
+                this.username,
+                this.password,
+                true);
+    }
+
 }

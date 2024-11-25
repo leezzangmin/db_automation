@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
 
     request_uuid char(16) not null comment '요청 메타데이터 uuid',
 
-    request_sql text null comment '요청 sql / 요청 내용',
+    request_content text null comment '요청 내용 ex.SQL 등',
 
     request_description mediumtext null comment '요청 부가 설명 내용',
 

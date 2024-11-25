@@ -12,11 +12,13 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.config.SlackConfig;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.request.SlackDatabaseIntegratedDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.entity.MonitorTargetDatabase;
 import zzangmin.db_automation.entity.SlackDatabaseRequest;
 import zzangmin.db_automation.repository.MonitorTargetDatabaseRepository;
 import zzangmin.db_automation.repository.SlackDatabaseRequestRepository;
+import zzangmin.db_automation.service.SlackDatabaseRequestService;
 import zzangmin.db_automation.service.SlackService;
 import zzangmin.db_automation.util.JsonUtil;
 import zzangmin.db_automation.view.BasicBlockFactory;
@@ -38,8 +40,7 @@ import static com.slack.api.model.block.element.BlockElements.button;
 @Component
 public class SlackRequestMessagePage implements BlockPage {
 
-    private final SlackDatabaseRequestRepository slackDatabaseRequestRepository;
-    private final MonitorTargetDatabaseRepository monitorTargetDatabaseRepository;
+    private final SlackDatabaseRequestService slackDatabaseRequestService;
 
     @Override
     public List<LayoutBlock> generateBlocks() {
@@ -70,13 +71,13 @@ public class SlackRequestMessagePage implements BlockPage {
 
     @Override
     public void handleMessageAction(String actionId, String userId, Message message) {
-        if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
-            handleAccept(message, userId);
-        } else if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
-            handleDeny(message, userId);
-        } else {
-            throw new IllegalArgumentException("미지원 actionId: " + actionId);
-        }
+//        if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
+//            handleAccept(message, userId);
+//        } else if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
+//            handleDeny(message, userId);
+//        } else {
+//            throw new IllegalArgumentException("미지원 actionId: " + actionId);
+//        }
     }
 
     @Override
@@ -284,56 +285,27 @@ public class SlackRequestMessagePage implements BlockPage {
         slackService.sendBlockMessage(endMessageBlocks);
     }
 
-    private void handleAccept(Message requestMessage, String slackUserId) {
+    public void handleAccept(Message requestMessage, String slackUserId) {
         List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
-        resetAcceptDenyButtonBlock(requestBlocks, "approve");
+        Message.Metadata metadata = requestMessage.getMetadata();
+        Map<String, Object> eventPayload = metadata.getEventPayload();
+
+        resetAcceptDenyButtonBlock(requestBlocks, "approve", requestMessage.getTs());
 
         /**
          * message metadata에서 조회 key로 uuid 가져옴
          * key로 db_request 테이블에서 데이터 조회 (uuid 조건)
          * 조회해온 데이터를 아래 변수 필드에 대입
          */
-        Message.Metadata metadata = requestMessage.getMetadata();
-        Map<String, Object> eventPayload = metadata.getEventPayload();
+
         String findRequestUUID = (String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestUUID);
-
-        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findByRequestUUID(findRequestUUID)
-                .orElseThrow(() -> new IllegalStateException(findRequestUUID + ": 해당 UUID의 Database Request가 없습니다."));
-        MonitorTargetDatabase monitorTargetDatabase = monitorTargetDatabaseRepository.findById(slackDatabaseRequest.getMonitorTargetDatabaseId())
-                .orElseThrow(() -> new IllegalStateException(slackDatabaseRequest.getMonitorTargetDatabaseId() + ": 해당 ID의 모니터링 대상 DB가 없습니다."));
-
-        DatabaseConnectionInfo findDatabaseConnectionInfo = DatabaseConnectionInfo.of(monitorTargetDatabase);
-        DatabaseRequestCommandGroup.CommandType findCommandType = slackDatabaseRequest.getCommandType();
-
-        RequestDTO findRequestDTO;
-        try {
-            Class findRequestDTOClassType = Class.forName(slackDatabaseRequest.getRequestDTOClassType());
-            findRequestDTO = (RequestDTO) JsonUtil.toObject((String) slackDatabaseRequest.getRequestDTO(),
-                    findRequestDTOClassType);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("JsonProcess 오류");
-        }
-
-        // update slack request message (승인/반려 버튼 삭제)
-        ChatUpdateRequest request = ChatUpdateRequest.builder()
-                .channel(SlackConfig.DEFAULT_CHANNEL_ID)
-                .ts(requestMessage.getTs())
-                .blocks(requestBlocks)
-                .text("asdfawefawefasdfzxdfawef")
-                .build();
-        try {
-            ChatUpdateResponse chatUpdateResponse = slackClient.chatUpdate(request);
-            if (chatUpdateResponse.isOk()) {
-                log.info("chatUpdateResponse: {}", chatUpdateResponse);
-            } else {
-                log.error("chatUpdateResponse: {}", chatUpdateResponse);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        SlackDatabaseIntegratedDTO slackDatabaseIntegratedDTO = slackDatabaseRequestService.findSlackDatabaseRequest(findRequestUUID);
+        DatabaseConnectionInfo findDatabaseConnectionInfo = slackDatabaseIntegratedDTO.getDatabaseConnectionInfo()
+        DatabaseRequestCommandGroup.CommandType findCommandType = slackDatabaseIntegratedDTO.getCommandType();
+        RequestDTO findRequestDTO = slackDatabaseIntegratedDTO.getRequestDTO();
 
         findRequestAcceptMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID);
+
         try {
             findRequestExecuteStartMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID);
             String executeResult = blockPageManager.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
@@ -342,6 +314,7 @@ public class SlackRequestMessagePage implements BlockPage {
             findRequestFailMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID, e.getMessage());
         }
     }
+
 
     private void handleDeny(Message requestMessage, String slackUserId) {
         List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
@@ -368,23 +341,24 @@ public class SlackRequestMessagePage implements BlockPage {
             throw new IllegalArgumentException("JsonProcess 오류");
         }
 
-        // update slack request message (승인/반려 버튼 삭제)
-        ChatUpdateRequest request = ChatUpdateRequest.builder()
-                .channel(SlackConfig.DEFAULT_CHANNEL_ID)
-                .ts(requestMessage.getTs())
-                .blocks(requestBlocks)
-                .text("asdfawefawefasdfzxdfawef")
-                .build();
-        try {
-            ChatUpdateResponse chatUpdateResponse = slackClient.chatUpdate(request);
-            if (chatUpdateResponse.isOk()) {
-                log.info("chatUpdateResponse: {}", chatUpdateResponse);
-            } else {
-                log.error("chatUpdateResponse: {}", chatUpdateResponse);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        // update slack request message (승인/반려 버튼 삭제)
+//        ChatUpdateRequest request = ChatUpdateRequest.builder()
+//                .channel(SlackConfig.DEFAULT_CHANNEL_ID)
+//                .ts(requestMessage.getTs())
+//                .blocks(requestBlocks)
+//                .text("asdfawefawefasdfzxdfawef")
+//                .build();
+//        try {
+//            ChatUpdateResponse chatUpdateResponse = slackClient.chatUpdate(request);
+//            if (chatUpdateResponse.isOk()) {
+//                log.info("chatUpdateResponse: {}", chatUpdateResponse);
+//            } else {
+//                log.error("chatUpdateResponse: {}", chatUpdateResponse);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+
         sendRequestDenyMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
     }
 
@@ -418,10 +392,28 @@ public class SlackRequestMessagePage implements BlockPage {
         slackService.sendBlockMessage(denyMessageBlocks);
     }
 
-    private void resetAcceptDenyButtonBlock(List<LayoutBlock> requestBlocks, String requestAckMessage) {
+    private void resetAcceptDenyButtonBlock(List<LayoutBlock> requestBlocks, String requestAckMessage, String ts) {
         SectionBlock requestAckBlock = BasicBlockFactory.getMarkdownTextSection("request " + requestAckMessage, SlackConstants.CommunicationBlockIds.commandRequestAcceptDenyButtonBlockId);
         int acceptDenyBlockIndex = SlackService.findBlockIndex(requestBlocks, "actions", SlackConstants.CommunicationBlockIds.commandRequestAcceptDenyButtonBlockId);
         requestBlocks.set(acceptDenyBlockIndex, requestAckBlock);
+
+        // update slack request message (승인/반려 버튼 삭제)
+        ChatUpdateRequest request = ChatUpdateRequest.builder()
+                .channel(SlackConfig.DEFAULT_CHANNEL_ID)
+                .ts(ts)
+                .blocks(requestBlocks)
+                .text("asdfawefawefasdfzxdfawef")
+                .build();
+        try {
+            ChatUpdateResponse chatUpdateResponse = slackClient.chatUpdate(request);
+            if (chatUpdateResponse.isOk()) {
+                log.info("chatUpdateResponse: {}", chatUpdateResponse);
+            } else {
+                log.error("chatUpdateResponse: {}", chatUpdateResponse);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
