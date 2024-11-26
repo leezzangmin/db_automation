@@ -18,7 +18,9 @@ public class SlackDatabaseRequest {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mysql_account_id", nullable = false)
     private MonitorTargetDatabase monitorTargetDatabase;
-    private String requestUserSlackId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "slack_user_id", nullable = false)
+    private SlackUser slackUser;
     @Enumerated(EnumType.STRING)
     private DatabaseRequestCommandGroup.CommandType commandType;
     private String requestDTOClassType;
@@ -27,5 +29,10 @@ public class SlackDatabaseRequest {
     private String requestContent;
     private String requestDescription;
     private LocalDateTime requestDatetime;
+    private LocalDateTime executeDatetime;
     private Boolean isComplete;
+
+    public void complete() {
+        this.isComplete = true;
+    }
 }
