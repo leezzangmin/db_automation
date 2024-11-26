@@ -23,12 +23,12 @@ public class SlackDatabaseRequestApproval {
     @JoinColumn(name = "slack_user_id", nullable = false)
     private SlackUser slackUser;
     @Enumerated(EnumType.STRING)
-    private responseType responseType;
+    private ResponseType responseType;
     private String responseReason;
     private LocalDateTime responseDateTime;
 
 
-    public enum responseType {
+    public enum ResponseType {
         ACCEPT,
         DENY,
         HOLD,
