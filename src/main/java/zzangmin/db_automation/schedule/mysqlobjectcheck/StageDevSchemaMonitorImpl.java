@@ -8,7 +8,7 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.util.ProfileUtil;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
 
     private static final long SCHEMA_CHECK_DELAY = 9999999999l;
 
-    private final SlackService slackService;
+    private final SlackMessageService slackMessageService;
     private final MysqlClient mysqlClient;
 
     private final DatabaseDifferenceChecker databaseDifferenceChecker;
@@ -38,7 +38,7 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
 
     //@Scheduled(fixedDelay = SCHEMA_CHECK_DELAY)
     public void checkSchema() {
-        slackService.sendNormalStringMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 시작 !");
+        slackMessageService.sendNormalStringMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 시작 !");
 
         StringBuilder schemaCheckResult = new StringBuilder();
         Map<String, DatabaseConnectionInfo> databases = DynamicDataSourceProperties.findAllDatabases();
@@ -71,9 +71,9 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
 
         }
         if (schemaCheckResult.isEmpty()) {
-            slackService.sendNormalStringMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 종료 !");
+            slackMessageService.sendNormalStringMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 검사 종료 !");
             return;
         }
-        slackService.sendNormalStringMessage(schemaCheckResult.toString());
+        slackMessageService.sendNormalStringMessage(schemaCheckResult.toString());
     }
 }

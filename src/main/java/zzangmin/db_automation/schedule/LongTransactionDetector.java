@@ -8,7 +8,7 @@ import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.response.QueriesInLongTransactionResponseDTO;
 import zzangmin.db_automation.entity.mysqlobject.Query;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 
 import java.util.List;
 import java.util.Map;
@@ -22,7 +22,7 @@ public class LongTransactionDetector {
     private final long TRANSACTION_SEARCH_DELAY_MS = 15000L;
 
     private final MysqlClient mysqlClient;
-    private final SlackService slackService;
+    private final SlackMessageService slackMessageService;
 
     //@Scheduled(fixedDelay = TRANSACTION_SEARCH_DELAY_MS)
     public void findLongTransaction() {
@@ -33,7 +33,7 @@ public class LongTransactionDetector {
                 log.warn("{} 의 HLL이 {} 입니다. 임계치: {}", databaseName, historyListLength, HISTORY_LIST_LENGTH_THRESHOLD);
                 int processlistId = mysqlClient.findLongTransactionProcesslistId(databases.get(databaseName));
                 List<Query> queries = mysqlClient.findQueryInTransaction(databases.get(databaseName), processlistId);
-                slackService.sendNormalStringMessage(new QueriesInLongTransactionResponseDTO(databaseName, historyListLength, queries).toString());
+                slackMessageService.sendNormalStringMessage(new QueriesInLongTransactionResponseDTO(databaseName, historyListLength, queries).toString());
             }
         }
     }

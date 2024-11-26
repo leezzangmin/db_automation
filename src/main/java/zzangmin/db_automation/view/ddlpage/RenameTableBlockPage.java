@@ -11,7 +11,7 @@ import zzangmin.db_automation.dto.request.ddl.RenameTableRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.ddl.RenameTableDDLResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPage;
 import zzangmin.db_automation.view.SlackConstants;
@@ -52,7 +52,7 @@ public class RenameTableBlockPage implements BlockPage {
         String schemaName = selectClusterSchemaTableBlocks.findSchemaName(values);
         String oldTableName = selectClusterSchemaTableBlocks.findTableName(values);
 
-        String newTableName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.RenameTable.renameTableNewTableNameTextInputId);
+        String newTableName = SlackMessageService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.RenameTable.renameTableNewTableNameTextInputId);
 
         RenameTableRequestDTO renameTableRequestDTO = new RenameTableRequestDTO(schemaName, oldTableName, newTableName);
         ddlValidator.validateRenameTable(databaseConnectionInfo, renameTableRequestDTO);

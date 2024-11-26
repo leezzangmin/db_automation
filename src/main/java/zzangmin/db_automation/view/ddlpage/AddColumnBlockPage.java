@@ -14,7 +14,7 @@ import zzangmin.db_automation.dto.response.ddl.AddColumnDDLResponseDTO;
 import zzangmin.db_automation.entity.mysqlobject.Column;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.standardvalue.CommonStandard;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPage;
 import zzangmin.db_automation.view.SlackConstants;
@@ -98,19 +98,19 @@ public class AddColumnBlockPage implements BlockPage {
     @Override
     public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
 
-        String columnName = SlackService.findCurrentValueFromState(values,
+        String columnName = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.AddColumn.addColumnColumnNameTextInputId);
 
-        String columnType = SlackService.findCurrentValueFromState(values,
+        String columnType = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.AddColumn.addColumnColumnTypeTextInputId);
 
-        String nullable = SlackService.findCurrentValueFromState(values,
+        String nullable = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.AddColumn.addColumnColumnIsNullRadioId);
 
-        String defaultValue = SlackService.findCurrentValueFromState(values,
+        String defaultValue = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.AddColumn.addColumnColumnDefaultValueTextInputId);
 
-        String columnComment = SlackService.findCurrentValueFromState(values,
+        String columnComment = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.AddColumn.addColumnColumnCommentTextInputId);
 
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);

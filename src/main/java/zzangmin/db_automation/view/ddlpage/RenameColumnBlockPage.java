@@ -11,7 +11,7 @@ import zzangmin.db_automation.dto.request.ddl.RenameColumnRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.ddl.RenameColumnDDLResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPage;
 import zzangmin.db_automation.view.SlackConstants;
@@ -58,10 +58,10 @@ public class RenameColumnBlockPage implements BlockPage {
     @Override
     public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
 
-        String oldColumnName = SlackService.findCurrentValueFromState(values,
+        String oldColumnName = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.RenameColumn.renameColumnOldColumnNameTextInputId);
 
-        String newColumnName = SlackService.findCurrentValueFromState(values,
+        String newColumnName = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.RenameColumn.renameColumnNewColumnNameTextInputId);
 
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);

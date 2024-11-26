@@ -7,14 +7,14 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.dto.request.ddl.DDLRequestDTO;
 import zzangmin.db_automation.dto.response.ddl.DDLResponseDTO;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 
 @RequiredArgsConstructor
 @Aspect
 @Component
 public class DDLMessageSendAspect {
 
-    private final SlackService slackService;
+    private final SlackMessageService slackMessageService;
 
 
     @Pointcut("@annotation(org.springframework.web.bind.annotation.PostMapping) " +
@@ -42,7 +42,7 @@ public class DDLMessageSendAspect {
                 sb.append(((DatabaseConnectionInfo) arg).databaseSummary());
             }
         }
-        slackService.sendNormalStringMessage(sb.toString());
+        slackMessageService.sendNormalStringMessage(sb.toString());
     }
 
     @AfterReturning(pointcut = "requestMappingMethods() && ddlControllerMethods()", returning = "dto")
@@ -62,7 +62,7 @@ public class DDLMessageSendAspect {
         }
         sb.append("\n");
         sb.append(((DDLResponseDTO) dto).toString());
-        slackService.sendNormalStringMessage(sb.toString());
+        slackMessageService.sendNormalStringMessage(sb.toString());
     }
 
     @AfterThrowing(pointcut = "requestMappingMethods() && ddlControllerMethods()", throwing = "error")
@@ -83,7 +83,7 @@ public class DDLMessageSendAspect {
         sb.append("\nError Message: ");
         sb.append(error.getMessage());
 
-        slackService.sendNormalStringMessage(sb.toString());
+        slackMessageService.sendNormalStringMessage(sb.toString());
     }
 
 }

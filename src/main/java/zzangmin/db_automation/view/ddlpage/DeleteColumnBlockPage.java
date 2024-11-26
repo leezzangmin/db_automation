@@ -11,7 +11,7 @@ import zzangmin.db_automation.dto.request.ddl.DeleteColumnRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.ddl.DeleteColumnDDLResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPage;
 import zzangmin.db_automation.view.SlackConstants;
@@ -49,7 +49,7 @@ public class DeleteColumnBlockPage implements BlockPage {
     @Override
     public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
 
-        String columnName = SlackService.findCurrentValueFromState(values,
+        String columnName = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.DeleteColumn.deleteColumnColumnNameTextInputId);
 
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);

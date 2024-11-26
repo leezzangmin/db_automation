@@ -10,7 +10,7 @@ import zzangmin.db_automation.config.SlackConfig;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.util.JsonUtil;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.SlackConstants;
@@ -231,24 +231,6 @@ public class SlackRequestMessagePage {
         // resetAcceptDenyButtonBlock(requestBlocks, "approve", requestMessage.getTs());
         findRequestAcceptMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID);
 
-        /**
-         * message metadata에서 조회 key로 uuid 가져옴
-         * key로 db_request 테이블에서 데이터 조회 (uuid 조건)
-         * 조회해온 데이터를 아래 변수 필드에 대입
-         */
-//        String findRequestUUID = (String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestUUID);
-//        SlackDatabaseIntegratedDTO slackDatabaseIntegratedDTO = slackDatabaseRequestService.findSlackDatabaseRequest(findRequestUUID);
-//        DatabaseConnectionInfo findDatabaseConnectionInfo = slackDatabaseIntegratedDTO.getDatabaseConnectionInfo()
-//        DatabaseRequestCommandGroup.CommandType findCommandType = slackDatabaseIntegratedDTO.getCommandType();
-//        RequestDTO findRequestDTO = slackDatabaseIntegratedDTO.getRequestDTO();
-//
-//        try {
-//            findRequestExecuteStartMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID);
-//            String executeResult = blockPageManager.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
-//            sendRequestEndMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, findRequestUUID, executeResult);
-//        } catch (Exception e) {
-//            findRequestFailMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID, e.getMessage());
-//        }
     }
 
 
@@ -330,7 +312,7 @@ public class SlackRequestMessagePage {
 
     private void resetAcceptDenyButtonBlock(List<LayoutBlock> requestBlocks, String requestAckMessage, String ts) {
         SectionBlock requestAckBlock = BasicBlockFactory.getMarkdownTextSection("request " + requestAckMessage, SlackConstants.CommunicationBlockIds.commandRequestAcceptDenyButtonBlockId);
-        int acceptDenyBlockIndex = SlackService.findBlockIndex(requestBlocks, "actions", SlackConstants.CommunicationBlockIds.commandRequestAcceptDenyButtonBlockId);
+        int acceptDenyBlockIndex = SlackMessageService.findBlockIndex(requestBlocks, "actions", SlackConstants.CommunicationBlockIds.commandRequestAcceptDenyButtonBlockId);
         requestBlocks.set(acceptDenyBlockIndex, requestAckBlock);
 
         // update slack request message (승인/반려 버튼 삭제)

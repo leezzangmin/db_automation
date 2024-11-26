@@ -8,7 +8,7 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.util.ProfileUtil;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
 
     private static final long SCHEMA_CHECK_DELAY = 999999999999999999L;
 
-    private final SlackService slackService;
+    private final SlackMessageService slackMessageService;
     private final MysqlClient mysqlClient;
 
     private final DatabaseDifferenceChecker databaseDifferenceChecker;
@@ -54,7 +54,7 @@ public class ProdSchemaMonitorImpl implements SchemaMonitor {
             accountDifferenceChecker.saveAccount(databaseConnectionInfo);
         }
 
-        slackService.sendNormalStringMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 저장 완료 !\n");
+        slackMessageService.sendNormalStringMessage(ProfileUtil.CURRENT_ENVIRONMENT_PROFILE + " 환경 schema 저장 완료 !\n");
     }
 
 }

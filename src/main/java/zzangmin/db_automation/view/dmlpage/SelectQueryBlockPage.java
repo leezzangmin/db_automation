@@ -11,7 +11,7 @@ import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.request.dml.SelectQueryRequestDTO;
 import zzangmin.db_automation.dto.response.dml.SelectQueryResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPage;
 import zzangmin.db_automation.view.SlackConstants;
@@ -49,7 +49,7 @@ public class SelectQueryBlockPage implements BlockPage {
 
     @Override
     public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
-        String selectSQL = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.SelectQuery.selectSQLTextInputId);
+        String selectSQL = SlackMessageService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.SelectQuery.selectSQLTextInputId);
         log.info("selectSQL: {}", selectSQL);
 
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);

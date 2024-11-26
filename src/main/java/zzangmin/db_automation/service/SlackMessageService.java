@@ -17,12 +17,10 @@ import com.slack.api.model.view.ViewState;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import zzangmin.db_automation.config.SlackConfig;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.view.SlackConstants;
-import zzangmin.db_automation.util.JsonUtil;
 
 import javax.net.ssl.SSLHandshakeException;
 import java.util.*;
@@ -33,21 +31,9 @@ import static zzangmin.db_automation.config.SlackConfig.MAX_MESSAGE_SIZE;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SlackService {
+public class SlackMessageService {
 
     private final MethodsClient slackClient;
-
-
-    /**
-     * 특정 유저(admin)만 request 를 승인/반려 할 수 있음.
-     *
-     */
-    public void validateRequestAcceptDoerAdmin(String slackUserId) {
-        // TODO
-        if (!SlackConfig.slackAdminUserIds.contains(slackUserId)) {
-            throw new IllegalArgumentException("해당 user 가 처리할 수 없는 action 입니다.");
-        }
-    }
 
     public void sendNormalStringMessage(String message) {
         if (message.isBlank()) {
@@ -81,7 +67,7 @@ public class SlackService {
     }
 
     public void sendBlockMessage(List<LayoutBlock> blocks) {
-        if (blocks.isEmpty()) {
+        if (blocks == null || blocks.isEmpty()) {
             return;
         }
         log.info("block slack message: {}", blocks);

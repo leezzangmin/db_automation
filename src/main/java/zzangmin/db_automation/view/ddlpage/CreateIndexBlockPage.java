@@ -13,7 +13,7 @@ import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.ddl.CreateIndexDDLResponseDTO;
 import zzangmin.db_automation.entity.mysqlobject.Constraint;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPage;
 import zzangmin.db_automation.view.SlackConstants;
@@ -93,10 +93,10 @@ public class CreateIndexBlockPage implements BlockPage {
 
     @Override
     public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
-        String indexName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.createIndexIndexNameTextInputId);
+        String indexName = SlackMessageService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.createIndexIndexNameTextInputId);
         log.info("indexName: {}", indexName);
 
-        String indexType = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.findIndexTypeActionId);
+        String indexType = SlackMessageService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.findIndexTypeActionId);
         log.info("indexType: {}", indexType);
 
         List<String> indexColumnNames = findIndexColumnNames(values);
@@ -149,7 +149,7 @@ public class CreateIndexBlockPage implements BlockPage {
         try {
             lastInputColumnNameBlockIndex = findLastInputColumnNameBlockIndex(currentBlocks);
         } catch (Exception e) {
-            int inputColumnNameIndex = SlackService.findBlockIndex(currentBlocks, "input", SlackConstants.CommandBlockIds.CreateIndex.createIndexIndexNameTextInputId) + 1;
+            int inputColumnNameIndex = SlackMessageService.findBlockIndex(currentBlocks, "input", SlackConstants.CommandBlockIds.CreateIndex.createIndexIndexNameTextInputId) + 1;
             currentBlocks.add(inputColumnNameIndex, getInitialIndexColumnNameInputBlock());
             return currentBlocks;
         }
@@ -165,7 +165,7 @@ public class CreateIndexBlockPage implements BlockPage {
         int index = -1;
         try {
             for (int i = 1; i < 99999999; i++) {
-                index = SlackService.findBlockIndex(currentBlocks,
+                index = SlackMessageService.findBlockIndex(currentBlocks,
                         "input",
                         SlackConstants.CommandBlockIds.CreateIndex.createIndexColumnNameTextInputId + i);
             }
@@ -210,7 +210,7 @@ public class CreateIndexBlockPage implements BlockPage {
 
         for (int i = 1;i < 99999999;i++) {
             try {
-                String columnName = SlackService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.createIndexColumnNameTextInputId + i);
+                String columnName = SlackMessageService.findCurrentValueFromState(values, SlackConstants.CommandBlockIds.CreateIndex.createIndexColumnNameTextInputId + i);
                 indexColumnNames.add(columnName);
             } catch (Exception e) {
                 break;

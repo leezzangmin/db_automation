@@ -13,7 +13,7 @@ import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.request.account.MysqlPrivilegeGrantRequestDTO;
 import zzangmin.db_automation.dto.response.account.MysqlPrivilegeGrantResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.SlackConstants;
 import zzangmin.db_automation.view.BlockPage;
@@ -71,11 +71,11 @@ public class GrantBlockPage implements BlockPage {
     @Override
     public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
         DatabaseConnectionInfo databaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
-        String accountName = SlackService.findCurrentValueFromState(values,
+        String accountName = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.Grant.grantSelectMysqlAccountSelectBlockId);
-        List<String> privileges = Arrays.stream(SlackService.findCurrentValueFromState(values,
+        List<String> privileges = Arrays.stream(SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.Grant.grantPrivilegeInputId).split(",")).collect(Collectors.toList());
-        String target = SlackService.findCurrentValueFromState(values,
+        String target = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.Grant.grantTargetInputId);
         MysqlPrivilegeGrantRequestDTO mysqlPrivilegeGrantRequestDTO = new MysqlPrivilegeGrantRequestDTO(accountName, privileges, target);
         log.info("mysqlPrivilegeGrantRequestDTO: {}", mysqlPrivilegeGrantRequestDTO);
@@ -106,7 +106,7 @@ public class GrantBlockPage implements BlockPage {
             ActionsBlock accountSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.Grant.grantSelectMysqlAccountSelectBlockId,
                     accountNameOptions,
                     selectAccountPlaceholder);
-            int selectAccountBlockIndex = SlackService.findBlockIndex(currentBlocks,
+            int selectAccountBlockIndex = SlackMessageService.findBlockIndex(currentBlocks,
                     "actions",
                     SlackConstants.CommandBlockIds.Grant.grantSelectMysqlAccountSelectBlockId);
 

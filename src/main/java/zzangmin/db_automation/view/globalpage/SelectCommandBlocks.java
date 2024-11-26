@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPageManager;
 import zzangmin.db_automation.view.SlackConstants;
@@ -112,15 +112,15 @@ public class SelectCommandBlocks implements BlockPage {
     }
 
     private List<LayoutBlock> handleCommandGroupChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        int commandTypeBlockIndex = SlackService.findBlockIndex(currentBlocks,
+        int commandTypeBlockIndex = SlackMessageService.findBlockIndex(currentBlocks,
                 "actions",
                 SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
         ActionsBlock currentBlock = (ActionsBlock) currentBlocks.get(commandTypeBlockIndex);
         List<BlockElement> currentBlockElements = currentBlock.getElements();
 
-        int commandTypeElementIndex = SlackService.findElementIndex(currentBlockElements, SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
+        int commandTypeElementIndex = SlackMessageService.findElementIndex(currentBlockElements, SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
 
-        String selectedDatabaseRequestGroupName = SlackService.findCurrentValueFromState(values, SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId);
+        String selectedDatabaseRequestGroupName = SlackMessageService.findCurrentValueFromState(values, SlackConstants.FixedBlockIds.findDatabaseRequestCommandGroupSelectsElementActionId);
         DatabaseRequestCommandGroup selectedDatabaseRequestGroup = findDatabaseRequestCommandGroupByName(selectedDatabaseRequestGroupName);
         List<OptionObject> commandTypeOptions = findDatabaseRequestCommandTypes(selectedDatabaseRequestGroup)
                 .stream()
@@ -140,7 +140,7 @@ public class SelectCommandBlocks implements BlockPage {
     }
 
     private List<LayoutBlock> handleCommandTypeChange(List<LayoutBlock> currentBlocks, Map<String, Map<String, ViewState.Value>> values) {
-        String selectedCommandTypeName = SlackService.findCurrentValueFromState(values, SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
+        String selectedCommandTypeName = SlackMessageService.findCurrentValueFromState(values, SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
         DatabaseRequestCommandGroup.CommandType findCommandType = findCommandTypeByCommandTypeName(selectedCommandTypeName);
         removeCommandBlocks(currentBlocks);
 

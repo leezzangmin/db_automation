@@ -1,6 +1,5 @@
 package zzangmin.db_automation.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.slack.api.app_backend.interactive_components.payload.BlockActionPayload;
 import com.slack.api.app_backend.util.JsonPayloadTypeDetector;
 import com.slack.api.app_backend.views.payload.ViewSubmissionPayload;
@@ -29,7 +28,7 @@ import zzangmin.db_automation.dto.request.SlackDatabaseIntegratedDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.entity.SlackDatabaseRequest;
 import zzangmin.db_automation.service.SlackDatabaseRequestService;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.service.SlackUserService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPageManager;
@@ -56,7 +55,7 @@ public class SlackController {
 
     private final BlockPageManager blockPageManager;
 
-    private final SlackService slackService;
+    private final SlackMessageService slackMessageService;
     private final SlackUserService slackUserService;
     private static final JsonPayloadTypeDetector payloadTypeDetector = new JsonPayloadTypeDetector();
 
@@ -150,7 +149,7 @@ public class SlackController {
         ViewSubmissionPayload.User slackUser = viewSubmissionPayload.getUser();
         try {
             CommandType findCommandType = findCommandType(state);
-            String selectedDBMSName = SlackService.findCurrentValueFromState(state.getValues(), SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId);
+            String selectedDBMSName = SlackMessageService.findCurrentValueFromState(state.getValues(), SlackConstants.CommandBlockIds.ClusterSchemaTable.findClusterSelectsElementActionId);
             DatabaseConnectionInfo selectedDatabaseConnectionInfo = DynamicDataSourceProperties.findByDbIdentifier(selectedDBMSName);
             RequestDTO requestDTO = blockPageManager.handleSubmission(findCommandType,
                     state.getValues());
@@ -171,7 +170,7 @@ public class SlackController {
                     LocalDateTime.now())); // TODO: modal 에서 실행시간 입력 받아야함
 
 
-            slackService.sendBlockMessageWithMetadata(selectedDatabaseConnectionInfo, findCommandType, requestMessageBlocks, requestDTO, requestUUID);
+            slackMessageService.sendBlockMessageWithMetadata(selectedDatabaseConnectionInfo, findCommandType, requestMessageBlocks, requestDTO, requestUUID);
         } catch (Exception e) {
             log.info("Exception: {}", e.getMessage());
             log.info("Exception trace: {}", e.getStackTrace());
@@ -236,7 +235,7 @@ public class SlackController {
     }
 
     private CommandType findCommandType(ViewState state) {
-        String selectedCommandTypeName = SlackService.findCurrentValueFromState(state.getValues(), SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
+        String selectedCommandTypeName = SlackMessageService.findCurrentValueFromState(state.getValues(), SlackConstants.FixedBlockIds.findCommandTypeSelectsElementActionId);
         return DatabaseRequestCommandGroup.findCommandTypeByCommandTypeName(selectedCommandTypeName);
     }
 
@@ -260,7 +259,7 @@ public class SlackController {
     }
 
     private String displayErrorViewJsonString(Exception e, List<LayoutBlock> blocks) {
-        int errorBlockIndex = SlackService.findBlockIndex(blocks, "input", SlackConstants.ErrorBlockIds.errorMessageBlockId);
+        int errorBlockIndex = SlackMessageService.findBlockIndex(blocks, "input", SlackConstants.ErrorBlockIds.errorMessageBlockId);
         String errorBlockId = blocks.get(errorBlockIndex).getBlockId();
         String errorMessage = e.getMessage().replace("\"", "\'");
         String errorViewResponseJson = "{\"response_action\":\"errors\",\"errors\": {\"" + errorBlockId + "\":\"" + errorMessage + "\"}}";

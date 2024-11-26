@@ -3,7 +3,7 @@ package zzangmin.db_automation.schedule.standardcheck;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,7 +19,7 @@ public class StandardMonitor {
     private final TagStandardChecker tagStandardChecker;
     private final AccountStandardChecker accountStandardChecker;
     private final PluginComponentStandardChecker pluginComponentStandardChecker;
-    private final SlackService slackService;
+    private final SlackMessageService slackMessageService;
 
     //@Scheduled(fixedDelay = STANDARD_CHECK_DELAY)
     public void checkStandard() {
@@ -41,6 +41,6 @@ public class StandardMonitor {
         standardCheckResult.append(accountStandardResult);
         standardCheckResult.append(pluginComponentStandardResult);
         log.info("standard check finish");
-        slackService.sendNormalStringMessage(standardCheckResult.toString());
+        slackMessageService.sendNormalStringMessage(standardCheckResult.toString());
     }
 }

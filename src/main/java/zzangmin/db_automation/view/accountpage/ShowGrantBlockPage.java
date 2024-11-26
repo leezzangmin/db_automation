@@ -13,7 +13,7 @@ import zzangmin.db_automation.dto.request.account.MysqlPrivilegeShowRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.account.MysqlPrivilegeResponseDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.SlackConstants;
 import zzangmin.db_automation.view.BlockPage;
@@ -57,7 +57,7 @@ public class ShowGrantBlockPage implements BlockPage {
 
     @Override
     public RequestDTO handleSubmission(Map<String, Map<String, ViewState.Value>> values) {
-        String accountName = SlackService.findCurrentValueFromState(values,
+        String accountName = SlackMessageService.findCurrentValueFromState(values,
                 SlackConstants.CommandBlockIds.ShowGrant.showGrantSelectMysqlAccountSelectBlockId);
         DatabaseConnectionInfo selectedDatabaseConnectionInfo = selectClusterSchemaTableBlocks.findDatabaseConnectionInfo(values);
 
@@ -90,7 +90,7 @@ public class ShowGrantBlockPage implements BlockPage {
             ActionsBlock accountSelectBlock = BasicBlockFactory.findStaticSelectsBlock(SlackConstants.CommandBlockIds.ShowGrant.showGrantSelectMysqlAccountSelectBlockId,
                     accountNameOptions,
                     selectAccountPlaceholder);
-            int selectAccountBlockIndex = SlackService.findBlockIndex(currentBlocks,
+            int selectAccountBlockIndex = SlackMessageService.findBlockIndex(currentBlocks,
                     "actions",
                     SlackConstants.CommandBlockIds.ShowGrant.showGrantSelectMysqlAccountSelectBlockId);
 

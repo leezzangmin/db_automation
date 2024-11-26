@@ -94,9 +94,14 @@ public class SlackDatabaseRequestService {
 
     // DatabaseRequest 의 상태가 승인/반려/보류 의 액션을 핸들링 할 수 있는 상태인지 검사
     @Transactional(readOnly = true)
-    public boolean isSlackDatabaseRequestAcceptableStatus(String requestUUID) {
+    public boolean isSlackDatabaseRequestAcceptableStatus(String requestUUID, String acceptSlackId) {
         SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUUID(requestUUID)
                 .orElseThrow(() -> new IllegalStateException(requestUUID + " : 해당 UUID의 DB 요청이 존재하지 않습니다."));
+
+        // 요청자와 응답자가 같으면 false
+        if (slackDatabaseRequest.getSlackUser().getUserSlackId().equals(acceptSlackId)) {
+            return false;
+        }
 
         if (slackDatabaseRequest.getIsComplete()) {
             return false;

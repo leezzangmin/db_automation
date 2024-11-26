@@ -9,7 +9,7 @@ import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.request.SlackDatabaseIntegratedDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackDatabaseRequestService;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BlockPageManager;
 import zzangmin.db_automation.view.slackrequestpage.SlackRequestMessagePage;
 
@@ -24,7 +24,7 @@ public class DatabaseRequestExecutor {
 
     private final BlockPageManager blockPageManager;
     private final SlackDatabaseRequestService slackDatabaseRequestService;
-    private final SlackService slackService;
+    private final SlackMessageService slackMessageService;
 
     @Scheduled(fixedDelay = EXECUTE_DELAY)
     public void execute() {
@@ -42,7 +42,7 @@ public class DatabaseRequestExecutor {
 
             List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(findCommandType, findRequestDTO);
             List<LayoutBlock> startMessageBlocks = SlackRequestMessagePage.findRequestExecuteStartMessageBlocks(findCommandType, findDatabaseConnectionInfo, slackUserId, contentBlocks);
-            slackService.sendBlockMessage(startMessageBlocks);
+            slackMessageService.sendBlockMessage(startMessageBlocks);
 
             List<LayoutBlock> resultBlocks = new ArrayList<>();
             try {
@@ -55,7 +55,7 @@ public class DatabaseRequestExecutor {
                 resultBlocks = requestFailMessageBlocks;
             }
 
-            slackService.sendBlockMessage(resultBlocks);
+            slackMessageService.sendBlockMessage(resultBlocks);
         }
     }
 }
