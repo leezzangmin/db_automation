@@ -27,4 +27,11 @@ public class SlackUserService {
             throw new IllegalArgumentException(slackUserId + ": 해당 user 가 처리할 수 없는 action 입니다.");
         }
     }
+
+    @Transactional(readOnly = true)
+    public SlackUser findSlackUser(String slackUserId) {
+        SlackUser slackUser = slackUserRepository.findByUserSlackId(slackUserId)
+                .orElseThrow(() -> new IllegalStateException(slackUserId + " : 해당 slack user ID 유저가 테이블에 존재하지 않습니다."));
+        return slackUser;
+    }
 }
