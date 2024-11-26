@@ -64,7 +64,8 @@ CREATE TABLE IF NOT EXISTS back_office.monitor_target_database(
     port int not null comment '데이터베이스 포트 ex.3306',
     username varchar(64) not null comment '모니터링 DB 유저 계정명',
     password varchar(64) not null comment '모니터링 DB 유저 패스워드',
-    is_monitor_target tinyint not null comment '모니터링 대상 여부 yn'
+    is_monitor_target tinyint not null comment '모니터링 대상 여부 yn',
+    unique(account_id, environment, database_name)
 ) COMMENT '모니터링 대상 DB 정보';
 
 CREATE TABLE IF NOT EXISTS back_office.slack_user(
@@ -72,7 +73,8 @@ CREATE TABLE IF NOT EXISTS back_office.slack_user(
     user_slack_id   varchar(32) not null comment '슬랙 아이디 ex.U04282C8DDX',
     user_slack_name varchar(64) not null comment '슬랙 유저명 ex.홍길동(DBA)',
     user_type       varchar(32) not null comment '슬랙 유저 타입 ex.admin, normal, ...',
-    expire_datetime datetime    not null comment '유저 만료 시간'
+    expire_datetime datetime    not null comment '유저 만료 시간',
+    unique(user_slack_id)
 ) comment '슬랙 유저 정보';
 
 CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
@@ -84,7 +86,7 @@ CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
     request_dto_class_type varchar(64) not null comment '요청 DTO 클래스 타입',
     request_dto mediumtext not null comment '요청 DTO',
 
-    request_uuid char(16) not null comment '요청 메타데이터 uuid',
+    request_uuid char(36) not null comment '요청 메타데이터 uuid', -- todo binary(16)
 
     request_content text null comment '요청 내용 ex.SQL 등',
 
@@ -92,7 +94,8 @@ CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
 
     request_datetime datetime not null comment '요청 시간',
     execute_datetime datetime not null comment '실행 예정 시간',
-    is_complete tinyint not null comment '완료 여부'
+    is_complete tinyint not null comment '완료 여부',
+    unique (request_uuid)
 ) comment '슬랙 DB 요청 정보';
 
 CREATE TABLE IF NOT EXISTS back_office.slack_database_request_approval(
@@ -101,5 +104,6 @@ CREATE TABLE IF NOT EXISTS back_office.slack_database_request_approval(
     slack_user_id bigint not null comment '응답자 슬랙 아이디',
     response_type varchar(32) not null comment '응답 타입 ex.accept,deny,',
     response_reason text null comment '응답 사유 설명',
-    response_datetime datetime not null comment '응답 시간'
+    response_datetime datetime not null comment '응답 시간',
+    unique key (slack_database_request_id, slack_user_id)
 ) comment '슬랙 DB 요청 응답자';
