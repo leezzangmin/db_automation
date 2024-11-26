@@ -7,6 +7,8 @@ import lombok.ToString;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 
+import java.time.LocalDateTime;
+
 @ToString
 @Getter
 @NoArgsConstructor
@@ -20,5 +22,5 @@ public class SlackDatabaseIntegratedDTO {
     private String requestUUID;
     private String requestContent;
     private String requestDescription;
-
+    private LocalDateTime executeDatetime;
 }
