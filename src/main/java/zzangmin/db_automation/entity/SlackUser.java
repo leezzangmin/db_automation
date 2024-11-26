@@ -1,9 +1,6 @@
 package zzangmin.db_automation.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +18,12 @@ public class SlackUser {
     private Long id;
     private String userSlackId;
     private String userSlackName;
-    private String userType;
+    @Enumerated(EnumType.STRING)
+    private SlackUserType userType;
     private LocalDateTime expireDateTime;
+
+    public enum SlackUserType {
+        ADMIN,
+        NORMAL,
+    }
 }
