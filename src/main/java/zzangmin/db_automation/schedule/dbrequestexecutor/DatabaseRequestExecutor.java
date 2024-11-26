@@ -44,12 +44,12 @@ public class DatabaseRequestExecutor {
             List<LayoutBlock> startMessageBlocks = SlackRequestMessagePage.findRequestExecuteStartMessageBlocks(findCommandType, findDatabaseConnectionInfo, slackUserId, contentBlocks);
             slackService.sendBlockMessage(startMessageBlocks);
 
-            String executeResult = "";
             List<LayoutBlock> resultBlocks = new ArrayList<>();
             try {
-                executeResult = blockPageManager.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
+                String executeResult = blockPageManager.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
                 List<LayoutBlock> requestEndMessageBlocks = SlackRequestMessagePage.findRequestEndMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, findRequestUUID, executeResult);
                 resultBlocks = requestEndMessageBlocks;
+                slackDatabaseRequestService.complete(findRequestUUID);
             } catch (Exception e) {
                 List<LayoutBlock> requestFailMessageBlocks = SlackRequestMessagePage.findRequestFailMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestUUID, e.getMessage(), contentBlocks);
                 resultBlocks = requestFailMessageBlocks;
@@ -57,6 +57,5 @@ public class DatabaseRequestExecutor {
 
             slackService.sendBlockMessage(resultBlocks);
         }
-
     }
 }
