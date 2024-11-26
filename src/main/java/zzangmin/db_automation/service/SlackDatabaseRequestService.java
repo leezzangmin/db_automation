@@ -14,7 +14,6 @@ import zzangmin.db_automation.entity.SlackUser;
 import zzangmin.db_automation.repository.MonitorTargetDatabaseRepository;
 import zzangmin.db_automation.repository.SlackDatabaseReQuestApprovalRepository;
 import zzangmin.db_automation.repository.SlackDatabaseRequestRepository;
-import zzangmin.db_automation.repository.SlackUserRepository;
 import zzangmin.db_automation.util.JsonUtil;
 
 import java.time.LocalDateTime;
@@ -30,9 +29,10 @@ public class SlackDatabaseRequestService {
     private final SlackDatabaseRequestRepository slackDatabaseRequestRepository;
     private final MonitorTargetDatabaseRepository monitorTargetDatabaseRepository;
     private final SlackDatabaseReQuestApprovalRepository slackDatabaseReQuestApprovalRepository;
-    private final SlackUserRepository slackUserRepository;
+
 
     private final static int APPROVAL_CONSENSUS_NUMBER = 2;
+    private final SlackUserService slackUserService;
 
     @Transactional(readOnly = true)
     public MonitorTargetDatabase findMonitorTargetDatabase(Long id) {
@@ -44,8 +44,7 @@ public class SlackDatabaseRequestService {
     public SlackDatabaseRequest saveSlackDatabaseRequest(SlackDatabaseIntegratedDTO slackDatabaseIntegratedDTO) {
         SlackDatabaseRequest slackDatabaseRequest;
         MonitorTargetDatabase monitorTargetDatabase = slackDatabaseIntegratedDTO.getDatabaseConnectionInfo().toMonitorTargetDatabase();
-        SlackUser slackUser = slackUserRepository.findByUserSlackId(slackDatabaseIntegratedDTO.getRequestUserSlackId())
-                .orElseThrow(() -> new IllegalStateException(slackDatabaseIntegratedDTO.getRequestUserSlackId() + " : 해당 slack user ID 유저가 테이블에 존재하지 않습니다."));
+        SlackUser slackUser = slackUserService.findSlackUser(slackDatabaseIntegratedDTO.getRequestUserSlackId());
         try {
             slackDatabaseRequest = new SlackDatabaseRequest(null,
                     monitorTargetDatabase,
@@ -107,11 +106,11 @@ public class SlackDatabaseRequestService {
             return false;
         }
 
-        Map<SlackDatabaseRequestApproval.responseType, List<SlackDatabaseRequestApproval>> approvals = slackDatabaseReQuestApprovalRepository.findByDatabaseRequestUUID(requestUUID)
+        Map<SlackDatabaseRequestApproval.ResponseType, List<SlackDatabaseRequestApproval>> approvals = slackDatabaseReQuestApprovalRepository.findByDatabaseRequestUUID(requestUUID)
                 .stream()
                 .collect(Collectors.groupingBy(SlackDatabaseRequestApproval::getResponseType));
 
-        int consensusCount = approvals.get(SlackDatabaseRequestApproval.responseType.ACCEPT).size() - approvals.get(SlackDatabaseRequestApproval.responseType.DENY).size();
+        int consensusCount = approvals.get(SlackDatabaseRequestApproval.ResponseType.ACCEPT).size() - approvals.get(SlackDatabaseRequestApproval.ResponseType.DENY).size();
         if (consensusCount >= APPROVAL_CONSENSUS_NUMBER) {
             return true;
         }
@@ -125,6 +124,30 @@ public class SlackDatabaseRequestService {
         SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUUID(requestUUID)
                 .orElseThrow(() -> new IllegalStateException(requestUUID + " : 해당 UUID의 DB 요청이 존재하지 않습니다."));
         slackDatabaseRequest.complete();
+    }
+
+    @Transactional
+    public void responseToRequest(String requestUUID, String slackUserId, SlackDatabaseRequestApproval.ResponseType responseType) {
+        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUUID(requestUUID)
+                .orElseThrow(() -> new IllegalStateException(requestUUID + " : 해당 UUID의 DB 요청이 존재하지 않습니다."));
+
+        // 이미 투표한 요청인지 확인
+        List<SlackDatabaseRequestApproval> approvals = slackDatabaseReQuestApprovalRepository.findByDatabaseRequestUUID(requestUUID);
+        for (SlackDatabaseRequestApproval approval : approvals) {
+            if (approval.getSlackUser().getUserSlackId().equals(slackUserId)) {
+                throw new IllegalArgumentException("해당 유저가 이미 응답한 요청입니다.");
+            }
+        }
+
+        // 새로운 응답 생성
+        SlackDatabaseRequestApproval response = new SlackDatabaseRequestApproval(null,
+                slackDatabaseRequest,
+                slackUserService.findSlackUser(slackUserId),
+                responseType,
+                "TODO",
+                LocalDateTime.now());
+
+        slackDatabaseReQuestApprovalRepository.save(response);
     }
 
     @Transactional(readOnly = true)
