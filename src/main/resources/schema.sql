@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
     request_description mediumtext null comment '요청 부가 설명 내용',
 
     request_datetime datetime not null comment '요청 시간',
+    execute_datetime datetime not null comment '실행 예정 시간',
     is_complete tinyint not null comment '완료 여부'
 ) comment '슬랙 DB 요청 정보';
 
