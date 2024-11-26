@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS back_office.slack_user(
 CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
     id bigint primary key auto_increment comment '아이디',
     monitor_target_database_id bigint not null comment '모니터링 대상 DB 아이디',
-    request_user_slack_id varchar(32) not null comment '요청 유저 슬랙 아이디 ex.U04282C8DDX',
+    slack_user_id bigint not null comment '요청 유저 슬랙 아이디',
 
     command_type varchar(64) not null comment '요청 타입 ex) `add index`',
     request_dto_class_type varchar(64) not null comment '요청 DTO 클래스 타입',
@@ -95,12 +95,11 @@ CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
     is_complete tinyint not null comment '완료 여부'
 ) comment '슬랙 DB 요청 정보';
 
-CREATE TABLE IF NOT EXISTS back_office.slack_database_request_acceptor(
+CREATE TABLE IF NOT EXISTS back_office.slack_database_request_approval(
     id bigint primary key auto_increment comment '아이디',
     slack_database_request_id bigint not null comment '슬랙 DB 요청 정보 아이디',
-    response_slack_user_id varchar(32) not null comment '아이디',
-    response_type varchar(32) not null comment '응답 타입 ex.accept,decline',
-
+    slack_user_id bigint not null comment '응답자 슬랙 아이디',
+    response_type varchar(32) not null comment '응답 타입 ex.accept,deny,',
     response_reason text null comment '응답 사유 설명',
     response_datetime datetime not null comment '응답 시간'
 ) comment '슬랙 DB 요청 응답자';
