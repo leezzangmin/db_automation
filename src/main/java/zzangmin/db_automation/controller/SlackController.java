@@ -30,6 +30,7 @@ import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.entity.SlackDatabaseRequest;
 import zzangmin.db_automation.service.SlackDatabaseRequestService;
 import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.service.SlackUserService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPageManager;
 import zzangmin.db_automation.view.globalpage.SelectCommandBlocks;
@@ -39,6 +40,7 @@ import zzangmin.db_automation.view.slackrequestpage.SlackRequestMessagePage;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static com.slack.api.app_backend.interactive_components.payload.BlockActionPayload.*;
@@ -55,6 +57,7 @@ public class SlackController {
     private final BlockPageManager blockPageManager;
 
     private final SlackService slackService;
+    private final SlackUserService slackUserService;
     private static final JsonPayloadTypeDetector payloadTypeDetector = new JsonPayloadTypeDetector();
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
@@ -164,7 +167,9 @@ public class SlackController {
                     requestDTO,
                     requestUUID,
                     requestDTO.extractCommandContent(),
-                    "sample"));
+                    "sample",
+                    LocalDateTime.now())); // TODO: modal 에서 실행시간 입력 받아야함
+
 
             slackService.sendBlockMessageWithMetadata(selectedDatabaseConnectionInfo, findCommandType, requestMessageBlocks, requestDTO, requestUUID);
         } catch (Exception e) {
@@ -176,7 +181,7 @@ public class SlackController {
         return ResponseEntity.ok(closeViewJsonString());
     }
 
-    private List<LayoutBlock> handleBlockAction(BlockActionPayload blockActionPayload) throws JsonProcessingException {
+    private List<LayoutBlock> handleBlockAction(BlockActionPayload blockActionPayload) {
         List<Action> actions = blockActionPayload.getActions();
 
         // message action
@@ -185,7 +190,7 @@ public class SlackController {
             List<LayoutBlock> blocks = new ArrayList<>();
             for (Action action : actions) {
                 log.info("action: {}", action);
-                slackService.validateRequestAcceptDoerAdmin(user.getId());
+                slackUserService.validateRequestAcceptDoerAdmin(user.getId());
                 blocks = blockPageManager.handleMessageAction(action.getActionId(), user.getId(), blockActionPayload.getMessage());
             }
             return blocks;

@@ -17,7 +17,7 @@ public class SlackConfig {
     public static String slackBotToken;
     public static String slackAppSigningSecret;
     public static String verificationToken;
-    public static List<String> slackAdminUserIds;
+
 
     public static String DEFAULT_CHANNEL_ID;
     public static final int MAX_MESSAGE_SIZE = 10000;
@@ -26,13 +26,11 @@ public class SlackConfig {
     public void setSlackAppSigningSecret(@Value("${slack.bot-token}") String slackBotToken,
                                          @Value("${slack.app-signing-secret}")String slackAppSigningSecret,
                                          @Value("${slack.default-channel-id}")String DEFAULT_CHANNEL_ID,
-                                         @Value("${slack.verification-token}")String verificationToken,
-                                         @Value("${slack.admin-user-ids}")String slackAdminUserIds) {
+                                         @Value("${slack.verification-token}")String verificationToken) {
         this.slackBotToken = slackBotToken;
         this.slackAppSigningSecret = slackAppSigningSecret;
         this.DEFAULT_CHANNEL_ID = DEFAULT_CHANNEL_ID;
         this.verificationToken = verificationToken;
-        this.slackAdminUserIds = List.of(slackAdminUserIds.split(","));
     }
 
     @Bean
