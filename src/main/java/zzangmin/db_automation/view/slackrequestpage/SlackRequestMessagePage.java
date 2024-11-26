@@ -223,15 +223,15 @@ public class SlackRequestMessagePage {
         return endMessageBlocks;
     }
 
-    public void handleAccept(Message requestMessage, String slackUserId) {
-        List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
-        Message.Metadata metadata = requestMessage.getMetadata();
-        Map<String, Object> eventPayload = metadata.getEventPayload();
-
-        // resetAcceptDenyButtonBlock(requestBlocks, "approve", requestMessage.getTs());
-        findRequestAcceptMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID);
-
-    }
+//    public void handleAccept(Message requestMessage, String slackUserId) {
+//        List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
+//        Message.Metadata metadata = requestMessage.getMetadata();
+//        Map<String, Object> eventPayload = metadata.getEventPayload();
+//
+//        // resetAcceptDenyButtonBlock(requestBlocks, "approve", requestMessage.getTs());
+//        findRequestAcceptMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID);
+//
+//    }
 
 
     private void handleDeny(Message requestMessage, String slackUserId) {

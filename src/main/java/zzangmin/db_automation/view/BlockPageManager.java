@@ -1,7 +1,6 @@
 package zzangmin.db_automation.view;
 
 import com.slack.api.methods.request.chat.ChatUpdateRequest;
-import com.slack.api.methods.response.chat.ChatUpdateResponse;
 import com.slack.api.model.Message;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.view.ViewState;
@@ -12,28 +11,32 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.config.SlackConfig;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
+import zzangmin.db_automation.dto.request.SlackDatabaseIntegratedDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.service.SlackService;
+import zzangmin.db_automation.entity.SlackDatabaseRequestApproval;
+import zzangmin.db_automation.service.SlackDatabaseRequestService;
+import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.slackrequestpage.SlackRequestMessagePage;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
 public class BlockPageManager {
 
     private final List<BlockPage> blockPages;
-    private final SlackService slackService;
+    private final SlackMessageService slackMessageService;
+    private final SlackDatabaseRequestService slackDatabaseRequestService;
 
     @Autowired
-    public BlockPageManager(@Lazy List<BlockPage> blockPages, SlackService slackService) {
+    public BlockPageManager(@Lazy List<BlockPage> blockPages, SlackMessageService slackMessageService, SlackDatabaseRequestService slackDatabaseRequestService) {
         this.blockPages = blockPages;
-        this.slackService = slackService;
+        this.slackMessageService = slackMessageService;
+        this.slackDatabaseRequestService = slackDatabaseRequestService;
     }
 
-    // 커맨드타입에 해당하는 view block page 클래스를 찾아서 generate 된 view를 리턴
+    // 커맨드타입에 해당하는 view block page 클래스를 찾아서 generate 된 view 리턴
     public List<LayoutBlock> generateBlocks(DatabaseRequestCommandGroup.CommandType commandType) {
         BlockPage selectedBlockPage = findBlockPageByCommandType(commandType);
 
@@ -62,27 +65,51 @@ public class BlockPageManager {
         return blocks;
     }
 
-    public List<LayoutBlock> handleMessageAction(String actionId, String userId, Message message) {
-        SlackRequestMessagePage selectedBlockPage = (SlackRequestMessagePage) findBlockPageByActionId(actionId);
+    public List<LayoutBlock> handleMessageAction(String actionId, String slackUserId, Message message) {
+        String findRequestUUID = (String) message.getMetadata().getEventPayload().get(SlackConstants.MetadataKeys.messageMetadataRequestUUID);
+        SlackDatabaseIntegratedDTO slackDatabaseIntegratedDTO = slackDatabaseRequestService.findSlackDatabaseRequest(findRequestUUID);
+        DatabaseConnectionInfo findDatabaseConnectionInfo = slackDatabaseIntegratedDTO.getDatabaseConnectionInfo();
+        DatabaseRequestCommandGroup.CommandType findCommandType = slackDatabaseIntegratedDTO.getCommandType();
+        RequestDTO findRequestDTO = slackDatabaseIntegratedDTO.getRequestDTO();
+        List<LayoutBlock> contentBlocks = handleSubmissionRequestMessage(findCommandType, findRequestDTO);
 
-        if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
-            selectedBlockPage.handleAccept(message, userId);
-        } else if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
-            handleDeny(message, userId);
-        } else {
-            throw new IllegalArgumentException("미지원 actionId: " + actionId);
+        if (slackDatabaseRequestService.isSlackDatabaseRequestAcceptableStatus(findRequestUUID, slackUserId)) {
+            // 승인
+            if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
+                slackDatabaseRequestService.responseToRequest(findRequestUUID, slackUserId, SlackDatabaseRequestApproval.ResponseType.ACCEPT);
+            }
+            // 반려
+            else if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestDenyButtonBlockId)) {
+                slackDatabaseRequestService.responseToRequest(findRequestUUID, slackUserId, SlackDatabaseRequestApproval.ResponseType.DENY);
+            }
+            // 승인,반려 외의 액션
+            else {
+                throw new IllegalArgumentException("미지원 actionId: " + actionId);
+            }
+        } else if (!slackDatabaseRequestService.isSlackDatabaseRequestAcceptableStatus(findRequestUUID, slackUserId)) {
+            throw new IllegalStateException("응답 가능한 상태의 요청이 아닙니다.");
         }
 
 
+
+        // 기존 메세지 업데이트(승인/반려 버튼 비활성화 혹은 카운팅)
         ChatUpdateRequest chatUpdateRequest = ChatUpdateRequest.builder()
                 .channel(SlackConfig.DEFAULT_CHANNEL_ID)
                 .ts(message.getTs())
                 .blocks(message.getBlocks())
                 .text("asdfawefawefasdfzxdfawef")
                 .build();
-        slackService.sendChatUpdateRequest(chatUpdateRequest);
+        slackMessageService.sendChatUpdateRequest(chatUpdateRequest);
 
         return message.getBlocks();
+    }
+
+    private List<LayoutBlock> sendAcceptDenyMessage(DatabaseRequestCommandGroup.CommandType commandType) {
+        List<LayoutBlock> requestAcceptMessageBlocks = SlackRequestMessagePage.findRequestAcceptMessageBlocks(findCommandType, findDatabaseConnectionInfo, slackUserId, findRequestUUID, contentBlocks);
+
+        if (slackDatabaseRequestService.isSlackDatabaseRequestAcceptableStatus(findRequestUUID, slackUserId)) {
+
+        }
     }
 
     private BlockPage findBlockPageByCommandType(DatabaseRequestCommandGroup.CommandType commandType) {
@@ -108,7 +135,7 @@ public class BlockPageManager {
     }
 
     // 각 view block page 클래스의 execute (실제 커맨드 실행)
-    private String execute(DatabaseRequestCommandGroup.CommandType commandType,
+    public String execute(DatabaseRequestCommandGroup.CommandType commandType,
                            DatabaseConnectionInfo databaseConnectionInfo,
                            RequestDTO requestDTO,
                            String slackUserId) {
