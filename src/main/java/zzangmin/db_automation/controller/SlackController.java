@@ -52,11 +52,10 @@ public class SlackController {
 
     private final MethodsClient slackClient;
     private final SlackDatabaseRequestService slackDatabaseRequestService;
-
     private final BlockPageManager blockPageManager;
-
     private final SlackMessageService slackMessageService;
     private final SlackUserService slackUserService;
+
     private static final JsonPayloadTypeDetector payloadTypeDetector = new JsonPayloadTypeDetector();
 
     @PostMapping(value = "/slack/callback", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)

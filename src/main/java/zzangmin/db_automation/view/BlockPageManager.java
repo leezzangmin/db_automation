@@ -73,7 +73,9 @@ public class BlockPageManager {
         RequestDTO findRequestDTO = slackDatabaseIntegratedDTO.getRequestDTO();
         List<LayoutBlock> contentBlocks = handleSubmissionRequestMessage(findCommandType, findRequestDTO);
 
-        if (slackDatabaseRequestService.isSlackDatabaseRequestAcceptableStatus(findRequestUUID, slackUserId)) {
+        validateSameUser(slackDatabaseIntegratedDTO.getRequestUserSlackId(), slackUserId);
+
+        if (slackDatabaseRequestService.isSlackDatabaseRequestAcceptableStatus(findRequestUUID)) {
             // 승인
             if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
                 slackDatabaseRequestService.responseToRequest(findRequestUUID, slackUserId, SlackDatabaseRequestApproval.ResponseType.ACCEPT);
@@ -90,7 +92,7 @@ public class BlockPageManager {
             throw new IllegalStateException("응답 가능한 상태의 요청이 아닙니다.");
         }
 
-
+        sendAcceptDenyMessage();
 
         // 기존 메세지 업데이트(승인/반려 버튼 비활성화 혹은 카운팅)
         ChatUpdateRequest chatUpdateRequest = ChatUpdateRequest.builder()
@@ -102,6 +104,13 @@ public class BlockPageManager {
         slackMessageService.sendChatUpdateRequest(chatUpdateRequest);
 
         return message.getBlocks();
+    }
+
+    // 요청자와 응답자가 같으면 Exception
+    private void validateSameUser(String requestId, String acceptId) {
+        if (requestId.equals(acceptId)) {
+            throw new IllegalArgumentException("요청한 유저는 승인/반려 할 수 없습니다.");
+        }
     }
 
     private List<LayoutBlock> sendAcceptDenyMessage(DatabaseRequestCommandGroup.CommandType commandType) {
