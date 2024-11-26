@@ -31,6 +31,7 @@ public class DatabaseRequestExecutor {
         List<SlackDatabaseIntegratedDTO> notCompletedSlackDatabaseRequestDTOs = slackDatabaseRequestService.findNotCompletedSlackDatabaseRequests();
 
         for (SlackDatabaseIntegratedDTO notCompletedSlackDatabaseRequestDTO : notCompletedSlackDatabaseRequestDTOs) {
+            // TODO: execute_datetime 기반 실행, accept/deny count 검증
             String findRequestUUID = notCompletedSlackDatabaseRequestDTO.getRequestUUID();
             SlackDatabaseIntegratedDTO slackDatabaseIntegratedDTO = slackDatabaseRequestService.findSlackDatabaseRequest(findRequestUUID);
             DatabaseConnectionInfo findDatabaseConnectionInfo = slackDatabaseIntegratedDTO.getDatabaseConnectionInfo();
