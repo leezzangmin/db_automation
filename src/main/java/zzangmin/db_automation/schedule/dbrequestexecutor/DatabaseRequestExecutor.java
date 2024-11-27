@@ -20,7 +20,7 @@ import java.util.List;
 @Component
 public class DatabaseRequestExecutor {
 
-    private static final int EXECUTE_DELAY = 10000;
+    private static final int EXECUTE_DELAY = 1000000;
 
     private final BlockPageManager blockPageManager;
     private final SlackDatabaseRequestService slackDatabaseRequestService;

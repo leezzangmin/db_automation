@@ -69,16 +69,16 @@ public class SlackDatabaseRequestService {
 
     @Transactional(readOnly = true)
     public SlackDatabaseIntegratedDTO findSlackDatabaseRequest(String requestUUID) {
-        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUUID(requestUUID)
+        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUuid(requestUUID)
                 .orElseThrow(() -> new IllegalStateException(requestUUID + ": 해당 UUID의 Database Request가 없습니다."));
         SlackDatabaseIntegratedDTO slackDatabaseIntegratedDTO;
         try {
             slackDatabaseIntegratedDTO = new SlackDatabaseIntegratedDTO(DatabaseConnectionInfo.of(slackDatabaseRequest.getMonitorTargetDatabase()),
                     slackDatabaseRequest.getSlackUser().getUserSlackId(),
                     slackDatabaseRequest.getCommandType(),
-                    slackDatabaseRequest.getRequestDTOClassType(),
-                    (RequestDTO) JsonUtil.toObject(slackDatabaseRequest.getRequestDTO(), Class.forName(slackDatabaseRequest.getRequestDTOClassType())),
-                    slackDatabaseRequest.getRequestUUID(),
+                    slackDatabaseRequest.getRequestDtoClassType(),
+                    (RequestDTO) JsonUtil.toObject(slackDatabaseRequest.getRequestDto(), Class.forName(slackDatabaseRequest.getRequestDtoClassType())),
+                    slackDatabaseRequest.getRequestUuid(),
                     slackDatabaseRequest.getRequestContent(),
                     slackDatabaseRequest.getRequestDescription(),
                     slackDatabaseRequest.getExecuteDatetime());
@@ -93,7 +93,7 @@ public class SlackDatabaseRequestService {
 
     @Transactional(readOnly = true)
     public SlackDatabaseRequest.ExecuteStatus findExecuteStatus(String requestUUID) {
-        SlackDatabaseRequest.ExecuteStatus executeStatus = slackDatabaseRequestRepository.findExecuteStatusByRequestUUID(requestUUID)
+        SlackDatabaseRequest.ExecuteStatus executeStatus = slackDatabaseRequestRepository.findExecuteStatusByRequestUuid(requestUUID)
                 .orElseThrow(() -> new IllegalStateException(requestUUID + " : 해당 UUID의 DB 요청이 존재하지 않습니다."));
         return executeStatus;
     }
@@ -101,7 +101,7 @@ public class SlackDatabaseRequestService {
     // DatabaseRequest 의 상태가 승인/반려/보류 액션을 핸들링 할 수 있는 상태인지 검사
     @Transactional(readOnly = true)
     public boolean isSlackDatabaseRequestVotableStatus(String requestUUID) {
-        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUUID(requestUUID)
+        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUuid(requestUUID)
                 .orElseThrow(() -> new IllegalStateException(requestUUID + " : 해당 UUID의 DB 요청이 존재하지 않습니다."));
 
         if (!slackDatabaseRequest.isVotableStatus()) {
@@ -112,14 +112,14 @@ public class SlackDatabaseRequestService {
 
     @Transactional
     public void complete(String requestUUID) {
-        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUUID(requestUUID)
+        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUuid(requestUUID)
                 .orElseThrow(() -> new IllegalStateException(requestUUID + " : 해당 UUID의 DB 요청이 존재하지 않습니다."));
         slackDatabaseRequest.complete();
     }
 
     @Transactional
     public void responseToRequest(String requestUUID, String slackUserId, SlackDatabaseRequestApproval.ResponseType responseType) {
-        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUUID(requestUUID)
+        SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUuid(requestUUID)
                 .orElseThrow(() -> new IllegalStateException(requestUUID + " : 해당 UUID의 DB 요청이 존재하지 않습니다."));
 
         // 이미 투표한 요청인지 확인
@@ -161,9 +161,9 @@ public class SlackDatabaseRequestService {
                         return new SlackDatabaseIntegratedDTO(DatabaseConnectionInfo.of(s.getMonitorTargetDatabase()),
                                 s.getSlackUser().getUserSlackId(),
                                 s.getCommandType(),
-                                s.getRequestDTOClassType(),
-                                (RequestDTO) JsonUtil.toObject(s.getRequestDTO(), Class.forName(s.getRequestDTOClassType())),
-                                s.getRequestUUID(),
+                                s.getRequestDtoClassType(),
+                                (RequestDTO) JsonUtil.toObject(s.getRequestDto(), Class.forName(s.getRequestDtoClassType())),
+                                s.getRequestUuid(),
                                 s.getRequestContent(),
                                 s.getRequestDescription(),
                                 s.getExecuteDatetime());

@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface SlackDatabaseReQuestApprovalRepository extends JpaRepository<SlackDatabaseRequestApproval, Long> {
 
-    @Query("SELECT ap from SlackDatabaseRequestApproval ap join fetch ap.slackDatabaseRequest s where s.requestUUID = :requestUUID ")
+    @Query("SELECT ap from SlackDatabaseRequestApproval ap join fetch ap.slackDatabaseRequest s where s.requestUuid = :requestUUID ")
     List<SlackDatabaseRequestApproval> findByDatabaseRequestUUID(String requestUUID);
 }

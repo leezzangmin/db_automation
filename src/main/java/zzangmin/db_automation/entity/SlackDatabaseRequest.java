@@ -16,16 +16,16 @@ public class SlackDatabaseRequest {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "mysql_account_id", nullable = false)
+    @JoinColumn(name = "monitor_target_database_id", nullable = false)
     private MonitorTargetDatabase monitorTargetDatabase;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "slack_user_id", nullable = false)
     private SlackUser slackUser;
     @Enumerated(EnumType.STRING)
     private DatabaseRequestCommandGroup.CommandType commandType;
-    private String requestDTOClassType;
-    private String requestDTO;
-    private String requestUUID;
+    private String requestDtoClassType;
+    private String requestDto;
+    private String requestUuid;
     private String requestContent;
     private String requestDescription;
     private LocalDateTime requestDatetime;

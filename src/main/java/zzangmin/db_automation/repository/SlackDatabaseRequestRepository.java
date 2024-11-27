@@ -11,11 +11,11 @@ import java.util.Optional;
 @Repository
 public interface SlackDatabaseRequestRepository extends JpaRepository<SlackDatabaseRequest, Long> {
 
-    Optional<SlackDatabaseRequest> findOneByRequestUUID(String requestUUID);
+    Optional<SlackDatabaseRequest> findOneByRequestUuid(String requestUUID);
 
-    @Query("select s from SlackDatabaseRequest s where s.executeStatus = zzangmin.db_automation.entity.SlackDatabaseRequest.ExecuteStatus.IN_PROGRESS")
+    @Query("select s from SlackDatabaseRequest s where s.executeStatus = 'IN_PROGRESS'")
     List<SlackDatabaseRequest> findInProgress();
 
-    @Query("select s.executeStatus from SlackDatabaseRequest s where s.requestUUID =:requestUUID")
-    Optional<SlackDatabaseRequest.ExecuteStatus> findExecuteStatusByRequestUUID(String requestUUID);
+    @Query("select s.executeStatus from SlackDatabaseRequest s where s.requestUuid =:requestUUID")
+    Optional<SlackDatabaseRequest.ExecuteStatus> findExecuteStatusByRequestUuid(String requestUUID);
 }
