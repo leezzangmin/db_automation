@@ -81,20 +81,15 @@ CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
     id bigint primary key auto_increment comment '아이디',
     monitor_target_database_id bigint not null comment '모니터링 대상 DB 아이디',
     slack_user_id bigint not null comment '요청 유저 슬랙 아이디',
-
     command_type varchar(64) not null comment '요청 타입 ex) `add index`',
     request_dto_class_type varchar(64) not null comment '요청 DTO 클래스 타입',
     request_dto mediumtext not null comment '요청 DTO',
-
     request_uuid char(36) not null comment '요청 메타데이터 uuid', -- todo binary(16)
-
     request_content text null comment '요청 내용 ex.SQL 등',
-
     request_description mediumtext null comment '요청 부가 설명 내용',
-
     request_datetime datetime not null comment '요청 시간',
     execute_datetime datetime not null comment '실행 예정 시간',
-    is_complete tinyint not null comment '완료 여부',
+    execute_status varchar(16) not null comment '실행 상태 ex. voting,progress,denied,complete',
     unique (request_uuid)
 ) comment '슬랙 DB 요청 정보';
 

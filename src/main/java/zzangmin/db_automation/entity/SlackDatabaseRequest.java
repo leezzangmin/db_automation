@@ -30,9 +30,21 @@ public class SlackDatabaseRequest {
     private String requestDescription;
     private LocalDateTime requestDatetime;
     private LocalDateTime executeDatetime;
-    private Boolean isComplete;
+    @Enumerated(EnumType.STRING)
+    private ExecuteStatus executeStatus;
+
+    public enum ExecuteStatus {
+        VOTING,
+        IN_PROGRESS,
+        DENIED,
+        COMPLETE
+    }
 
     public void complete() {
-        this.isComplete = true;
+        this.executeStatus = ExecuteStatus.COMPLETE;
+    }
+
+    public boolean isVotableStatus() {
+        return this.executeStatus == ExecuteStatus.VOTING;
     }
 }
