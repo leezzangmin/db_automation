@@ -15,4 +15,7 @@ public interface SlackDatabaseRequestRepository extends JpaRepository<SlackDatab
 
     @Query("select s from SlackDatabaseRequest s where s.executeStatus = zzangmin.db_automation.entity.SlackDatabaseRequest.ExecuteStatus.IN_PROGRESS")
     List<SlackDatabaseRequest> findInProgress();
+
+    @Query("select s.executeStatus from SlackDatabaseRequest s where s.requestUUID =:requestUUID")
+    Optional<SlackDatabaseRequest.ExecuteStatus> findExecuteStatusByRequestUUID(String requestUUID);
 }
