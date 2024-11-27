@@ -44,6 +44,14 @@ public class SlackDatabaseRequest {
         this.executeStatus = ExecuteStatus.COMPLETE;
     }
 
+    public void accept() {
+        this.executeStatus = ExecuteStatus.IN_PROGRESS;
+    }
+
+    public void deny() {
+        this.executeStatus = ExecuteStatus.DENIED;
+    }
+
     public boolean isVotableStatus() {
         return this.executeStatus == ExecuteStatus.VOTING;
     }
