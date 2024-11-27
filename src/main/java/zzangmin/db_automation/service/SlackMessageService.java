@@ -119,6 +119,8 @@ public class SlackMessageService {
             }
         } catch (Exception e) {
             log.info(chatUpdateRequest + ": 메세지 업데이트 실패");
+            log.info(e.getMessage());
+            log.info(Arrays.toString(e.getStackTrace()));
             throw new IllegalArgumentException(e.getMessage());
         }
         return chatUpdateResponse;

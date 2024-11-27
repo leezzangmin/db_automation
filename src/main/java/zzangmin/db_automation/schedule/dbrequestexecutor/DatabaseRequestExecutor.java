@@ -28,7 +28,7 @@ public class DatabaseRequestExecutor {
 
     @Scheduled(fixedDelay = EXECUTE_DELAY)
     public void execute() {
-        List<SlackDatabaseIntegratedDTO> notCompletedSlackDatabaseRequestDTOs = slackDatabaseRequestService.findNotCompletedSlackDatabaseRequests();
+        List<SlackDatabaseIntegratedDTO> notCompletedSlackDatabaseRequestDTOs = slackDatabaseRequestService.findInProgressSlackDatabaseRequests();
 
         for (SlackDatabaseIntegratedDTO notCompletedSlackDatabaseRequestDTO : notCompletedSlackDatabaseRequestDTOs) {
             // TODO: execute_datetime 기반 실행, accept/deny count 검증
@@ -39,7 +39,6 @@ public class DatabaseRequestExecutor {
             RequestDTO findRequestDTO = slackDatabaseIntegratedDTO.getRequestDTO();
             String slackUserId = slackDatabaseIntegratedDTO.getRequestUserSlackId();
 
-
             List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(findCommandType, findRequestDTO);
             List<LayoutBlock> startMessageBlocks = SlackRequestMessagePage.findRequestExecuteStartMessageBlocks(findCommandType, findDatabaseConnectionInfo, slackUserId, contentBlocks);
             slackMessageService.sendBlockMessage(startMessageBlocks);
@@ -47,12 +46,10 @@ public class DatabaseRequestExecutor {
             List<LayoutBlock> resultBlocks = new ArrayList<>();
             try {
                 String executeResult = blockPageManager.execute(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
-                List<LayoutBlock> requestEndMessageBlocks = SlackRequestMessagePage.findRequestEndMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, findRequestUUID, executeResult);
-                resultBlocks = requestEndMessageBlocks;
+                resultBlocks = SlackRequestMessagePage.findRequestEndMessage(findCommandType, findDatabaseConnectionInfo, contentBlocks, findRequestUUID, executeResult);
                 slackDatabaseRequestService.complete(findRequestUUID);
             } catch (Exception e) {
-                List<LayoutBlock> requestFailMessageBlocks = SlackRequestMessagePage.findRequestFailMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestUUID, e.getMessage(), contentBlocks);
-                resultBlocks = requestFailMessageBlocks;
+                resultBlocks = SlackRequestMessagePage.findRequestFailMessageBlocks(findCommandType, findDatabaseConnectionInfo, contentBlocks, findRequestUUID, e.getMessage());
             }
 
             slackMessageService.sendBlockMessage(resultBlocks);

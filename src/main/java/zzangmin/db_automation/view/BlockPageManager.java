@@ -13,11 +13,13 @@ import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.request.SlackDatabaseIntegratedDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
+import zzangmin.db_automation.entity.SlackDatabaseRequest;
 import zzangmin.db_automation.entity.SlackDatabaseRequestApproval;
 import zzangmin.db_automation.service.SlackDatabaseRequestService;
 import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.slackrequestpage.SlackRequestMessagePage;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -68,14 +70,9 @@ public class BlockPageManager {
     public List<LayoutBlock> handleMessageAction(String actionId, String slackUserId, Message message) {
         String findRequestUUID = (String) message.getMetadata().getEventPayload().get(SlackConstants.MetadataKeys.messageMetadataRequestUUID);
         SlackDatabaseIntegratedDTO slackDatabaseIntegratedDTO = slackDatabaseRequestService.findSlackDatabaseRequest(findRequestUUID);
-        DatabaseConnectionInfo findDatabaseConnectionInfo = slackDatabaseIntegratedDTO.getDatabaseConnectionInfo();
-        DatabaseRequestCommandGroup.CommandType findCommandType = slackDatabaseIntegratedDTO.getCommandType();
-        RequestDTO findRequestDTO = slackDatabaseIntegratedDTO.getRequestDTO();
-        List<LayoutBlock> contentBlocks = handleSubmissionRequestMessage(findCommandType, findRequestDTO);
-
         validateSameUser(slackDatabaseIntegratedDTO.getRequestUserSlackId(), slackUserId);
 
-        if (slackDatabaseRequestService.isSlackDatabaseRequestAcceptableStatus(findRequestUUID)) {
+        if (slackDatabaseRequestService.isSlackDatabaseRequestVotableStatus(findRequestUUID)) {
             // 승인
             if (actionId.equals(SlackConstants.CommunicationBlockIds.commandRequestAcceptButtonBlockId)) {
                 slackDatabaseRequestService.responseToRequest(findRequestUUID, slackUserId, SlackDatabaseRequestApproval.ResponseType.ACCEPT);
@@ -88,20 +85,32 @@ public class BlockPageManager {
             else {
                 throw new IllegalArgumentException("미지원 actionId: " + actionId);
             }
-        } else if (!slackDatabaseRequestService.isSlackDatabaseRequestAcceptableStatus(findRequestUUID, slackUserId)) {
+
+            // 위의 response 승인/반려 행동을 통해 request 가 응답 불가능한 상태로 변경되었다면
+            if (!slackDatabaseRequestService.isSlackDatabaseRequestVotableStatus(findRequestUUID)) {
+                // 기존 메세지 업데이트(승인/반려 버튼 비활성화 혹은 카운팅)
+                List<LayoutBlock> messageBlocks = message.getBlocks();
+                SlackRequestMessagePage.resetAcceptDenyButtonBlock(messageBlocks);
+
+                // update slack request message (승인/반려 버튼 삭제)
+                ChatUpdateRequest chatUpdateRequest = ChatUpdateRequest.builder()
+                        .channel(SlackConfig.DEFAULT_CHANNEL_ID)
+                        .ts(message.getTs())
+                        .blocks(messageBlocks)
+                        .text("asdfawefawefasdfzxdfawef")
+                        .build();
+                slackMessageService.sendChatUpdateRequest(chatUpdateRequest);
+
+                // 요청 확인 슬랙 메세지 추가 전송
+                List<LayoutBlock> contentBlocks = handleSubmissionRequestMessage(slackDatabaseIntegratedDTO.getCommandType(), slackDatabaseIntegratedDTO.getRequestDTO());
+                sendAcceptOrDenyMessage(slackDatabaseIntegratedDTO, contentBlocks);
+            }
+
+        }
+        // 응답 가능한 상태가 아닌 요청
+        else {
             throw new IllegalStateException("응답 가능한 상태의 요청이 아닙니다.");
         }
-
-        sendAcceptDenyMessage();
-
-        // 기존 메세지 업데이트(승인/반려 버튼 비활성화 혹은 카운팅)
-        ChatUpdateRequest chatUpdateRequest = ChatUpdateRequest.builder()
-                .channel(SlackConfig.DEFAULT_CHANNEL_ID)
-                .ts(message.getTs())
-                .blocks(message.getBlocks())
-                .text("asdfawefawefasdfzxdfawef")
-                .build();
-        slackMessageService.sendChatUpdateRequest(chatUpdateRequest);
 
         return message.getBlocks();
     }
@@ -113,12 +122,29 @@ public class BlockPageManager {
         }
     }
 
-    private List<LayoutBlock> sendAcceptDenyMessage(DatabaseRequestCommandGroup.CommandType commandType) {
-        List<LayoutBlock> requestAcceptMessageBlocks = SlackRequestMessagePage.findRequestAcceptMessageBlocks(findCommandType, findDatabaseConnectionInfo, slackUserId, findRequestUUID, contentBlocks);
+    private void sendAcceptOrDenyMessage(SlackDatabaseIntegratedDTO dto, List<LayoutBlock> contentBlocks) {
+        SlackDatabaseRequest.ExecuteStatus executeStatus = slackDatabaseRequestService.findExecuteStatus(dto.getRequestUUID());
 
-        if (slackDatabaseRequestService.isSlackDatabaseRequestAcceptableStatus(findRequestUUID, slackUserId)) {
-
+        if (executeStatus.equals(SlackDatabaseRequest.ExecuteStatus.VOTING) || executeStatus.equals(SlackDatabaseRequest.ExecuteStatus.COMPLETE)) {
+            throw new IllegalStateException("투표 중이거나 완료된 요청입니다.");
         }
+
+        List<LayoutBlock> messageBlocks = new ArrayList<>();
+        if (executeStatus.equals(SlackDatabaseRequest.ExecuteStatus.IN_PROGRESS)) {
+            messageBlocks = SlackRequestMessagePage.findRequestAcceptMessageBlocks(dto.getCommandType(),
+                    dto.getDatabaseConnectionInfo(),
+                    dto.getRequestUserSlackId(),
+                    dto.getRequestUUID(),
+                    contentBlocks);
+        } else if (executeStatus.equals(SlackDatabaseRequest.ExecuteStatus.DENIED)) {
+            messageBlocks = SlackRequestMessagePage.findRequestDenyMessage(dto.getCommandType(),
+                    dto.getDatabaseConnectionInfo(),
+                    contentBlocks,
+                    dto.getRequestUUID(),
+                    dto.getRequestUserSlackId());
+        }
+
+        slackMessageService.sendBlockMessage(messageBlocks);
     }
 
     private BlockPage findBlockPageByCommandType(DatabaseRequestCommandGroup.CommandType commandType) {

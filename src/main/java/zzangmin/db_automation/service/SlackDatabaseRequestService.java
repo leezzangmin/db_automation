@@ -91,6 +91,13 @@ public class SlackDatabaseRequestService {
         return slackDatabaseIntegratedDTO;
     }
 
+    @Transactional(readOnly = true)
+    public SlackDatabaseRequest.ExecuteStatus findExecuteStatus(String requestUUID) {
+        SlackDatabaseRequest.ExecuteStatus executeStatus = slackDatabaseRequestRepository.findExecuteStatusByRequestUUID(requestUUID)
+                .orElseThrow(() -> new IllegalStateException(requestUUID + " : 해당 UUID의 DB 요청이 존재하지 않습니다."));
+        return executeStatus;
+    }
+
     // DatabaseRequest 의 상태가 승인/반려/보류 액션을 핸들링 할 수 있는 상태인지 검사
     @Transactional(readOnly = true)
     public boolean isSlackDatabaseRequestVotableStatus(String requestUUID) {

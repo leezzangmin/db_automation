@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
     request_description mediumtext null comment '요청 부가 설명 내용',
     request_datetime datetime not null comment '요청 시간',
     execute_datetime datetime not null comment '실행 예정 시간',
-    execute_status varchar(16) not null comment '실행 상태 ex. voting,progress,denied,complete',
+    execute_status varchar(16) not null comment '실행 상태 ex. voting,in_progress,denied,complete',
     unique (request_uuid)
 ) comment '슬랙 DB 요청 정보';
 

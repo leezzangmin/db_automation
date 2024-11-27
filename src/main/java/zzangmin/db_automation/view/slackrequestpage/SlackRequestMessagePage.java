@@ -1,24 +1,17 @@
 package zzangmin.db_automation.view.slackrequestpage;
 
-import com.slack.api.methods.request.chat.ChatUpdateRequest;
-import com.slack.api.methods.response.chat.ChatUpdateResponse;
-import com.slack.api.model.Message;
 import com.slack.api.model.block.LayoutBlock;
 import com.slack.api.model.block.SectionBlock;
 import lombok.extern.slf4j.Slf4j;
-import zzangmin.db_automation.config.SlackConfig;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
 import zzangmin.db_automation.service.SlackMessageService;
-import zzangmin.db_automation.util.JsonUtil;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.SlackConstants;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.slack.api.model.block.Blocks.actions;
 import static com.slack.api.model.block.composition.BlockCompositions.plainText;
@@ -84,9 +77,9 @@ public class SlackRequestMessagePage {
 
     public static List<LayoutBlock> findRequestFailMessageBlocks(DatabaseRequestCommandGroup.CommandType commandType,
                                                                 DatabaseConnectionInfo databaseConnectionInfo,
+                                                                 List<LayoutBlock> contentBlocks,
                                                                 String requestUUID,
-                                                                String exceptionMessage,
-                                                                List<LayoutBlock> contentBlocks) {
+                                                                String exceptionMessage) {
         List<LayoutBlock> failMessageBlocks = new ArrayList<>();
         failMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":x: Request Execution Failed !", "RequestExecuteFailed"));
 
@@ -104,7 +97,6 @@ public class SlackRequestMessagePage {
         failMessageBlocks.add(BasicBlockFactory.findDividerBlock());
 
         // 요청 내용
-        // List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
         failMessageBlocks.addAll(contentBlocks);
 
         // 작업 실패 이유
@@ -137,7 +129,6 @@ public class SlackRequestMessagePage {
         startMessageBlocks.add(BasicBlockFactory.findDividerBlock());
 
         // 요청 내용
-        //        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
         startMessageBlocks.addAll(contentBlocks);
 
         // 작업 시작 시간
@@ -169,7 +160,6 @@ public class SlackRequestMessagePage {
         acceptMessageBlocks.add(BasicBlockFactory.findDividerBlock());
 
         // 요청 내용
-        // List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
         acceptMessageBlocks.addAll(contentBlocks);
 
         // 승인자 slack id 멘션
@@ -186,7 +176,7 @@ public class SlackRequestMessagePage {
 
     public static List<LayoutBlock> findRequestEndMessage(DatabaseRequestCommandGroup.CommandType commandType,
                                              DatabaseConnectionInfo databaseConnectionInfo,
-                                             RequestDTO requestDTO,
+                                             List<LayoutBlock> contentBlocks,
                                              String requestUUID,
                                              String executeResult) {
         List<LayoutBlock> endMessageBlocks = new ArrayList<>();
@@ -206,7 +196,6 @@ public class SlackRequestMessagePage {
         endMessageBlocks.add(BasicBlockFactory.findDividerBlock());
 
         // 요청 내용
-        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
         endMessageBlocks.addAll(contentBlocks);
 
         // 요청 종료 보고 내용
@@ -218,74 +207,21 @@ public class SlackRequestMessagePage {
         endMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Execution Finish Time:* `" + LocalDateTime.now() + "`",
                 "endblock5"));
 
-//        slackService.sendBlockMessage(endMessageBlocks);
-
         return endMessageBlocks;
     }
 
-//    public void handleAccept(Message requestMessage, String slackUserId) {
-//        List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
-//        Message.Metadata metadata = requestMessage.getMetadata();
-//        Map<String, Object> eventPayload = metadata.getEventPayload();
-//
-//        // resetAcceptDenyButtonBlock(requestBlocks, "approve", requestMessage.getTs());
-//        findRequestAcceptMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId, findRequestUUID);
-//
-//    }
-
-
-    private void handleDeny(Message requestMessage, String slackUserId) {
-        List<LayoutBlock> requestBlocks = requestMessage.getBlocks();
-        resetAcceptDenyButtonBlock(requestBlocks, "deny");
-
-        // fetch data from message metadata
-        Message.Metadata metadata = requestMessage.getMetadata();
-        Map<String, Object> eventPayload = metadata.getEventPayload();
-
-        DatabaseConnectionInfo findDatabaseConnectionInfo;
-        DatabaseRequestCommandGroup.CommandType findCommandType;
-        RequestDTO findRequestDTO;
-        try {
-            findDatabaseConnectionInfo = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataDatabaseConnectionInfo),
-                    DatabaseConnectionInfo.class);
-            findCommandType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataCommandType),
-                    DatabaseRequestCommandGroup.CommandType.class);
-            Class findRequestDTOClassType = JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataClass),
-                    Class.class);
-            findRequestDTO = (RequestDTO) JsonUtil.toObject((String) eventPayload.get(SlackConstants.MetadataKeys.messageMetadataRequestDTO),
-                    findRequestDTOClassType);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("JsonProcess 오류");
-        }
-
-//        // update slack request message (승인/반려 버튼 삭제)
-//        ChatUpdateRequest request = ChatUpdateRequest.builder()
-//                .channel(SlackConfig.DEFAULT_CHANNEL_ID)
-//                .ts(requestMessage.getTs())
-//                .blocks(requestBlocks)
-//                .text("asdfawefawefasdfzxdfawef")
-//                .build();
-//        try {
-//            ChatUpdateResponse chatUpdateResponse = slackClient.chatUpdate(request);
-//            if (chatUpdateResponse.isOk()) {
-//                log.info("chatUpdateResponse: {}", chatUpdateResponse);
-//            } else {
-//                log.error("chatUpdateResponse: {}", chatUpdateResponse);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-
-        sendRequestDenyMessage(findCommandType, findDatabaseConnectionInfo, findRequestDTO, slackUserId);
-    }
-
-    private void sendRequestDenyMessage(DatabaseRequestCommandGroup.CommandType commandType,
+    public static List<LayoutBlock> findRequestDenyMessage(DatabaseRequestCommandGroup.CommandType commandType,
                                         DatabaseConnectionInfo databaseConnectionInfo,
-                                        RequestDTO requestDTO,
+                                        List<LayoutBlock> contentBlocks,
+                                        String requestUUID,
                                         String slackUserId) {
         List<LayoutBlock> denyMessageBlocks = new ArrayList<>();
         denyMessageBlocks.add(BasicBlockFactory.findHeaderBlock(":open_mouth: Request Denied !", "RequestDenied"));
+
+        // 요청 ID
+        denyMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Request UUID:* `" + requestUUID + "`",
+                "requestblock0"));
+
         // Target DB 정보
         denyMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Target Database:*" + databaseConnectionInfo.databaseSummary(),
                 "requestblock1"));
@@ -296,7 +232,6 @@ public class SlackRequestMessagePage {
         denyMessageBlocks.add(BasicBlockFactory.findDividerBlock());
 
         // 요청 내용
-        List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(commandType, requestDTO);
         denyMessageBlocks.addAll(contentBlocks);
 
         // 반려자 slack id 멘션
@@ -307,31 +242,14 @@ public class SlackRequestMessagePage {
         // 반려 시간
         denyMessageBlocks.add(BasicBlockFactory.getMarkdownTextSection("*Denied Time:* `" + LocalDateTime.now() + "`",
                 "requestblock4"));
-        slackService.sendBlockMessage(denyMessageBlocks);
+
+        return denyMessageBlocks;
     }
 
-    private void resetAcceptDenyButtonBlock(List<LayoutBlock> requestBlocks, String requestAckMessage, String ts) {
-        SectionBlock requestAckBlock = BasicBlockFactory.getMarkdownTextSection("request " + requestAckMessage, SlackConstants.CommunicationBlockIds.commandRequestAcceptDenyButtonBlockId);
+    public static void resetAcceptDenyButtonBlock(List<LayoutBlock> requestBlocks) {
+        SectionBlock requestAckBlock = BasicBlockFactory.getMarkdownTextSection("request vote finished", SlackConstants.CommunicationBlockIds.commandRequestAcceptDenyButtonBlockId);
         int acceptDenyBlockIndex = SlackMessageService.findBlockIndex(requestBlocks, "actions", SlackConstants.CommunicationBlockIds.commandRequestAcceptDenyButtonBlockId);
         requestBlocks.set(acceptDenyBlockIndex, requestAckBlock);
-
-        // update slack request message (승인/반려 버튼 삭제)
-        ChatUpdateRequest request = ChatUpdateRequest.builder()
-                .channel(SlackConfig.DEFAULT_CHANNEL_ID)
-                .ts(ts)
-                .blocks(requestBlocks)
-                .text("asdfawefawefasdfzxdfawef")
-                .build();
-        try {
-            ChatUpdateResponse chatUpdateResponse = slackClient.chatUpdate(request);
-            if (chatUpdateResponse.isOk()) {
-                log.info("chatUpdateResponse: {}", chatUpdateResponse);
-            } else {
-                log.error("chatUpdateResponse: {}", chatUpdateResponse);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
 }
