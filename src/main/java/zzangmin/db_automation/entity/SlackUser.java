@@ -20,7 +20,7 @@ public class SlackUser {
     private String userSlackName;
     @Enumerated(EnumType.STRING)
     private SlackUserType userType;
-    private LocalDateTime expireDateTime;
+    private LocalDateTime expireDatetime;
 
     public enum SlackUserType {
         ADMIN,

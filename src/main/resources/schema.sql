@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS back_office.monitor_target_database(
     account_id varchar(64) not null comment 'account_id AWS',
     environment varchar(64) not null comment '환경 (dev,stage,prod)',
     service_name varchar(64) not null comment '서비스명(도메인명)',
-    database_type varchar(64) not null comment '데이터베이스 타입(cluster, instance, serverless, onprem 등',
+    database_type varchar(64) not null comment '데이터베이스 타입(cluster, instance, serverless, on_premise 등',
     database_name varchar(255) not null comment '데이터베이스 identifier',
     database_driver varchar(255) not null comment '데이터베이스 드라이버 클래스명 ex(jdbc)',
     writer_endpoint varchar(255) not null comment '데이터베이스 write/read url',
@@ -67,6 +67,10 @@ CREATE TABLE IF NOT EXISTS back_office.monitor_target_database(
     is_monitor_target tinyint not null comment '모니터링 대상 여부 yn',
     unique(account_id, environment, database_name)
 ) COMMENT '모니터링 대상 DB 정보';
+INSERT INTO back_office.monitor_target_database(account_id, environment, service_name, database_type, database_name, database_driver, writer_endpoint, reader_endpoint, port, username, password, is_monitor_target)
+values
+('180294174799', 'stage', 'test-57', 'instance', 'test-57', 'com.mysql.cj.jdbc.Driver', 'jdbc:mysql://test-57.cnyugyuqszqs.ap-northeast-2.rds.amazonaws.com', 'jdbc:mysql://test-57.cnyugyuqszqs.ap-northeast-2.rds.amazonaws.com', 3306, 'admin', 'Cromysql5128*', 1),
+('test', 'stage', 'shop-01', 'on_premise', 'shop-01', 'com.mysql.cj.jdbc.Driver', '127.0.0.1', '127.0.0.1', 3306, 'root', 'root', 1);
 
 CREATE TABLE IF NOT EXISTS back_office.slack_user(
     id              bigint primary key auto_increment comment '아이디',
@@ -76,6 +80,9 @@ CREATE TABLE IF NOT EXISTS back_office.slack_user(
     expire_datetime datetime    not null comment '유저 만료 시간',
     unique(user_slack_id)
 ) comment '슬랙 유저 정보';
+
+INSERT INTO back_office.slack_user(user_slack_id, user_slack_name, user_type, expire_datetime)
+values('U04282C8DDX', '홍길동', 'ADMIN', '2099-12-31');
 
 CREATE TABLE IF NOT EXISTS back_office.slack_database_request(
     id bigint primary key auto_increment comment '아이디',
@@ -102,3 +109,4 @@ CREATE TABLE IF NOT EXISTS back_office.slack_database_request_approval(
     response_datetime datetime not null comment '응답 시간',
     unique key (slack_database_request_id, slack_user_id)
 ) comment '슬랙 DB 요청 응답자';
+

@@ -23,7 +23,7 @@ public class MonitorTargetDatabase {
     private String writerEndpoint;
     private String readerEndpoint;
     private int port;
-    private String userName;
+    private String username;
     private String password;
     private boolean isMonitorTarget;
 

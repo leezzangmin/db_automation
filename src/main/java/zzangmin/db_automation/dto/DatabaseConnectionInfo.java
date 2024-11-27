@@ -63,7 +63,7 @@ public class DatabaseConnectionInfo {
                 monitorTargetDatabase.getWriterEndpoint(),
                 monitorTargetDatabase.getReaderEndpoint(),
                 monitorTargetDatabase.getPort(),
-                monitorTargetDatabase.getUserName(),
+                monitorTargetDatabase.getUsername(),
                 monitorTargetDatabase.getPassword()
                 );
     }

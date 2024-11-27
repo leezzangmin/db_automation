@@ -44,6 +44,13 @@ public class SlackDatabaseRequestService {
     public SlackDatabaseRequest saveSlackDatabaseRequest(SlackDatabaseIntegratedDTO slackDatabaseIntegratedDTO) {
         SlackDatabaseRequest slackDatabaseRequest;
         MonitorTargetDatabase monitorTargetDatabase = slackDatabaseIntegratedDTO.getDatabaseConnectionInfo().toMonitorTargetDatabase();
+        if (monitorTargetDatabase.getId() == null) {
+            if (!monitorTargetDatabase.isMonitorTarget()) {
+                throw new IllegalStateException("관리 대상 DB가 아닙니다. 등록 후 사용해주세요.");
+            }
+            monitorTargetDatabaseRepository.save(monitorTargetDatabase);
+        }
+
         SlackUser slackUser = slackUserService.findSlackUser(slackDatabaseIntegratedDTO.getRequestUserSlackId());
         try {
             slackDatabaseRequest = new SlackDatabaseRequest(null,
@@ -76,7 +83,7 @@ public class SlackDatabaseRequestService {
             slackDatabaseIntegratedDTO = new SlackDatabaseIntegratedDTO(DatabaseConnectionInfo.of(slackDatabaseRequest.getMonitorTargetDatabase()),
                     slackDatabaseRequest.getSlackUser().getUserSlackId(),
                     slackDatabaseRequest.getCommandType(),
-                    slackDatabaseRequest.getRequestDtoClassType(),
+                    slackDatabaseRequest.getRequestDtoClassType().replace("class ", ""),
                     (RequestDTO) JsonUtil.toObject(slackDatabaseRequest.getRequestDto(), Class.forName(slackDatabaseRequest.getRequestDtoClassType())),
                     slackDatabaseRequest.getRequestUuid(),
                     slackDatabaseRequest.getRequestContent(),
@@ -85,6 +92,7 @@ public class SlackDatabaseRequestService {
         } catch (Exception e) {
             log.info(e.getMessage());
             log.info(Arrays.toString(e.getStackTrace()));
+            log.info("slackDatabaseRequest: {}", slackDatabaseRequest);
             throw new IllegalArgumentException("SlackDatabaseRequest DTO 변환 실패");
         }
 
