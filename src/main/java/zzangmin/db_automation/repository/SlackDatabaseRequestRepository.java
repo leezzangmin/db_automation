@@ -13,7 +13,6 @@ public interface SlackDatabaseRequestRepository extends JpaRepository<SlackDatab
 
     Optional<SlackDatabaseRequest> findOneByRequestUUID(String requestUUID);
 
-    @Query("select s from SlackDatabaseRequest s where s.isComplete = false")
-    List<SlackDatabaseRequest> findNotCompleted();
-
+    @Query("select s from SlackDatabaseRequest s where s.executeStatus = zzangmin.db_automation.entity.SlackDatabaseRequest.ExecuteStatus.IN_PROGRESS")
+    List<SlackDatabaseRequest> findInProgress();
 }

@@ -37,7 +37,7 @@ public class SlackDatabaseRequestService {
     @Transactional(readOnly = true)
     public MonitorTargetDatabase findMonitorTargetDatabase(Long id) {
         return monitorTargetDatabaseRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException(id + " : 해당 ID의 모니터링 대상 DB가 없습니다."));;
+                .orElseThrow(() -> new IllegalStateException(id + " : 해당 ID의 모니터링 대상 DB가 없습니다."));
     }
 
     @Transactional
@@ -91,13 +91,13 @@ public class SlackDatabaseRequestService {
         return slackDatabaseIntegratedDTO;
     }
 
-    // DatabaseRequest 의 상태가 승인/반려/보류 의 액션을 핸들링 할 수 있는 상태인지 검사
+    // DatabaseRequest 의 상태가 승인/반려/보류 액션을 핸들링 할 수 있는 상태인지 검사
     @Transactional(readOnly = true)
-    public boolean isSlackDatabaseRequestAcceptableStatus(String requestUUID) {
+    public boolean isSlackDatabaseRequestVotableStatus(String requestUUID) {
         SlackDatabaseRequest slackDatabaseRequest = slackDatabaseRequestRepository.findOneByRequestUUID(requestUUID)
                 .orElseThrow(() -> new IllegalStateException(requestUUID + " : 해당 UUID의 DB 요청이 존재하지 않습니다."));
 
-        if (slackDatabaseRequest.getIsComplete()) {
+        if (!slackDatabaseRequest.isVotableStatus()) {
             return false;
         }
 
@@ -146,8 +146,8 @@ public class SlackDatabaseRequestService {
     }
 
     @Transactional(readOnly = true)
-    public List<SlackDatabaseIntegratedDTO> findNotCompletedSlackDatabaseRequests() {
-        return slackDatabaseRequestRepository.findNotCompleted()
+    public List<SlackDatabaseIntegratedDTO> findInProgressSlackDatabaseRequests() {
+        return slackDatabaseRequestRepository.findInProgress()
                 .stream()
                 .map(s -> {
                     try {
