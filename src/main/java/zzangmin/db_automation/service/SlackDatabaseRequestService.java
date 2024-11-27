@@ -29,10 +29,10 @@ public class SlackDatabaseRequestService {
     private final SlackDatabaseRequestRepository slackDatabaseRequestRepository;
     private final MonitorTargetDatabaseRepository monitorTargetDatabaseRepository;
     private final SlackDatabaseReQuestApprovalRepository slackDatabaseReQuestApprovalRepository;
-
-
-    private final static int APPROVAL_CONSENSUS_NUMBER = 2;
     private final SlackUserService slackUserService;
+
+    // 승인 컨센서스 숫자 - ex.승인이 반려보다 X 이상 많으면 승인
+    private final static int APPROVAL_CONSENSUS_NUMBER = 2;
 
     @Transactional(readOnly = true)
     public MonitorTargetDatabase findMonitorTargetDatabase(Long id) {
@@ -57,7 +57,7 @@ public class SlackDatabaseRequestService {
                     slackDatabaseIntegratedDTO.getRequestDescription(),
                     LocalDateTime.now(),
                     slackDatabaseIntegratedDTO.getExecuteDatetime(),
-                    false);
+                    SlackDatabaseRequest.ExecuteStatus.VOTING);
         } catch (Exception e) {
             log.info(e.getMessage());
             log.info(Arrays.toString(e.getStackTrace()));
@@ -100,18 +100,7 @@ public class SlackDatabaseRequestService {
         if (!slackDatabaseRequest.isVotableStatus()) {
             return false;
         }
-
-        Map<SlackDatabaseRequestApproval.ResponseType, List<SlackDatabaseRequestApproval>> approvals = slackDatabaseReQuestApprovalRepository.findByDatabaseRequestUUID(requestUUID)
-                .stream()
-                .collect(Collectors.groupingBy(SlackDatabaseRequestApproval::getResponseType));
-
-        int consensusCount = approvals.get(SlackDatabaseRequestApproval.ResponseType.ACCEPT).size() - approvals.get(SlackDatabaseRequestApproval.ResponseType.DENY).size();
-        if (consensusCount >= APPROVAL_CONSENSUS_NUMBER) {
-            return true;
-        }
-
-        slackDatabaseRequest.complete();
-        return false;
+        return true;
     }
 
     @Transactional
@@ -143,6 +132,17 @@ public class SlackDatabaseRequestService {
                 LocalDateTime.now());
 
         slackDatabaseReQuestApprovalRepository.save(response);
+
+        // 컨센서스 계산 및 요청 상태 변경
+        Map<SlackDatabaseRequestApproval.ResponseType, List<SlackDatabaseRequestApproval>> approvalMap = slackDatabaseReQuestApprovalRepository.findByDatabaseRequestUUID(requestUUID)
+                .stream()
+                .collect(Collectors.groupingBy(SlackDatabaseRequestApproval::getResponseType));
+        int acceptConsensusCount = approvalMap.get(SlackDatabaseRequestApproval.ResponseType.ACCEPT).size() - approvalMap.get(SlackDatabaseRequestApproval.ResponseType.DENY).size();
+        if (acceptConsensusCount >= APPROVAL_CONSENSUS_NUMBER) {
+            slackDatabaseRequest.accept();
+        } else if (acceptConsensusCount <= -APPROVAL_CONSENSUS_NUMBER) {
+            slackDatabaseRequest.deny();
+        }
     }
 
     @Transactional(readOnly = true)
