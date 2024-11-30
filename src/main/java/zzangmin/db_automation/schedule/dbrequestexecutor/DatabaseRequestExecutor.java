@@ -20,7 +20,7 @@ import java.util.List;
 @Component
 public class DatabaseRequestExecutor {
 
-    private static final int EXECUTE_DELAY = 1000000;
+    private static final int EXECUTE_DELAY = 10000;
 
     private final BlockPageManager blockPageManager;
     private final SlackDatabaseRequestService slackDatabaseRequestService;
@@ -40,7 +40,7 @@ public class DatabaseRequestExecutor {
             String slackUserId = slackDatabaseIntegratedDTO.getRequestUserSlackId();
 
             List<LayoutBlock> contentBlocks = blockPageManager.handleSubmissionRequestMessage(findCommandType, findRequestDTO);
-            List<LayoutBlock> startMessageBlocks = SlackRequestMessagePage.findRequestExecuteStartMessageBlocks(findCommandType, findDatabaseConnectionInfo, slackUserId, contentBlocks);
+            List<LayoutBlock> startMessageBlocks = SlackRequestMessagePage.findRequestExecuteStartMessageBlocks(findCommandType, findDatabaseConnectionInfo, findRequestUUID, contentBlocks);
             slackMessageService.sendBlockMessage(startMessageBlocks);
 
             List<LayoutBlock> resultBlocks = new ArrayList<>();
