@@ -152,7 +152,9 @@ public class SlackDatabaseRequestService {
         Map<SlackDatabaseRequestApproval.ResponseType, List<SlackDatabaseRequestApproval>> approvalMap = slackDatabaseReQuestApprovalRepository.findByDatabaseRequestUUID(requestUUID)
                 .stream()
                 .collect(Collectors.groupingBy(SlackDatabaseRequestApproval::getResponseType));
-        int acceptConsensusCount = approvalMap.get(SlackDatabaseRequestApproval.ResponseType.ACCEPT).size() - approvalMap.get(SlackDatabaseRequestApproval.ResponseType.DENY).size();
+        int acceptConsensusCount = approvalMap.getOrDefault(SlackDatabaseRequestApproval.ResponseType.ACCEPT, List.of()).size() -
+                approvalMap.getOrDefault(SlackDatabaseRequestApproval.ResponseType.DENY, List.of()).size();
+
         if (acceptConsensusCount >= APPROVAL_CONSENSUS_NUMBER) {
             slackDatabaseRequest.accept();
         } else if (acceptConsensusCount <= -APPROVAL_CONSENSUS_NUMBER) {
