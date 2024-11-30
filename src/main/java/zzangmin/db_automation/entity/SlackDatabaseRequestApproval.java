@@ -25,7 +25,7 @@ public class SlackDatabaseRequestApproval {
     @Enumerated(EnumType.STRING)
     private ResponseType responseType;
     private String responseReason;
-    private LocalDateTime responseDateTime;
+    private LocalDateTime responseDatetime;
 
 
     public enum ResponseType {
