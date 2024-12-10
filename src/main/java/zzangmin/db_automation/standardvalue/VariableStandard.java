@@ -5,10 +5,10 @@ import java.util.Map;
 
 public class VariableStandard {
 
-    private final static Map<String, String> variableStandard = new HashMap<>();
+    private final static Map<String, String> variableStandards = new HashMap<>();
 
     static {
-        variableStandard.put("binlog_expire_logs_seconds", "604800"); // --> 168시간, 1주일
+        variableStandards.put("binlog_expire_logs_seconds", "604800"); // --> 168시간, 1주일
     }
 
 }

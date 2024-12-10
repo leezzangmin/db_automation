@@ -22,7 +22,7 @@ public class InstanceCreationStandardChecker {
         for (String accountId : dbInstances.keySet()) {
             List<DBInstance> accountDbInstances = dbInstances.get(accountId);
             for (DBInstance dbInstance : accountDbInstances) {
-                Set<String> instanceStandardNames = InstanceCreationStandard.instanceCreationStandards.keySet();
+                Set<String> instanceStandardNames = InstanceCreationStandard.getKeySet();
                 for (String instanceStandardName : instanceStandardNames) {
                     String value = String.valueOf(dbInstance.getValueForField(instanceStandardName, Object.class)
                             .orElseThrow(() -> new IllegalArgumentException("해당 필드가 존재하지 않습니다." + instanceStandardName)));

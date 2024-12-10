@@ -2,10 +2,11 @@ package zzangmin.db_automation.standardvalue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class InstanceCreationStandard {
 
-    public final static Map<String, String> instanceCreationStandards = new HashMap<>();
+    private final static Map<String, String> instanceCreationStandards = new HashMap<>();
 
     static {
         instanceCreationStandards.put("AutoMinorVersionUpgrade", "false");
@@ -17,6 +18,10 @@ public class InstanceCreationStandard {
 
     public static String findStandardValue(String parameterName) {
         return instanceCreationStandards.get(parameterName);
+    }
+
+    public static Set<String> getKeySet() {
+        return instanceCreationStandards.keySet();
     }
 
 }
