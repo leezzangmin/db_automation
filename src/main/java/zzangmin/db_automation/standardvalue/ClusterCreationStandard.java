@@ -2,10 +2,11 @@ package zzangmin.db_automation.standardvalue;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class ClusterCreationStandard {
 
-    public final static Map<String, String> clusterCreationStandard = new HashMap<>();
+    private final static Map<String, String> clusterCreationStandard = new HashMap<>();
 
     static {
         clusterCreationStandard.put("BackupRetentionPeriod", "7");
@@ -19,6 +20,10 @@ public class ClusterCreationStandard {
 
     public static String findStandardValue(String parameterName) {
         return clusterCreationStandard.get(parameterName);
+    }
+
+    public static Set<String> getKeySet() {
+        return clusterCreationStandard.keySet();
     }
 
 }

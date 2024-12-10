@@ -22,7 +22,7 @@ public class ClusterCreationStandardChecker {
         for (String accountId : dbClusters.keySet()) {
             List<DBCluster> accountDbClusters = dbClusters.get(accountId);
             for (DBCluster dbCluster : accountDbClusters) {
-                Set<String> creationStandardNames = ClusterCreationStandard.clusterCreationStandard.keySet();
+                Set<String> creationStandardNames = ClusterCreationStandard.getKeySet();
                 for (String creationStandardName : creationStandardNames) {
                     String value = String.valueOf(dbCluster.getValueForField(creationStandardName, Object.class)
                             .orElseThrow(() -> new IllegalArgumentException("해당 필드가 존재하지 않습니다." + creationStandardName)));
