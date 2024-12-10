@@ -960,10 +960,11 @@ public class MysqlClient {
                 .toList();
     }
 
-    public int findLongTransactionProcesslistId(DatabaseConnectionInfo databaseConnectionInfo) {
-        String SQL = "SELECT PROCESSLIST_ID FROM performance_schema.threads " +
-                "WHERE PROCESSLIST_ID IS NOT NULL AND TYPE='FOREGROUND' AND PROCESSLIST_USER!='rdsadmin' AND PROCESSLIST_USER!='event_scheduler' " +
-                "ORDER BY PROCESSLIST_TIME DESC limit 1;";
+    public int findLongTransactionProcesslistId(DatabaseConnectionInfo databaseConnectionInfo, long time) {
+        String SQL = "SELECT trx_mysql_thread_id FROM information_schema.innodb_trx " +
+                " WHERE TIME_TO_SEC(TIMEDIFF(NOW(), trx_started)) >= " + String.valueOf(time) +
+                " ORDER BY trx_started asc ";
+
         int processlistId = -1;
         try (Connection connection = DriverManager.getConnection(
                 databaseConnectionInfo.generateReadOnlyConnectionUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
@@ -971,14 +972,14 @@ public class MysqlClient {
              ResultSet resultSet = statement.executeQuery(SQL)) {
             log.info("findLongTransactionProcesslistId: {}", SQL);
             if (resultSet.next()) {
-                processlistId = resultSet.getInt("PROCESSLIST_ID");
+                processlistId = resultSet.getInt("trx_mysql_thread_id");
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
 
         if (processlistId == -1L) {
-            throw new IllegalStateException("PROCSSLIST_ID 를 불러오는 데 실패했습니다. " + databaseConnectionInfo);
+            throw new IllegalStateException("PROCESSLIST_ID 를 불러오는 데 실패했습니다. " + databaseConnectionInfo);
         }
         return processlistId;
     }
