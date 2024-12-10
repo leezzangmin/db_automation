@@ -7,13 +7,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.controller.DDLController;
+import zzangmin.db_automation.convention.CommonConvention;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.request.ddl.AddColumnRequestDTO;
 import zzangmin.db_automation.dto.request.RequestDTO;
 import zzangmin.db_automation.dto.response.ddl.AddColumnDDLResponseDTO;
 import zzangmin.db_automation.entity.mysqlobject.Column;
 import zzangmin.db_automation.entity.DatabaseRequestCommandGroup;
-import zzangmin.db_automation.standardvalue.CommonStandard;
 import zzangmin.db_automation.service.SlackMessageService;
 import zzangmin.db_automation.view.BasicBlockFactory;
 import zzangmin.db_automation.view.BlockPage;
@@ -124,7 +124,7 @@ public class AddColumnBlockPage implements BlockPage {
                 .defaultValue(defaultValue)
                 .isAutoIncrement(false)
                 .comment(columnComment)
-                .collate(CommonStandard.COLLATE)
+                .collate(CommonConvention.COLLATE)
                 .build();
         AddColumnRequestDTO addColumnRequestDTO = new AddColumnRequestDTO(schemaName, tableName, column);
 
