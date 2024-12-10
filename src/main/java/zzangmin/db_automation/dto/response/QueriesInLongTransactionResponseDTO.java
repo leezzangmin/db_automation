@@ -13,6 +13,6 @@ import java.util.List;
 public class QueriesInLongTransactionResponseDTO {
 
     private String databaseName;
-    private long historyListLength;
+    private Long historyListLength;
     private List<Query> queries;
 }
