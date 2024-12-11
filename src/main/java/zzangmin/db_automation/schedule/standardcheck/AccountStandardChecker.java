@@ -7,6 +7,7 @@ import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.dto.response.standardcheck.StandardCheckResultResponseDTO;
+import zzangmin.db_automation.entity.MonitorTargetDatabase;
 import zzangmin.db_automation.entity.mysqlobject.MysqlAccount;
 import zzangmin.db_automation.standardvalue.AccountStandard;
 import zzangmin.db_automation.service.AwsService;
@@ -32,7 +33,13 @@ public class AccountStandardChecker {
                 .toList();
         for (DatabaseConnectionInfo databaseConnectionInfo : databaseConnectionInfos) {
             log.info("databaseConnectionInfo: {}", databaseConnectionInfo);
-            String masterUsername = awsService.findClusterMasterUserName(databaseConnectionInfo);
+            String masterUsername;
+            if (databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDatabase.DatabaseType.CLUSTER)
+                    || databaseConnectionInfo.getDatabaseType().equals(MonitorTargetDatabase.DatabaseType.INSTANCE)) {
+                masterUsername = awsService.findClusterMasterUserName(databaseConnectionInfo);
+            } else {
+                masterUsername = null;
+            }
             List<MysqlAccount> mysqlAccounts = mysqlClient.findMysqlAccounts(databaseConnectionInfo)
                     .stream()
                     .filter(account -> !AccountStandard.getAccountBlackList()
@@ -97,6 +104,10 @@ public class AccountStandardChecker {
 
 
     private List<StandardCheckResultResponseDTO> checkMasterUserExists(String masterUsername, List<MysqlAccount> mysqlAccounts, DatabaseConnectionInfo databaseConnectionInfo) {
+        if (masterUsername == null || masterUsername.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         List<StandardCheckResultResponseDTO> resultList = new ArrayList<>();
         List<String> users = mysqlAccounts.stream().map(MysqlAccount::getUser).toList();
 
