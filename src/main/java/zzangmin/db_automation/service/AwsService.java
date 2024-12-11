@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static zzangmin.db_automation.standardvalue.SecretManagerStandard.DB_CREDENTIAL_POSTPIX;
+import static zzangmin.db_automation.standardvalue.SecretManagerStandard.DB_CREDENTIAL_POSTFIX;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -106,7 +106,7 @@ public class AwsService {
 
         DescribeDbClusterParametersResponse describeDbClusterParametersResponse = rdsClient.describeDBClusterParameters(
                 DescribeDbClusterParametersRequest.builder()
-                        .filters(ParameterGroupStandard.standardParameters.keySet()
+                        .filters(ParameterGroupStandard.getKeySet()
                                 .stream()
                                 .map(parameterName -> Filter.builder()
                                         .name("parameter-name")
@@ -114,7 +114,7 @@ public class AwsService {
                                         .build())
                                 .collect(Collectors.toList()))
                         .dbClusterParameterGroupName(parameterGroupName)
-                        .maxRecords(Math.max(MIN_RECORD_SIZE, ParameterGroupStandard.standardParameters.size()))
+                        .maxRecords(Math.max(MIN_RECORD_SIZE, ParameterGroupStandard.getSize()))
                         .build()
         );
         List<Parameter> dbParameters = describeDbClusterParametersResponse.parameters();
@@ -128,7 +128,7 @@ public class AwsService {
 
         DescribeDbParametersResponse describeDbParametersResponse = rdsClient.describeDBParameters(
                 DescribeDbParametersRequest.builder()
-                        .filters(ParameterGroupStandard.standardParameters.keySet()
+                        .filters(ParameterGroupStandard.getKeySet()
                                 .stream()
                                 .map(parameterName -> Filter.builder()
                                         .name("parameter-name")
@@ -136,7 +136,7 @@ public class AwsService {
                                         .build())
                                 .collect(Collectors.toList()))
                         .dbParameterGroupName(parameterGroupName)
-                        .maxRecords(Math.max(MIN_RECORD_SIZE, ParameterGroupStandard.standardParameters.size()))
+                        .maxRecords(Math.max(MIN_RECORD_SIZE, ParameterGroupStandard.getSize()))
                         .build()
         );
         List<Parameter> dbParameters = describeDbParametersResponse.parameters();
@@ -159,7 +159,7 @@ public class AwsService {
         try {
             valueResponse = secretManagerClient.getSecretValue(valueRequest);
         } catch (Exception e) {
-            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName]-[PROFILE]" + DB_CREDENTIAL_POSTPIX);
+            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName]-[PROFILE]" + DB_CREDENTIAL_POSTFIX);
         }
 
         try {
@@ -186,7 +186,7 @@ public class AwsService {
         try {
             valueResponse = secretManagerClient.getSecretValue(valueRequest);
         } catch (Exception e) {
-            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName]-[PROFILE]" + DB_CREDENTIAL_POSTPIX);        }
+            throw new IllegalStateException(secretName + " 암호 정보가 secret manager에 존재하지 않습니다. convention: [ServiceName]-[PROFILE]" + DB_CREDENTIAL_POSTFIX);        }
         try {
             username = new JSONObject(valueResponse.secretString())
                     .getString("username");
