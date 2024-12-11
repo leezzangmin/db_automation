@@ -3,9 +3,10 @@ package zzangmin.db_automation.standardvalue;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class PluginComponentStandard {
-    public final static Map<String, String> pluginComponentStandardValues = new HashMap<>();
+    private final static Map<String, String> pluginComponentStandardValues = new HashMap<>();
 
     public final static List<String> essentialPluginComponentNames = List.of("validate_password");
 // component -> 'file://component_validate_password'
@@ -20,4 +21,11 @@ public class PluginComponentStandard {
         pluginComponentStandardValues.put("validate_password_special_char_count", "1");
     }
 
+    public static Set<String> getKeySet() {
+        return pluginComponentStandardValues.keySet();
+    }
+
+    public static String findStandardValue(String standardName) {
+        return pluginComponentStandardValues.get(standardName);
+    }
 }
