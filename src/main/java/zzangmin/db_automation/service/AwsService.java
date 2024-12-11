@@ -243,7 +243,7 @@ public class AwsService {
                 .stream()
                 .filter(dbInstance -> dbInstance.dbClusterIdentifier() != null)
                 .map(DBInstance::dbInstanceIdentifier)
-                .collect(Collectors.toList());
+                .toList();
 
         List<DBInstance> standaloneInstances = describeDbInstancesResponse.dbInstances().stream()
                 .filter(dbInstance -> !clusterInstanceIdentifiers.contains(dbInstance.dbInstanceIdentifier()))
