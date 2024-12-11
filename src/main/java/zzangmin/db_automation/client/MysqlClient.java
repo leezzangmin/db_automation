@@ -83,6 +83,25 @@ public class MysqlClient {
         return globalVariables;
     }
 
+    public String findGlobalVariable(DatabaseConnectionInfo databaseConnectionInfo, String variableName) {
+        String variableResult = null;
+        String SQL = "SHOW GLOBAL VARIABLES LIKE ?";
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.generateReadOnlyConnectionUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(SQL)) {
+            statement.setString(1, variableName);
+            log.info("findGlobalVariable: {}", statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    variableResult = resultSet.getString("Value");
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+        return variableResult;
+    }
+
     public List<String> findInstalledPluginsAndComponentNames(DatabaseConnectionInfo databaseConnectionInfo) {
         List<String> installedNames = new ArrayList<>();
 
