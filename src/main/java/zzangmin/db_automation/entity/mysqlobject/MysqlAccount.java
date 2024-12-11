@@ -65,12 +65,14 @@ public class MysqlAccount {
         private String permissionType;
 
         public static List<Privilege> dclToEntities(String grantDCL) {
+            if (grantDCL.contains("GRANT PROXY ON ``")) {
+                return new ArrayList<>();
+            }
             List<Privilege> privileges = new ArrayList<>();
             grantDCL = grantDCL.replace("`", "").replace(", ", ",");
             String[] parts = grantDCL.split(" ON ");
             String[] permissionParts = parts[0].replace("GRANT ", "").split(",");
             String databaseAndTable = parts[1].split(" TO ")[0].trim();
-
             for (String permission : permissionParts) {
                 Privilege privilege = Privilege.builder()
                         .databaseName(databaseAndTable.split("\\.")[0])
