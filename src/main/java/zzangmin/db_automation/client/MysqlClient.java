@@ -85,12 +85,31 @@ public class MysqlClient {
     public Map<String, String> findGlobalVariables(DatabaseConnectionInfo databaseConnectionInfo, List<String> variableNames) {
         Map<String, String> globalVariables = new HashMap<>();
 
-        String SQL = "SHOW GLOBAL VARIABLES WHERE Variable_name IN (?)";
-        String variableString = "('" + String.join("','", variableNames) + "')";
-        SQL += variableString;
+        if (variableNames == null || variableNames.isEmpty()) {
+            return globalVariables;
+        }
+
+        // variableNames 사이즈만큼 '?' 플레이스홀더 생성
+        StringBuilder placeholders = new StringBuilder();
+        for (int i = 0; i < variableNames.size(); i++) {
+            if (i > 0) {
+                placeholders.append(",");
+            }
+            placeholders.append("?");
+        }
+
+        String SQL = "SHOW GLOBAL VARIABLES WHERE Variable_name IN (" + placeholders.toString() + ")";
+
         try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.generateReadOnlyConnectionUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
+                databaseConnectionInfo.generateReadOnlyConnectionUrl(),
+                databaseConnectionInfo.getUsername(),
+                databaseConnectionInfo.getPassword());
              PreparedStatement statement = connection.prepareStatement(SQL)) {
+
+            // PreparedStatement 파라미터 바인딩
+            for (int i = 0; i < variableNames.size(); i++) {
+                statement.setString(i + 1, variableNames.get(i));
+            }
 
             log.info("findGlobalVariables: {}", statement);
             try (ResultSet resultSet = statement.executeQuery()) {
@@ -101,28 +120,10 @@ public class MysqlClient {
                 }
             }
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             throw new RuntimeException(e.getMessage());
         }
         return globalVariables;
-    }
-
-    public String findGlobalVariable(DatabaseConnectionInfo databaseConnectionInfo, String variableName) {
-        String variableResult = null;
-        String SQL = "SHOW GLOBAL VARIABLES LIKE ?";
-        try (Connection connection = DriverManager.getConnection(
-                databaseConnectionInfo.generateReadOnlyConnectionUrl(), databaseConnectionInfo.getUsername(), databaseConnectionInfo.getPassword());
-             PreparedStatement statement = connection.prepareStatement(SQL)) {
-            statement.setString(1, variableName);
-            log.info("findGlobalVariable: {}", statement);
-            try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
-                    variableResult = resultSet.getString("Value");
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
-        }
-        return variableResult;
     }
 
     public List<String> findInstalledPluginsAndComponentNames(DatabaseConnectionInfo databaseConnectionInfo) {
