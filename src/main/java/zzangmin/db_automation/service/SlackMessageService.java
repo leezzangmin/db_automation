@@ -58,7 +58,7 @@ public class SlackMessageService {
                 log.info(e.getMessage());
             }
 
-            if (chatPostMessageResponse.isOk()) {
+            if (chatPostMessageResponse != null && chatPostMessageResponse.getWarning() == null && chatPostMessageResponse.isOk()) {
                 log.info("chatPostMessageResponse: {}", chatPostMessageResponse);
             } else {
                 log.error("chatPostMessageResponse: {}", chatPostMessageResponse);
