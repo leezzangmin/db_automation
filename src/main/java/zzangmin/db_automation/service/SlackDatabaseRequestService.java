@@ -32,7 +32,7 @@ public class SlackDatabaseRequestService {
     private final SlackUserService slackUserService;
 
     // 승인 컨센서스 숫자 - ex.승인이 반려보다 X 이상 많으면 승인
-    private final static int APPROVAL_CONSENSUS_NUMBER = 2;
+    private final static int APPROVAL_CONSENSUS_NUMBER = 1;
 
     @Transactional(readOnly = true)
     public MonitorTargetDatabase findMonitorTargetDatabase(Long id) {

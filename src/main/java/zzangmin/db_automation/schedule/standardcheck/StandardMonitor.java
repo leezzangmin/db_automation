@@ -1,9 +1,15 @@
 package zzangmin.db_automation.schedule.standardcheck;
 
+import com.slack.api.model.block.LayoutBlock;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import zzangmin.db_automation.dto.response.standardcheck.StandardCheckResultResponseDTO;
 import zzangmin.db_automation.service.SlackMessageService;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,28 +25,26 @@ public class StandardMonitor {
     private final TagStandardChecker tagStandardChecker;
     private final AccountStandardChecker accountStandardChecker;
     private final PluginComponentStandardChecker pluginComponentStandardChecker;
+    private final VariableStandardChecker variableStandardChecker;
     private final SlackMessageService slackMessageService;
 
-    //@Scheduled(fixedDelay = STANDARD_CHECK_DELAY)
+    @Scheduled(fixedDelay = STANDARD_CHECK_DELAY)
     public void checkStandard() {
-        StringBuilder standardCheckResult = new StringBuilder();
+        List<LayoutBlock> resultBlocks = new ArrayList<>();
+        List<StandardCheckResultResponseDTO> results = new ArrayList<>();
         log.info("standard check start");
-        String parameterCheckResult = parameterStandardChecker.checkParameterStandard();
-        String clusterCreationStandardResult = clusterCreationStandardChecker.checkClusterCreationStandard();
-        String instanceCreationStandardResult = instanceCreationStandardChecker.checkInstanceCreationStandard();
-        String schemaStandardResult = schemaStandardChecker.checkSchemaStandard();
-        String tagStandardResult = tagStandardChecker.checkTagStandard();
-        String accountStandardResult = accountStandardChecker.checkAccountStandard();
-        String pluginComponentStandardResult = pluginComponentStandardChecker.checkPluginComponentStandard();
 
-        standardCheckResult.append(parameterCheckResult);
-        standardCheckResult.append(clusterCreationStandardResult);
-        standardCheckResult.append(instanceCreationStandardResult);
-        standardCheckResult.append(schemaStandardResult);
-        standardCheckResult.append(tagStandardResult);
-        standardCheckResult.append(accountStandardResult);
-        standardCheckResult.append(pluginComponentStandardResult);
+        results.addAll(parameterStandardChecker.checkParameterStandard());
+        results.addAll(clusterCreationStandardChecker.checkClusterCreationStandard());
+        results.addAll(instanceCreationStandardChecker.checkInstanceCreationStandard());
+        results.addAll(schemaStandardChecker.checkSchemaStandard());
+        results.addAll(tagStandardChecker.checkTagStandard());
+        results.addAll(accountStandardChecker.checkAccountStandard());
+        results.addAll(pluginComponentStandardChecker.checkPluginComponentStandard());
+        results.addAll(variableStandardChecker.checkVariableStandard());
+
         log.info("standard check finish");
-        slackMessageService.sendNormalStringMessage(standardCheckResult.toString());
+        results.forEach(i -> resultBlocks.addAll(i.toSlackMessageBlock()));
+        slackMessageService.sendBlockMessage(resultBlocks);
     }
 }

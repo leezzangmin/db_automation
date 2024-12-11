@@ -6,6 +6,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
+import zzangmin.db_automation.entity.MonitorTargetDatabase;
 import zzangmin.db_automation.service.DataSourceService;
 
 import java.util.Collection;
@@ -23,7 +24,7 @@ public class DynamicDataSourceProperties {
     private final MysqlClient mysqlClient;
     private final DataSourceService dataSourceService;
 
-    // DatabaseConnectionInfo.getDatabaseName(), DatabasConnectionInfo - Map
+    // DatabaseConnectionInfo.getDatabaseName(), DatabaseConnectionInfo - Map
     private static Map<String, DatabaseConnectionInfo> databases = new ConcurrentHashMap<>();
 
     // @Scheduled(fixedDelay = 10000)
@@ -56,6 +57,12 @@ public class DynamicDataSourceProperties {
 
     public static Map<String, DatabaseConnectionInfo> findAllDatabases() {
         return new HashMap<String, DatabaseConnectionInfo>(databases);
+    }
+
+    public static Map<String, DatabaseConnectionInfo> findAllDatabasesByDatabaseType(MonitorTargetDatabase.DatabaseType databaseType) {
+        return databases.entrySet().stream()
+                .filter(entry -> databaseType.equals(entry.getValue().getDatabaseType()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     // prod <-> stage 간 Map 으로 짝지어주는 메서드

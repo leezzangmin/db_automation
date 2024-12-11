@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.Parameter;
+import zzangmin.db_automation.dto.response.standardcheck.StandardCheckResultResponseDTO;
 import zzangmin.db_automation.standardvalue.ParameterGroupStandard;
 import zzangmin.db_automation.service.AwsService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,8 +19,10 @@ public class ParameterStandardChecker {
 
     private final AwsService awsService;
 
-    public String checkParameterStandard() {
-        StringBuilder sb = new StringBuilder();
+    public List<StandardCheckResultResponseDTO> checkParameterStandard() {
+
+        List<StandardCheckResultResponseDTO> results = new ArrayList<>();
+
         Map<String, Map<String, String>> accountIdClusterParameterGroupNames = awsService.findClusterParameterGroupNames();
         Map<String, Map<String, String>> accountIdInstanceParameterGroupNames = awsService.findDbParameterGroupNames();
         log.info("accountIdInstanceParameterGroupNames: {}", accountIdInstanceParameterGroupNames);
@@ -30,12 +34,7 @@ public class ParameterStandardChecker {
                 List<Parameter> clusterParameters = awsService.findClusterParameterGroupParameters(accountId, parameterGroupNames.get(clusterIdentifier));
                 for (Parameter parameter : clusterParameters) {
                     if (!ParameterGroupStandard.findStandardValue(parameter.parameterName()).equals(parameter.parameterValue())) {
-                        sb.append(String.format("\nCluster Parameter Group Name: %s, 비표준 파라미터명: %s, 표준값: %s, 현재값: %s",
-                                parameterGroupNames.get(clusterIdentifier),
-                                parameter.parameterName(),
-                                ParameterGroupStandard.findStandardValue(parameter.parameterName()),
-                                parameter.parameterValue())
-                        );
+                        results.add(new StandardCheckResultResponseDTO(accountId, clusterIdentifier, StandardCheckResultResponseDTO.StandardType.PARAMETER, parameter.parameterName(), ParameterGroupStandard.findStandardValue(parameter.parameterName()), parameter.parameterValue(), "클러스터 파라미터 설정 값이 표준과 다릅니다."));
                     }
                 }
             }
@@ -47,17 +46,11 @@ public class ParameterStandardChecker {
                 List<Parameter> instanceParameters = awsService.findDbParameterGroupParameters(accountId, parameterGroupNames.get(instanceIdentifier));
                 for (Parameter parameter : instanceParameters) {
                     if (!ParameterGroupStandard.findStandardValue(parameter.parameterName()).equals(parameter.parameterValue())) {
-                        sb.append(String.format("\ninstance Parameter Group Name: %s, 비표준 파라미터명: %s, 표준값: %s, 현재값: %s",
-                                parameterGroupNames.get(instanceIdentifier),
-                                parameter.parameterName(),
-                                ParameterGroupStandard.findStandardValue(parameter.parameterName()),
-                                parameter.parameterValue())
-                        );
+                        results.add(new StandardCheckResultResponseDTO(accountId, instanceIdentifier, StandardCheckResultResponseDTO.StandardType.PARAMETER, parameter.parameterName(), ParameterGroupStandard.findStandardValue(parameter.parameterName()), parameter.parameterValue(), "인스턴스 파라미터 설정 값이 표준과 다릅니다."));
                     }
                 }
             }
         }
-        sb.append("\n");
-        return sb.toString();
+        return results;
     }
 }
