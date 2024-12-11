@@ -19,6 +19,8 @@ public class AccountStandard {
             "EXECUTE");
     // 검사 비대상 계정명 목록
     public final static List<String> accountBlackList = List.of("rdsadmin",
+            "root",
+            "admin",
             "mysql.infoschema",
             "mysql.sys",
             "mysql.session",
