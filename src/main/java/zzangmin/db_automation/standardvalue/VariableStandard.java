@@ -18,7 +18,7 @@ public class VariableStandard {
 
     static {
         valueStandards.put("SELECT enabled FROM performance_schema.setup_consumers WHERE name LIKE 'stage/innodb/alter%'", "YES");
-        valueStandards.put("SELECT enabled FROM performance_schema.setup_instruments WHERE name LIKE '%events_stages_%", "YES");
+        valueStandards.put("SELECT enabled FROM performance_schema.setup_instruments WHERE name LIKE '%events_stages_%'", "YES");
     }
 
     public static String findVariableStandardValue(String variableName) {
