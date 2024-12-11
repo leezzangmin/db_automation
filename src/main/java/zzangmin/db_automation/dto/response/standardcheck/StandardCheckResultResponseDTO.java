@@ -1,11 +1,15 @@
 package zzangmin.db_automation.dto.response.standardcheck;
 
-import com.slack.api.model.block.LayoutBlock;
+import com.slack.api.model.block.*;
+import com.slack.api.model.block.composition.MarkdownTextObject;
+import com.slack.api.model.block.composition.PlainTextObject;
+import com.slack.api.model.block.composition.TextObject;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @ToString
@@ -33,4 +37,39 @@ public class StandardCheckResultResponseDTO {
         VARIABLE
     }
 
+    public List<LayoutBlock> toSlackMessageBlock() {
+        List<LayoutBlock> blocks = new ArrayList<>();
+        blocks.add(HeaderBlock.builder()
+                .text(PlainTextObject.builder()
+                        .text("Standard Check Result")
+                        .emoji(true)
+                        .build())
+                .build());
+
+        List<TextObject> fields = new ArrayList<>();
+        fields.add(MarkdownTextObject.builder().text("*Account ID:*\n" + (accountId != null ? accountId : "N/A")).build());
+        fields.add(MarkdownTextObject.builder().text("*Instance:*\n" + instanceName).build());
+        fields.add(MarkdownTextObject.builder().text("*Type:*\n" + standardType).build());
+        fields.add(MarkdownTextObject.builder().text("*Standard Name:*\n" + standardName).build());
+        fields.add(MarkdownTextObject.builder().text("*Standard Value:*\n" + (standardValue != null ? standardValue : "N/A")).build());
+        fields.add(MarkdownTextObject.builder().text("*Current Value:*\n" + (currentValue != null ? currentValue : "N/A")).build());
+
+
+        blocks.add(SectionBlock.builder()
+                .fields(fields)
+                .build());
+
+        if (errorDescription != null && !errorDescription.isEmpty()) {
+            blocks.add(ContextBlock.builder()
+                    .elements(Collections.singletonList(
+                            MarkdownTextObject.builder().text(":warning: " + errorDescription).build()
+                    ))
+                    .build());
+        }
+
+        // 구분선 추가
+        blocks.add(DividerBlock.builder().build());
+
+        return blocks;
+    }
 }
