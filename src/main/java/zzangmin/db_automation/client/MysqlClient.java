@@ -59,6 +59,29 @@ public class MysqlClient {
         return result;
     }
 
+    public Optional<String> executeScalarSelectQuery(DatabaseConnectionInfo databaseConnectionInfo, String sql) {
+        log.info("executeScalarSelectQuery: {}", sql);
+
+        try (Connection connection = DriverManager.getConnection(
+                databaseConnectionInfo.generateReadOnlyConnectionUrl(),
+                databaseConnectionInfo.getUsername(),
+                databaseConnectionInfo.getPassword());
+             PreparedStatement statement = connection.prepareStatement(sql);
+             ResultSet resultSet = statement.executeQuery()) {
+
+            if (resultSet.next()) {
+                Object value = resultSet.getObject(1);
+                if (value != null) {
+                    return Optional.of(value.toString());
+                }
+            }
+            return Optional.empty();
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
     public Map<String, String> findGlobalVariables(DatabaseConnectionInfo databaseConnectionInfo, List<String> variableNames) {
         Map<String, String> globalVariables = new HashMap<>();
 
