@@ -5,10 +5,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import zzangmin.db_automation.dto.response.standardcheck.StandardCheckResultResponseDTO;
+import zzangmin.db_automation.dto.response.check.StandardCheckResultResponseDTO;
 import zzangmin.db_automation.service.SlackMessageService;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Slf4j
@@ -44,7 +45,14 @@ public class StandardMonitor {
         results.addAll(variableStandardChecker.checkVariableStandard());
 
         log.info("standard check finish");
-        results.forEach(i -> resultBlocks.addAll(i.toSlackMessageBlock()));
+        results.stream()
+                .sorted(Comparator
+                        .comparing(StandardCheckResultResponseDTO::getAccountId, Comparator.nullsFirst(String::compareTo))
+                        .thenComparing(StandardCheckResultResponseDTO::getInstanceName, Comparator.nullsFirst(String::compareTo))
+                        .thenComparing(StandardCheckResultResponseDTO::getStandardType, Comparator.nullsFirst(Enum::compareTo))
+                        .thenComparing(StandardCheckResultResponseDTO::getStandardName, Comparator.nullsFirst(String::compareTo)))
+                .forEach(i -> resultBlocks.addAll(i.toSlackMessageBlock()));
+
         slackMessageService.sendBlockMessage(resultBlocks);
     }
 }
