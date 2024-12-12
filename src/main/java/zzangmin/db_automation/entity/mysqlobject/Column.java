@@ -101,6 +101,9 @@ public class Column {
         if (!Objects.equals(this.collate, other.collate)) {
             differences.append(String.format("콜레이션이 다릅니다: `%s` <-> `%s`\n", this.collate, other.collate));
         }
+        if (!Objects.equals(this.charset, other.charset)) {
+            differences.append(String.format("CHARSET 이 다릅니다: `%s` <-> `%s`\n", this.charset, other.charset));
+        }
 
         if (!differences.isEmpty()) {
             differenceResult.append(String.format("\n컬럼 [`%s`] 차이점:\n", this.name));
