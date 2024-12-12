@@ -43,6 +43,9 @@ public class ColumnConvention {
             column.injectVarcharLength();
         }
         if (column.getType().contains("char") || column.getType().contains("CHAR") || column.getType().contains("text") || column.getType().contains("TEXT")) {
+            if (column.getCharset() == null || !column.getCharset().equals(CHARSET)) {
+                throw new IllegalArgumentException(column.getName() + " 의 CHARSET 이 " + CHARSET + " 이 아닙니다.");
+            }
             if (column.getCollate() == null || !column.getCollate().equals(COLLATE)) {
                 throw new IllegalArgumentException(column.getName() + " 의 COLLATE 가 " + COLLATE + " 이 아닙니다.");
             }

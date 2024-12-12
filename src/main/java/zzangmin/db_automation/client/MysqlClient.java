@@ -416,16 +416,16 @@ public class MysqlClient {
                     long characterMaxLength = resultSet.getLong("CHARACTER_MAXIMUM_LENGTH");
                     String isNull = resultSet.getString("IS_NULLABLE");
                     String key = resultSet.getString("COLUMN_KEY");
-                        String defaultValue = resultSet.getString("COLUMN_DEFAULT");
+                    String defaultValue = resultSet.getString("COLUMN_DEFAULT");
                     String extra = resultSet.getString("Extra");
                     String columnComment = resultSet.getString("COLUMN_COMMENT");
-                    String charset = resultSet.getString("CHARACTER_SET_NAME");
+                    String columnCharset = resultSet.getString("CHARACTER_SET_NAME");
                     String collate = resultSet.getString("COLLATION_NAME");
 
                     boolean isNullValue = isNull.equals("YES");
 //                    boolean isUniqueKey = key.equals("UNI");
                     boolean isAutoIncrement = extra.equals("auto_increment");
-                    type = Objects.isNull(characterMaxLength) ? type : type + "(" + characterMaxLength + ")";
+                    type = characterMaxLength == 0 ? type : type + "(" + characterMaxLength + ")";
                     columns.add(new Column(
                             findColumnName,
                             type,
@@ -434,7 +434,7 @@ public class MysqlClient {
                             //isUniqueKey,
                             isAutoIncrement,
                             columnComment,
-//                            Objects.isNull(charset) ? CommonConvention.CHARSET : charset,
+                            columnCharset,
                             Objects.isNull(collate) ? CommonConvention.COLLATE : collate));
                 }
             }
@@ -469,7 +469,7 @@ public class MysqlClient {
                     String defaultValue = resultSet.getString("COLUMN_DEFAULT");
                     String extra = resultSet.getString("Extra");
                     String columnComment = resultSet.getString("COLUMN_COMMENT");
-                    String charset = resultSet.getString("CHARACTER_SET_NAME");
+                    String columnCharset = resultSet.getString("CHARACTER_SET_NAME");
                     String collate = resultSet.getString("COLLATION_NAME");
 
                     boolean isNullValue = isNull.equals("YES");
@@ -484,7 +484,7 @@ public class MysqlClient {
                             //isUniqueKey,
                             isAutoIncrement,
                             columnComment,
-//                            Objects.isNull(charset) ? null : charset,
+                            columnCharset,
                             Objects.isNull(collate) ? null : collate));
                 }
             }
@@ -910,7 +910,7 @@ public class MysqlClient {
                     boolean isNullValue = isNull.equals("YES");
                     //boolean isUniqueKey = key.equals("UNI");
                     boolean isAutoIncrement = extra.equals("auto_increment");
-                    columnType = Objects.isNull(characterMaxLength) ? columnType : columnType + "(" + characterMaxLength + ")";
+                    columnType = characterMaxLength == 0L ? columnType : columnType + "(" + characterMaxLength + ")";
                     Column column = new Column(
                             columnName,
                             columnType,
@@ -919,7 +919,7 @@ public class MysqlClient {
                             //isUniqueKey,
                             isAutoIncrement,
                             columnComment,
-//                            Objects.isNull(columnCharset) ? null : columnCharset,
+                            columnCharset,
                             Objects.isNull(columnCollate) ? null : columnCollate);
                     Table table = Table.builder()
                             .tableName(tableName)

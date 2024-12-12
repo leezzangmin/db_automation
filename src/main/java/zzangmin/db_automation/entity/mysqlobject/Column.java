@@ -30,6 +30,7 @@ public class Column {
     private Boolean isAutoIncrement;
     @NotBlank
     private String comment;
+    private String charset;
     private String collate;
 
 
@@ -128,11 +129,11 @@ public class Column {
                 .name(columnDefinition.getColumnName())
                 .type(columnDefinition.getColDataType().toString().replace(" ", ""))
                 .isNull((columnDefinition.getColumnSpecs().contains("NOT") ||
-                        columnDefinition.getColumnSpecs().contains("NOT") ||
+                        columnDefinition.getColumnSpecs().contains("not") ||
                         columnDefinition.getColumnSpecs().contains("primary") ||
                         columnDefinition.getColumnSpecs().contains("PRIMARY")) ? false : true)
                 .defaultValue(defaultColumnSpecIndex == -1 ? null : columnSpecs.get(defaultColumnSpecIndex + 1))
-                .isAutoIncrement((columnDefinition.getColumnSpecs().contains("auto_increment") || columnDefinition.getColumnSpecs().contains("AUTO_INCREMENT")) ? true : false)
+                .isAutoIncrement(columnDefinition.getColumnSpecs().contains("auto_increment") || columnDefinition.getColumnSpecs().contains("AUTO_INCREMENT"))
                 .collate(collateColumnSpecIndex == -1 ? null : columnSpecs.get(collateColumnSpecIndex + 1))
                 .comment((columnDefinition.getColumnSpecs().contains("comment") || columnDefinition.getColumnSpecs().contains("COMMENT")) ?
                         columnDefinition.getColumnSpecs().get(columnDefinition.getColumnSpecs().size() - 1).replace("'","") : null)
