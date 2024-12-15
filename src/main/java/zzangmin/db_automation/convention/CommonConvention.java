@@ -1,6 +1,7 @@
 package zzangmin.db_automation.convention;
 
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -70,31 +71,36 @@ public class CommonConvention {
             "OF", "OVER", "PERCENT_RANK", "RANK", "RECURSIVE", "ROW_NUMBER", "SYSTEM", "WINDOW"
     );
 
-    public static void validateSnakeCase(String str) {
-        if (str == null || str.isEmpty() || str.equals(" ")) {
-            throw new IllegalArgumentException("문자열이 null 입니다.");
-        }
+    public static List<String> validateSnakeCase(String str) {
+        List<String> errors = new ArrayList<>();
         if (!SNAKE_CASE_PATTERN.matcher(str).matches()) {
-            throw new IllegalArgumentException("snake_case 가 아닙니다: " + str);
+            errors.add("snake_case 가 아닙니다: " + str);
         }
+        return errors;
     }
 
-    public static void validateLowerCaseString(String str) {
-        if (str == null || str.isEmpty() || str.equals(" ")) {
-            throw new IllegalArgumentException("문자열이 null 입니다.");
-        }
+    public static List<String> validateLowerCaseString(String str) {
+        List<String> errors = new ArrayList<>();
         if (!PURE_LOWER_CASE_PATTER.matcher(str).matches()) {
-            throw new IllegalArgumentException("소문자가 아닙니다: " + str);
+            errors.add("소문자가 아닙니다: " + str);
         }
+        return errors;
     }
 
-    public static void validateReservedWord(String str) {
-        if (str == null || str.isEmpty() || str.equals(" ")) {
-            throw new IllegalArgumentException("문자열이 null 입니다.");
+    public static List<String> validateBlankStr(String str) {
+        List<String> errors = new ArrayList<>();
+        if (str == null || str.isEmpty() || str.equals(" ") || str.isBlank()) {
+            errors.add("문자열이 null 입니다.");
         }
+        return errors;
+    }
+
+    public static List<String> validateReservedWord(String str) {
+        List<String> errors = new ArrayList<>();
         if (MYSQL_RESERVED_WORDS.contains(str)) {
-            throw new IllegalArgumentException("MySQL 예약어입니다 : " + str);
+            errors.add("MySQL 예약어입니다 : " + str);
         }
+        return errors;
     }
 
 }

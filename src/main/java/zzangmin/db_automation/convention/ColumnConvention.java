@@ -3,6 +3,9 @@ package zzangmin.db_automation.convention;
 
 import zzangmin.db_automation.entity.mysqlobject.Column;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static zzangmin.db_automation.convention.CommonConvention.*;
 
 
@@ -10,16 +13,21 @@ public class ColumnConvention {
 
     private final static int SWITCH_STANDARD_BYTE = 255;
 
-    public static void validateColumnConvention(Column column) {
-        validateColumnNamingConvention(column.getName());
-        validateColumnOption(column);
-        checkColumnCommentExistConvention(column.getName(), column.getComment());
+    public static List<String> validateColumnConvention(Column column) {
+        List<String> errors = new ArrayList<>();
+        errors.addAll(validateColumnNamingConvention(column.getName()));
+        errors.addAll(validateColumnOption(column));
+        errors.addAll(checkColumnCommentExistConvention(column.getName(), column.getComment()));
+        return errors;
     }
 
-    public static void validateColumnNamingConvention(String columnName) {
-        CommonConvention.validateReservedWord(columnName);
-        CommonConvention.validateSnakeCase(columnName);
-        CommonConvention.validateLowerCaseString(columnName);
+    public static List<String> validateColumnNamingConvention(String columnName) {
+        List<String> errors = new ArrayList<>();
+        errors.addAll(CommonConvention.validateBlankStr(columnName));
+        errors.addAll(CommonConvention.validateReservedWord(columnName));
+        errors.addAll(CommonConvention.validateSnakeCase(columnName));
+        errors.addAll(CommonConvention.validateLowerCaseString(columnName));
+        return errors;
     }
 
     public static void validateExtendVarcharConvention(Column column, int futureLength) {
@@ -38,29 +46,37 @@ public class ColumnConvention {
         }
     }
 
-    private static void validateColumnOption(Column column) {
+    private static List<String> validateColumnOption(Column column) {
+        List<String> errors = new ArrayList<>();
         if (column.getType().startsWith("varchar") || column.getType().startsWith("VARCHAR")) {
-            column.injectVarcharLength();
+            errors.addAll(column.validateCharType());
         }
         if (column.getType().contains("char") || column.getType().contains("CHAR") || column.getType().contains("text") || column.getType().contains("TEXT")) {
             if (column.getCharset() == null || !column.getCharset().equals(CHARSET)) {
-                throw new IllegalArgumentException(column.getName() + " 의 CHARSET 이 " + CHARSET + " 이 아닙니다.");
+                errors.add(column.getName() + " 의 CHARSET 이 " + CHARSET + " 이 아닙니다.");
+//                throw new IllegalArgumentException(column.getName() + " 의 CHARSET 이 " + CHARSET + " 이 아닙니다.");
             }
             if (column.getCollate() == null || !column.getCollate().equals(COLLATE)) {
-                throw new IllegalArgumentException(column.getName() + " 의 COLLATE 가 " + COLLATE + " 이 아닙니다.");
+                errors.add(column.getName() + " 의 COLLATE 가 " + COLLATE + " 이 아닙니다.");
+//                throw new IllegalArgumentException(column.getName() + " 의 COLLATE 가 " + COLLATE + " 이 아닙니다.");
             }
         }
         if (column.getIsAutoIncrement()) {
             if (column.getDefaultValue() != null && !column.getDefaultValue().isBlank()) {
-                throw new IllegalArgumentException("auto_increment column 은 default value 를 가질 수 없습니다.");
+                errors.add("auto_increment column 은 default value 를 가질 수 없습니다.");
+//                throw new IllegalArgumentException("auto_increment column 은 default value 를 가질 수 없습니다.");
             }
         }
+        return errors;
     }
 
-    private static void checkColumnCommentExistConvention(String columnName, String columnComment) {
+    private static List<String> checkColumnCommentExistConvention(String columnName, String columnComment) {
+        List<String> errors = new ArrayList<>();
         if (columnComment == null || columnComment.isBlank() || columnComment.isEmpty()) {
-            throw new IllegalArgumentException(columnName + " 의 코멘트가 존재하지 않습니다.");
+            errors.add(columnName + " 의 코멘트가 존재하지 않습니다.");
+//            throw new IllegalArgumentException(columnName + " 의 코멘트가 존재하지 않습니다.");
         }
+        return errors;
     }
 
 }

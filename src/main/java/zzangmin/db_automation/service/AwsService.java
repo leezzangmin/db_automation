@@ -274,6 +274,7 @@ public class AwsService {
         DescribeDbClustersResponse clustersResponse = DescribeDbClustersResponse.builder()
                 .dbClusters(describeDbClustersResponse.dbClusters().stream()
                         .filter(cluster -> cluster.status().equals("available"))
+                        // TODO: 모든 인스턴스가 available 상태인지 검사
                         .filter(cluster -> !cluster.tagList().contains(TagStandard.standardTagKeyNames))
                         .filter(cluster -> isCurrentEnvHasValidTag(cluster.tagList()))
                         .collect(Collectors.toList()))

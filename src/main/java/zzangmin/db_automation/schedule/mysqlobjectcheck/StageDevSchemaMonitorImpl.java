@@ -48,8 +48,10 @@ public class StageDevSchemaMonitorImpl implements SchemaMonitor {
             List<String> schemaNames = mysqlClient.findSchemaNames(databaseConnectionInfo)
                     .stream()
                     .filter(schemaName -> !DescribeService.schemaBlackList.contains(schemaName))
-                    .collect(Collectors.toList());
+                    .toList();
+
             schemaCheckResult.append(databaseDifferenceChecker.compareDatabaseCrossAccount(databaseConnectionInfo));
+
             StringBuilder schemaResult = new StringBuilder();
             for (String schemaName : schemaNames) {
                 schemaResult.append(tableDifferenceChecker.compareTableCrossAccount(databaseConnectionInfo, schemaName));

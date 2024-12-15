@@ -26,7 +26,7 @@ public class DatabaseRequestExecutor {
     private final SlackDatabaseRequestService slackDatabaseRequestService;
     private final SlackMessageService slackMessageService;
 
-    @Scheduled(fixedDelay = EXECUTE_DELAY)
+//    @Scheduled(fixedDelay = EXECUTE_DELAY)
     public void execute() {
         List<SlackDatabaseIntegratedDTO> notCompletedSlackDatabaseRequestDTOs = slackDatabaseRequestService.findInProgressSlackDatabaseRequests();
 

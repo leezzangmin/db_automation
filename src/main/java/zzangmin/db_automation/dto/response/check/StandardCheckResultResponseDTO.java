@@ -1,4 +1,4 @@
-package zzangmin.db_automation.dto.response.standardcheck;
+package zzangmin.db_automation.dto.response.check;
 
 import com.slack.api.model.block.*;
 import com.slack.api.model.block.composition.MarkdownTextObject;

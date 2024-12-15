@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.response.standardcheck.StandardCheckResultResponseDTO;
+import zzangmin.db_automation.dto.response.check.StandardCheckResultResponseDTO;
 import zzangmin.db_automation.standardvalue.VariableStandard;
 
 import java.util.ArrayList;

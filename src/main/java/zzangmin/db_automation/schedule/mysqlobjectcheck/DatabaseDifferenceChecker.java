@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import zzangmin.db_automation.service.SchemaObjectService;
-import zzangmin.db_automation.util.StringMessageUtil;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
@@ -44,7 +43,12 @@ public class DatabaseDifferenceChecker {
             String replicaStatement = stageSchemaCreateStatements.get(sourceSchemaName);
 
             if (!sourceStatement.equals(replicaStatement)) {
-                differenceResult.append(StringMessageUtil.convertCreateDatabaseDifferenceMessage(sourceSchemaName, sourceStatement, replicaStatement));
+                differenceResult.append(sourceSchemaName);
+                differenceResult.append("의 데이터베이스 생성문이 다릅니다.\nprod: ");
+                differenceResult.append(sourceStatement);
+                differenceResult.append("\nstage: ");
+                differenceResult.append(replicaStatement);
+                differenceResult.append("\n");
             }
         }
 
@@ -69,10 +73,15 @@ public class DatabaseDifferenceChecker {
             String prodStatement = prodDatabases.get(prodSchemaName);
             String currentStatement = currentDatabases.get(prodSchemaName);
             if (currentStatement == null) {
-                differenceResult.append(prodSchemaName + " DB가 존재하지 않습니다.");
+                differenceResult.append(prodSchemaName).append(" DB가 존재하지 않습니다.");
             }
             else if (!prodStatement.equals(currentStatement)) {
-                differenceResult.append(StringMessageUtil.convertCreateDatabaseDifferenceMessage(prodSchemaName, prodStatement, currentStatement));
+                differenceResult.append(prodSchemaName);
+                differenceResult.append("의 데이터베이스 생성문이 다릅니다.\nprod: ");
+                differenceResult.append(prodStatement);
+                differenceResult.append("\nstage: ");
+                differenceResult.append(currentStatement);
+                differenceResult.append("\n");
             }
         }
 

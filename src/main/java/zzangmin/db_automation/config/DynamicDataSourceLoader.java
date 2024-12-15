@@ -127,8 +127,10 @@ public class DynamicDataSourceLoader {
                         .findFirst()
                         .orElseThrow(IllegalStateException::new);
 
-                String rdsUsername = awsService.findRdsUsername(accountId, serviceNameTag.value(), environmentTag.value());
-                String password = awsService.findRdsPassword(accountId, serviceNameTag.value(), environmentTag.value());
+//                String rdsUsername = awsService.findRdsUsername(accountId, serviceNameTag.value(), environmentTag.value());
+//                String password = awsService.findRdsPassword(accountId, serviceNameTag.value(), environmentTag.value());
+                String rdsUsername = "admin";
+                String password = "Cromysql5128*";
 
                 DatabaseConnectionInfo databaseConnectionInfo = DatabaseConnectionInfo.builder()
                         .environment(environmentTag.value())
@@ -151,7 +153,7 @@ public class DynamicDataSourceLoader {
 
     private boolean isValidTags(String dbName, List<Tag> tags) {
         if (tags == null || tags.isEmpty()) {
-            log.info("{} DB에 태그가 존재하지 않습니다.", dbName);
+            log.warn("{} DB에 태그가 존재하지 않습니다.", dbName);
             return false;
         }
         return true;

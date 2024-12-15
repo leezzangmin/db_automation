@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -63,6 +64,23 @@ public class Column {
             return " AUTO_INCREMENT";
         }
         return "";
+    }
+
+    public List<String> validateCharType() {
+        List<String> errors = new ArrayList<>();
+        if (this.type.matches("(?i)varchar\\(\\d+\\)")) {
+            Pattern pattern = Pattern.compile("\\d+");
+            Matcher matcher = pattern.matcher(this.type);
+
+            if (matcher.find()) {
+                return errors;
+            } else {
+                errors.add(this.name + "컬럼 varchar 타입에 숫자가 표기되어있지 않습니다.");
+                return errors;
+            }
+        }
+        errors.add(this.name + " 컬럼은 varchar 타입이 아닙니다. 정상 입력 ex: VARCHAR(255)");
+        return errors;
     }
 
     public int injectVarcharLength() {

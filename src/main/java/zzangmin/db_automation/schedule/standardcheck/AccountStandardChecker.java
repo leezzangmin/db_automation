@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.response.standardcheck.StandardCheckResultResponseDTO;
+import zzangmin.db_automation.dto.response.check.StandardCheckResultResponseDTO;
 import zzangmin.db_automation.entity.MonitorTargetDatabase;
 import zzangmin.db_automation.entity.mysqlobject.MysqlAccount;
 import zzangmin.db_automation.standardvalue.AccountStandard;

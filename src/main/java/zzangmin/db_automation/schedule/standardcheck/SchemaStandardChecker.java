@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import zzangmin.db_automation.client.MysqlClient;
 import zzangmin.db_automation.config.DynamicDataSourceProperties;
 import zzangmin.db_automation.convention.TableConvention;
-import zzangmin.db_automation.dto.response.standardcheck.StandardCheckResultResponseDTO;
+import zzangmin.db_automation.dto.response.check.StandardCheckResultResponseDTO;
 import zzangmin.db_automation.entity.mysqlobject.Table;
 import zzangmin.db_automation.dto.DatabaseConnectionInfo;
 import zzangmin.db_automation.service.DescribeService;
@@ -35,13 +35,12 @@ public class SchemaStandardChecker {
                 List<String> tableNames = mysqlClient.findTableNames(databaseConnectionInfo, schemaName);
                 List<Table> tables = mysqlClient.findTables(databaseConnectionInfo, schemaName, tableNames);
                 for (Table table : tables) {
-                    try {
-                        TableConvention.validateTableConvention(table);
-                    } catch (Exception e) {
+                    List<String> errors = TableConvention.validateTableConvention(table);
+                    for (String error : errors) {
                         results.add(new StandardCheckResultResponseDTO(databaseConnectionInfo.getAccountId(),
                                 databaseConnectionInfo.getDatabaseName(),
                                 StandardCheckResultResponseDTO.StandardType.SCHEMA,
-                                null, null, null, e.getMessage()));
+                                "테이블 표준: " + table.getTableName(), null, null, error));
                     }
                 }
             }

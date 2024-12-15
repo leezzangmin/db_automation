@@ -3,11 +3,7 @@ package zzangmin.db_automation.schedule.standardcheck;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.rds.model.DBInstance;
-import zzangmin.db_automation.config.DynamicDataSourceProperties;
-import zzangmin.db_automation.dto.DatabaseConnectionInfo;
-import zzangmin.db_automation.dto.response.standardcheck.StandardCheckResultResponseDTO;
-import zzangmin.db_automation.entity.MonitorTargetDatabase;
-import zzangmin.db_automation.standardvalue.ClusterCreationStandard;
+import zzangmin.db_automation.dto.response.check.StandardCheckResultResponseDTO;
 import zzangmin.db_automation.standardvalue.InstanceCreationStandard;
 import zzangmin.db_automation.service.AwsService;
 

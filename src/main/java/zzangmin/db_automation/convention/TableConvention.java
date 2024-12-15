@@ -4,7 +4,9 @@ import zzangmin.db_automation.entity.mysqlobject.Column;
 import zzangmin.db_automation.entity.mysqlobject.Constraint;
 import zzangmin.db_automation.entity.mysqlobject.Table;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static zzangmin.db_automation.convention.CommonConvention.*;
@@ -17,42 +19,60 @@ public class TableConvention {
      * 1. 중복된 옵션(column, constraint) 있는지
      * 2. 테이블 생성 컨벤션 (engine charset, comment 등)
      */
+//
+//    public static void validateTableConvention(Table table) {
+//        checkDuplicateColumnAndConstraintConvention(table.getColumns(), table.getConstraints());
+//        checkNamingConvention(table.getColumns(), table.getConstraints(), table.getTableName());
+//        checkTableOptionConvention(table.getTableEngine(), table.getTableCharset(), table.getTableCollate(), table.getTableComment());
+//        for (Column column : table.getColumns()) {
+//            ColumnConvention.validateColumnConvention(column);
+//        }
+//        for (Constraint constraint : table.getConstraints()) {
+//            IndexConvention.validateIndexConvention(constraint);
+//        }
+//    }
 
-    public static void validateTableConvention(Table table) {
-        checkDuplicateColumnAndConstraintConvention(table.getColumns(), table.getConstraints());
-        checkNamingConvention(table.getColumns(), table.getConstraints(), table.getTableName());
-        checkTableOptionConvention(table.getTableEngine(), table.getTableCharset(), table.getTableCollate(), table.getTableComment());
+    public static List<String> validateTableConvention(Table table) {
+        List<String> errors = new ArrayList<>();
+        errors.addAll(checkDuplicateColumnAndConstraintConvention(table.getColumns(), table.getConstraints()));
+        errors.addAll(checkNamingConvention(table.getColumns(), table.getConstraints(), table.getTableName()));
+        errors.addAll(checkTableOptionConvention(table.getTableEngine(), table.getTableCharset(), table.getTableCollate(), table.getTableComment()));
         for (Column column : table.getColumns()) {
-            ColumnConvention.validateColumnConvention(column);
+            errors.addAll(ColumnConvention.validateColumnConvention(column));
         }
         for (Constraint constraint : table.getConstraints()) {
-            IndexConvention.validateIndexConvention(constraint);
+            errors.addAll(IndexConvention.validateIndexConvention(constraint));
         }
+        return errors;
     }
 
-    private static void checkNamingConvention(Set<Column> columns, Set<Constraint> constraints, String tableName) {
-        ColumnConvention.validateColumnNamingConvention(tableName);
+
+    private static List<String> checkNamingConvention(Set<Column> columns, Set<Constraint> constraints, String tableName) {
+        List<String> errors = new ArrayList<>();
+        errors.addAll(ColumnConvention.validateColumnNamingConvention(tableName));
         for (Column column : columns) {
-            CommonConvention.validateReservedWord(column.getName());
-            CommonConvention.validateSnakeCase(column.getName());
-            CommonConvention.validateLowerCaseString(column.getName());
+            errors.addAll(CommonConvention.validateReservedWord(column.getName()));
+            errors.addAll(CommonConvention.validateSnakeCase(column.getName()));
+            errors.addAll(CommonConvention.validateLowerCaseString(column.getName()));
         }
         for (Constraint constraint : constraints) {
             if (constraint.getConstraintType().equals(Constraint.ConstraintType.PRIMARY)) {
                 continue;
             }
-            CommonConvention.validateReservedWord(constraint.getKeyName());
-            CommonConvention.validateSnakeCase(constraint.getKeyName());
-            CommonConvention.validateLowerCaseString(constraint.getKeyName());
+            errors.addAll(CommonConvention.validateReservedWord(constraint.getKeyName()));
+            errors.addAll(CommonConvention.validateSnakeCase(constraint.getKeyName()));
+            errors.addAll(CommonConvention.validateLowerCaseString(constraint.getKeyName()));
         }
+        return errors;
     }
 
-    private static void checkDuplicateColumnAndConstraintConvention(Set<Column> columns, Set<Constraint> constraints) {
+    private static List<String> checkDuplicateColumnAndConstraintConvention(Set<Column> columns, Set<Constraint> constraints) {
+        List<String> errors = new ArrayList<>();
         Set<String> columnNames = new HashSet<>();
         for (Column column : columns) {
             String columnName = column.getName();
             if (columnNames.contains(columnName)) {
-                throw new IllegalArgumentException("중복된 컬럼명이 존재합니다: " + columnName);
+                errors.add("중복된 컬럼명이 존재합니다: " + columnName);
             }
             columnNames.add(columnName);
         }
@@ -61,25 +81,28 @@ public class TableConvention {
         for (Constraint constraint : constraints) {
             String constraintName = constraint.getKeyName();
             if (constraintNames.contains(constraintName)) {
-                throw new IllegalArgumentException("중복된 키 이름이 존재합니다: " + constraintName);
+                errors.add("중복된 키 이름이 존재합니다: " + constraintName);
             }
             constraintNames.add(constraintName);
         }
+        return errors;
     }
 
-    private static void checkTableOptionConvention(String tableEngine, String tableCharset, String tableCollate, String tableComment) {
+    private static List<String> checkTableOptionConvention(String tableEngine, String tableCharset, String tableCollate, String tableComment) {
+        List<String> errors = new ArrayList<>();
         if (tableEngine == null || !tableEngine.equals(ENGINE_TYPE)) {
-            throw new IllegalArgumentException("테이블 엔진은 다음과 같아야합니다: " + ENGINE_TYPE);
+            errors.add("테이블 엔진은 다음과 같아야합니다: " + ENGINE_TYPE);
         }
         if (tableCharset == null || !tableCharset.equals(CHARSET)) {
-            throw new IllegalArgumentException("테이블 캐릭터셋은 다음과 같아야합니다: " + CHARSET);
+            errors.add("테이블 캐릭터셋은 다음과 같아야합니다: " + CHARSET);
         }
         if (tableCollate == null || !tableCollate.equals(COLLATE)) {
-            throw new IllegalArgumentException("테이블 콜레이션은 다음과 같아야합니다: " + COLLATE);
+            errors.add("테이블 콜레이션은 다음과 같아야합니다: " + COLLATE);
         }
         if (tableComment == null || tableComment.isBlank() || tableComment.isEmpty()) {
-            throw new IllegalArgumentException("테이블 코멘트가 존재하지 않습니다.");
+            errors.add("테이블 코멘트가 존재하지 않습니다.");
         }
+        return errors;
     }
 
 
