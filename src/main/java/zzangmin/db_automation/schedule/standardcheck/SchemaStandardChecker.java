@@ -40,7 +40,7 @@ public class SchemaStandardChecker {
                         results.add(new StandardCheckResultResponseDTO(databaseConnectionInfo.getAccountId(),
                                 databaseConnectionInfo.getDatabaseName(),
                                 StandardCheckResultResponseDTO.StandardType.SCHEMA,
-                                "테이블 표준: " + table.getTableName(), null, null, error));
+                                "스키마: " + schemaName + ", 테이블: " + table.getTableName(), null, null, error));
                     }
                 }
             }

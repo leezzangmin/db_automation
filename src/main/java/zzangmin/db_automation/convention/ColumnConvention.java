@@ -73,8 +73,7 @@ public class ColumnConvention {
     private static List<String> checkColumnCommentExistConvention(String columnName, String columnComment) {
         List<String> errors = new ArrayList<>();
         if (columnComment == null || columnComment.isBlank() || columnComment.isEmpty()) {
-            errors.add(columnName + " 의 코멘트가 존재하지 않습니다.");
-//            throw new IllegalArgumentException(columnName + " 의 코멘트가 존재하지 않습니다.");
+            errors.add(columnName + " 컬럼의 코멘트가 존재하지 않습니다.");
         }
         return errors;
     }
