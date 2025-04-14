@@ -1,7 +1,7 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.1.0'
-	id 'io.spring.dependency-management' version '1.1.0'
+	id 'org.springframework.boot' version '3.3.10'
+	id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'zzangmin'
@@ -19,41 +19,47 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.2.12'
-	implementation 'org.springframework.boot:spring-boot-starter-validation:3.2.12'
-	implementation 'org.springframework.boot:spring-boot-starter-web:3.2.12'
-	implementation 'org.springframework.boot:spring-boot-configuration-processor:3.2.12'
-	implementation 'org.springframework.boot:spring-boot-starter-aop:3.2.12'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa:3.3.10'
+	implementation 'org.springframework.boot:spring-boot-starter-validation:3.3.10'
+	implementation 'org.springframework.boot:spring-boot-starter-web:3.3.10'
+	implementation 'org.springframework.boot:spring-boot-configuration-processor:3.3.10'
+	implementation 'org.springframework.boot:spring-boot-starter-aop:3.3.10'
 	compileOnly 'org.projectlombok:lombok:1.18.32'
 	runtimeOnly 'com.mysql:mysql-connector-j:8.0.33'
 	annotationProcessor 'org.projectlombok:lombok:1.18.32'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test:3.2.12'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test:3.3.10'
 	testImplementation 'org.mockito:mockito-core:5.11.0'
 
 	// aws sdk for java
-	implementation 'software.amazon.awssdk:ssm:2.25.39'
-	implementation 'software.amazon.awssdk:cloudwatch:2.25.39'
-	implementation 'software.amazon.awssdk:rds:2.25.39'
-	implementation 'software.amazon.awssdk:pi:2.25.39'
-	implementation 'software.amazon.awssdk:secretsmanager:2.25.39'
-	implementation 'software.amazon.awssdk:sts:2.25.39'
-	implementation 'software.amazon.awssdk:core:2.25.39'
+	implementation 'software.amazon.awssdk:ssm:2.31.19'
+	implementation 'software.amazon.awssdk:cloudwatch:2.31.19'
+	implementation 'software.amazon.awssdk:rds:2.31.19'
+	implementation 'software.amazon.awssdk:pi:2.31.19'
+	implementation 'software.amazon.awssdk:secretsmanager:2.31.19'
+	implementation 'software.amazon.awssdk:sts:2.31.19'
+	implementation 'software.amazon.awssdk:core:2.31.19'
 
 	implementation 'org.apache.httpcomponents.client5:httpclient5:5.3.1'
 
 	// slack
 	implementation 'com.google.code.gson:gson:2.10.1'
 	implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-	implementation 'com.slack.api:slack-app-backend:1.38.3'
-	implementation 'com.slack.api:slack-api-model:1.38.3'
-	implementation 'com.slack.api:slack-api-client:1.38.3'
+	implementation 'com.slack.api:slack-app-backend:1.45.3'
+	implementation 'com.slack.api:slack-api-model:1.45.3'
+	implementation 'com.slack.api:slack-api-client:1.45.3'
 
 
 	// signature hex
-	implementation 'commons-codec:commons-codec:1.15'
+	implementation 'commons-codec:commons-codec:1.17.2'
 
 	// sql parser
-	implementation 'com.github.jsqlparser:jsqlparser:4.9'
+	implementation 'com.github.jsqlparser:jsqlparser:5.1'
+
+	// dotenv-java
+	implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+
+	// Jackson Databind for JSON parsing
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.15.3'
 
 }
 
