@@ -25,8 +25,10 @@ public class AccountStandard {
             "mysql.infoschema",
             "mysql.sys",
             "mysql.session",
-            "db_monitor_august",
-            "event_scheduler");
+            "event_scheduler",
+            "rdsrepladmin",
+            "mariadb.sys",
+            "rdsadmin");
 
     static {
         accountStandards.put(masterAccountEnableKey, false);
