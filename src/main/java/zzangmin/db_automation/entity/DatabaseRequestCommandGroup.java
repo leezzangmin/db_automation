@@ -84,7 +84,7 @@ public enum DatabaseRequestCommandGroup {
         FUNCTION,
         VIEW,
         TRIGGER,
-        CREATE_USER,
+        CREATE_ACCOUNT,
         GRANT_PRIVILEGE,
         REVOKE_PRIVILEGE,
         SHOW_GRANTS,
